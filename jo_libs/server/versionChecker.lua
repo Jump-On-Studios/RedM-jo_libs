@@ -95,14 +95,14 @@ Citizen.CreateThread(function()
     for _,dependency in ipairs (dependencies) do
       local data = dependency:split(':')
       local script = data[1]
-      local minVersion = convertVersion(data[2])
+      local minVersion = data[2]
 
       if GetResourceState(script) ~= "started" then
         eprint(script .. " is missing !")
       else
-        local currentVersion = convertVersion(exports[script]:GetScriptVersion())
-        if currentVersion < minVersion then
-          print("^1"..script..' needs to be updated^0')
+        local currentVersion = exports[script]:GetScriptVersion()
+        if convertVersion(currentVersion) < convertVersion(minVersion) then
+          print("^1"..script..' needs to be updated^0: Required version: '..minVersion..", Your version: "..currentVersion)
           print("^1"..GetCurrentResourceName()..' stopped^0')
           return exports[script]:StopAddon(GetCurrentResourceName())
         end
