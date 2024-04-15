@@ -17,6 +17,7 @@ server_scripts {
 files {
   "client/**.lua",
   "server/**.lua",
+  "shared/**.lua",
 	"html/dist/**.html",
 	"html/dist/**.js",
 	"html/dist/**.css",
