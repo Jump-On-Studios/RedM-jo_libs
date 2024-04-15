@@ -1,6 +1,36 @@
+if not bprint then
+  return print('^1NEED TO LOAD prints.lua FIRST !!!!!!^0')
+end
+
 Citizen.CreateThread(function()
   InitFramework()
 end)
+
+Framework = false
+function GetFramework()
+  if Framework ~= false then return Framework end
+
+  if Config.Framework == "Custom" then
+    Framework = Config.Framework
+  elseif GetResourceState('vorp_core') == "started" then
+    Framework = "VORP"
+  elseif GetResourceState('redem') == "started" then
+    Framework = "RedEM"
+  elseif GetResourceState('redem_roleplay') == "started" then
+    Framework = "RedEM2023"
+  elseif GetResourceState('qbr-core') == "started" then
+    Framework = "QBR"
+  elseif GetResourceState('rsg-core') == "started" then
+    Framework = "RSG"
+  elseif GetResourceState('qr-core') == "started" then
+    Framework = "QR"
+  end
+  return Framework
+end
+
+function IsFramework(name)
+  return GetFramework() == name
+end
 
 InitFramework = function()
   if Config.InitFramework then
@@ -377,51 +407,57 @@ function UseItem(source,item,amount,meta,remove)
   return false
 end
 
-function RegisterUseItem(item,callback)
-  SetTimeout(2000,function()
-    if Config.RegisterUseItem then
-      return Config.RegisterUseItem(item,callback)
-    end
-    if GetFramework() == "VORP" then
-      exports.vorp_inventory:getItemDB(item, function(itemData)
+function RegisterUseItem(item,callback,closeAfterUsed)
+  if (closeAfterUsed == nil) then closeAfterUsed = true end
+  MySQL.ready(function()
+    SetTimeout(5000,function()
+      if Config.RegisterUseItem then
+        return Config.RegisterUseItem(item,callback)
+      end
+      if GetFramework() == "VORP" then
+        exports.vorp_inventory:getItemDB(item, function(itemData)
+          if not itemData then
+            return eprint(item .. " < item configuration is missing")
+          end
+          exports.vorp_inventory:registerUsableItem(item, function(data)
+            if closeAfterUsed then
+              exports.vorp_inventory:closeInventory(data.source)
+            end
+            return callback(data.source,{metadata = data.item.metadata})
+          end)
+        end)
+      elseif GetFramework() == "RedEM2023" or GetFramework() == "RedEM" then
+        local itemData = CoreInv.getItemData(item)
         if not itemData then
           return eprint(item .. " < item configuration is missing")
         end
-        exports.vorp_inventory:registerUsableItem(item, function(data)
-          callback(data.source,{metadata = data.item.metadata})
+        RegisterServerEvent("RegisterUsableItem:"..item)
+        AddEventHandler("RegisterUsableItem:"..item, function(source,data)
+          callback(source,{metadata = data.meta})
         end)
-      end)
-    elseif GetFramework() == "RedEM2023" or GetFramework() == "RedEM" then
-      local itemData = CoreInv.getItemData(item)
-      if not itemData then
-        return eprint(item .. " < item configuration is missing")
+      elseif GetFramework() == "QBR" then
+        if exports['qbr-core']:AddItem(item,nil) then
+          return eprint(item .. " < item configuration is missing")
+        end
+        exports['qbr-core']:CreateUseableItem(item,function(source,data)
+          callback(source,{metadata = data.info})
+        end)
+      elseif GetFramework() == "RSG" then
+        if Core.Functions.AddItem(item,nil) then
+          return eprint(item .. " < item configuration is missing")
+        end
+        Core.Functions.CreateUseableItem(item,function(source,data)
+          callback(source,{metadata = data.info})
+        end)
+      elseif GetFramework() == "QR" then
+        if Core.Functions.AddItem(item,nil) then
+          return eprint(item .. " < item configuration is missing")
+        end
+        Core.Functions.CreateUseableItem(item,function(source,data)
+          callback(source,{metadata = data.info})
+        end)
       end
-      RegisterServerEvent("RegisterUsableItem:"..item)
-      AddEventHandler("RegisterUsableItem:"..item, function(source,data)
-        callback(source,{metadata = data.meta})
-      end)
-    elseif GetFramework() == "QBR" then
-      if exports['qbr-core']:AddItem(item,nil) then
-        return eprint(item .. " < item configuration is missing")
-      end
-      exports['qbr-core']:CreateUseableItem(item,function(source,data)
-        callback(source,{metadata = data.info})
-      end)
-    elseif GetFramework() == "RSG" then
-      if Core.Functions.AddItem(item,nil) then
-        return eprint(item .. " < item configuration is missing")
-      end
-      Core.Functions.CreateUseableItem(item,function(source,data)
-        callback(source,{metadata = data.info})
-      end)
-    elseif GetFramework() == "QR" then
-      if Core.Functions.AddItem(item,nil) then
-        return eprint(item .. " < item configuration is missing")
-      end
-      Core.Functions.CreateUseableItem(item,function(source,data)
-        callback(source,{metadata = data.info})
-      end)
-    end
+    end)
   end)
 end
 
