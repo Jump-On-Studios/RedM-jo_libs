@@ -197,3 +197,12 @@ end
 function UiPromptEnablePromptTypeThisFrame(...)
  return Citizen.InvokeNative(0x06565032897BA861,...)
 end
+
+AddEventHandler('onResourceStop', function(resourceName)
+  if (GetCurrentResourceName() ~= resourceName) then return end
+  for _,group in pairs (promptGroups) do
+		for _,prompt in pairs (group.prompts) do
+			PromptDelete(prompt)
+		end
+	end
+end)
