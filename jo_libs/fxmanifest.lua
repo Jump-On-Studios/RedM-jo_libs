@@ -18,6 +18,7 @@ files {
   "client/**.lua",
   "server/**.lua",
   "shared/**.lua",
+  "utils/**.lua",
 	"html/dist/**.html",
 	"html/dist/**.js",
 	"html/dist/**.css",
