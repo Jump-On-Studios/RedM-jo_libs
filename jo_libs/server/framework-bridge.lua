@@ -357,10 +357,10 @@ function UseItem(source,item,amount,meta,remove)
     return Config.UseItem(source,item,amount,meta,remove)
   end
   if GetFramework() == "VORP" then
-    local count = CoreInv.getItemCount(source, item)
+    local count = exports.vorp_inventory:getItemCount(source, nil, item)
     if count >= amount then
       if remove then
-        CoreInv.subItem(source, item, amount)
+        exports.vorp_inventory:subItem(source, item, amount)
       end
       return true
     end
@@ -434,6 +434,9 @@ function RegisterUseItem(item,callback,closeAfterUsed)
         RegisterServerEvent("RegisterUsableItem:"..item)
         AddEventHandler("RegisterUsableItem:"..item, function(source,data)
           callback(source,{metadata = data.meta})
+          if closeAfterUsed then
+            TriggerClientEvent("redemrp_inventory:closeinv", source)
+          end
         end)
       elseif GetFramework() == "QBR" then
         if exports['qbr-core']:AddItem(item,nil) then
@@ -501,4 +504,36 @@ function GiveItem(source,item,quantity,meta)
   end
 
   return false
+end
+
+function OpenInventory(source,invName,name,invConfig, whitelist)
+  if GetFramework() == "VORP" then
+    --id, name, limit, acceptWeapons, shared, ignoreItemStackLimit, whitelistItems,UsePermissions, UseBlackList, whitelistWeapons
+    exports.vorp_inventory:registerInventory({
+      id = invName,
+      name = name,
+      limit = invConfig.maxSlots,
+      acceptWeapons =  invConfig.acceptWeapons,
+      shared = true,
+      ignoreItemStackLimit = true,
+      whitelistItems = true,
+    })
+    for _,data in pairs (whitelist or {}) do
+      exports.vorp_inventory:setCustomInventoryItemLimit(invName, data.item, data.limit)
+    end
+    exports.vorp_inventory:openInventory(source,invName)
+    return
+  end
+  if GetFramework() == "RedEM2023" then
+    TriggerClientEvent("redemrp_inventory:OpenStash", source, name, invConfig.maxWeight)
+    return
+  end
+  if GetFramework() == "RedEM" then
+    TriggerClientEvent("redemrp_inventory:OpenLocker",source,name)
+    return
+  end
+  if GetFramework() == "RSG" or GetFramework() == "QBR" or GetFramework() == "QR" then
+    TriggerClientEvent("kd_stable:client:openSaddlebag",source,name,invConfig)
+    return
+  end
 end
