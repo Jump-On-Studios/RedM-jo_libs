@@ -31,6 +31,12 @@ function IsPromptCompleted(group,key)
   return false
 end
 
+function WaitPromptRelease(key)
+  while IsDisabledControlPressed(0,joaat(key)) or IsControlPressed(0,joaat(key)) do
+    Wait(0)
+  end
+end
+
 function DoesLastKeyIs(group,key)
 	return lastKey == promptGroups[group].prompts[key]
 end
