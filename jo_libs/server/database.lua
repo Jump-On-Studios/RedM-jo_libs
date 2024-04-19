@@ -2,7 +2,9 @@ if not gprint then
   return print('^1NEED TO LOAD prints.lua FIRST !!!!!!^0')
 end
 
-function addTableDB(tableName, tableStructure)
+local Database = {}
+
+function Database.addTable(tableName, tableStructure)
   local isExist = MySQL.single.await('SHOW TABLES LIKE @tableName',{tableName=tableName})
   if isExist then
     return false
@@ -12,7 +14,7 @@ function addTableDB(tableName, tableStructure)
   return true
 end
 
-function addTriggerDB(triggerName,definition)
+function Database.addTrigger(triggerName,definition)
   local isExist = MySQL.single.await("SHOW TRIGGERS WHERE `Trigger` = ?",{triggerName})
   if isExist then
     return false
@@ -22,7 +24,7 @@ function addTriggerDB(triggerName,definition)
   return true
 end
 
-function addColumnDB(tableName,name,definition)
+function Database.addColumn(tableName,name,definition)
   local isExist = MySQL.single.await("SHOW COLUMNS FROM "..tableName.." LIKE ?",{name})
   if isExist then
     return false
@@ -31,3 +33,5 @@ function addColumnDB(tableName,name,definition)
   MySQL.update.await("ALTER TABLE `"..tableName.."` ADD `"..name.."` "..definition)
   return true
 end
+
+_ENV.Database = Database

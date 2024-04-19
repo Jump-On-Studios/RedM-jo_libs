@@ -11,48 +11,40 @@ Framework = {}
 ---@class User : table User class
 ---@field source integer source ID
 local User = {
-  source = 0
+  source = 0,
+  data = {}
 }
+_ENV.User = User
 
 ---@return User
 function User:get(source)
-   local user = {}
-   setmetatable(user, self)
-   self.__index = self
-   self.user = user:init(source)
-   return user
+  local user = {}
+  setmetatable(user, self)
+  self.source = source
+  self.__index = self
+  self:init()
+  return user
 end
 
 ---@param source integer sourceID of the player
----@return table UserData
-function User:init(source)
-  self.source = source
+function User:init()
   if Config.getUser then
-    return Config.getUser(source)
-
+    self.data = Config.getUser(self.source)
   elseif Framework:is("VORP") then
-    return Framework.core.getUser(source).getUsedCharacter
-
+   self.data = Framework.core.getUser(self.source).getUsedCharacter
   elseif Framework:is("RedEM2023") then
-    return Framework.core.GetPlayer(source)
-
+    self.data = Framework.core.GetPlayer(self.source)
   elseif Framework:is("RedEM") then
     local user = promise.new()
-    TriggerEvent('redemrp:getPlayerFromId', source, function(_user)
+    TriggerEvent('redemrp:getPlayerFromId', self.source, function(_user)
       user:resolve(_user)
     end)
-    return Citizen.Await(user)
+    self.data = Citizen.Await(user)
   elseif Framework:is("QBR") then
-    return Framework.core:GetPlayer(source)
-
+    self.data = Framework.core:GetPlayer(self.source)
   elseif Framework:is("RSG") or Framework:is("QR") then
-    return Framework.core.Functions.GetPlayer(source)
-
-  elseif Framework:is("QR") then
-    return Framework.core.Functions.GetPlayer(source)
+    self.data = Framework.core.Functions.GetPlayer(self.source)
   end
-
-  return {}
 end
 
 ---@param moneyType integer 1: $, 2: gold, 3: rol
@@ -62,19 +54,19 @@ function User:getMoney(moneyType)
     moneyType = 1
   end
   if Config.getMoney then
-    return Config.getMoney(self,moneyType)
+    return Config.getMoney(self.source,moneyType)
   end
   if Framework:is('VORP') then
     if moneyType == 0 then
-      return self.money
+      return self.data.money
 		elseif moneyType == 1 then
-      return self.gold
+      return self.data.gold
     elseif moneyType == 2 then
-      return self.rol
+      return self.data.rol
     end
   elseif Framework:is("RedEM2023") then
     if moneyType == 0 then
-      return self.money
+      return self.data.money
     elseif moneyType == 1 then
       return Config.getSecondMoney(source)
     elseif moneyType == 2 then
@@ -82,15 +74,15 @@ function User:getMoney(moneyType)
     end
   elseif Framework:is("RedEM") then
     if moneyType == 0 then
-      return self.getMoney()
+      return self.data.getMoney()
     elseif moneyType == 2 then
-      return self.getGold()
+      return self.data.getGold()
     elseif moneyType == 3 then
       return Config.getThirdMoney(source)
     end
   elseif Framework:is("QBR") or Framework:is("RSG") or Framework:is("QR") then
     if money == 0 then
-      return self.Functions.GetMoney('cash')
+      return self.data.Functions.GetMoney('cash')
     elseif moneyType == 1 then
       return Config.getSecondMoney(source)
     elseif moneyType == 2 then
@@ -120,10 +112,10 @@ function User:removeMoney(amount, moneyType)
   if Config.removeMoney then
     return Config.removeMoney(self, amount, moneyType)
   elseif Framework:is("VORP") then
-    self.removeCurrency(moneyType, amount)
+    self.data.removeCurrency(moneyType, amount)
   elseif Framework:is("RedEM2023") then
     if moneyType == 0 then
-      self.RemoveMoney(amount)
+      self.data.RemoveMoney(amount)
     elseif moneyType == 1 then
       Config.removeSecondMoney(self.source,amount)
     elseif moneyType == 2 then
@@ -131,15 +123,15 @@ function User:removeMoney(amount, moneyType)
     end
   elseif Framework:is("RedEM") then
     if moneyType == 0 then
-      self.removeMoney(amount)
+      self.data.removeMoney(amount)
     elseif moneyType == 1 then
-      self.removeGold(amount)
+      self.data.removeGold(amount)
     elseif moneyType == 2 then
       Config.removeThirdMoney(self.source,amount)
     end
   elseif Framework:is("QBR") or Framework:is('RSG') or Framework:is('QR') then
     if moneyType == 0 then
-      self.Functions.RemoveMoney('cash', amount)
+      self.data.Functions.RemoveMoney('cash', amount)
     elseif moneyType == 1 then
       Config.removeSecondMoney(self.source,amount)
     elseif moneyType == 2 then
@@ -147,7 +139,7 @@ function User:removeMoney(amount, moneyType)
     end
   elseif Framework:is("RPX") then
     if moneyType == 0 then
-      self.RemoveMoney('cash',amount)
+      self.data.RemoveMoney('cash',amount)
     elseif moneyType == 1 then
       Config.removeSecondMoney(self.source,amount)
     elseif moneyType == 2 then
@@ -166,10 +158,10 @@ function User:addMoney(amount,moneyType)
     return Config.addMoney(self.source,amount, moneyType)
   end
   if Framework:is("VORP") then
-    self.addCurrency(moneyType, amount)
+    self.data.addCurrency(moneyType, amount)
 	elseif Framework:is("RedEM2023") then
     if moneyType == 0 then
-      self.AddMoney(amount)
+      self.data.AddMoney(amount)
     elseif moneyType == 1 then
       Config.addSecondMoney(self.source, amount)
     elseif moneyType == 2 then
@@ -177,9 +169,9 @@ function User:addMoney(amount,moneyType)
     end
   elseif Framework:is("RedEM") then
     if moneyType == 0 then
-      self.addMoney(amount)
+      self.data.addMoney(amount)
     elseif moneyType == 1 then
-      self.addGold(amount)
+      self.data.addGold(amount)
     elseif moneyType == 2 then
       Config.addThirdMoney(self.source, amount)
     end
@@ -208,8 +200,8 @@ function User:getIdentifier()
 
   if Framework:is("VORP") then
     return {
-      identifier = self.identifier,
-      charid = self.charIdentifier
+      identifier = self.data.identifier,
+      charid = self.data.charIdentifier
     }
   elseif Framework:is("RedEM2023") then
     return {
@@ -218,12 +210,12 @@ function User:getIdentifier()
     }
   elseif Framework:is("RedEM") then
     return {
-      identifier = self.getIdentifier(),
-      charid = self.getSessionVar("charid")
+      identifier = self.data.getIdentifier(),
+      charid = self.data.getSessionVar("charid")
     }
   elseif Framework:is("QBR") or Framework:is("RSG") or Framework:is("QR") then
     return {
-      identifier = self.PlayerData.citizenid,
+      identifier = self.data.PlayerData.citizenid,
       charid = 0
     }
   end
@@ -234,11 +226,11 @@ function User:getJob()
   if Config.getJob then
     return Config.getJob(self.source)
   elseif Framework:is("VORP") or Framework:is('RedEM2023') then
-    return self.job
+    return self.data.job
   elseif Framework:is("RedEM") then
-    return self.getJob()
+    return self.data.getJob()
   elseif Framework:is("QBR") or Framework:is("RSG") or Framework:is("QR") then
-    return self.PlayerData.job.name
+    return self.data.PlayerData.job.name
   end
   return ''
 end
@@ -249,9 +241,9 @@ function User:getRPName()
     return Config.getRPName(self.source)
   end
   if Framework:is("VORP") or Framework:is("RedEM2023") or Framework:is("RedEM") then
-    return ("%s %s"):format(self.firstname,self.lastname)
+    return ("%s %s"):format(self.data.firstname,self.data.lastname)
   elseif Framework:is("QBR") or Framework:is("RSG") or Framework:is("QR") then
-    return ("%s %s"):format(self.PlayerData.charinfo.firstname,self.PlayerData.charinfo.lastname)
+    return ("%s %s"):format(self.data.PlayerData.charinfo.firstname,self.data.PlayerData.charinfo.lastname)
   end
   return source..""
 end
@@ -490,12 +482,22 @@ end
 
 ---@param invName string unique ID of the inventory
 ---@param name string name of the inventory
----@param invConfig table configuration of the inventory
+---@param config table configuration of the inventory
 function FrameworkClass:createInventory(invName, name, invConfig)
   if Config.createInventory then
     Config.createInventory(invName, name, invConfig)
   elseif self:is('VORP') then
     --id, name, limit, acceptWeapons, shared, ignoreItemStackLimit, whitelistItems,UsePermissions, UseBlackList, whitelistWeapons
+    local invConfig = invConfig
+    -- self.inv:registerInventory({
+    --   id = invName,
+    --   name = name,
+    --   limit = invConfig.maxSlots,
+    --   acceptWeapons =  invConfig.acceptWeapons or false,
+    --   shared = invConfig.shared or true,
+    --   ignoreItemStackLimit = invConfig.ignoreStackLimit or true,
+    --   whitelistItems = invConfig.whitelist and true or false,
+    -- })
     self.inv:registerInventory({
       id = invName,
       name = name,
@@ -505,9 +507,18 @@ function FrameworkClass:createInventory(invName, name, invConfig)
       ignoreItemStackLimit = invConfig.ignoreStackLimit or true,
       whitelistItems = invConfig.whitelist and true or false,
     })
+    TriggerEvent("print",invConfig)
     for _,data in pairs (invConfig.whitelist or {}) do
       self.inv:setCustomInventoryItemLimit(invName, data.item, data.limit)
     end
+  end
+end
+
+function FrameworkClass:removeInventory(invName)
+  if Config.removeInventory then
+    Config.removeInventory(invName)
+  elseif self:is('VORP') then
+    self.inv:removeInventory(invName)
   end
 end
 
@@ -531,11 +542,34 @@ function FrameworkClass:openInventory(source,invName,name, invConfig)
     return
   end
   if self:is("RSG") or self:is("QBR") or self:is("QR") then
-    TriggerClientEvent("jo_libs:client:openInventory",source,name,invConfig)
+    TriggerClientEvent(GetCurrentResourceName()..":client:openInventory",source,name,invConfig)
     return
   end
 end
 
-SetTimeout(0,function()
-  Framework = FrameworkClass:new()
-end)
+---@param invId string unique ID of the inventory
+---@param item string name of the item
+---@param quantity integer quantity
+---@param metadata table metadata of the item
+function FrameworkClass:addItemInInventory(invId,item,quantity,metadata)
+  if Config.addItemInInventory then
+    Config.addItemInInventory(invId,item,quantity,metadata)
+  elseif self:is('VORP') then
+    local itemId = self.inv:getItemDB(item).id
+    MySQL.insert("INSERT INTO items_crafted (character_id, item_id, metadata) VALUES (@charid, @itemid, @metadata)", {
+      charid = 0,
+      itemid = itemId,
+      metadata = json.encode(metadata)
+    }, function(id)
+      MySQL.insert("INSERT INTO character_inventories (character_id, item_crafted_id, amount, inventory_type) VALUES (@charid, @itemid, @amount, @invId);", {
+        charid = 0,
+        itemid = id,
+        amount = quantity,
+        invId = invId
+      })
+    end)
+  end
+end
+
+Framework = FrameworkClass:new()
+_ENV.Framework = Framework
