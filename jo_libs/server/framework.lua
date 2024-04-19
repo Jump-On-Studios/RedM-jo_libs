@@ -259,7 +259,8 @@ end
 local FrameworkClass = {
   name = "",
   core = {},
-  inv = {}
+  inv = {},
+  inventories = {}
 }
 ---@return FrameworkClass FrameworkClass class
 function FrameworkClass:new(t)
@@ -484,6 +485,11 @@ end
 ---@param name string name of the inventory
 ---@param config table configuration of the inventory
 function FrameworkClass:createInventory(invName, name, invConfig)
+  self.inventories[invName] = {
+    invName = invName,
+    name = name,
+    invConfig = invConfig
+  }
   if Config.createInventory then
     Config.createInventory(invName, name, invConfig)
   elseif self:is('VORP') then
@@ -507,7 +513,6 @@ function FrameworkClass:createInventory(invName, name, invConfig)
       ignoreItemStackLimit = invConfig.ignoreStackLimit or true,
       whitelistItems = invConfig.whitelist and true or false,
     })
-    TriggerEvent("print",invConfig)
     for _,data in pairs (invConfig.whitelist or {}) do
       self.inv:setCustomInventoryItemLimit(invName, data.item, data.limit)
     end
@@ -526,7 +531,9 @@ end
 ---@param invName string name of the inventory
 ---@param name string name of the inventory
 ---@param invConfig table configuration of the inventory
-function FrameworkClass:openInventory(source,invName,name, invConfig)
+function FrameworkClass:openInventory(source,invName)
+  local name = self.inventories[invName].name
+  local invConfig = self.inventories[invName].invConfig
   if Config.openInventory then
     Config.openInventory(source, invName, name, invConfig)
   elseif self:is("VORP") then
