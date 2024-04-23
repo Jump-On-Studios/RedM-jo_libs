@@ -549,7 +549,7 @@ function FrameworkClass:openInventory(source,invName)
     return
   end
   if self:is("RSG") or self:is("QBR") or self:is("QR") then
-    TriggerClientEvent(GetCurrentResourceName()..":client:openInventory",source,name,invConfig)
+    TriggerClientEvent(GetCurrentResourceName()..":client:openInventory",source,invName,invConfig)
     return
   end
 end
@@ -584,10 +584,23 @@ function FrameworkClass:addItemInInventory(source,invId,item,quantity,metadata,n
     MySQL.scalar('SELECT items FROM stashitems WHERE stash = ?',{invId}, function(items)
       if type(items) == "string" then items = json.decode(items) end
       if not items then items = {} end
+      local slot = 1
+      repeat
+        local doesSlotAvailable = true
+        for _,item in pairs (items) do
+          if item.slot == slot then
+            slot = slot + 1
+            doesSlotAvailable = false
+            break
+          end
+        end
+        Wait(100)
+      until doesSlotAvailable
       items[#items+1] = {
         amount = 1,
         name = item,
-        info = metadata
+        info = metadata,
+        slot = slot
       }
       MySQL.insert('INSERT INTO stashitems (stash,items) VALUES (@stash,@items) ON DUPLICATE KEY UPDATE items = @items', {
         stash = invId,
@@ -625,7 +638,6 @@ function FrameworkClass:getItemsFromInventory(source,invId)
     return itemFiltered
   elseif self:is('QBR') or self:is('RSG') or self:is('RPX') then
     local items = MySQL.scalar.await('SELECT items FROM stashitems WHERE stash = ?',{invId})
-    TriggerEvent("print","ITEMS",items)
     if type(items) == "string" then items = json.decode(items) end
     if not items then items = {} end
     local itemFiltered = {}
@@ -638,7 +650,7 @@ function FrameworkClass:getItemsFromInventory(source,invId)
     end
     return itemFiltered
   end
-  eprint('FrameworkClass:getItemsFromInventory is missing FOR '.. self:get())
+  return {}
 end
 
 Framework = FrameworkClass:new()
