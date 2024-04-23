@@ -184,7 +184,7 @@ function User:addMoney(amount,moneyType)
       Config.addThirdMoney(self.source, amount)
     end
     local xPlayer = self.getUser(source)
-    xPlayer.Functions.AddMoney('cash', tonumber(amount), 'clothing-store')
+    xPlayer.data.Functions.AddMoney('cash', tonumber(amount), 'clothing-store')
   end
 end
 
@@ -216,7 +216,7 @@ function User:getIdentifier()
   elseif Framework:is("QBR") or Framework:is("RSG") or Framework:is("QR") then
     return {
       identifier = self.data.PlayerData.citizenid,
-      charid = 0
+      charid = self.data.PlayerData.citizenid
     }
   end
 end
@@ -329,7 +329,7 @@ function FrameworkClass:init()
     self.core = self.core
     return
   elseif self:is("RSG") then
-    bprint('RSGself.coredetected')
+    bprint('RSG detected')
     self.core= exports['rsg-core']:GetCoreObject()
     return
   elseif self:is("QR") then
@@ -391,10 +391,10 @@ function FrameworkClass:canUseItem(source,item,amount,meta,remove)
     end
   elseif self:is("QBR") or self:is('RSG') or self:is('QR') then
     local Player = User:get(source)
-    local itemData = Player.Functions.GetItemByName(item)
+    local itemData = Player.data.Functions.GetItemByName(item)
     if itemData and itemData.amount >= amount then
       if remove then
-        Player.Functions.RemoveItem(item,amount)
+        Player.data.Functions.RemoveItem(item,amount)
       end
       return true
     end
@@ -474,7 +474,7 @@ function FrameworkClass:giveItem(source,item,quantity,meta)
     return ItemData.AddItem(quantity,meta)
   elseif self:is("QBR") or self:is('RSG') or self:is('QR') then
     local Player = User:get(source)
-    return Player.Functions.AddItem(item, quantity, false, meta)
+    return Player.data.Functions.AddItem(item, quantity, false, meta)
   elseif GetFramework() == "RPX" then
     return self.inv:AddItem(source, item, quantity, meta)
   end
@@ -558,24 +558,87 @@ end
 ---@param item string name of the item
 ---@param quantity integer quantity
 ---@param metadata table metadata of the item
-function FrameworkClass:addItemInInventory(invId,item,quantity,metadata)
+function FrameworkClass:addItemInInventory(source,invId,item,quantity,metadata,needWait)
+  local waiter = promise.new()
   if Config.addItemInInventory then
     Config.addItemInInventory(invId,item,quantity,metadata)
   elseif self:is('VORP') then
     local itemId = self.inv:getItemDB(item).id
+    local user = User:get(source)
+    local charIdentifier = user.data.charIdentifier
     MySQL.insert("INSERT INTO items_crafted (character_id, item_id, metadata) VALUES (@charid, @itemid, @metadata)", {
-      charid = 0,
+      charid = charIdentifier,
       itemid = itemId,
       metadata = json.encode(metadata)
     }, function(id)
       MySQL.insert("INSERT INTO character_inventories (character_id, item_crafted_id, amount, inventory_type) VALUES (@charid, @itemid, @amount, @invId);", {
-        charid = 0,
+        charid = charIdentifier,
         itemid = id,
         amount = quantity,
         invId = invId
+      }, function()
+        waiter:resolve(true)
+      end)
+    end)
+  elseif self:is('QBR') or self:is('RSG') or self:is('RPX') then
+    MySQL.scalar('SELECT items FROM stashitems WHERE stash = ?',{invId}, function(items)
+      if type(items) == "string" then items = json.decode(items) end
+      if not items then items = {} end
+      items[#items+1] = {
+        amount = 1,
+        name = item,
+        info = metadata
+      }
+      MySQL.insert('INSERT INTO stashitems (stash,items) VALUES (@stash,@items) ON DUPLICATE KEY UPDATE items = @items', {
+        stash = invId,
+        items = json.encode(items)
       })
     end)
   end
+  if needWait then
+    Citizen.Await(waiter)
+  end
+end
+
+---@param source integer source ID
+---@param invId string name of the inventory
+function FrameworkClass:getItemsFromInventory(source,invId)
+  if Config.getItemsFromInventory then
+    return Config.getItemsFromInventory
+  elseif self:is('VORP') then
+    local items = MySQL.query.await("SELECT ci.character_id, ic.id, i.item, ci.amount, ic.metadata, ci.created_at FROM items_crafted ic\
+      LEFT JOIN character_inventories ci on ic.id = ci.item_crafted_id\
+      LEFT JOIN items i on ic.item_id = i.id\
+      WHERE ci.inventory_type = @invType;",
+      {
+        ['invType'] = invId
+      })
+    local itemFiltered = {}
+    for _,item in pairs (items) do
+      itemFiltered[#itemFiltered+1] = {
+        metadata = json.decode(item.metadata),
+        amount = item.amount,
+        item = item.item,
+        id = item.id
+      }
+    end
+    return itemFiltered
+  elseif self:is('QBR') or self:is('RSG') or self:is('RPX') then
+    local items = MySQL.scalar.await('SELECT items FROM stashitems WHERE stash = ?',{invId})
+    TriggerEvent("print","ITEMS",items)
+    if type(items) == "string" then items = json.decode(items) end
+    if not items then items = {} end
+    local itemFiltered = {}
+    for _,item in pairs (items) do
+      itemFiltered[#itemFiltered+1] = {
+        metadata = item.info,
+        amount = item.amount,
+        item = item.name
+      }
+    end
+    return itemFiltered
+  end
+  eprint('FrameworkClass:getItemsFromInventory is missing FOR '.. self:get())
 end
 
 Framework = FrameworkClass:new()
