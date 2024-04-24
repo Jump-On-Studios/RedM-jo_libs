@@ -3,8 +3,6 @@
 A RedM library build by Jump On Studios to improve the compatibility with all frameworks.
 
 ![](https://img.shields.io/github/downloads/kaddarem-tebex/RedM-jo_libs/total?logo=github)
-![](https://img.shields.io/github/downloads/kaddarem-tebex/RedM-jo_libs/latest/total?logo=github)
-![](https://img.shields.io/github/contributors/kaddarem-tebex/RedM-jo_libs?logo=github)
 ![](https://img.shields.io/github/v/release/kaddarem-tebex/RedM-jo_libs?logo=github) 
 ![](https://img.shields.io/github/license/kaddarem-tebex/RedM-jo_libs)
 
