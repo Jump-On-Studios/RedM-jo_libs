@@ -1,0 +1,23 @@
+name: Zip Release Artifact
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  build:
+    name: Zip Artifact
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Zip files
+        run: zip -r jo_libs.zip jo_libs
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: release-artifact
+          path: jo_libs.zip
