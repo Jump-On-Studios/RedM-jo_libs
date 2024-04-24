@@ -75,7 +75,6 @@ else
 		if not message then return end
 		UiFeedClearAllChannels()
 		LoadDictFile(message.dict,true)
-		TriggerServerEvent("print",message)
 		message.text = CreateVarString(10, "LITERAL_STRING", tostring(message.text))
 		message.dict = CreateVarString(10, "LITERAL_STRING", tostring(message.dict))
 		message.soundset_ref = CreateVarString(10, "LITERAL_STRING", message.soundset_ref)

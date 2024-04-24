@@ -205,8 +205,8 @@ function User:getIdentifier()
     }
   elseif Framework:is("RedEM2023") then
     return {
-      identifier = user.identifier,
-      charid = user.charid
+      identifier = self.data.identifier,
+      charid = self.data.charid
     }
   elseif Framework:is("RedEM") then
     return {
@@ -541,11 +541,11 @@ function FrameworkClass:openInventory(source,invName)
     return self.inv:openInventory(source,invName)
   end
   if self:is("RedEM2023") then
-    TriggerClientEvent("redemrp_inventory:OpenStash", source, name, invConfig.maxWeight)
+    TriggerClientEvent("redemrp_inventory:OpenStash", source, invName, invConfig.maxWeight)
     return
   end
   if self:is("RedEM") then
-    TriggerClientEvent("redemrp_inventory:OpenLocker",source,name)
+    TriggerClientEvent("redemrp_inventory:OpenLocker",source,invName)
     return
   end
   if self:is("RSG") or self:is("QBR") or self:is("QR") then
@@ -605,8 +605,13 @@ function FrameworkClass:addItemInInventory(source,invId,item,quantity,metadata,n
       MySQL.insert('INSERT INTO stashitems (stash,items) VALUES (@stash,@items) ON DUPLICATE KEY UPDATE items = @items', {
         stash = invId,
         items = json.encode(items)
-      })
+      }, function()
+        waiter:resolve(true)
+      end)
     end)
+  elseif self:is('RedEM2023') then
+    self.inv.addItemStash(source, item, 1, metadata, invId)
+    waiter:resolve(true)
   end
   if needWait then
     Citizen.Await(waiter)
@@ -644,6 +649,18 @@ function FrameworkClass:getItemsFromInventory(source,invId)
     for _,item in pairs (items) do
       itemFiltered[#itemFiltered+1] = {
         metadata = item.info,
+        amount = item.amount,
+        item = item.name
+      }
+    end
+    return itemFiltered
+  elseif self:is('RedEM2023') then
+    local items = self.inv.getStash(invId)
+    if not items then items = {} end
+    local itemFiltered = {}
+    for _,item in pairs (items) do
+      itemFiltered[#itemFiltered+1] = {
+        metadata = item.meta,
         amount = item.amount,
         item = item.name
       }
