@@ -516,6 +516,8 @@ function FrameworkClass:createInventory(invName, name, invConfig)
     for _,data in pairs (invConfig.whitelist or {}) do
       self.inv:setCustomInventoryItemLimit(invName, data.item, data.limit)
     end
+  elseif self:is('RedEM') then
+    self.inv.createLocker(invName,"empty")
   end
 end
 
@@ -612,6 +614,8 @@ function FrameworkClass:addItemInInventory(source,invId,item,quantity,metadata,n
   elseif self:is('RedEM2023') then
     self.inv.addItemStash(source, item, 1, metadata, invId)
     waiter:resolve(true)
+  elseif self:is('RedEM') then
+    self.inv.addItemLocker(item,1,metadata,invId)
   end
   if needWait then
     Citizen.Await(waiter)
@@ -656,6 +660,18 @@ function FrameworkClass:getItemsFromInventory(source,invId)
     return itemFiltered
   elseif self:is('RedEM2023') then
     local items = self.inv.getStash(invId)
+    if not items then items = {} end
+    local itemFiltered = {}
+    for _,item in pairs (items) do
+      itemFiltered[#itemFiltered+1] = {
+        metadata = item.meta,
+        amount = item.amount,
+        item = item.name
+      }
+    end
+    return itemFiltered
+  elseif self:is('RedEM') then
+    local items = self.inv.getLocker(invId)
     if not items then items = {} end
     local itemFiltered = {}
     for _,item in pairs (items) do
