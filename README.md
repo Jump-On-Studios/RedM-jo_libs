@@ -12,4 +12,4 @@ https://docs.jumpon-studios.com/jo_libs (coming soon)
 
 ## 🔗 Download
 
-https://github.com/kaddarem-tebex/RedM-jo_libs/releases/latest/download/jo_libs.zip
+https://github.com/kaddarem-tebex/RedM-jo_libs/releases/latest
