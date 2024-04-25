@@ -1,3 +1,5 @@
+---@param orig  table Table to copy
+---@return table
 table.copy = function(orig)
   local orig_type = type(orig)
   local copy
@@ -13,6 +15,9 @@ table.copy = function(orig)
   return copy
 end
 
+---@param  t1 table
+---@param t2 table
+---@return table
 table.merge = function(t1, t2)
   for k,v in pairs(t2) do
     if type(v) == "table" then
@@ -28,6 +33,8 @@ table.merge = function(t1, t2)
   return t1
 end
 
+---@param _table table
+---@return boolean
 table.isEmpty = function (_table)
 	for _,_ in pairs (_table) do
 		return false

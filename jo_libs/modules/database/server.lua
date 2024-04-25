@@ -1,10 +1,6 @@
-if not gprint then
-  return print('^1NEED TO LOAD prints.lua FIRST !!!!!!^0')
-end
+jo.database = {}
 
-local Database = {}
-
-function Database.addTable(tableName, tableStructure)
+function jo.database.addTable(tableName, tableStructure)
   local isExist = MySQL.single.await('SHOW TABLES LIKE @tableName',{tableName=tableName})
   if isExist then
     return false
@@ -14,7 +10,7 @@ function Database.addTable(tableName, tableStructure)
   return true
 end
 
-function Database.addTrigger(triggerName,definition)
+function jo.database.addTrigger(triggerName,definition)
   local isExist = MySQL.single.await("SHOW TRIGGERS WHERE `Trigger` = ?",{triggerName})
   if isExist then
     return false
@@ -24,7 +20,7 @@ function Database.addTrigger(triggerName,definition)
   return true
 end
 
-function Database.addColumn(tableName,name,definition)
+function jo.database.addColumn(tableName,name,definition)
   local isExist = MySQL.single.await("SHOW COLUMNS FROM "..tableName.." LIKE ?",{name})
   if isExist then
     return false
@@ -33,5 +29,3 @@ function Database.addColumn(tableName,name,definition)
   MySQL.update.await("ALTER TABLE `"..tableName.."` ADD `"..name.."` "..definition)
   return true
 end
-
-_ENV.Database = Database

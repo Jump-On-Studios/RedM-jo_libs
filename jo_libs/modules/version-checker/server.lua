@@ -61,7 +61,7 @@ Citizen.CreateThread(function()
 
   local framework = urlencode('')
   if GetFramework then
-    framework = urlencode(GetFramework)
+    framework = urlencode(GetFramework())
   elseif Framework then
     framework = urlencode(Framework:get())
   end

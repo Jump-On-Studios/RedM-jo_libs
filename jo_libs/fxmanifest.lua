@@ -10,15 +10,10 @@ rdr3_warning 'I acknowledge that this is a prerelease build of RedM, and I am aw
 game "rdr3"
 lua54 'yes'
 
-server_scripts {
-  "server/versionChecker.lua"
-}
-
 files {
-  "client/**.lua",
-  "server/**.lua",
-  "shared/**.lua",
-  "utils/**.lua",
+  "init.lua",
+  "server/**.lua", --temporary
+  "modules/**.lua",
 	"html/dist/**.html",
 	"html/dist/**.js",
 	"html/dist/**.css",
@@ -26,4 +21,12 @@ files {
 	"html/dist/**.png",
 	"html/dist/**.mp3",
 	"html/dist/**.gif",
+}
+
+shared_scripts {
+	'init.lua'
+}
+
+jo_libs {
+	'version-checker'
 }

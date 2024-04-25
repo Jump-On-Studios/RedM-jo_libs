@@ -1,16 +1,20 @@
-function RequestControl(entity)
+---@param entity integer
+function jo.requestControl(entity)
   while not NetworkHasControlOfEntity(entity) do
     NetworkRequestControlOfEntity(entity)
     Wait(100)
   end
 end
 
-function DeleteExistEntity(entity)
+---@param entity integer
+function jo.deleteEntity(entity)
   if not DoesEntityExist(entity) then return end
   DeleteEntity(entity)
 end
 
-function LoadGameData(name,waiter)
+---@param name string
+---@param waiter boolean need wait
+function jo.loadGameData(name,waiter)
 	local model = (type(name) == "string") and joaat(name) or name
 	if IsModelValid(model) then
 		if not HasModelLoaded(model) then
@@ -41,7 +45,8 @@ function LoadGameData(name,waiter)
 	end
 end
 
-function ReleaseGameData(name)
+---@param name string
+function jo.releaseGameData(name)
 	local model = (type(name) == "string") and joaat(name) or name
 	if IsModelValid(model) then
 		if HasModelLoaded(model) then

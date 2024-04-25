@@ -2,7 +2,7 @@
 -- Actions
 -------------
 local listActions = {}
-function RegisterAction(name,fct,priority)
+function jo.registerAction(name,fct,priority)
 	if not listActions[name] then listActions[name] = {} end
   local pos = 1
   priority = priority or 10
@@ -18,9 +18,9 @@ function RegisterAction(name,fct,priority)
     priority = priority
   })
 end
-exports('RegisterAction',RegisterAction)
+exports('RegisterAction',jo.registerAction)
 
-function DoActions(name,...)
+function jo.doActions(name,...)
 	if not listActions[name] then return end
 	for _,action in ipairs (listActions[name]) do
 		pcall(action.cb,...)
@@ -31,7 +31,7 @@ end
 -- Filters
 -------------
 local listFilters = {}
-function RegisterFilter(name,fct,priority)
+function jo.registerFilter(name,fct,priority)
 	if not listFilters[name] then listFilters[name] = {} end
   local pos = 1
   priority = priority or 10
@@ -47,9 +47,9 @@ function RegisterFilter(name,fct,priority)
     priority = priority
   })
 end
-exports('RegisterFilter',RegisterFilter)
+exports('RegisterFilter',jo.registerFilter)
 
-function ApplyFilters(name,value,...)
+function jo.applyFilters(name,value,...)
 	if not listFilters[name] then return value end
 	for _,filter in ipairs (listFilters[name]) do
 		  local status,result = pcall(filter.cb,value,...)
