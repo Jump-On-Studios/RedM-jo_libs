@@ -1,10 +1,4 @@
-if not bprint then
-  return print('^1NEED TO LOAD prints.lua FIRST !!!!!!^0')
-end
-
 jo.load('framework-bridge.overwrite-functions')
-
-local Framework = {}
 
 -------------
 -- USER CLASS
@@ -16,7 +10,6 @@ local User = {
   source = 0,
   data = {}
 }
-_ENV.User = User
 
 ---@return User
 function User:get(source)
@@ -28,24 +21,23 @@ function User:get(source)
   return user
 end
 
----@param source integer sourceID of the player
 function User:init()
   if OWFramework.getUser then
     self.data = OWFramework.getUser(self.source)
-  elseif Framework:is("VORP") then
-   self.data = Framework.core.getUser(self.source).getUsedCharacter
-  elseif Framework:is("RedEM2023") then
-    self.data = Framework.core.GetPlayer(self.source)
-  elseif Framework:is("RedEM") then
+  elseif jo.framework:is("VORP") then
+   self.data = jo.framework.core.getUser(self.source).getUsedCharacter
+  elseif jo.framework:is("RedEM2023") then
+    self.data = jo.framework.core.GetPlayer(self.source)
+  elseif jo.framework:is("RedEM") then
     local user = promise.new()
     TriggerEvent('redemrp:getPlayerFromId', self.source, function(_user)
       user:resolve(_user)
     end)
     self.data = Citizen.Await(user)
-  elseif Framework:is("QBR") then
-    self.data = Framework.core:GetPlayer(self.source)
-  elseif Framework:is("RSG") or Framework:is("QR") then
-    self.data = Framework.core.Functions.GetPlayer(self.source)
+  elseif jo.framework:is("QBR") then
+    self.data = jo.framework.core:GetPlayer(self.source)
+  elseif jo.framework:is("RSG") or jo.framework:is("QR") then
+    self.data = jo.framework.core.Functions.GetPlayer(self.source)
   end
 end
 
@@ -58,7 +50,7 @@ function User:getMoney(moneyType)
   if OWFramework.getMoney then
     return OWFramework.getMoney(self.source,moneyType)
   end
-  if Framework:is('VORP') then
+  if jo.framework:is('VORP') then
     if moneyType == 0 then
       return self.data.money
 		elseif moneyType == 1 then
@@ -66,7 +58,7 @@ function User:getMoney(moneyType)
     elseif moneyType == 2 then
       return self.data.rol
     end
-  elseif Framework:is("RedEM2023") then
+  elseif jo.framework:is("RedEM2023") then
     if moneyType == 0 then
       return self.data.money
     elseif moneyType == 1 then
@@ -74,7 +66,7 @@ function User:getMoney(moneyType)
     elseif moneyType == 2 then
       return OWFramework.getThirdMoney(source)
     end
-  elseif Framework:is("RedEM") then
+  elseif jo.framework:is("RedEM") then
     if moneyType == 0 then
       return self.data.getMoney()
     elseif moneyType == 2 then
@@ -82,7 +74,7 @@ function User:getMoney(moneyType)
     elseif moneyType == 3 then
       return OWFramework.getThirdMoney(source)
     end
-  elseif Framework:is("QBR") or Framework:is("RSG") or Framework:is("QR") then
+  elseif jo.framework:is("QBR") or jo.framework:is("RSG") or jo.framework:is("QR") then
     if money == 0 then
       return self.data.Functions.GetMoney('cash')
     elseif moneyType == 1 then
@@ -113,9 +105,9 @@ function User:removeMoney(amount, moneyType)
   end
   if OWFramework.removeMoney then
     return OWFramework.removeMoney(self, amount, moneyType)
-  elseif Framework:is("VORP") then
+  elseif jo.framework:is("VORP") then
     self.data.removeCurrency(moneyType, amount)
-  elseif Framework:is("RedEM2023") then
+  elseif jo.framework:is("RedEM2023") then
     if moneyType == 0 then
       self.data.RemoveMoney(amount)
     elseif moneyType == 1 then
@@ -123,7 +115,7 @@ function User:removeMoney(amount, moneyType)
     elseif moneyType == 2 then
       OWFramework.removeThirdMoney(self.source,amount)
     end
-  elseif Framework:is("RedEM") then
+  elseif jo.framework:is("RedEM") then
     if moneyType == 0 then
       self.data.removeMoney(amount)
     elseif moneyType == 1 then
@@ -131,7 +123,7 @@ function User:removeMoney(amount, moneyType)
     elseif moneyType == 2 then
       OWFramework.removeThirdMoney(self.source,amount)
     end
-  elseif Framework:is("QBR") or Framework:is('RSG') or Framework:is('QR') then
+  elseif jo.framework:is("QBR") or jo.framework:is('RSG') or jo.framework:is('QR') then
     if moneyType == 0 then
       self.data.Functions.RemoveMoney('cash', amount)
     elseif moneyType == 1 then
@@ -139,7 +131,7 @@ function User:removeMoney(amount, moneyType)
     elseif moneyType == 2 then
       OWFramework.removeThirdMoney(self.source,amount)
     end
-  elseif Framework:is("RPX") then
+  elseif jo.framework:is("RPX") then
     if moneyType == 0 then
       self.data.RemoveMoney('cash',amount)
     elseif moneyType == 1 then
@@ -159,9 +151,9 @@ function User:addMoney(amount,moneyType)
   if OWFramework.addMoney then
     return OWFramework.addMoney(self.source,amount, moneyType)
   end
-  if Framework:is("VORP") then
+  if jo.framework:is("VORP") then
     self.data.addCurrency(moneyType, amount)
-	elseif Framework:is("RedEM2023") then
+	elseif jo.framework:is("RedEM2023") then
     if moneyType == 0 then
       self.data.AddMoney(amount)
     elseif moneyType == 1 then
@@ -169,7 +161,7 @@ function User:addMoney(amount,moneyType)
     elseif moneyType == 2 then
       OWFramework.addThirdMoney(self.source, amount)
     end
-  elseif Framework:is("RedEM") then
+  elseif jo.framework:is("RedEM") then
     if moneyType == 0 then
       self.data.addMoney(amount)
     elseif moneyType == 1 then
@@ -177,7 +169,7 @@ function User:addMoney(amount,moneyType)
     elseif moneyType == 2 then
       OWFramework.addThirdMoney(self.source, amount)
     end
-  elseif Framework:is("QBR") or Framework:is('RSG') or Framework:is('QR') then
+  elseif jo.framework:is("QBR") or jo.framework:is('RSG') or jo.framework:is('QR') then
     if moneyType == 0 then
       self.Functions.AddMoney('cash', amount)
     elseif moneyType == 1 then
@@ -200,22 +192,22 @@ function User:getIdentifier()
     return OWFramework.GetIdentifier(self.source)
   end
 
-  if Framework:is("VORP") then
+  if jo.framework:is("VORP") then
     return {
       identifier = self.data.identifier,
       charid = self.data.charIdentifier
     }
-  elseif Framework:is("RedEM2023") then
+  elseif jo.framework:is("RedEM2023") then
     return {
       identifier = self.data.identifier,
       charid = self.data.charid
     }
-  elseif Framework:is("RedEM") then
+  elseif jo.framework:is("RedEM") then
     return {
       identifier = self.data.getIdentifier(),
       charid = self.data.getSessionVar("charid")
     }
-  elseif Framework:is("QBR") or Framework:is("RSG") or Framework:is("QR") then
+  elseif jo.framework:is("QBR") or jo.framework:is("RSG") or jo.framework:is("QR") then
     return {
       identifier = self.data.PlayerData.citizenid,
       charid = self.data.PlayerData.citizenid
@@ -227,11 +219,11 @@ end
 function User:getJob()
   if OWFramework.getJob then
     return OWFramework.getJob(self.source)
-  elseif Framework:is("VORP") or Framework:is('RedEM2023') then
+  elseif jo.framework:is("VORP") or jo.framework:is('RedEM2023') then
     return self.data.job
-  elseif Framework:is("RedEM") then
+  elseif jo.framework:is("RedEM") then
     return self.data.getJob()
-  elseif Framework:is("QBR") or Framework:is("RSG") or Framework:is("QR") then
+  elseif jo.framework:is("QBR") or jo.framework:is("RSG") or jo.framework:is("QR") then
     return self.data.PlayerData.job.name
   end
   return ''
@@ -242,9 +234,9 @@ function User:getRPName()
   if OWFramework.getRPName then
     return OWFramework.getRPName(self.source)
   end
-  if Framework:is("VORP") or Framework:is("RedEM2023") or Framework:is("RedEM") then
+  if jo.framework:is("VORP") or jo.framework:is("RedEM2023") or jo.framework:is("RedEM") then
     return ("%s %s"):format(self.data.firstname,self.data.lastname)
-  elseif Framework:is("QBR") or Framework:is("RSG") or Framework:is("QR") then
+  elseif jo.framework:is("QBR") or jo.framework:is("RSG") or jo.framework:is("QR") then
     return ("%s %s"):format(self.data.PlayerData.charinfo.firstname,self.data.PlayerData.charinfo.lastname)
   end
   return source..""
@@ -343,6 +335,13 @@ function FrameworkClass:init()
     self.inv = exports['rpx-inventory']
   end
   eprint('No compatible Framework detected. Please contact JUMP ON studios on discord')
+end
+
+---@param source integer source ID
+---@return table
+function FrameworkClass:getUser(source)
+  local user = User:get(source)
+  return user
 end
 
 ---@param source integer source ID
@@ -485,37 +484,37 @@ end
 
 ---@param invName string unique ID of the inventory
 ---@param name string name of the inventory
----@param OWFramework table OWFrameworkuration of the inventory
-function FrameworkClass:createInventory(invName, name, invOWFramework)
+---@param invConfig table Configuration of the inventory
+function FrameworkClass:createInventory(invName, name, invConfig)
   self.inventories[invName] = {
     invName = invName,
     name = name,
-    invOWFramework = invOWFramework
+    invConfig = invConfig
   }
   if OWFramework.createInventory then
-    OWFramework.createInventory(invName, name, invOWFramework)
+    OWFramework.createInventory(invName, name, invConfig)
   elseif self:is('VORP') then
     --id, name, limit, acceptWeapons, shared, ignoreItemStackLimit, whitelistItems,UsePermissions, UseBlackList, whitelistWeapons
-    local invOWFramework = invOWFramework
+    local invConfig = invConfig
     -- self.inv:registerInventory({
     --   id = invName,
     --   name = name,
-    --   limit = invOWFramework.maxSlots,
-    --   acceptWeapons =  invOWFramework.acceptWeapons or false,
-    --   shared = invOWFramework.shared or true,
-    --   ignoreItemStackLimit = invOWFramework.ignoreStackLimit or true,
-    --   whitelistItems = invOWFramework.whitelist and true or false,
+    --   limit = invConfig.maxSlots,
+    --   acceptWeapons =  invConfig.acceptWeapons or false,
+    --   shared = invConfig.shared or true,
+    --   ignoreItemStackLimit = invConfig.ignoreStackLimit or true,
+    --   whitelistItems = invConfig.whitelist and true or false,
     -- })
     self.inv:registerInventory({
       id = invName,
       name = name,
-      limit = invOWFramework.maxSlots,
-      acceptWeapons =  invOWFramework.acceptWeapons or false,
-      shared = invOWFramework.shared or true,
-      ignoreItemStackLimit = invOWFramework.ignoreStackLimit or true,
-      whitelistItems = invOWFramework.whitelist and true or false,
+      limit = invConfig.maxSlots,
+      acceptWeapons =  invConfig.acceptWeapons or false,
+      shared = invConfig.shared or true,
+      ignoreItemStackLimit = invConfig.ignoreStackLimit or true,
+      whitelistItems = invConfig.whitelist and true or false,
     })
-    for _,data in pairs (invOWFramework.whitelist or {}) do
+    for _,data in pairs (invConfig.whitelist or {}) do
       self.inv:setCustomInventoryItemLimit(invName, data.item, data.limit)
     end
   elseif self:is('RedEM') then
@@ -533,19 +532,17 @@ end
 
 ---@param source integer sourceIdentifier
 ---@param invName string name of the inventory
----@param name string name of the inventory
----@param invOWFramework table OWFrameworkuration of the inventory
 function FrameworkClass:openInventory(source,invName)
   local name = self.inventories[invName].name
-  local invOWFramework = self.inventories[invName].invOWFramework
+  local invConfig = self.inventories[invName].invConfig
   if OWFramework.openInventory then
-    OWFramework.openInventory(source, invName, name, invOWFramework)
+    OWFramework.openInventory(source, invName, name, invConfig)
   elseif self:is("VORP") then
-    self:createInventory(invName, name, invOWFramework)
+    self:createInventory(invName, name, invConfig)
     return self.inv:openInventory(source,invName)
   end
   if self:is("RedEM2023") then
-    TriggerClientEvent("redemrp_inventory:OpenStash", source, invName, invOWFramework.maxWeight)
+    TriggerClientEvent("redemrp_inventory:OpenStash", source, invName, invConfig.maxWeight)
     return
   end
   if self:is("RedEM") then
@@ -553,7 +550,7 @@ function FrameworkClass:openInventory(source,invName)
     return
   end
   if self:is("RSG") or self:is("QBR") or self:is("QR") then
-    TriggerClientEvent(GetCurrentResourceName()..":client:openInventory",source,invName,invOWFramework)
+    TriggerClientEvent(GetCurrentResourceName()..":client:openInventory",source,invName,invConfig)
     return
   end
 end
@@ -688,5 +685,4 @@ function FrameworkClass:getItemsFromInventory(source,invId)
   return {}
 end
 
-Framework = FrameworkClass:new()
-_ENV.Framework = Framework
+jo.framework = FrameworkClass:new()
