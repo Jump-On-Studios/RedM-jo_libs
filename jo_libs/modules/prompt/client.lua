@@ -29,7 +29,6 @@ end
 ---@param value boolean
 function jo.prompt.setVisible(group,key,value)
   UiPromptSetVisible(promptGroups[group].prompts[key],value)
-  UiPromptSetEnabled(promptGroups[group].prompts[key],value)
 end
 
 ---@param group string Name of the group
