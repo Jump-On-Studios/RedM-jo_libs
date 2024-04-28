@@ -2,11 +2,11 @@ jo.input = {}
 
 ---@param label string The Text above the typing field in the black square
 ---@param placeholder string An Example Text, what it should say in the typing field
----@param MaxStringLenght? integer (optional) Maximum String Lenght
+---@param maxStringLenght? integer (optional) Maximum String Lenght
 ---@return string
-function jo.input.native(label, placeholder, MaxStringLenght)
+function jo.input.native(label, placeholder, maxStringLenght)
     AddTextEntry('FMMC_KEY_TIP1', label)
-    DisplayOnscreenKeyboard(0, "FMMC_KEY_TIP1", "", placeholder, "", "", "", MaxStringLenght or 60)
+    DisplayOnscreenKeyboard(0, "FMMC_KEY_TIP1", "", placeholder, "", "", "", maxStringLenght or 60)
 
     while UpdateOnscreenKeyboard() ~= 1 and UpdateOnscreenKeyboard() ~= 2 do
       Wait(0)
