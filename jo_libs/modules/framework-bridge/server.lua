@@ -560,6 +560,7 @@ end
 ---@param item string name of the item
 ---@param quantity integer quantity
 ---@param metadata table metadata of the item
+---@param needWait? boolean wait after the adding
 function FrameworkClass:addItemInInventory(source,invId,item,quantity,metadata,needWait)
   local waiter = promise.new()
   if OWFramework.addItemInInventory then

@@ -13,7 +13,7 @@ function jo.deleteEntity(entity)
 end
 
 ---@param name string
----@param waiter boolean need wait
+---@param waiter? boolean need wait
 function jo.loadGameData(name,waiter)
 	local model = (type(name) == "string") and joaat(name) or name
 	if IsModelValid(model) then

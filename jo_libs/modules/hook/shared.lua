@@ -2,6 +2,9 @@
 -- Actions
 -------------
 local listActions = {}
+---@param name string the name of the action
+---@param fct function the function called
+---@param priority? integer the priority of the action
 function jo.registerAction(name,fct,priority)
 	if not listActions[name] then listActions[name] = {} end
   local pos = 1
@@ -20,6 +23,8 @@ function jo.registerAction(name,fct,priority)
 end
 exports('registerAction',jo.registerAction)
 
+---@param name string the name of the action
+---@param ...? any
 function jo.doActions(name,...)
 	if not listActions[name] then return end
 	for _,action in ipairs (listActions[name]) do
@@ -31,6 +36,9 @@ end
 -- Filters
 -------------
 local listFilters = {}
+---@param name string the name of the filter
+---@param fct function the function called
+---@param priority? integer the priority of the filter
 function jo.registerFilter(name,fct,priority)
 	if not listFilters[name] then listFilters[name] = {} end
   local pos = 1
@@ -49,6 +57,9 @@ function jo.registerFilter(name,fct,priority)
 end
 exports('registerFilter',jo.registerFilter)
 
+---@param name string the name of the filter
+---@param value any the value to filter
+---@param ...? any
 function jo.applyFilters(name,value,...)
 	if not listFilters[name] then return value end
 	for _,filter in ipairs (listFilters[name]) do

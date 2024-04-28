@@ -41,3 +41,13 @@ table.isEmpty = function (_table)
 	end
 	return true
 end
+
+---@param _table table
+---@return integer
+table.count = function(_table)
+  local counter = 0
+  for _,_ in pairs (_table) do
+    counter += 1
+  end
+  return counter
+end

@@ -3,6 +3,7 @@ local serverCallbacks = {}
 
 ---@param name string Name of the callback event
 ---@param cb function return of the event
+---@param ...? any
 function jo.triggerServerCallback(name, cb, ...)
   local fromRessource = GetCurrentResourceName() or "unknown"
   serverCallbacks[currentRequestId] = cb

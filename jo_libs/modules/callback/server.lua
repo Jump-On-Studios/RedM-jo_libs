@@ -1,5 +1,7 @@
 local serverCallbacks = {}
 
+---@param name string the name of the event
+---@param cb function
 function jo.registerServerCallback(name, cb)
   serverCallbacks[name] = {
     cb = cb,

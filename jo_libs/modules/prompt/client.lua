@@ -85,8 +85,8 @@ end
 ---@param group string Group of the prompt
 ---@param str string label of the prompt
 ---@param key string Input
----@param holdTime integer time to complete
----@param page integer page of the prompt
+---@param holdTime? integer (optional) time to complete
+---@param page? integer (optional) page of the prompt
 function jo.prompt.create(group, str, key, holdTime, page)
   --Check if group exist
 	if not page then page = 0 end

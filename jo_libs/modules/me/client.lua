@@ -4,6 +4,7 @@ jo.mePlayerId = PlayerId()
 jo.meServerId = GetPlayerServerId(PlayerId())
 local timer = 1000
 
+---@param value integer the new interval to update me values
 function jo.updateMeTimer(value)
   timer = value
 end

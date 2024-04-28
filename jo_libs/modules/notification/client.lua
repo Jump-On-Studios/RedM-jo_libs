@@ -27,14 +27,23 @@ RegisterNetEvent(GetCurrentResourceName()..":client:notif", function(text, dict,
   jo.notif.right(text, dict, icon, color, duration,soundset_ref,soundset_name)
 end)
 
+---@param text string the text of the notification
 function jo.notif.rightSuccess(text)
   jo.notif.right(text,"hud_textures","check","COLOR_GREEN")
 end
 
+---@param text string the text of the notification
 function jo.notif.rightError(text)
   jo.notif.right(text,"menu_textures", "cross","COLOR_RED",nil,nil,'Transaction_Negative')
 end
 
+---@param text string The text of the notification
+---@param dict string The dictonnary of the icon
+---@param icon string he name of the icon
+---@param color string The color of the text
+---@param duration integer The duration of the notification in ms
+---@param soundset_ref string The dictionnary of the soundset
+---@param soundset_name string The name of the soundset
 function jo.notif.right(text, dict, icon, color, duration,soundset_ref,soundset_name)
   local message = {
     type = 'notificationRight',
@@ -72,6 +81,14 @@ RegisterNetEvent(GetCurrentResourceName()..":client:notifLeft", function(title, 
   jo.notif.left(title, subTitle, dict, icon, color, duration,soundset_ref,soundset_name)
 end)
 
+---@param title string the title of the notification
+---@param text string The text of the notification
+---@param dict string The dictonnary of the icon
+---@param icon string he name of the icon
+---@param color string The color of the text
+---@param duration integer The duration of the notification in ms
+---@param soundset_ref string The dictionnary of the soundset
+---@param soundset_name string The name of the soundset
 function  jo.notif.left(title, text, dict, icon, color, duration,soundset_ref,soundset_name)
   local message = {
     type = 'notificationLeft',
