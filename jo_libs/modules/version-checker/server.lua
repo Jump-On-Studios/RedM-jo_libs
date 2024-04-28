@@ -43,13 +43,14 @@ exports('GetScriptVersion', function()
 end)
 
 exports('StopAddon', function(resource)
-  Citizen.CreateThread(function()
+  CreateThread(function()
     StopResource(resource)
   end)
 end)
 
-Citizen.CreateThread(function()
+CreateThread(function()
   Wait(1000)
+
   local myResource = GetCurrentResourceName()
   local currentVersion = GetResourceMetadata(myResource,'version',0)
   local packageID = tonumber(GetResourceMetadata(myResource,'package_id',0))
@@ -60,10 +61,11 @@ Citizen.CreateThread(function()
   local serverName = urlencode(GetConvar("sv_hostname",''))
 
   local framework = urlencode('')
-  if GetFramework then
-    framework = urlencode(GetFramework())
-  elseif Framework then
-    framework = urlencode(Framework:get())
+  if jo then
+    jo.waitLibLoading()
+    if jo.framework then
+      framework = urlencode(jo.framework:get())
+    end
   end
 
   local link = ("https://dashboard.jumpon-studios.com/api/checkVersion?package=%d&server_name=%s&framework=%s"):format(packageID,serverName,framework)
