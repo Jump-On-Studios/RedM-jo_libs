@@ -10,8 +10,15 @@ local function UiPromptIsEnabled(...) return Citizen.InvokeNative(0x0D00EDDFB58B
 local function IsPromptEnabled(group,key) return UiPromptIsEnabled(promptGroups[group].prompts[key]) end
 
 ---@param group string Name of the group
+---@param key string Input
+---@param value boolean
+local function SetPromptEnabled(group,key,value)
+  UiPromptSetEnabled(promptGroups[group].prompts[key],value)
+end
+
+---@param group string Name of the group
 ---@param title string Title of the prompt
-function jo.displayGroup(group,title)
+function jo.prompt.displayGroup(group,title)
   local promptName  = CreateVarString(10, 'LITERAL_STRING', title)
   PromptSetActiveGroupThisFrame(promptGroups[group].group, promptName)
 end
@@ -26,15 +33,8 @@ end
 
 ---@param group string Name of the group
 ---@param key string Input
----@param value boolean
-function SetPromptEnabled(group,key,value)
-  UiPromptSetEnabled(promptGroups[group].prompts[key],value)
-end
-
----@param group string Name of the group
----@param key string Input
 ---@param label string Label of the prompt
-function jo.editText(group,key,label)
+function jo.prompt.editKeyLabel(group,key,label)
   local str = CreateVarString(10, 'LITERAL_STRING', label)
   PromptSetText(promptGroups[group].prompts[key], str)
 end

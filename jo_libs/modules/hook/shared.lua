@@ -18,7 +18,7 @@ function jo.registerAction(name,fct,priority)
     priority = priority
   })
 end
-exports('RegisterAction',jo.registerAction)
+exports('registerAction',jo.registerAction)
 
 function jo.doActions(name,...)
 	if not listActions[name] then return end
@@ -47,7 +47,7 @@ function jo.registerFilter(name,fct,priority)
     priority = priority
   })
 end
-exports('RegisterFilter',jo.registerFilter)
+exports('registerFilter',jo.registerFilter)
 
 function jo.applyFilters(name,value,...)
 	if not listFilters[name] then return value end

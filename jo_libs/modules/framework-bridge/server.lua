@@ -4,7 +4,7 @@ jo.load('framework-bridge.overwrite-functions')
 -- USER CLASS
 -------------
 
----@class User : table User class
+---@class jo.User : table User class
 ---@field source integer source ID
 local User = {
   source = 0,
@@ -187,9 +187,9 @@ function User:giveGold(amount)
   self:addMoney(amount, 1)
 end
 
-function User:getIdentifier()
-  if OWFramework.getIdentifier then
-    return OWFramework.GetIdentifier(self.source)
+function User:getIdentifiers()
+  if OWFramework.getIdentifiers then
+    return OWFramework.getIdentifiers(self.source)
   end
 
   if jo.framework:is("VORP") then
@@ -242,6 +242,8 @@ function User:getRPName()
   return source..""
 end
 
+jo.User = User
+
 -------------
 -- FRAMEWORK CLASS
 -------------
@@ -264,35 +266,6 @@ function FrameworkClass:new(t)
   t:init()
 	return t
 end
-
----@return string Name of the framework
-function FrameworkClass:get()
-  if self.name ~= "" then return self.name end
-
-  if OWFramework.Framework == "Custom" then
-    self.name = OWFramework.Framework
-  elseif GetResourceState('vorp_core') == "started" then
-    self.name = "VORP"
-  elseif GetResourceState('redem') == "started" then
-    self.name = "RedEM"
-  elseif GetResourceState('redem_roleplay') == "started" then
-    self.name = "RedEM2023"
-  elseif GetResourceState('qbr-core') == "started" then
-    self.name = "QBR"
-  elseif GetResourceState('rsg-core') == "started" then
-    self.name = "RSG"
-  elseif GetResourceState('qr-core') == "started" then
-    self.name = "QR"
-  end
-  return self.name
-end
-
----@param name string Name of the framework
----@return boolean
-function FrameworkClass:is(name)
-  return self:get() == name
-end
-
 
 function FrameworkClass:init()
   if OWFramework.initFramework then
@@ -337,6 +310,34 @@ function FrameworkClass:init()
   eprint('No compatible Framework detected. Please contact JUMP ON studios on discord')
 end
 
+---@return string Name of the framework
+function FrameworkClass:get()
+  if self.name ~= "" then return self.name end
+
+  if OWFramework.get then
+    self.name = OWFramework.get()
+  elseif GetResourceState('vorp_core') == "started" then
+    self.name = "VORP"
+  elseif GetResourceState('redem') == "started" then
+    self.name = "RedEM"
+  elseif GetResourceState('redem_roleplay') == "started" then
+    self.name = "RedEM2023"
+  elseif GetResourceState('qbr-core') == "started" then
+    self.name = "QBR"
+  elseif GetResourceState('rsg-core') == "started" then
+    self.name = "RSG"
+  elseif GetResourceState('qr-core') == "started" then
+    self.name = "QR"
+  end
+  return self.name
+end
+
+---@param name string Name of the framework
+---@return boolean
+function FrameworkClass:is(name)
+  return self:get() == name
+end
+
 ---@param source integer source ID
 ---@return table
 function FrameworkClass:getUser(source)
@@ -346,9 +347,9 @@ end
 
 ---@param source integer source ID
 ---@return table identifier
-function FrameworkClass:getIdentifier(source)
+function FrameworkClass:getIdentifiers(source)
   local user = User:get(source)
-  return user:getIdentifier()
+  return user:getIdentifiers()
 end
 
 ---@param source integer source ID
@@ -370,8 +371,8 @@ end
 ---@param meta table metadata of the item
 ---@param remove boolean if removed after used
 function FrameworkClass:canUseItem(source,item,amount,meta,remove)
-  if OWFramework.useItem then
-    return OWFramework.useItem(source,item,amount,meta,remove)
+  if OWFramework.canUseItem then
+    return OWFramework.canUseItem(source,item,amount,meta,remove)
   end
   if self:is("VORP") then
     local count = self.inv:getItemCount(source, nil, item)
@@ -562,7 +563,7 @@ end
 function FrameworkClass:addItemInInventory(source,invId,item,quantity,metadata,needWait)
   local waiter = promise.new()
   if OWFramework.addItemInInventory then
-    OWFramework.addItemInInventory(invId,item,quantity,metadata)
+    OWFramework.addItemInInventory(invId,item,quantity,metadata,needWait)
   elseif self:is('VORP') then
     local itemId = self.inv:getItemDB(item).id
     local user = User:get(source)
@@ -625,7 +626,7 @@ end
 ---@param invId string name of the inventory
 function FrameworkClass:getItemsFromInventory(source,invId)
   if OWFramework.getItemsFromInventory then
-    return OWFramework.getItemsFromInventory
+    return OWFramework.getItemsFromInventory(source,invId)
   elseif self:is('VORP') then
     local items = MySQL.query.await("SELECT ci.character_id, ic.id, i.item, ci.amount, ic.metadata, ci.created_at FROM items_crafted ic\
       LEFT JOIN character_inventories ci on ic.id = ci.item_crafted_id\

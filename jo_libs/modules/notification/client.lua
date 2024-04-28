@@ -32,7 +32,7 @@ function jo.notif.rightSuccess(text)
 end
 
 function jo.notif.rightError(text)
-  jo.notif.right(text,"menu_textures", "cross","COLOR_RED")
+  jo.notif.right(text,"menu_textures", "cross","COLOR_RED",nil,nil,'Transaction_Negative')
 end
 
 function jo.notif.right(text, dict, icon, color, duration,soundset_ref,soundset_name)
