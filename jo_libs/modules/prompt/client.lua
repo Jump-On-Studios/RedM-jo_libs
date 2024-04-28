@@ -6,6 +6,7 @@ jo.prompt = {}
 local function UiPromptHasHoldMode(...) return Citizen.InvokeNative(0xB60C9F9ED47ABB76, ...) end
 local function UiPromptSetEnabled(...) return Citizen.InvokeNative(0x8A0FB4D03A630D21,...) end
 local function UiPromptIsEnabled(...) return Citizen.InvokeNative(0x0D00EDDFB58B7F28,...) end
+local function UiPromptGetProgress(...) return  Citizen.InvokeNative(0x81801291806DBC50,...,Citizen.ResultAsFloat()) end
 
 local function IsPromptEnabled(group,key) return UiPromptIsEnabled(promptGroups[group].prompts[key]) end
 
@@ -163,4 +164,11 @@ end
 function jo.prompt.isPromptExist(group, key)
   if not promptGroups[group] then return false end
   return promptGroups[group].prompts[key] and true or false
+end
+
+---@param group string the name of the group
+---@param key string the input of the key
+function jo.prompt.getPromptProgress(group,key)
+  if not jo.prompt.isPromptExist(group,key) then return 0 end
+  return UiPromptGetProgress(promptGroups[group].prompts[key])
 end
