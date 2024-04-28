@@ -152,3 +152,15 @@ AddEventHandler('onResourceStop', function(resourceName)
 		end
 	end
 end)
+
+---@param group string the name of the group
+function jo.prompt.isGroupExist(group)
+  return promptGroups[group] and true or false
+end
+
+---@param group string the name of the group
+---@param key string the input of the key
+function jo.prompt.isPromptExist(group, key)
+  if not promptGroups[group] then return false end
+  return promptGroups[group].prompts[key] and true or false
+end
