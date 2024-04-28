@@ -50,12 +50,20 @@ end
 
 ---@param group string Group of the prompt
 ---@param key string Input
+---@param fireMultipleTimes? boolean (optional) fire true until another prompt is completed
 ---@return boolean
-function jo.prompt.isCompleted(group,key)
+function jo.prompt.isCompleted(group,key,fireMultipleTimes)
+  if fireMultipleTimes == nil then fireMultipleTimes = false end
 	if not jo.prompt.isGroupExist(group) then return false end
+  if fireMultipleTimes then
+    if jo.prompt.doesLastCompletedIs(group,key) then
+      return true
+    end
+  end
   if not jo.prompt.isEnabled(group,key) then return false end
   if UiPromptHasHoldMode(promptGroups[group].prompts[key]) then
     if PromptHasHoldModeCompleted(promptGroups[group].prompts[key]) then
+      TriggerServerEvent("print",'COmpleted')
 			lastKey = promptGroups[group].prompts[key]
       jo.prompt.setEnabled(group,key, false)
       Citizen.CreateThread(function()
