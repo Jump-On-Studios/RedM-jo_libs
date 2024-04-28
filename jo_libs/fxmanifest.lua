@@ -12,7 +12,6 @@ lua54 'yes'
 
 files {
   "init.lua",
-  "server/**.lua", --temporary
   "modules/**.lua",
 	"html/dist/**.html",
 	"html/dist/**.js",
