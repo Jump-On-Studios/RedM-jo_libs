@@ -347,7 +347,7 @@ end
 
 ---@param source integer source ID
 ---@return table identifier
-function FrameworkClass:getIdentifiers(source)
+function FrameworkClass:getUserIdentifiers(source)
   local user = User:get(source)
   return user:getIdentifiers()
 end
@@ -685,6 +685,15 @@ function FrameworkClass:getItemsFromInventory(source,invId)
     return itemFiltered
   end
   return {}
+end
+
+---@param source integer
+---@param amount number
+---@param moneyType? integer 1: $, 2: gold, 3: rol
+---@return boolean
+function FrameworkClass:doesUserCanBuy(source,amount,moneyType)
+  local user = User:get(source)
+  return user:canBuy(amount,moneyType or 1)
 end
 
 jo.framework = FrameworkClass:new()
