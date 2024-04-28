@@ -40,10 +40,10 @@ end
 ---@param text string The text of the notification
 ---@param dict string The dictonnary of the icon
 ---@param icon string he name of the icon
----@param color string The color of the text
----@param duration integer The duration of the notification in ms
----@param soundset_ref string The dictionnary of the soundset
----@param soundset_name string The name of the soundset
+---@param color? string The color of the text
+---@param duration? integer The duration of the notification in ms
+---@param soundset_ref? string The dictionnary of the soundset
+---@param soundset_name? string The name of the soundset
 function jo.notif.right(text, dict, icon, color, duration,soundset_ref,soundset_name)
   local message = {
     type = 'notificationRight',
@@ -85,10 +85,10 @@ end)
 ---@param text string The text of the notification
 ---@param dict string The dictonnary of the icon
 ---@param icon string he name of the icon
----@param color string The color of the text
----@param duration integer The duration of the notification in ms
----@param soundset_ref string The dictionnary of the soundset
----@param soundset_name string The name of the soundset
+---@param color? string The color of the text
+---@param duration? integer The duration of the notification in ms
+---@param soundset_ref? string The dictionnary of the soundset
+---@param soundset_name? string The name of the soundset
 function  jo.notif.left(title, text, dict, icon, color, duration,soundset_ref,soundset_name)
   local message = {
     type = 'notificationLeft',
