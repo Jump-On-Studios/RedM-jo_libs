@@ -2,6 +2,15 @@ if not _VERSION:find('5.4') then
   error('^1Lua 5.4 must be enabled in the resource manifest!^0', 2)
 end
 
+local jo = {}
+jo.libLoaded = false
+function jo.waitLibLoading()
+  while not jo.libLoaded do
+    Wait(0)
+  end
+end
+_ENV.jo = jo
+
 local resourceName = GetCurrentResourceName()
 local jo_libs = 'jo_libs'
 
@@ -33,9 +42,6 @@ local function loadModule(module)
   end
 end
 
-local jo = {}
-_ENV.jo = jo
-
 -------------
 -- default module
 -------------
@@ -48,3 +54,4 @@ for i = 1, GetNumResourceMetadata(resourceName, 'jo_lib') do
   local module = loadModule(name)
   if type(module) == 'function' then pcall(module) end
 end
+jo.libLoaded = true
