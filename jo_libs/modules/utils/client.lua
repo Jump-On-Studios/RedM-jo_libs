@@ -1,17 +1,3 @@
----@param entity integer
-function jo.requestControl(entity)
-  while not NetworkHasControlOfEntity(entity) do
-    NetworkRequestControlOfEntity(entity)
-    Wait(100)
-  end
-end
-
----@param entity integer
-function jo.deleteEntity(entity)
-  if not DoesEntityExist(entity) then return end
-  DeleteEntity(entity)
-end
-
 ---@param name string
 ---@param waiter? boolean need wait
 function jo.loadGameData(name,waiter)

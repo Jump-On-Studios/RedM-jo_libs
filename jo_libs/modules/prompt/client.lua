@@ -8,20 +8,24 @@ local function UiPromptSetEnabled(...) return Citizen.InvokeNative(0x8A0FB4D03A6
 local function UiPromptIsEnabled(...) return Citizen.InvokeNative(0x0D00EDDFB58B7F28,...) end
 local function UiPromptGetProgress(...) return  Citizen.InvokeNative(0x81801291806DBC50,...,Citizen.ResultAsFloat()) end
 
-local function IsPromptEnabled(group,key) return UiPromptIsEnabled(promptGroups[group].prompts[key]) end
-
----@param group string Name of the group
----@param key string Input
----@param value boolean
-local function SetPromptEnabled(group,key,value)
-  UiPromptSetEnabled(promptGroups[group].prompts[key],value)
-end
-
 ---@param group string Name of the group
 ---@param title string Title of the prompt
 function jo.prompt.displayGroup(group,title)
   local promptName  = CreateVarString(10, 'LITERAL_STRING', title)
   PromptSetActiveGroupThisFrame(promptGroups[group].group, promptName)
+end
+
+---@param group string Name of the group
+---@param key string Input
+function jo.prompt.isEnabled(group,key)
+  return UiPromptIsEnabled(promptGroups[group].prompts[key])
+end
+
+---@param group string Name of the group
+---@param key string Input
+---@param value boolean
+function jo.prompt.setEnabled(group,key,value)
+  UiPromptSetEnabled(promptGroups[group].prompts[key],value)
 end
 
 ---@param group string Name of the group
@@ -44,18 +48,18 @@ end
 ---@return boolean
 function jo.prompt.isCompleted(group,key)
 	if not promptGroups[group] then return false end
-  if not IsPromptEnabled(group,key) then return false end
+  if not jo.prompt.isEnabled(group,key) then return false end
   if UiPromptHasHoldMode(promptGroups[group].prompts[key]) then
     if PromptHasHoldModeCompleted(promptGroups[group].prompts[key]) then
 			lastKey = promptGroups[group].prompts[key]
-      SetPromptEnabled(group,key, false)
+      jo.prompt.setEnabled(group,key, false)
       Citizen.CreateThread(function()
         local group = group
         local key = key
         while IsDisabledControlPressed(0,joaat(key)) or IsControlPressed(0,joaat(key)) do
           Wait(0)
         end
-        SetPromptEnabled(group,key, true)
+        jo.prompt.setEnabled(group,key, true)
       end)
       return true
     end
@@ -130,6 +134,12 @@ function jo.prompt.create(group, str, key, holdTime, page)
   PromptRegisterEnd(promptGroups[group].prompts[key])
 end
 
+function jo.prompt.deleteAllGroups()
+  for group,_ in pairs (promptGroups) do
+    jo.prompt.deleteGroup(group)
+  end
+end
+
 ---@param group string Group of the prompt
 ---@param key string Input
 function jo.prompt.deletePrompt(group,key)
@@ -142,6 +152,7 @@ function jo.prompt.deleteGroup(group)
 	for _,prompt in pairs (promptGroups[group].prompts) do
 		PromptDelete(prompt)
 	end
+  promptGroups[group] = nil
 end
 
 AddEventHandler('onResourceStop', function(resourceName)
