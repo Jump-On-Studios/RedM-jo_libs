@@ -87,7 +87,7 @@ end
 ---@param group string Group of the prompt
 ---@param key string Input
 ---@return boolean
-function jo.prompt.isLastKey(group,key)
+function jo.prompt.doesLastCompletedIs(group,key)
   if not jo.prompt.isPromptExist(group,key) then return false end
 	return lastKey == promptGroups[group].prompts[key]
 end
