@@ -1,5 +1,6 @@
 jo.me = PlayerPedId()
 jo.meCoords = GetEntityCoords(me)
+jo.mePlayerId = PlayerId()
 local timer = 1000
 
 function jo.updateMeTimer(value)
@@ -9,12 +10,11 @@ end
 function jo.forceUpdateMe()
   jo.me = PlayerPedId()
   jo.meCoords = GetEntityCoords(jo.me)
-
+  jo.mePlayerId = PlayerId()
 end
 
 local function updateMe()
-  jo.me = PlayerPedId()
-  jo.meCoords = GetEntityCoords(jo.me)
+  jo.forceUpdateMe()
   SetTimeout(timer,updateMe)
 end
 SetTimeout(timer,updateMe)
