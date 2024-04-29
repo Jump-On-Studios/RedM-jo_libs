@@ -11,6 +11,12 @@ local function LoadDictFile(dict,waiter)
   end
 end
 
+function bigInt(text)
+  local string1 = DataView.ArrayBuffer(16)
+  string1:SetInt64(0, text)
+  return string1:GetInt64(0)
+end
+
 local function UiFeedPostSampleToastRight(...)
   return Citizen.InvokeNative(0xB249EBCB30DD88E0,...)
 end
