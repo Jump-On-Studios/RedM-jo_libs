@@ -1,6 +1,6 @@
 author "JUMP ON studios : shop.jumpon-studios.com"
 documentation 'https://docs.kaddarem.com'
-version '1.0.1'
+version '1.1.0'
 package_id '1'
 
 fx_version "adamant"
@@ -10,15 +10,9 @@ rdr3_warning 'I acknowledge that this is a prerelease build of RedM, and I am aw
 game "rdr3"
 lua54 'yes'
 
-server_scripts {
-  "server/versionChecker.lua"
-}
-
 files {
-  "client/**.lua",
-  "server/**.lua",
-  "shared/**.lua",
-  "utils/**.lua",
+  "init.lua",
+  "modules/**.lua",
 	"html/dist/**.html",
 	"html/dist/**.js",
 	"html/dist/**.css",
@@ -26,4 +20,12 @@ files {
 	"html/dist/**.png",
 	"html/dist/**.mp3",
 	"html/dist/**.gif",
+}
+
+shared_scripts {
+	'init.lua'
+}
+
+jo_libs {
+	'version-checker'
 }
