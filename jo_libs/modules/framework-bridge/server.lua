@@ -4,7 +4,7 @@ jo.load('framework-bridge.overwrite-functions')
 -- USER CLASS
 -------------
 
----@class jo.User : table User class
+---@class User : table User class
 ---@field source integer source ID
 local User = {
   source = 0,
@@ -692,6 +692,9 @@ end
 ---@param moneyType? integer 1: $, 2: gold, 3: rol
 ---@return boolean
 function FrameworkClass:doesUserCanBuy(source,amount,moneyType)
+  if OWFramework.doesUserCanBuy then
+    return OWFramework.doesUserCanBuy(source,amount,moneyType)
+  end
   local user = User:get(source)
   return user:canBuy(amount,moneyType or 1)
 end

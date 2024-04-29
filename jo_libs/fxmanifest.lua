@@ -1,6 +1,6 @@
 author "JUMP ON studios : shop.jumpon-studios.com"
 documentation 'https://docs.kaddarem.com'
-version '1.0.2'
+version '1.1.0'
 package_id '1'
 
 fx_version "adamant"

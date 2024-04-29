@@ -63,7 +63,6 @@ function jo.prompt.isCompleted(group,key,fireMultipleTimes)
   if not jo.prompt.isEnabled(group,key) then return false end
   if UiPromptHasHoldMode(promptGroups[group].prompts[key]) then
     if PromptHasHoldModeCompleted(promptGroups[group].prompts[key]) then
-      TriggerServerEvent("print",'COmpleted')
 			lastKey = promptGroups[group].prompts[key]
       jo.prompt.setEnabled(group,key, false)
       Citizen.CreateThread(function()

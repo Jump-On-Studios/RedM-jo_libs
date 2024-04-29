@@ -1,6 +1,8 @@
+jo.utils = {}
+
 ---@param name string
 ---@param waiter? boolean need wait
-function jo.loadGameData(name,waiter)
+function jo.utils.loadGameData(name,waiter)
 	local model = (type(name) == "string") and joaat(name) or name
 	if IsModelValid(model) then
 		if not HasModelLoaded(model) then
@@ -32,7 +34,7 @@ function jo.loadGameData(name,waiter)
 end
 
 ---@param name string
-function jo.releaseGameData(name)
+function jo.utils.releaseGameData(name)
 	local model = (type(name) == "string") and joaat(name) or name
 	if IsModelValid(model) then
 		if HasModelLoaded(model) then
