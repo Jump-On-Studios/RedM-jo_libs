@@ -699,5 +699,13 @@ function FrameworkClass:doesUserCanBuy(source,amount,moneyType)
   return user:canBuy(amount,moneyType or 1)
 end
 
+---@param source integer
+---@param amount number
+---@param moneyType? integer 1: $, 2: gold, 3: rol
+function FrameworkClass:addMoney(source,amount,moneyType)
+  local user = User:get(source)
+  user:addMoney(amount,moneyType)
+end
+
 jo.framework = FrameworkClass:new()
 return jo.framework
