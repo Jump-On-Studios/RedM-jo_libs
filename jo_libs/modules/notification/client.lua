@@ -1,7 +1,7 @@
 jo.notif = {}
 
 if not DataView then
-  jo.load('dataview')
+  jo.require('dataview')
 end
 
 local function LoadDictFile(dict,waiter)

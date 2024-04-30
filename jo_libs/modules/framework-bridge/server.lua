@@ -1,4 +1,4 @@
-jo.load('framework-bridge.overwrite-functions')
+jo.require('framework-bridge.overwrite-functions')
 
 -------------
 -- USER CLASS
