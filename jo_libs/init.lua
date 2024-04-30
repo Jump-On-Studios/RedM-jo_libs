@@ -59,7 +59,8 @@ end
 
 local jo = setmetatable ({
   libLoaded = false,
-  name = jo_libs
+  name = jo_libs,
+  context = context
 }, {
   __index = call,
   __call = noFunction
@@ -100,7 +101,7 @@ for i = 1, GetNumResourceMetadata(resourceName, 'jo_lib') do
     CreateExport('RegisterAction',jo.hook.RegisterAction)
     CreateExport('registerFilter',jo.hook.registerFilter)
     CreateExport('RegisterFilter',jo.hook.RegisterFilter)
-  elseif name == "version-checker" then
+  elseif name == "version-checker" and context == "server" then
     CreateExport('GetScriptVersion', jo.versionChecker.GetScriptVersion)
     CreateExport('StopAddon', jo.versionChecker.stopAddon)
   end
