@@ -36,3 +36,5 @@ end
 function jo.notif.rightError(source,text)
   jo.notif.right(source,text,"menu_textures", "cross","COLOR_RED")
 end
+
+return jo.notif

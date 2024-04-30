@@ -1,5 +1,9 @@
 jo.notif = {}
 
+if not DataView then
+  jo.load('dataview')
+end
+
 local function LoadDictFile(dict,waiter)
   if DoesStreamedTextureDictExist(dict) then
     if not HasStreamedTextureDictLoaded(dict) then
@@ -121,3 +125,5 @@ function  jo.notif.left(title, text, dict, icon, color, duration,soundset_ref,so
   struct2:SetInt64(8 * 6, bigInt(joaat(message.color)))
   UiFeedPostSampleToast(struct1:Buffer(), struct2:Buffer(), 1, 1)
 end
+
+return jo.notif

@@ -55,3 +55,5 @@ function jo.utils.releaseGameData(name)
 		end
 	end
 end
+
+return jo.utils

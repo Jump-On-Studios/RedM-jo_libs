@@ -47,3 +47,5 @@ function jo.entity.fadeAndDelete(entity,duration)
 	end
 	jo.entity.delete(entity)
 end
+
+return jo.entity

@@ -196,3 +196,5 @@ function jo.prompt.getPromptProgress(group,key)
   if not jo.prompt.isPromptExist(group,key) then return 0 end
   return UiPromptGetProgress(promptGroups[group].prompts[key])
 end
+
+return jo.prompt

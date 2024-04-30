@@ -700,3 +700,4 @@ function FrameworkClass:doesUserCanBuy(source,amount,moneyType)
 end
 
 jo.framework = FrameworkClass:new()
+return jo.framework

@@ -21,3 +21,5 @@ local function updateMe()
   SetTimeout(timer,updateMe)
 end
 SetTimeout(timer,updateMe)
+
+return jo.me

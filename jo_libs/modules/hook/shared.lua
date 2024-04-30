@@ -71,3 +71,5 @@ function jo.hook.applyFilters(name,value,...)
 	end
   return value
 end
+
+return jo.hook

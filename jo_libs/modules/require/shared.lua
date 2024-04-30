@@ -14,3 +14,5 @@ function jo.load(modname)
     pcall(fn)
   end
 end
+
+return jo.load

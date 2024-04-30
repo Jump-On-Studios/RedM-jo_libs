@@ -2,27 +2,18 @@ if not _VERSION:find('5.4') then
   error('^1Lua 5.4 must be enabled in the resource manifest!^0', 2)
 end
 
-local jo = {}
-jo.libLoaded = false
-function jo.waitLibLoading()
-  while not jo.libLoaded do
-    Wait(0)
-  end
-end
-_ENV.jo = jo
-
 local resourceName = GetCurrentResourceName()
 local jo_libs = 'jo_libs'
 
-if GetResourceState(jo_libs) ~= 'started' and resourceName ~= 'jo_libs' then
-  error('^1jo_libs must be started before this resource.^0', 0)
+if jo and jo.name == jo_libs then
+  error(("jo_libs is already loaded.\n\tRemove any duplicate entries from '@%s/fxmanifest.lua'"):format(resourceName))
 end
 
 
 local LoadResourceFile = LoadResourceFile
 local context = IsDuplicityVersion() and 'server' or 'client'
 
-local function loadModule(module)
+local function loadModule(self,module)
   local dir = ('modules/%s'):format(module)
   local file = LoadResourceFile(jo_libs, ('%s/%s.lua'):format(dir, context))
   local sharedFile = LoadResourceFile(jo_libs, ('%s/shared.lua'):format(dir))
@@ -38,20 +29,64 @@ local function loadModule(module)
       return error(('\n^1Error importing module (%s): %s^0'):format(dir, err), 3)
     end
 
-    return fn()
+    local result = fn()
+    self[module] = result or noFunction
+    return self[module]
   end
+end
+
+function noFunction() end
+
+local alias = {
+  framework = "framework-bridge"
+}
+
+local function call(self,index,...)
+  if not index then return noFunction end
+  if type(index) ~= "string" then return noFunction() end
+  if alias[index] then index = alias[index] end
+
+  local module = rawget(self,index)
+
+  if not module then
+    self[index] = noFunction
+    module = loadModule(self,index)
+  end
+
+  return module
+end
+
+local jo = setmetatable ({
+  libLoaded = false,
+  name = jo_libs
+}, {
+  __index = call,
+  __call = noFunction
+})
+
+function jo.waitLibLoading()
+  while not jo.libLoaded do
+    Wait(0)
+  end
+end
+_ENV.jo = jo
+
+
+if GetResourceState(jo_libs) ~= 'started' and resourceName ~= 'jo_libs' then
+  error('^1jo_libs must be started before this resource.^0', 0)
 end
 
 -------------
 -- default module
 -------------
-loadModule('print')
-loadModule('require')
+loadModule(jo,'print')
+loadModule(jo,'require')
 
 for i = 1, GetNumResourceMetadata(resourceName, 'jo_lib') do
   local name = GetResourceMetadata(resourceName, 'jo_lib', i - 1)
-
-  local module = loadModule(name)
-  if type(module) == 'function' then pcall(module) end
+  if not rawget(jo, name) then
+    local module = loadModule(jo,name)
+    if type(module) == 'function' then pcall(module) end
+  end
 end
 jo.libLoaded = true
