@@ -22,8 +22,8 @@ function User:get(source)
 end
 
 function User:init()
-  if OWFramework.getUser then
-    self.data = OWFramework.getUser(self.source)
+  if OWFramework.User.getUser then
+    self.data = OWFramework.User.getUser(self.source)
   elseif jo.framework:is("VORP") then
    self.data = jo.framework.core.getUser(self.source).getUsedCharacter
   elseif jo.framework:is("RedEM2023") then
@@ -47,8 +47,8 @@ function User:getMoney(moneyType)
   if moneyType == nil then
     moneyType = 1
   end
-  if OWFramework.getMoney then
-    return OWFramework.getMoney(self.source,moneyType)
+  if OWFramework.User.getMoney then
+    return OWFramework.User.getMoney(self.source,moneyType)
   end
   if jo.framework:is('VORP') then
     if moneyType == 0 then
@@ -62,9 +62,9 @@ function User:getMoney(moneyType)
     if moneyType == 0 then
       return self.data.money
     elseif moneyType == 1 then
-      return OWFramework.getSecondMoney(source)
+      return OWFramework.User.getSecondMoney(source)
     elseif moneyType == 2 then
-      return OWFramework.getThirdMoney(source)
+      return OWFramework.User.getThirdMoney(source)
     end
   elseif jo.framework:is("RedEM") then
     if moneyType == 0 then
@@ -72,15 +72,15 @@ function User:getMoney(moneyType)
     elseif moneyType == 2 then
       return self.data.getGold()
     elseif moneyType == 3 then
-      return OWFramework.getThirdMoney(source)
+      return OWFramework.User.getThirdMoney(source)
     end
   elseif jo.framework:is("QBR") or jo.framework:is("RSG") or jo.framework:is("QR") then
     if moneyType == 0 then
       return self.data.Functions.GetMoney('cash')
     elseif moneyType == 1 then
-      return OWFramework.getSecondMoney(source)
+      return OWFramework.User.getSecondMoney(source)
     elseif moneyType == 2 then
-      return OWFramework.getThirdMoney(source)
+      return OWFramework.User.getThirdMoney(source)
     end
   end
   return 0
@@ -103,17 +103,17 @@ function User:removeMoney(amount, moneyType)
   if moneyType == nil then
     moneyType = 1
   end
-  if OWFramework.removeMoney then
-    return OWFramework.removeMoney(self, amount, moneyType)
+  if OWFramework.User.removeMoney then
+    return OWFramework.User.removeMoney(self, amount, moneyType)
   elseif jo.framework:is("VORP") then
     self.data.removeCurrency(moneyType, amount)
   elseif jo.framework:is("RedEM2023") then
     if moneyType == 0 then
       self.data.RemoveMoney(amount)
     elseif moneyType == 1 then
-      OWFramework.removeSecondMoney(self.source,amount)
+      OWFramework.User.removeSecondMoney(self.source,amount)
     elseif moneyType == 2 then
-      OWFramework.removeThirdMoney(self.source,amount)
+      OWFramework.User.removeThirdMoney(self.source,amount)
     end
   elseif jo.framework:is("RedEM") then
     if moneyType == 0 then
@@ -121,23 +121,23 @@ function User:removeMoney(amount, moneyType)
     elseif moneyType == 1 then
       self.data.removeGold(amount)
     elseif moneyType == 2 then
-      OWFramework.removeThirdMoney(self.source,amount)
+      OWFramework.User.removeThirdMoney(self.source,amount)
     end
   elseif jo.framework:is("QBR") or jo.framework:is('RSG') or jo.framework:is('QR') then
     if moneyType == 0 then
       self.data.Functions.RemoveMoney('cash', amount)
     elseif moneyType == 1 then
-      OWFramework.removeSecondMoney(self.source,amount)
+      OWFramework.User.removeSecondMoney(self.source,amount)
     elseif moneyType == 2 then
-      OWFramework.removeThirdMoney(self.source,amount)
+      OWFramework.User.removeThirdMoney(self.source,amount)
     end
   elseif jo.framework:is("RPX") then
     if moneyType == 0 then
       self.data.RemoveMoney('cash',amount)
     elseif moneyType == 1 then
-      OWFramework.removeSecondMoney(self.source,amount)
+      OWFramework.User.removeSecondMoney(self.source,amount)
     elseif moneyType == 2 then
-      OWFramework.removeThirdMoney(self.source,amount)
+      OWFramework.User.removeThirdMoney(self.source,amount)
     end
   end
 end
@@ -148,8 +148,8 @@ function User:addMoney(amount,moneyType)
   if moneyType == nil then
     moneyType = 1
   end
-  if OWFramework.addMoney then
-    return OWFramework.addMoney(self.source,amount, moneyType)
+  if OWFramework.User.addMoney then
+    return OWFramework.User.addMoney(self.source,amount, moneyType)
   end
   if jo.framework:is("VORP") then
     self.data.addCurrency(moneyType, amount)
@@ -157,9 +157,9 @@ function User:addMoney(amount,moneyType)
     if moneyType == 0 then
       self.data.AddMoney(amount)
     elseif moneyType == 1 then
-      OWFramework.addSecondMoney(self.source, amount)
+      OWFramework.User.addSecondMoney(self.source, amount)
     elseif moneyType == 2 then
-      OWFramework.addThirdMoney(self.source, amount)
+      OWFramework.User.addThirdMoney(self.source, amount)
     end
   elseif jo.framework:is("RedEM") then
     if moneyType == 0 then
@@ -167,15 +167,15 @@ function User:addMoney(amount,moneyType)
     elseif moneyType == 1 then
       self.data.addGold(amount)
     elseif moneyType == 2 then
-      OWFramework.addThirdMoney(self.source, amount)
+      OWFramework.User.addThirdMoney(self.source, amount)
     end
   elseif jo.framework:is("QBR") or jo.framework:is('RSG') or jo.framework:is('QR') then
     if moneyType == 0 then
       self.Functions.AddMoney('cash', amount)
     elseif moneyType == 1 then
-      OWFramework.addSecondMoney(self.source, amount)
+      OWFramework.User.addSecondMoney(self.source, amount)
     elseif moneyType == 2 then
-      OWFramework.addThirdMoney(self.source, amount)
+      OWFramework.User.addThirdMoney(self.source, amount)
     end
     local xPlayer = self.getUser(source)
     xPlayer.data.Functions.AddMoney('cash', tonumber(amount), 'clothing-store')
@@ -188,8 +188,8 @@ function User:giveGold(amount)
 end
 
 function User:getIdentifiers()
-  if OWFramework.getIdentifiers then
-    return OWFramework.getIdentifiers(self.source)
+  if OWFramework.User.getIdentifiers then
+    return OWFramework.User.getIdentifiers(self.source)
   end
 
   if jo.framework:is("VORP") then
@@ -217,8 +217,8 @@ end
 
 ---@return string job
 function User:getJob()
-  if OWFramework.getJob then
-    return OWFramework.getJob(self.source)
+  if OWFramework.User.getJob then
+    return OWFramework.User.getJob(self.source)
   elseif jo.framework:is("VORP") or jo.framework:is('RedEM2023') then
     return self.data.job
   elseif jo.framework:is("RedEM") then
@@ -231,8 +231,8 @@ end
 
 ---@return string name
 function User:getRPName()
-  if OWFramework.getRPName then
-    return OWFramework.getRPName(self.source)
+  if OWFramework.User.getRPName then
+    return OWFramework.User.getRPName(self.source)
   end
   if jo.framework:is("VORP") or jo.framework:is("RedEM2023") or jo.framework:is("RedEM") then
     return ("%s %s"):format(self.data.firstname,self.data.lastname)
@@ -705,9 +705,6 @@ end
 ---@param moneyType? integer 1: $, 2: gold, 3: rol
 ---@return boolean
 function FrameworkClass:doesUserCanBuy(source,amount,moneyType)
-  if OWFramework.doesUserCanBuy then
-    return OWFramework.doesUserCanBuy(source,amount,moneyType)
-  end
   local user = User:get(source)
   return user:canBuy(amount,moneyType or 1)
 end
