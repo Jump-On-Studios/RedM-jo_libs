@@ -77,10 +77,37 @@ if GetResourceState(jo_libs) ~= 'started' and resourceName ~= 'jo_libs' then
 end
 
 -------------
--- default module
+-- EXPORTS (prevent call before initializes)
+-------------
+local function WaiterExport(name)
+  exports(name, function(...)
+    jo.waitLibLoading()
+    exports[resourceName][name](exports[resourceName],...)
+  end)
+end
+
+for i = 1, GetNumResourceMetadata(resourceName, 'jo_lib') do
+  local name = GetResourceMetadata(resourceName, 'jo_lib', i - 1)
+  if name == "hook" then
+    WaiterExport('registerAction')
+    WaiterExport('RegisterAction')
+    WaiterExport('registerFilter')
+    WaiterExport('RegisterFilter')
+  elseif name == "version-checker" then
+    WaiterExport('GetScriptVersion')
+    WaiterExport('StopAddon')
+  end
+end
+
+-------------
+-- DEFAULT MODULES
 -------------
 loadModule(jo,'print')
 loadModule(jo,'require')
+
+-------------
+-- LOAD REQUIRED MODULES
+-------------
 
 for i = 1, GetNumResourceMetadata(resourceName, 'jo_lib') do
   local name = GetResourceMetadata(resourceName, 'jo_lib', i - 1)

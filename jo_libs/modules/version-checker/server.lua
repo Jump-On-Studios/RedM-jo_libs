@@ -61,11 +61,8 @@ CreateThread(function()
   local serverName = urlencode(GetConvar("sv_hostname",''))
 
   local framework = urlencode('')
-  if jo then
-    jo.waitLibLoading()
-    if jo.framework then
-      framework = urlencode(jo.framework:get())
-    end
+  if jo and jo.framework then
+    framework = urlencode(jo.framework:get())
   end
 
   local link = ("https://dashboard.jumpon-studios.com/api/checkVersion?package=%d&server_name=%s&framework=%s"):format(packageID,serverName,framework)
