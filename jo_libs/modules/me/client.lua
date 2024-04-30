@@ -1,32 +1,25 @@
-jo.me = setmetatable({
-  entity = PlayerPedId(),
-  coords = GetEntityCoords(PlayerPedId()),
-  playerId = PlayerId(),
-  serverId = GetPlayerServerId(PlayerId()),
-  timer = 1000
-},
-{
-  __tostring = function(self)
-    return self.entity
-  end
-})
+jo.me = PlayerPedId()
+jo.meCoords = GetEntityCoords(me)
+jo.mePlayerId = PlayerId()
+jo.meServerId = GetPlayerServerId(PlayerId())
+local timer = 1000
 
 ---@param value integer the new interval to update me values
-function jo.me.updateTimer(value)
-  jo.me.timer = value
+function jo.updateMeTimer(value)
+  timer = value
 end
 
-function jo.me.forceUpdate()
-  jo.me.entity = PlayerPedId()
-  jo.me.coords = GetEntityCoords(PlayerPedId())
-  jo.me.playerId = PlayerId()
-  jo.me.serverId = GetPlayerServerId(PlayerId())
+function jo.forceUpdateMe()
+  jo.me = PlayerPedId()
+  jo.meCoords = GetEntityCoords(jo.me)
+  jo.mePlayerId = PlayerId()
+  jo.meServerId = GetPlayerServerId(PlayerId())
 end
 
 local function updateMe()
-  jo.me.forceUpdate()
-  SetTimeout(jo.me.timer,updateMe)
+  jo.forceUpdateMe()
+  SetTimeout(timer,updateMe)
 end
-SetTimeout(jo.me.timer,updateMe)
+SetTimeout(timer,updateMe)
 
 return jo.me
