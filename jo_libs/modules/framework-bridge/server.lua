@@ -714,7 +714,7 @@ end
 ---@param moneyType? integer 1: $, 2: gold, 3: rol
 function FrameworkClass:addMoney(source,amount,moneyType)
   local user = User:get(source)
-  user:addMoney(amount,moneyType)
+  user:addMoney(amount,moneyType or 1)
 end
 
 jo.framework = FrameworkClass:new()
