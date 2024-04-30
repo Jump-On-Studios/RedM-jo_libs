@@ -1,4 +1,4 @@
-jo['version-checker'] = {}
+jo.versionChecker = {}
 
 local function urlencode(str)
     if str then
@@ -40,19 +40,17 @@ function convertVersion(version)
   return converted
 end
 
-jo['version-checker'].GetScriptVersion = function()
+function jo.versionChecker.GetScriptVersion()
   return GetResourceMetadata(GetCurrentResourceName(),'version',0) or 1
 end
 
-jo['version-checker'].StopAddon = function()
+function jo.versionChecker.StopAddon()
   CreateThread(function()
     StopResource(resource)
   end)
 end
 
-CreateThread(function()
-  Wait(1000)
-
+function jo.versionChecker.checkUpdate()
   local myResource = GetCurrentResourceName()
   local currentVersion = GetResourceMetadata(myResource,'version',0)
   local packageID = tonumber(GetResourceMetadata(myResource,'package_id',0))
@@ -113,6 +111,8 @@ CreateThread(function()
       end
     end
   end
-end)
+end
 
-return jo['version-checker']
+SetTimeout(1000,jo.versionChecker.checkUpdate)
+
+return jo.versionChecker
