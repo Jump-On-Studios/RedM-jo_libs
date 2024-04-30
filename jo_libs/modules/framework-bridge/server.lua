@@ -412,20 +412,31 @@ function FrameworkClass:registerUseItem(item,closeAfterUsed,callback)
   if OWFramework.registerUseItem then
     OWFramework.registerUseItem(item,closeAfterUsed,callback)
   elseif self:is("VORP") then
-    self.inv:getItemDB(item, function(itemData)
-    if not itemData then
+    local isExist = self.inv:getItemDB(item)
+    local count = 0
+    while not isExist and count < 10 do
+      isExist = self.inv:getItemDB(item)
+      count = count + 1
+      Wait(1000)
+    end
+    if not isExist then
       return eprint(item .. " < item does not exist in the database")
     end
-      self.inv:registerUsableItem(item, function(data)
-        if closeAfterUsed then
-          self.inv:closeInventory(data.source)
-        end
-        return callback(data.source,{metadata = data.item.metadata})
-      end)
+    self.inv:registerUsableItem(item, function(data)
+      if closeAfterUsed then
+        self.inv:closeInventory(data.source)
+      end
+      return callback(data.source,{metadata = data.item.metadata})
     end)
   elseif self:is("RedEM2023") or self:is("RedEM") then
-    local itemData = self.inv.getItemData(item)
-    if not itemData then
+    local isExist = self.inv.getItemData(item)
+    local count = 0
+    while not isExist and count < 10 do
+      isExist = self.inv.getItemData(item)
+      count = count + 1
+      Wait(1000)
+    end
+    if not isExist then
       return eprint(item .. " < item does not exist in the inventory OWFrameworkuration")
     end
     AddEventHandler("RegisterUsableItem:"..item, function(source,data)
@@ -435,7 +446,14 @@ function FrameworkClass:registerUseItem(item,closeAfterUsed,callback)
       end
     end)
   elseif self:is("QBR") then
-    if self.core:AddItem(item,nil) then
+    local isExist = self.core:AddItem(item,nil)
+    local count = 0
+    while not isExist and count < 10 do
+      isExist = self.core:AddItem(item,nil)
+      count = count + 1
+      Wait(1000)
+    end
+    if not isExist then
       return eprint(item .. " < item does not exist in the core OWFrameworkuration")
     end
     self.core:CreateUseableItem(item,function(source,data)
@@ -445,7 +463,14 @@ function FrameworkClass:registerUseItem(item,closeAfterUsed,callback)
       end
     end)
   elseif self:is("RSG") or self:is('QR') then
-    if self.core.Functions.AddItem(item,nil) then
+    local isExist = self.core.Functions.AddItem(item,nil)
+    local count = 0
+    while not isExist and count < 10 do
+      isExist = self.core.Functions.AddItem(item,nil)
+      count = count + 1
+      Wait(1000)
+    end
+    if not isExist then
       return eprint(item .. " < item does not exist in the core OWFrameworkuration")
     end
     self.core.Functions.CreateUseableItem(item,function(source,data)
