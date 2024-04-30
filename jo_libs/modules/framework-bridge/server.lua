@@ -88,13 +88,18 @@ end
 
 ---@param price number price
 ---@param moneyType integer 1: $, 2: gold, 3: rol
+---@param removeIfCan? boolean (optional) default: false
 ---@return boolean
-function User:canBuy(price, moneyType)
+function User:canBuy(price, moneyType, removeIfCan)
   if moneyType == nil then
     moneyType = 1
   end
   local money = self:getMoney(moneyType)
-  return money >= price
+  local hasEnough = money >= price
+  if removeIfCan == true and hasEnough then
+    self:removeMoney(price,moneyType)
+  end
+  return hasEnough
 end
 
 ---@param amount number amount to remove
