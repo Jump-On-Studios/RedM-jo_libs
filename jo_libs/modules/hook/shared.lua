@@ -23,7 +23,6 @@ function jo.hook.registerAction(name,fct,priority)
   })
 end
 exports('registerAction',jo.hook.registerAction)
-exports('RegisterAction',jo.hook.registerAction) --keep the compatibility with old export name
 
 ---@param name string the name of the action
 ---@param ...? any
@@ -57,8 +56,6 @@ function jo.hook.registerFilter(name,fct,priority)
     priority = priority
   })
 end
-exports('registerFilter',jo.hook.registerFilter)
-exports('RegisterFilter',jo.hook.registerFilter) --keep the compatibility with old export name
 
 ---@param name string the name of the filter
 ---@param value any the value to filter
@@ -72,6 +69,24 @@ function jo.hook.applyFilters(name,value,...)
       end
 	end
   return value
+end
+
+--------------
+-- DEPRECIATED
+-------------
+function jo.hook.RegisterFilter(...)
+  jo.hook.RegisterFilter(...)
+  CreateThread(function()
+    Wait(3000)
+    oprint('RegisterFilter with "R" in uppercase is depreciated. Use registerFilter with "r" in lowercase !')
+  end)
+end
+function jo.hook.RegisterAction(...)
+  jo.hook.registerAction(...)
+  CreateThread(function()
+    Wait(3000)
+    oprint('RegisterAction with "R" in uppercase is depreciated. Use registerAction with "r" in lowercase !')
+  end)
 end
 
 return jo.hook

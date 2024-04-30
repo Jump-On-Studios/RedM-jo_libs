@@ -79,23 +79,23 @@ end
 -------------
 -- EXPORTS (prevent call before initializes)
 -------------
-local function WaiterExport(name)
+local function CreateExport(name,cb)
   exports(name, function(...)
     jo.waitLibLoading()
-    exports[resourceName][name](exports[resourceName],...)
+    return cb(...)
   end)
 end
 
 for i = 1, GetNumResourceMetadata(resourceName, 'jo_lib') do
   local name = GetResourceMetadata(resourceName, 'jo_lib', i - 1)
   if name == "hook" then
-    WaiterExport('registerAction')
-    WaiterExport('RegisterAction')
-    WaiterExport('registerFilter')
-    WaiterExport('RegisterFilter')
+    CreateExport('registerAction',jo.hook.registerAction)
+    CreateExport('RegisterAction',jo.hook.RegisterAction)
+    CreateExport('registerFilter',jo.hook.registerFilter)
+    CreateExport('RegisterFilter',jo.hook.RegisterFilter)
   elseif name == "version-checker" then
-    WaiterExport('GetScriptVersion')
-    WaiterExport('StopAddon')
+    CreateExport('GetScriptVersion', jo['version-checker'].GetScriptVersion)
+    CreateExport('StopAddon', jo['version-checker'].stopAddon)
   end
 end
 

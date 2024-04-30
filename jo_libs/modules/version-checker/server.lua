@@ -1,3 +1,5 @@
+jo['version-checker'] = {}
+
 local function urlencode(str)
     if str then
         str = string.gsub(str, "\n", "\r\n")
@@ -38,15 +40,15 @@ function convertVersion(version)
   return converted
 end
 
-exports('GetScriptVersion', function()
+jo['version-checker'].GetScriptVersion = function()
   return GetResourceMetadata(GetCurrentResourceName(),'version',0) or 1
-end)
+end
 
-exports('StopAddon', function(resource)
+jo['version-checker'].StopAddon = function()
   CreateThread(function()
     StopResource(resource)
   end)
-end)
+end
 
 CreateThread(function()
   Wait(1000)
@@ -112,3 +114,5 @@ CreateThread(function()
     end
   end
 end)
+
+return jo['version-checker']
