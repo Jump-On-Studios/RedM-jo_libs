@@ -38,7 +38,8 @@ end
 function noFunction() end
 
 local alias = {
-  framework = "framework-bridge"
+  framework = "framework-bridge",
+  versionChecker = "version-checker"
 }
 
 local function call(self,index,...)
@@ -77,6 +78,12 @@ if GetResourceState(jo_libs) ~= 'started' and resourceName ~= 'jo_libs' then
 end
 
 -------------
+-- DEFAULT MODULES
+-------------
+loadModule(jo,'print')
+loadModule(jo,'require')
+
+-------------
 -- EXPORTS (prevent call before initializes)
 -------------
 local function CreateExport(name,cb)
@@ -94,16 +101,10 @@ for i = 1, GetNumResourceMetadata(resourceName, 'jo_lib') do
     CreateExport('registerFilter',jo.hook.registerFilter)
     CreateExport('RegisterFilter',jo.hook.RegisterFilter)
   elseif name == "version-checker" then
-    CreateExport('GetScriptVersion', jo['version-checker'].GetScriptVersion)
-    CreateExport('StopAddon', jo['version-checker'].stopAddon)
+    CreateExport('GetScriptVersion', jo.versionChecker.GetScriptVersion)
+    CreateExport('StopAddon', jo.versionChecker.stopAddon)
   end
 end
-
--------------
--- DEFAULT MODULES
--------------
-loadModule(jo,'print')
-loadModule(jo,'require')
 
 -------------
 -- LOAD REQUIRED MODULES
