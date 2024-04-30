@@ -437,7 +437,7 @@ function FrameworkClass:registerUseItem(item,closeAfterUsed,callback)
       Wait(1000)
     end
     if not isExist then
-      return eprint(item .. " < item does not exist in the inventory OWFrameworkuration")
+      return eprint(item .. " < item does not exist in the inventory configuration")
     end
     AddEventHandler("RegisterUsableItem:"..item, function(source,data)
       callback(source,{metadata = data.meta})
@@ -446,15 +446,9 @@ function FrameworkClass:registerUseItem(item,closeAfterUsed,callback)
       end
     end)
   elseif self:is("QBR") then
-    local isExist = self.core:AddItem(item,nil)
-    local count = 0
-    while not isExist and count < 10 do
-      isExist = self.core:AddItem(item,nil)
-      count = count + 1
-      Wait(1000)
-    end
-    if not isExist then
-      return eprint(item .. " < item does not exist in the core OWFrameworkuration")
+    local isAdded = self.core:AddItem(item,nil)
+    if isAdded then
+      return eprint(item .. " < item does not exist in the core configuration")
     end
     self.core:CreateUseableItem(item,function(source,data)
       callback(source,{metadata = data.info})
@@ -463,15 +457,9 @@ function FrameworkClass:registerUseItem(item,closeAfterUsed,callback)
       end
     end)
   elseif self:is("RSG") or self:is('QR') then
-    local isExist = self.core.Functions.AddItem(item,nil)
-    local count = 0
-    while not isExist and count < 10 do
-      isExist = self.core.Functions.AddItem(item,nil)
-      count = count + 1
-      Wait(1000)
-    end
-    if not isExist then
-      return eprint(item .. " < item does not exist in the core OWFrameworkuration")
+    local isAdded = self.core.Functions.AddItem(item,nil)
+    if isAdded then
+      return eprint(item .. " < item does not exist in the core configuration")
     end
     self.core.Functions.CreateUseableItem(item,function(source,data)
       callback(source,{metadata = data.info})
