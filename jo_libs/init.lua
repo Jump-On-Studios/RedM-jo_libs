@@ -5,6 +5,13 @@ end
 local resourceName = GetCurrentResourceName()
 local jo_libs = 'jo_libs'
 
+local alias = {
+  framework = "framework-bridge",
+  versionChecker = "version-checker",
+  notif = "notification",
+}
+
+
 if jo and jo.name == jo_libs then
   error(("jo_libs is already loaded.\n\tRemove any duplicate entries from '@%s/fxmanifest.lua'"):format(resourceName))
 end
@@ -36,11 +43,6 @@ local function loadModule(self,module)
 end
 
 function noFunction() end
-
-local alias = {
-  framework = "framework-bridge",
-  versionChecker = "version-checker"
-}
 
 local function call(self,index,...)
   if not index then return noFunction end

@@ -15,7 +15,7 @@ local User = {
 function User:get(source)
   local user = {}
   setmetatable(user, self)
-  self.source = source
+  self.source = tonumber(source)
   self.__index = self
   self:init()
   return user
@@ -75,7 +75,7 @@ function User:getMoney(moneyType)
       return OWFramework.getThirdMoney(source)
     end
   elseif jo.framework:is("QBR") or jo.framework:is("RSG") or jo.framework:is("QR") then
-    if money == 0 then
+    if moneyType == 0 then
       return self.data.Functions.GetMoney('cash')
     elseif moneyType == 1 then
       return OWFramework.getSecondMoney(source)
@@ -210,7 +210,7 @@ function User:getIdentifiers()
   elseif jo.framework:is("QBR") or jo.framework:is("RSG") or jo.framework:is("QR") then
     return {
       identifier = self.data.PlayerData.citizenid,
-      charid = self.data.PlayerData.citizenid
+      charid = 0
     }
   end
 end
