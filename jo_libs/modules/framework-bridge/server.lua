@@ -703,10 +703,11 @@ end
 ---@param source integer
 ---@param amount number
 ---@param moneyType? integer 1: $, 2: gold, 3: rol
+---@param removeIfCan? boolean (optinal) default : false
 ---@return boolean
-function FrameworkClass:doesUserCanBuy(source,amount,moneyType)
+function FrameworkClass:canUserBuy(source,amount,moneyType, removeIfCan)
   local user = User:get(source)
-  return user:canBuy(amount,moneyType or 1)
+  return user:canBuy(amount,moneyType or 1, removeIfCan)
 end
 
 ---@param source integer
