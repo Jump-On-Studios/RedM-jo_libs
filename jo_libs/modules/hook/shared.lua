@@ -23,6 +23,7 @@ function jo.hook.registerAction(name,fct,priority)
   })
 end
 exports('registerAction',jo.hook.registerAction)
+exports('RegisterAction',jo.hook.registerAction) --keep the compatibility with old export name
 
 ---@param name string the name of the action
 ---@param ...? any
@@ -57,6 +58,7 @@ function jo.hook.registerFilter(name,fct,priority)
   })
 end
 exports('registerFilter',jo.hook.registerFilter)
+exports('RegisterFilter',jo.hook.registerFilter) --keep the compatibility with old export name
 
 ---@param name string the name of the filter
 ---@param value any the value to filter
