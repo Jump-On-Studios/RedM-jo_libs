@@ -41,11 +41,11 @@ function User:init()
   end
 end
 
----@param moneyType integer 1: $, 2: gold, 3: rol
+---@param moneyType integer 0: money, 1: gold, 2: rol
 ---@return number
 function User:getMoney(moneyType)
   if moneyType == nil then
-    moneyType = 1
+    moneyType = 0
   end
   if OWFramework.User.getMoney then
     return OWFramework.User.getMoney(self.source,moneyType)
@@ -69,9 +69,9 @@ function User:getMoney(moneyType)
   elseif jo.framework:is("RedEM") then
     if moneyType == 0 then
       return self.data.getMoney()
-    elseif moneyType == 2 then
+    elseif moneyType == 1 then
       return self.data.getGold()
-    elseif moneyType == 3 then
+    elseif moneyType == 2 then
       return OWFramework.User.getThirdMoney(source)
     end
   elseif jo.framework:is("QBR") or jo.framework:is("RSG") or jo.framework:is("QR") then
@@ -87,12 +87,12 @@ function User:getMoney(moneyType)
 end
 
 ---@param price number price
----@param moneyType integer 1: $, 2: gold, 3: rol
+---@param moneyType integer 0: money, 1: gold, 2: rol
 ---@param removeIfCan? boolean (optional) default: false
 ---@return boolean
 function User:canBuy(price, moneyType, removeIfCan)
   if moneyType == nil then
-    moneyType = 1
+    moneyType = 0
   end
   local money = self:getMoney(moneyType)
   local hasEnough = money >= price
@@ -103,10 +103,10 @@ function User:canBuy(price, moneyType, removeIfCan)
 end
 
 ---@param amount number amount to remove
----@param moneyType integer 1: $, 2: gold, 3: rol
+---@param moneyType integer 0: money, 1: gold, 2: rol
 function User:removeMoney(amount, moneyType)
   if moneyType == nil then
-    moneyType = 1
+    moneyType = 0
   end
   if OWFramework.User.removeMoney then
     return OWFramework.User.removeMoney(self, amount, moneyType)
@@ -148,16 +148,17 @@ function User:removeMoney(amount, moneyType)
 end
 
 ---@param amount number amount to remove
----@param moneyType integer 1: $, 2: gold, 3: rol
+---@param moneyType integer 0: money, 1: gold, 2: rol
 function User:addMoney(amount,moneyType)
   if moneyType == nil then
-    moneyType = 1
+    moneyType = 0
   end
   if OWFramework.User.addMoney then
     return OWFramework.User.addMoney(self.source,amount, moneyType)
   end
+  print(amount,moneyType)
   if jo.framework:is("VORP") then
-    self.data.addCurrency(moneyType, amount)
+    self.data.addCurrency(amount, moneyType)
 	elseif jo.framework:is("RedEM2023") then
     if moneyType == 0 then
       self.data.AddMoney(amount)
@@ -707,20 +708,20 @@ end
 
 ---@param source integer
 ---@param amount number
----@param moneyType? integer 1: $, 2: gold, 3: rol
+---@param moneyType? integer 0: money, 1: gold, 2: rol
 ---@param removeIfCan? boolean (optinal) default : false
 ---@return boolean
 function FrameworkClass:canUserBuy(source,amount,moneyType, removeIfCan)
   local user = User:get(source)
-  return user:canBuy(amount,moneyType or 1, removeIfCan)
+  return user:canBuy(amount,moneyType or 0, removeIfCan)
 end
 
 ---@param source integer
 ---@param amount number
----@param moneyType? integer 1: $, 2: gold, 3: rol
+---@param moneyType? integer 0: money, 1: gold, 2: rol
 function FrameworkClass:addMoney(source,amount,moneyType)
   local user = User:get(source)
-  user:addMoney(amount,moneyType or 1)
+  user:addMoney(amount,moneyType or 0)
 end
 
 jo.framework = FrameworkClass:new()
