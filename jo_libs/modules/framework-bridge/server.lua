@@ -1,4 +1,8 @@
-jo.require('framework-bridge.overwrite-functions')
+jo.file.load('framework-bridge.overwrite-functions')
+
+if not table.merge then
+  jo.require('table')
+end
 
 -------------
 -- USER CLASS
@@ -38,6 +42,8 @@ function User:init()
     self.data = jo.framework.core:GetPlayer(self.source)
   elseif jo.framework:is("RSG") or jo.framework:is("QR") then
     self.data = jo.framework.core.Functions.GetPlayer(self.source)
+  elseif jo.framework:is('RPX') then
+    self.data = jo.framework.core.GetPlayer(self.source)
   end
 end
 
@@ -604,7 +610,7 @@ function FrameworkClass:addItemInInventory(source,invId,item,quantity,metadata,n
     end)
   elseif self:is('QBR') or self:is('RSG') or self:is('RPX') then
     MySQL.scalar('SELECT items FROM stashitems WHERE stash = ?',{invId}, function(items)
-      if type(items) == "string" then items = json.decode(items) end
+      items = UnJson(items)
       if not items then items = {} end
       local slot = 1
       repeat
@@ -658,7 +664,7 @@ function FrameworkClass:getItemsFromInventory(source,invId)
     local itemFiltered = {}
     for _,item in pairs (items) do
       itemFiltered[#itemFiltered+1] = {
-        metadata = json.decode(item.metadata),
+        metadata = UnJson(item.metadata),
         amount = item.amount,
         item = item.item,
         id = item.id
@@ -667,7 +673,7 @@ function FrameworkClass:getItemsFromInventory(source,invId)
     return itemFiltered
   elseif self:is('QBR') or self:is('RSG') or self:is('RPX') then
     local items = MySQL.scalar.await('SELECT items FROM stashitems WHERE stash = ?',{invId})
-    if type(items) == "string" then items = json.decode(items) end
+    items = UnJson(items)
     if not items then items = {} end
     local itemFiltered = {}
     for _,item in pairs (items) do
@@ -722,6 +728,68 @@ end
 function FrameworkClass:addMoney(source,amount,moneyType)
   local user = User:get(source)
   user:addMoney(amount,moneyType or 0)
+end
+
+function FrameworkClass:getUserClothes(source)
+  local clothes = {}
+  if OWFramework.getUserClothes then
+    clothes = OWFramework.getUserClothes(source)
+  elseif self:is('VORP') then
+    local user = User:get(source)
+    clothes = UnJson(user.data.comps or {})
+    local clothesTints = UnJson(user.data.compTints or {})
+    for category,data in pairs (clothesTints) do
+      for hash,data2 in pairs (data) do
+        if tonumber(clothes[category]) == tonumber(hash) then
+          clothes[category] = {
+            hash = clothes[category]
+          }
+          table.merge(clothes[category],data2)
+        end
+      end
+    end
+  elseif self:is("RedEM2023") or self:is("RedEM") then
+    local user = self:getUserIdentifiers(source)
+    clothes = MySQL.scalar.await('SELECT clothes FROM clothes WHERE identifier=? AND charid=?;', {user.identifier,user.charid})
+  elseif GetFramework() == "QBR" then
+    local user = self:getUserIdentifiers(source)
+    clothes = MySQL.scalar.await('SELECT clothes FROM playerskins WHERE citizenid=? AND active=1', {user.identifier})
+  elseif GetFramework() == "RSG" then
+    local user = self:getUserIdentifiers(source)
+    clothes = MySQL.scalar.await('SELECT clothes FROM playerskins WHERE citizenid=?', {user.identifier})
+  elseif GetFramework() == "QR" then
+    local user = self:getUserIdentifiers(source)
+    clothes = MySQL.scalar.await('SELECT clothes FROM playerclothe WHERE citizenid=?', {user.identifier})
+  elseif GetFramework() == "RPX" then
+    local user = User:get(source)
+    clothes = user.data.clothes
+  end
+  return clothes
+end
+
+function FrameworkClass:getUserSkin(source)
+  local user = User:get(source)
+  if not user then return {} end
+  if OWFramework.getUserSkin then
+    return UnJson(OWFramework.getUserSkin(source))
+  end
+  if self:is("VORP") then
+    return UnJson(user.data.skin)
+  end
+  if self:is("RedEM2023") or self:is("RedEM") then
+    local identifiers = user:getIdentifiers()
+    local skin = MySQL.scalar.await("SELECT skin FROM skins WHERE identifier=? AND charid=?;", {identifiers.identifier, identifiers.charid})
+    return UnJson(skin or {})
+  end
+  if self:is("QBR") or self:is("RSG") then
+    local identifiers = user:getIdentifiers()
+    local skin = MySQL.scalar.await('SELECT skin FROM playerskins WHERE citizenid=?', {identifiers.identifier})
+    return UnJson(skin or {})
+  end
+  if self:is("RPX") then
+    return UnJson(user.data.skin)
+  end
+  return {}
 end
 
 jo.framework = FrameworkClass:new()

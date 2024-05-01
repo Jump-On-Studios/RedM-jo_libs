@@ -1,4 +1,6 @@
-function jo.require(modname)
+jo.file = {}
+
+function jo.file.load(modname)
   if type(modname) ~= 'string' then return end
   local modpath = modname:gsub('%.', '/')
 
@@ -15,4 +17,4 @@ function jo.require(modname)
   end
 end
 
-return jo.require
+return jo.file

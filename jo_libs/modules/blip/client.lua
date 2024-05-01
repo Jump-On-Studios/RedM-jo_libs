@@ -3,7 +3,7 @@ jo.blip = {}
 
 AddEventHandler('onResourceStop', function(resourceName)
   if (GetCurrentResourceName() ~= resourceName) then return end
-  for _,blip in pairs (blips) do
+  for _,blip in pairs (Blips) do
 		RemoveBlip(blip)
 	end
 end)

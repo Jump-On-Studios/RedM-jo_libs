@@ -16,6 +16,23 @@ if jo and jo.name == jo_libs then
   error(("jo_libs is already loaded.\n\tRemove any duplicate entries from '@%s/fxmanifest.lua'"):format(resourceName))
 end
 
+function GetHashFromString(value)
+  if type(value) == "string" then
+    return joaat(value)
+  end
+  return value
+end
+
+function UnJson(value)
+  if type(value) == "string" then
+    return json.decode(value)
+  end
+  return value
+end
+
+function IsModuleLoaded(name)
+  return rawget(jo,name)
+end
 
 local LoadResourceFile = LoadResourceFile
 local context = IsDuplicityVersion() and 'server' or 'client'
@@ -84,7 +101,13 @@ end
 -- DEFAULT MODULES
 -------------
 loadModule(jo,'print')
-loadModule(jo,'require')
+loadModule(jo,'file')
+
+function jo.require(name)
+  if IsModuleLoaded(name) then return end
+  local module = loadModule(jo,name)
+  if type(module) == 'function' then pcall(module) end
+end
 
 -------------
 -- EXPORTS (prevent call before initializes)
@@ -115,9 +138,6 @@ end
 
 for i = 1, GetNumResourceMetadata(resourceName, 'jo_lib') do
   local name = GetResourceMetadata(resourceName, 'jo_lib', i - 1)
-  if not rawget(jo, name) then
-    local module = loadModule(jo,name)
-    if type(module) == 'function' then pcall(module) end
-  end
+  jo.require(name)
 end
 jo.libLoaded = true
