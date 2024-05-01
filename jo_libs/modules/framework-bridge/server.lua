@@ -158,7 +158,7 @@ function User:addMoney(amount,moneyType)
   end
   print(amount,moneyType)
   if jo.framework:is("VORP") then
-    self.data.addCurrency(amount, moneyType)
+    self.data.addCurrency(moneyType, amount)
 	elseif jo.framework:is("RedEM2023") then
     if moneyType == 0 then
       self.data.AddMoney(amount)
