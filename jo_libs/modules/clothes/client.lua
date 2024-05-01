@@ -1,3 +1,5 @@
+jo.clothes = {}
+
 if not table.isEmpty then
   jo.require('table')
 end
@@ -22,6 +24,49 @@ local function GetMetaPedAssetTint(ped, index) return Citizen.InvokeNative(0xE79
 local function GetNumComponentsInPed(ped) return Citizen.InvokeNative(0x90403E8107B60E81, ped) end
 local function GetMetaPedType(ped) return Citizen.InvokeNative(0xEC9A1261BF0CE510, ped) end
 local function GetShopItemComponentCategory(...) return Citizen.InvokeNative(0x5FF9A878C3D115B8,...) end
+
+jo.clothes.order = {
+	'ponchos',
+	'cloaks',
+  'hair_accessories',
+  'dresses',
+  'gloves',
+	'coats',
+	'coats_closed',
+	'vests',
+	'suspenders',
+	'neckties',
+	'neckwear',
+	'shirts_full',
+	'spats',
+  'gunbelts',
+	'gauntlets',
+  'holsters_left',
+	'loadouts',
+	'belt_buckles',
+  'belts',
+  'skirts',
+  'pants',
+  'boots',
+	'boot_accessories',
+	'accessories',
+	'satchels',
+	'jewelry_rings_right',
+	'jewelry_rings_left',
+	'jewelry_bracelets',
+	'aprons',
+	'chaps',
+  'badges',
+  'gunbelt_accs',
+  'eyewear',
+  'armor',
+	'masks',
+	'masks_large',
+	'hats',
+  'hair',
+  'beards_complete',
+  'teeth'
+}
 
 ---@param ped integer the entity ID
 ---@param category integer the category hash
@@ -90,12 +135,27 @@ function jo.clothes.getComponentCategory(ped,hash)
   return categoryHash,isMp
 end
 
+local function formatClothesData(data)
+  if type(data) == "table" then
+    if type(data.hash) == "table" then --for VORP
+      return data.hash
+    end
+    return data
+  end
+  if type(data) ~= "number" then data = tonumber(data) end
+  if data == 0 or data == -1 or data == 1 or data == nil then
+    data = false
+  end
+  return {
+    hash = data
+  }
+end
+
 ---@param ped integer the entity
 ---@param category string the clothes category 
 ---@param data any the clothes data
 function jo.clothes.apply(ped,category,data)
-  category = jo.clothes.fixCategoryName(category)
-	data = jo.clothes.formatClothesData(data)
+	data = formatClothesData(data)
 
 	local categoryHash = GetHashFromString(category)
 	local isMp = true

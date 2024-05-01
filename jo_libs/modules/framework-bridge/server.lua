@@ -5,6 +5,96 @@ if not table.merge then
 end
 
 -------------
+-- VARIABLES
+-------------
+local VORPClothesCategoryBridge = {
+  Hat = "hats",
+  Mask = "masks",
+  Shirt = "shirts_full",
+  Suspender = "suspenders",
+  Vest = "vests",
+  Coat = "coats",
+  Poncho = "ponchos",
+  Cloak = "cloaks",
+  Glove = "gloves",
+  RingRh = "jewelry_rings_right",
+  RingLh = "jewelry_rings_left",
+  Bracelet = "jewelry_bracelets",
+  Gunbelt = "gunbelts",
+  Belt = "belts",
+  Buckle = "belt_buckles",
+  Holster = "holsters_left",
+  Pant = "pants",
+  Chap = "chaps",
+  Spurs = "boot_accessories",
+  CoatClosed = "coats_closed",
+  --Ties = "neckties",
+  NeckTies = "neckties",
+  Skirt = "skirts",
+  Boots = "boots",
+  EyeWear = "eyewear",
+  NeckWear = "neckwear",
+  Spats = "spats",
+  GunbeltAccs = "gunbelt_accs",
+  Gauntlets = "gauntlets",
+  Loadouts = "loadouts",
+  Accessories = "accessories",
+  Satchels = "satchels",
+  dresses = "dresses",
+  Dress = "dresses",
+  armor = "armor",
+  Badge = "badges",
+  bow = "hair_accessories",
+}
+local VORPSkinCategoryBridge = {
+  Hair = "hair",
+  Beard = "beards_complete",
+}
+
+local listClothesCategory = {
+	'ponchos',
+	'cloaks',
+  'hair_accessories',
+  'dresses',
+  'gloves',
+	'coats',
+	'coats_closed',
+	'vests',
+	'suspenders',
+	'neckties',
+	'neckwear',
+	'shirts_full',
+	'spats',
+  'gunbelts',
+	'gauntlets',
+  'holsters_left',
+	'loadouts',
+	'belt_buckles',
+  'belts',
+  'skirts',
+  'pants',
+  'boots',
+	'boot_accessories',
+	'accessories',
+	'satchels',
+	'jewelry_rings_right',
+	'jewelry_rings_left',
+	'jewelry_bracelets',
+	'aprons',
+	'chaps',
+  'badges',
+  'gunbelt_accs',
+  'eyewear',
+  'armor',
+	'masks',
+	'masks_large',
+	'hats',
+  'hair',
+  'beards_complete',
+  'teeth'
+}
+
+-------------
 -- USER CLASS
 -------------
 
@@ -162,7 +252,6 @@ function User:addMoney(amount,moneyType)
   if OWFramework.User.addMoney then
     return OWFramework.User.addMoney(self.source,amount, moneyType)
   end
-  print(amount,moneyType)
   if jo.framework:is("VORP") then
     self.data.addCurrency(moneyType, amount)
 	elseif jo.framework:is("RedEM2023") then
@@ -730,23 +819,66 @@ function FrameworkClass:addMoney(source,amount,moneyType)
   user:addMoney(amount,moneyType or 0)
 end
 
+local function revertClothesForFramework(clothesList)
+  local list = {}
+  for catVORP,cat in pairs (VORPClothesCategoryBridge) do
+    list[catVORP] = clothesList[cat] or 0
+  end
+  return list
+end
+
+---@param data any the clothes data
+---@return table
+local function formatClothesData(data)
+  if type(data) == "table" then
+    if type(data.hash) == "table" then --for VORP
+      return data.hash
+    end
+    return data
+  end
+  if type(data) ~= "number" then data = tonumber(data) end
+  if data == 0 or data == -1 or data == 1 or data == nil then
+    data = false
+  end
+  return {
+    hash = data
+  }
+end
+
+---@param clothesList table
+local function cleanClothesTable(clothesList)
+  local list = {}
+  for _,cat in pairs (listClothesCategory) do
+    list[cat] = 0
+  end
+  for cat,hash in pairs (clothesList or {}) do
+    if list[cat] then
+      list[cat] = formatClothesData(hash)
+    end
+  end
+  return list
+end
+
 function FrameworkClass:getUserClothes(source)
-  local clothes = {}
+   local clothes = {}
   if OWFramework.getUserClothes then
     clothes = OWFramework.getUserClothes(source)
   elseif self:is('VORP') then
     local user = User:get(source)
-    clothes = UnJson(user.data.comps or {})
+    local clothesVORP = UnJson(user.data.comps or {})
     local clothesTints = UnJson(user.data.compTints or {})
     for category,data in pairs (clothesTints) do
       for hash,data2 in pairs (data) do
-        if tonumber(clothes[category]) == tonumber(hash) then
-          clothes[category] = {
-            hash = clothes[category]
+        if tonumber(clothesVORP[category]) == tonumber(hash) then
+          clothesVORP[category] = {
+            hash = clothesVORP[category]
           }
-          table.merge(clothes[category],data2)
+          table.merge(clothesVORP[category],data2)
         end
       end
+    end
+    for catVORP,cat in pairs (VORPClothesCategoryBridge) do
+      clothes[cat] = clothesVORP[catVORP] or 0
     end
   elseif self:is("RedEM2023") or self:is("RedEM") then
     local user = self:getUserIdentifiers(source)
@@ -764,6 +896,12 @@ function FrameworkClass:getUserClothes(source)
     local user = User:get(source)
     clothes = user.data.clothes
   end
+
+  if not clothes then return {} end
+  clothes = UnJson(clothes)
+
+  clothes = cleanClothesTable(clothes)
+
   return clothes
 end
 
@@ -774,7 +912,12 @@ function FrameworkClass:getUserSkin(source)
   local user = User:get(source)
   if not user then return {} end
   if self:is("VORP") then
-    return UnJson(user.data.skin)
+    local skinVORP = UnJson(user.data.skin)
+    local skin = {}
+    for catVORP,cat in pairs (VORPSkinCategoryBridge) do
+      skin[cat] = skinVORP[catVORP]
+    end
+    return skin
   end
   if self:is("RedEM2023") or self:is("RedEM") then
     local identifiers = user:getIdentifiers()
