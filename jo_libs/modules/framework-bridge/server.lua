@@ -768,11 +768,11 @@ function FrameworkClass:getUserClothes(source)
 end
 
 function FrameworkClass:getUserSkin(source)
-  local user = User:get(source)
-  if not user then return {} end
   if OWFramework.getUserSkin then
     return UnJson(OWFramework.getUserSkin(source))
   end
+  local user = User:get(source)
+  if not user then return {} end
   if self:is("VORP") then
     return UnJson(user.data.skin)
   end
@@ -790,6 +790,49 @@ function FrameworkClass:getUserSkin(source)
     return UnJson(user.data.skin)
   end
   return {}
+end
+
+function FrameworkClass:updateUserSkin(source,category,value)
+  if OWFramework.updateUserSkin then
+    OWFramework.updateUserSkin(source,category,value)
+  elseif self:is("VORP") then
+    local skinDB = {}
+    if category == "hair" then
+      skinDB['Hair'] = value
+    elseif category == "beards_complete" then
+      skinDB['Beard'] = value
+    else
+      skinDB[category] = value
+    end
+    TriggerClientEvent("vorpcharacter:savenew", source, false, skinDB)
+  elseif seilf:is("RedEM2023") or self:is("RedEM") then
+    local identifiers = self:getUserIdentifiers(source)
+    MySQL.scalar("SELECT skin FROM skins WHERE identifier=? AND charid=?", {identifiers.identifier, identifiers.charid}, function(skin)
+      if skin then
+        local decoded = UnJson(skin)
+        decoded[category] = value
+        MySQL.update("UPDATE skins SET skin=? WHERE identifier=? AND charid=?", {json.encode(decoded),identifiers.identifier, identifiers.charid})
+      end
+    end)
+  elseif self:is("QBR") then
+  elseif self:is("RSG") then
+    local identifiers = self:getUserIdentifiers(source)
+    MySQL.scalar("SELECT skin FROM playerskins WHERE citizenid=?", {identifiers.identifier,}, function(skin)
+      if skin then
+        local decoded = UnJson(skin)
+        if type(value) ~= "table" then
+          value = {hash = value}
+        end
+        decoded[category] = data
+        MySQL.update("UPDATE playerskins SET skin=? WHERE citizenid=?", {json.encode(decoded), identifiers.identifier})
+      end
+    end)
+  elseif self:is("RPX") then
+    local user = User:get(source)
+    local skin = UnJson(user.data.skin)
+    skin[category] = data
+    user.data.SetSkinData(skin)
+  end
 end
 
 jo.framework = FrameworkClass:new()
