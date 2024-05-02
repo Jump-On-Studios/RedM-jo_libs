@@ -18,12 +18,13 @@ function TimeoutClass:start(msec,cb)
   self.cb = cb
   self.id = math.random()
   self.canceled = false
-  SetTimeout(msec, function()
+  SetTimeout(self.msec, function()
     if self.canceled then
       return
     else
-      cb()
+      self.cb()
     end
+    self = nil
   end)
 end
 
