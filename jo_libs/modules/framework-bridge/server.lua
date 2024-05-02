@@ -948,7 +948,7 @@ function FrameworkClass:updateUserSkin(source,category,value)
       skinDB[category] = value
     end
     TriggerClientEvent("vorpcharacter:savenew", source, false, skinDB)
-  elseif seilf:is("RedEM2023") or self:is("RedEM") then
+  elseif self:is("RedEM2023") or self:is("RedEM") then
     local identifiers = self:getUserIdentifiers(source)
     MySQL.scalar("SELECT skin FROM skins WHERE identifier=? AND charid=?", {identifiers.identifier, identifiers.charid}, function(skin)
       if skin then
