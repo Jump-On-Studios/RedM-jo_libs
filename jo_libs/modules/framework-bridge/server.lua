@@ -883,16 +883,16 @@ function FrameworkClass:getUserClothes(source)
   elseif self:is("RedEM2023") or self:is("RedEM") then
     local user = self:getUserIdentifiers(source)
     clothes = MySQL.scalar.await('SELECT clothes FROM clothes WHERE identifier=? AND charid=?;', {user.identifier,user.charid})
-  elseif GetFramework() == "QBR" then
+  elseif self:is("QBR") then
     local user = self:getUserIdentifiers(source)
     clothes = MySQL.scalar.await('SELECT clothes FROM playerskins WHERE citizenid=? AND active=1', {user.identifier})
-  elseif GetFramework() == "RSG" then
+  elseif self:is("RSG") then
     local user = self:getUserIdentifiers(source)
     clothes = MySQL.scalar.await('SELECT clothes FROM playerskins WHERE citizenid=?', {user.identifier})
-  elseif GetFramework() == "QR" then
+  elseif self:is("QR") then
     local user = self:getUserIdentifiers(source)
     clothes = MySQL.scalar.await('SELECT clothes FROM playerclothe WHERE citizenid=?', {user.identifier})
-  elseif GetFramework() == "RPX" then
+  elseif self:is("RPX") then
     local user = User:get(source)
     clothes = user.data.clothes
   end
