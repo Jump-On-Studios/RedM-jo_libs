@@ -1067,11 +1067,7 @@ function FrameworkClass:updateUserSkin(source,_skin,value)
     MySQL.scalar("SELECT skin FROM playerskins WHERE citizenid=?", {identifiers.identifier}, function(oldSkin)
       local decoded = UnJson(oldSkin)
       table.merge(decoded,skin)
-      MySQL.update("INSERT INTO playerskins VALUES (@citizen,@skin,@clothes) ON DUPLICATE KEY UPDATE skin = @skin", {
-        citizen = identifiers.identifier,
-        skin = json.encode(decoded),
-        clothes = '[]'
-      })
+      MySQL.update("UPDATA playerskins SET skin=? WHERE citizenid=?", {json.encode(decoded),identifiers.identifier})
     end)
   elseif self:is("RPX") then
     local user = User:get(source)
