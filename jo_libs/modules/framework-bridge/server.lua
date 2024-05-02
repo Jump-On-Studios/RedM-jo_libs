@@ -868,6 +868,7 @@ end
 ---@return table
 local function formatClothesData(data)
   if type(data) == "table" then
+    if data.model then return nil end --for RSG
     if type(data.hash) == "table" then --for VORP
       return data.hash
     end
