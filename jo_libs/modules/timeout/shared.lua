@@ -1,31 +1,36 @@
-jo.timeout = {}
-
-local TimeoutCount = 0
-local TimeoutInProgress = {}
-local TimeoutCancelled = {}
+---@class TimeoutClass : table Timeout class
+local TimeoutClass = {}
 
 ---@param msec integer timeout in ms
 ---@param cb function
----@return integer id the ID of the timeout
-function jo.timeout.set(msec, cb)
-  local id = TimeoutCount + 1
-  TimeoutInProgress[id] = true
+---@return TimeoutClass TimeoutClass class
+function TimeoutClass:set(msec,cb)
+	local t = setmetatable({}, self)
+	self.__index = self
+  t:start(msec,cb)
+	return t
+end
+
+---@param msec integer timeout in ms
+---@param cb function
+function TimeoutClass:start(msec,cb)
+  self.msec = msec
+  self.cb = cb
+  self.id = math.random()
+  self.canceled = false
   SetTimeout(msec, function()
-    TimeoutInProgress[id] = nil
-    if TimeoutCancelled[id] then
-      TimeoutCancelled[id] = nil
+    if self.canceled then
+      return
     else
       cb()
     end
   end)
-  TimeoutCount = id
-  return id
 end
 
----@param id integer the ID of the timeout
-function jo.timeout.clear(id)
-  if not TimeoutInProgress[id] then return end
-  TimeoutCancelled[id] = true
+--- Cancel the timeout
+function TimeoutClass:clear()
+  self.canceled = true
 end
 
+jo.timeout = TimeoutClass
 return jo.timeout
