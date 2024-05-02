@@ -24,6 +24,8 @@ function GetHashFromString(value)
 end
 
 function UnJson(value)
+  if not value then return {} end
+  if value == "null" then return {} end
   if type(value) == "string" then
     return json.decode(value)
   end

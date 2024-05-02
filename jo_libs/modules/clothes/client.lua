@@ -112,7 +112,7 @@ local function ReapplyCustomColor(ped)
   end
   currentTimeout = jo.timeout:set(50, function()
 		for _,data in pairs (cachedPedColor[ped].comps or {}) do
-			SetTextureOutfitTints(ped,data.categoryName,data.palette,data.tint0,data.tint1,data.tint2)
+			SetTextureOutfitTints(ped,data.category,data.palette,data.tint0,data.tint1,data.tint2)
 		end
 		cachedPedColor[ped] = nil
 		N_0xAAB86462966168CE(ped)
@@ -156,6 +156,7 @@ end
 function jo.clothes.apply(ped,category,data)
 	data = formatClothesData(data)
 
+
 	local categoryHash = GetHashFromString(category)
 	local isMp = true
 
@@ -167,6 +168,7 @@ function jo.clothes.apply(ped,category,data)
 
   --remove the current clothes for this category
   RemoveTagFromMetaPed(ped, categoryHash, 0)
+  ResetCachedColor(ped,categoryHash)
 
   if data.hash then
 		if category == "coats" then RemoveTagFromMetaPed(ped, 'coats_closed', 0);
@@ -193,7 +195,6 @@ function jo.clothes.apply(ped,category,data)
 			SetMetaPedTag(ped, drawable, albedo, normal, material, palette, tint0, tint1, tint2) -- 10 is black in the case of this asset's palette_id
 		else
       ApplyShopItemToPed(ped,data.hash, true, isMp, false)
-      ResetCachedColor(ped,categoryHash) --remove the cached color
       if data.palette and data.palette ~= 0 then
         AddCachedColor(ped,categoryHash, GetHashFromString(data.palette),data.tint0,data.tint1,data.tint2)
       end

@@ -7,48 +7,52 @@ end
 -------------
 -- VARIABLES
 -------------
-local VORPClothesCategoryBridge = {
-  Hat = "hats",
-  Mask = "masks",
-  Shirt = "shirts_full",
-  Suspender = "suspenders",
-  Vest = "vests",
-  Coat = "coats",
-  Poncho = "ponchos",
-  Cloak = "cloaks",
-  Glove = "gloves",
-  RingRh = "jewelry_rings_right",
-  RingLh = "jewelry_rings_left",
-  Bracelet = "jewelry_bracelets",
-  Gunbelt = "gunbelts",
-  Belt = "belts",
-  Buckle = "belt_buckles",
-  Holster = "holsters_left",
-  Pant = "pants",
-  Chap = "chaps",
-  Spurs = "boot_accessories",
-  CoatClosed = "coats_closed",
-  --Ties = "neckties",
-  NeckTies = "neckties",
-  Skirt = "skirts",
-  Boots = "boots",
-  EyeWear = "eyewear",
-  NeckWear = "neckwear",
-  Spats = "spats",
-  GunbeltAccs = "gunbelt_accs",
-  Gauntlets = "gauntlets",
-  Loadouts = "loadouts",
-  Accessories = "accessories",
-  Satchels = "satchels",
-  dresses = "dresses",
-  Dress = "dresses",
-  armor = "armor",
-  Badge = "badges",
-  bow = "hair_accessories",
-}
-local VORPSkinCategoryBridge = {
-  Hair = "hair",
-  Beard = "beards_complete",
+local SkinCategoryBridge = {
+  VORP = {
+    Hat = "hats",
+    Mask = "masks",
+    Shirt = "shirts_full",
+    Suspender = "suspenders",
+    Vest = "vests",
+    Coat = "coats",
+    Poncho = "ponchos",
+    Cloak = "cloaks",
+    Glove = "gloves",
+    RingRh = "jewelry_rings_right",
+    RingLh = "jewelry_rings_left",
+    Bracelet = "jewelry_bracelets",
+    Gunbelt = "gunbelts",
+    Belt = "belts",
+    Buckle = "belt_buckles",
+    Holster = "holsters_left",
+    Pant = "pants",
+    Chap = "chaps",
+    Spurs = "boot_accessories",
+    CoatClosed = "coats_closed",
+    --Ties = "neckties",
+    NeckTies = "neckties",
+    Skirt = "skirts",
+    Boots = "boots",
+    EyeWear = "eyewear",
+    NeckWear = "neckwear",
+    Spats = "spats",
+    GunbeltAccs = "gunbelt_accs",
+    Gauntlets = "gauntlets",
+    Loadouts = "loadouts",
+    Accessories = "accessories",
+    Satchels = "satchels",
+    dresses = "dresses",
+    Dress = "dresses",
+    armor = "armor",
+    Badge = "badges",
+    bow = "hair_accessories",
+    Hair = "hair",
+    Beard = "beards_complete",
+  },
+  RSG = {
+    hair = "hair",
+    beard = "beards_complete"
+  }
 }
 
 local listClothesCategory = {
@@ -819,12 +823,45 @@ function FrameworkClass:addMoney(source,amount,moneyType)
   user:addMoney(amount,moneyType or 0)
 end
 
-local function revertClothesForFramework(clothesList)
-  local list = {}
-  for catVORP,cat in pairs (VORPClothesCategoryBridge) do
-    list[catVORP] = clothesList[cat] or 0
+--- A function to standardize the category name
+---@param category string the category name
+local function standardizeSkinKey(category)
+  local framName = jo.framework:get()
+  for catFram,catStandard in pairs(SkinCategoryBridge[framName] or {}) do
+    if catFram == category then
+      return catStandard
+    end
   end
-  return list
+  return category
+end
+
+--- A function to standardize a object of categories
+local function standardizeSkinKeys(object)
+  local objectStandardized = {}
+  for catFram,data in pairs (object or {}) do
+    objectStandardized[standardizeSkinKey(catFram)] = data
+  end
+  return objectStandardized
+end
+
+--- A function to revert the category name
+local function revertSkinKey(category)
+  local framName = jo.framework:get()
+  for catFram,catStandard in pairs (SkinCategoryBridge[framName] or {}) do
+    if category == catStandard then
+      return catFram
+    end
+  end
+  return category
+end
+
+--- A function to revert a object of categories
+local function revertSkinKeys(object)
+  local objectStandardized = {}
+  for category,data in pairs (object) do
+    objectStandardized[revertSkinKey(category)] = data
+  end
+  return objectStandardized
 end
 
 ---@param data any the clothes data
@@ -848,9 +885,9 @@ end
 ---@param clothesList table
 local function cleanClothesTable(clothesList)
   local list = {}
-  for _,cat in pairs (listClothesCategory) do
-    list[cat] = 0
-  end
+  -- for _,cat in pairs (listClothesCategory) do
+  --   list[cat] = 0
+  -- end
   for cat,hash in pairs (clothesList or {}) do
     if list[cat] then
       list[cat] = formatClothesData(hash)
@@ -860,13 +897,13 @@ local function cleanClothesTable(clothesList)
 end
 
 function FrameworkClass:getUserClothes(source)
-   local clothes = {}
+  local clothes = {}
   if OWFramework.getUserClothes then
     clothes = OWFramework.getUserClothes(source)
   elseif self:is('VORP') then
     local user = User:get(source)
-    local clothesVORP = UnJson(user.data.comps or {})
-    local clothesTints = UnJson(user.data.compTints or {})
+    local clothesVORP = UnJson(user.data.comps)
+    local clothesTints = UnJson(user.data.compTints)
     for category,data in pairs (clothesTints) do
       for hash,data2 in pairs (data) do
         if tonumber(clothesVORP[category]) == tonumber(hash) then
@@ -876,9 +913,6 @@ function FrameworkClass:getUserClothes(source)
           table.merge(clothesVORP[category],data2)
         end
       end
-    end
-    for catVORP,cat in pairs (VORPClothesCategoryBridge) do
-      clothes[cat] = clothesVORP[catVORP] or 0
     end
   elseif self:is("RedEM2023") or self:is("RedEM") then
     local user = self:getUserIdentifiers(source)
@@ -900,80 +934,143 @@ function FrameworkClass:getUserClothes(source)
   if not clothes then return {} end
   clothes = UnJson(clothes)
 
-  clothes = cleanClothesTable(clothes)
+  local clothesStandardized = standardizeSkinKeys(clothes)
 
-  return clothes
+  clothesStandardized = cleanClothesTable(clothesStandardized)
+
+  return clothesStandardized
 end
 
+---@param source string
+---@param _clothes table with key = category
+---@param value? table
+function FrameworkClass:updateUserClothes(source,_clothes,value)
+  if value then
+    _clothes = {[_clothes] = formatClothesData(value)}
+  end
+  local clothes = revertSkinKeys(_clothes)
+  if OWFramework.updateUserClothes then
+    return OWFramework.updateUserClothes(source,category,value)
+  end
+  if self:is('VORP') then
+    local newClothes = {}
+    for category,value in pairs (clothes) do
+      newClothes[category] = {
+        comp = value
+      }
+    end
+    TriggerClientEvent("vorpcharacter:updateCache",source,false,newClothes)
+    local user = User:get(source)
+    if not user.data.updateCompTints then return end
+    local tints = UnJson(user.data.comptTints)
+    for category,value in pairs (clothes) do
+      tints[category] = {}
+      if value.palette and value.palette ~= 0 then
+        tints[category][value.hash] = {
+          tint0 = value.tint0 or 0,
+          tint1 = value.tint1 or 0,
+          tint2 = value.tint2 or 0,
+          palette = value.palette or 0,
+        }
+      end
+    end
+    user.data.updateCompTints(json.encode(tints))
+  elseif self:is('RedEM2023') or self:is('RedEM') then
+    local identifiers = self:getUserIdentifiers(source)
+    MySQL.scalar('SELECT clothes FROM clothes WHERE identifier=? AND charid=?;', {identifiers.identifier, identifiers.charid}, function(oldClothes)
+      local decoded = UnJson(oldClothes)
+      table.merge(decoded,clothes)
+      local SQL = "UPDATE clothes SET clothes=@clothes WHERE identifier=@identifier AND charid=@charid"
+      if not oldClothes then
+        SQL = "INSERT INTO clothes VALUES(NULL,@identifier,@charid,@clothes)"
+      end
+      MySQL.update(SQL, {
+        identifier = identifiers.identifier,
+        charid = identifiers.charid,
+        clothes = json.encode(decoded)
+      })
+    end)
+  elseif self:is('QBR') or self:is('RSG') then
+    local identifiers = self:getUserIdentifiers(source)
+    MySQL.scalar('SELECT clothes FROM playerskins WHERE citizenid=? ', {identifiers.identifier}, function(oldClothes)
+      local decoded = UnJson(oldClothes)
+      table.merge(decoded,clothes)
+      MySQL.update("UPDATE playerskins SET clothes=? WHERE citizenid=?", {json.encode(decoded), identifiers.identifier})
+    end)
+  elseif self:is('RPX') then
+    local user = User:get(source)
+    local newClothes = table.merge(user.data.clothes,clothes)
+    user.data.SetClothesData(newClothes)
+  elseif self:is('QR') then
+    local identifiers = self:getUserIdentifiers(source)
+    MySQL.scalar('SELECT clothes FROM playerclothe WHERE citizenid=?', {identifiers.identifier}, function(oldClothes)
+      local decoded = UnJson(oldClothes)
+      table.merge(decoded,clothes)
+      MySQL.update("UPDATE playerclothe SET clothes=? WHERE citizenid=?", {json.encode(decoed), identifiers.identifier})
+    end)
+  end
+end
+
+---@param source integer
 function FrameworkClass:getUserSkin(source)
   if OWFramework.getUserSkin then
     return UnJson(OWFramework.getUserSkin(source))
   end
   local user = User:get(source)
+  local skin = {}
   if not user then return {} end
   if self:is("VORP") then
-    local skinVORP = UnJson(user.data.skin)
-    local skin = {}
-    for catVORP,cat in pairs (VORPSkinCategoryBridge) do
-      skin[cat] = skinVORP[catVORP]
-    end
-    return skin
-  end
-  if self:is("RedEM2023") or self:is("RedEM") then
+    skin = user.data.skin
+  elseif self:is("RedEM2023") or self:is("RedEM") then
     local identifiers = user:getIdentifiers()
-    local skin = MySQL.scalar.await("SELECT skin FROM skins WHERE identifier=? AND charid=?;", {identifiers.identifier, identifiers.charid})
-    return UnJson(skin or {})
-  end
-  if self:is("QBR") or self:is("RSG") then
+    skin = MySQL.scalar.await("SELECT skin FROM skins WHERE identifier=? AND charid=?;", {identifiers.identifier, identifiers.charid})
+  elseif self:is("QBR") or self:is("RSG") then
     local identifiers = user:getIdentifiers()
-    local skin = MySQL.scalar.await('SELECT skin FROM playerskins WHERE citizenid=?', {identifiers.identifier})
-    return UnJson(skin or {})
+    skin = MySQL.scalar.await('SELECT skin FROM playerskins WHERE citizenid=?', {identifiers.identifier})
+ elseif self:is("RPX") then
+    skin = user.data.skin
   end
-  if self:is("RPX") then
-    return UnJson(user.data.skin)
-  end
-  return {}
+  skin = UnJson(skin)
+
+  local skinStandardized = standardizeSkinKeys(skin)
+  return skinStandardized
 end
 
-function FrameworkClass:updateUserSkin(source,category,value)
+---@param source integer
+---@param _skin any key = category, value = data OR category name if three parameters
+---@param value? table if set, _skin is the category name
+function FrameworkClass:updateUserSkin(source,_skin,value)
+  if value then
+    _skin = {[_skin] = value}
+  end
+  local skin = revertSkinKeys(_skin)
   if OWFramework.updateUserSkin then
-    OWFramework.updateUserSkin(source,category,value)
-  elseif self:is("VORP") then
-    local skinDB = {}
-    if category == "hair" then
-      skinDB['Hair'] = value
-    elseif category == "beards_complete" then
-      skinDB['Beard'] = value
-    else
-      skinDB[category] = value
-    end
-    TriggerClientEvent("vorpcharacter:savenew", source, false, skinDB)
+    return OWFramework.updateUserSkin(source,skin)
+  end
+  if self:is("VORP") then
+    TriggerClientEvent("vorpcharacter:savenew", source, false, skin)
   elseif self:is("RedEM2023") or self:is("RedEM") then
     local identifiers = self:getUserIdentifiers(source)
-    MySQL.scalar("SELECT skin FROM skins WHERE identifier=? AND charid=?", {identifiers.identifier, identifiers.charid}, function(skin)
-      if skin then
-        local decoded = UnJson(skin)
-        decoded[category] = value
-        MySQL.update("UPDATE skins SET skin=? WHERE identifier=? AND charid=?", {json.encode(decoded),identifiers.identifier, identifiers.charid})
-      end
+    MySQL.scalar("SELECT skin FROM skins WHERE identifier=? AND charid=?", {identifiers.identifier, identifiers.charid}, function(oldSkin)
+      local decoded = UnJson(oldSkin)
+      table.merge(decoded,skin)
+      MySQL.update("UPDATE skins SET skin=? WHERE identifier=? AND charid=?", {json.encode(decoded),identifiers.identifier, identifiers.charid})
     end)
-  elseif self:is("QBR") then
-  elseif self:is("RSG") then
+  elseif self:is("QBR") or self:is('RSG') then
     local identifiers = self:getUserIdentifiers(source)
-    MySQL.scalar("SELECT skin FROM playerskins WHERE citizenid=?", {identifiers.identifier,}, function(skin)
-      if skin then
-        local decoded = UnJson(skin)
-        if type(value) ~= "table" then
-          value = {hash = value}
-        end
-        decoded[category] = data
-        MySQL.update("UPDATE playerskins SET skin=? WHERE citizenid=?", {json.encode(decoded), identifiers.identifier})
-      end
+    MySQL.scalar("SELECT skin FROM playerskins WHERE citizenid=?", {identifiers.identifier}, function(oldSkin)
+      local decoded = UnJson(oldSkin)
+      table.merge(decoded,skin)
+      MySQL.update("INSERT INTO playerskins VALUES (@citizen,@skin,@clothes) ON DUPLICATE KEY UPDATE skin = @skin", {
+        citizen = identifiers.identifier,
+        skin = json.encode(decoded),
+        clothes = '[]'
+      })
     end)
   elseif self:is("RPX") then
     local user = User:get(source)
     local skin = UnJson(user.data.skin)
-    skin[category] = data
+    skin[category] = value
     user.data.SetSkinData(skin)
   end
 end
