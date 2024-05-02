@@ -111,7 +111,6 @@ local function ReapplyCustomColor(ped)
     currentTimeout:clear()
   end
   currentTimeout = jo.timeout:set(50, function()
-    currentTimeout = -1
 		for _,data in pairs (cachedPedColor[ped].comps or {}) do
 			SetTextureOutfitTints(ped,data.categoryName,data.palette,data.tint0,data.tint1,data.tint2)
 		end
