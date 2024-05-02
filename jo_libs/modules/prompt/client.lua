@@ -201,4 +201,10 @@ end
 function jo.prompt.setGroups(groups)
   promptGroups = groups
 end
+
+---@return table promptGroups prompt registered
+function jo.prompt.getAll()
+  return promptGroups
+end
+
 return jo.prompt
