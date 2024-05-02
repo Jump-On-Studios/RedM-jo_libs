@@ -12,7 +12,7 @@ end
 -- Functions to keep clothes colors
 -------------
 local cachedPedColor = {}
-local currentTimeout = -1
+local currentTimeout
 
 local function SetTextureOutfitTints(ped,category,palette,tint0,tint1,tint2) if palette ~= 0 then Citizen.InvokeNative(0x4EFC1F8FF1AD94DE,ped,GetHashFromString(category),palette,tint0,tint1,tint2) end end
 local function N_0xAAB86462966168CE(ped) return Citizen.InvokeNative(0xAAB86462966168CE,ped,true) end
@@ -107,10 +107,10 @@ end
 ---@param ped integer the entity ID
 local function ReapplyCustomColor(ped)
 	if not cachedPedColor[ped] then return end
-  if currentTimeout >= 0 then
-    jo.timeout.clear(currentTimeout)
+  if currentTimeout then
+    currentTimeout:clear()
   end
-  currentTimeout = jo.timeout.set(50, function()
+  currentTimeout = jo.timeout:set(50, function()
     currentTimeout = -1
 		for _,data in pairs (cachedPedColor[ped].comps or {}) do
 			SetTextureOutfitTints(ped,data.categoryName,data.palette,data.tint0,data.tint1,data.tint2)
