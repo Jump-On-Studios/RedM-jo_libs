@@ -50,7 +50,12 @@ local SkinCategoryBridge = {
     Beard = "beards_complete",
   },
   RSG = {
-    hair = "hair",
+    beard = "beards_complete"
+  },
+  RedEM = {
+    beard = "beards_complete"
+  },
+  RedEM2023 = {
     beard = "beards_complete"
   }
 }
@@ -868,7 +873,7 @@ end
 ---@return table
 local function formatClothesData(data)
   if type(data) == "table" then
-    if data.model then return nil end --for RSG
+    if not data.hash then return nil end --for RSG
     if type(data.hash) == "table" then --for VORP
       return data.hash
     end

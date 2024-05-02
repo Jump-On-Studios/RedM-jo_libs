@@ -71,6 +71,7 @@ jo.clothes.order = {
 ---@param ped integer the entity ID
 ---@param category integer the category hash
 local function ResetCachedColor(ped,category)
+  if not cachedPedColor[ped] then return end
 	cachedPedColor[ped].comps[category] = nil
 end
 
