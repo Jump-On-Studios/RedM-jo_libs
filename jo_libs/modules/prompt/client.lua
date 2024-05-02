@@ -101,13 +101,13 @@ end
 
 ---@param group string Group of the prompt
 ---@param str string label of the prompt
----@param key string Input
+---@param key any Input (string or list of strings)
 ---@param holdTime? integer (optional) time to complete
 ---@param page? integer (optional) page of the prompt
 function jo.prompt.create(group, str, key, holdTime, page)
   --Check if group exist
 	if not page then page = 0 end
-	if not holdTime then holdTime = false end
+	if not holdTime then holdTime = 0 end
   if (promptGroups[group] == nil) then
     if type(group) == "string" then
       promptGroups[group] = {
@@ -138,7 +138,7 @@ function jo.prompt.create(group, str, key, holdTime, page)
   PromptSetPriority(promptGroups[group].prompts[key], 2)
   PromptSetEnabled(promptGroups[group].prompts[key], true)
   PromptSetVisible(promptGroups[group].prompts[key], true)
-  if holdTime then
+  if holdTime > 0 then
     PromptSetHoldMode(promptGroups[group].prompts[key], holdTime)
   end
 	if group ~= "interaction" then
@@ -195,6 +195,16 @@ end
 function jo.prompt.getPromptProgress(group,key)
   if not jo.prompt.isPromptExist(group,key) then return 0 end
   return UiPromptGetProgress(promptGroups[group].prompts[key])
+end
+
+---@param groups table groups of prompt
+function jo.prompt.setGroups(groups)
+  promptGroups = groups
+end
+
+---@return table promptGroups prompt registered
+function jo.prompt.getAll()
+  return promptGroups
 end
 
 return jo.prompt

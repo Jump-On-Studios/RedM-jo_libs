@@ -1,4 +1,102 @@
-jo.require('framework-bridge.overwrite-functions')
+jo.file.load('framework-bridge.overwrite-functions')
+
+if not table.merge then
+  jo.require('table')
+end
+
+-------------
+-- VARIABLES
+-------------
+local SkinCategoryBridge = {
+  VORP = {
+    Hat = "hats",
+    Mask = "masks",
+    Shirt = "shirts_full",
+    Suspender = "suspenders",
+    Vest = "vests",
+    Coat = "coats",
+    Poncho = "ponchos",
+    Cloak = "cloaks",
+    Glove = "gloves",
+    RingRh = "jewelry_rings_right",
+    RingLh = "jewelry_rings_left",
+    Bracelet = "jewelry_bracelets",
+    Gunbelt = "gunbelts",
+    Belt = "belts",
+    Buckle = "belt_buckles",
+    Holster = "holsters_left",
+    Pant = "pants",
+    Chap = "chaps",
+    Spurs = "boot_accessories",
+    CoatClosed = "coats_closed",
+    --Ties = "neckties",
+    NeckTies = "neckties",
+    Skirt = "skirts",
+    Boots = "boots",
+    EyeWear = "eyewear",
+    NeckWear = "neckwear",
+    Spats = "spats",
+    GunbeltAccs = "gunbelt_accs",
+    Gauntlets = "gauntlets",
+    Loadouts = "loadouts",
+    Accessories = "accessories",
+    Satchels = "satchels",
+    dresses = "dresses",
+    Dress = "dresses",
+    armor = "armor",
+    Badge = "badges",
+    bow = "hair_accessories",
+    Hair = "hair",
+    Beard = "beards_complete",
+  },
+  RSG = {
+    hair = "hair",
+    beard = "beards_complete"
+  }
+}
+
+local listClothesCategory = {
+	'ponchos',
+	'cloaks',
+  'hair_accessories',
+  'dresses',
+  'gloves',
+	'coats',
+	'coats_closed',
+	'vests',
+	'suspenders',
+	'neckties',
+	'neckwear',
+	'shirts_full',
+	'spats',
+  'gunbelts',
+	'gauntlets',
+  'holsters_left',
+	'loadouts',
+	'belt_buckles',
+  'belts',
+  'skirts',
+  'pants',
+  'boots',
+	'boot_accessories',
+	'accessories',
+	'satchels',
+	'jewelry_rings_right',
+	'jewelry_rings_left',
+	'jewelry_bracelets',
+	'aprons',
+	'chaps',
+  'badges',
+  'gunbelt_accs',
+  'eyewear',
+  'armor',
+	'masks',
+	'masks_large',
+	'hats',
+  'hair',
+  'beards_complete',
+  'teeth'
+}
 
 -------------
 -- USER CLASS
@@ -38,6 +136,8 @@ function User:init()
     self.data = jo.framework.core:GetPlayer(self.source)
   elseif jo.framework:is("RSG") or jo.framework:is("QR") then
     self.data = jo.framework.core.Functions.GetPlayer(self.source)
+  elseif jo.framework:is('RPX') then
+    self.data = jo.framework.core.GetPlayer(self.source)
   end
 end
 
@@ -156,7 +256,6 @@ function User:addMoney(amount,moneyType)
   if OWFramework.User.addMoney then
     return OWFramework.User.addMoney(self.source,amount, moneyType)
   end
-  print(amount,moneyType)
   if jo.framework:is("VORP") then
     self.data.addCurrency(moneyType, amount)
 	elseif jo.framework:is("RedEM2023") then
@@ -604,7 +703,7 @@ function FrameworkClass:addItemInInventory(source,invId,item,quantity,metadata,n
     end)
   elseif self:is('QBR') or self:is('RSG') or self:is('RPX') then
     MySQL.scalar('SELECT items FROM stashitems WHERE stash = ?',{invId}, function(items)
-      if type(items) == "string" then items = json.decode(items) end
+      items = UnJson(items)
       if not items then items = {} end
       local slot = 1
       repeat
@@ -658,7 +757,7 @@ function FrameworkClass:getItemsFromInventory(source,invId)
     local itemFiltered = {}
     for _,item in pairs (items) do
       itemFiltered[#itemFiltered+1] = {
-        metadata = json.decode(item.metadata),
+        metadata = UnJson(item.metadata),
         amount = item.amount,
         item = item.item,
         id = item.id
@@ -667,7 +766,7 @@ function FrameworkClass:getItemsFromInventory(source,invId)
     return itemFiltered
   elseif self:is('QBR') or self:is('RSG') or self:is('RPX') then
     local items = MySQL.scalar.await('SELECT items FROM stashitems WHERE stash = ?',{invId})
-    if type(items) == "string" then items = json.decode(items) end
+    items = UnJson(items)
     if not items then items = {} end
     local itemFiltered = {}
     for _,item in pairs (items) do
@@ -722,6 +821,258 @@ end
 function FrameworkClass:addMoney(source,amount,moneyType)
   local user = User:get(source)
   user:addMoney(amount,moneyType or 0)
+end
+
+--- A function to standardize the category name
+---@param category string the category name
+local function standardizeSkinKey(category)
+  local framName = jo.framework:get()
+  for catFram,catStandard in pairs(SkinCategoryBridge[framName] or {}) do
+    if catFram == category then
+      return catStandard
+    end
+  end
+  return category
+end
+
+--- A function to standardize a object of categories
+local function standardizeSkinKeys(object)
+  local objectStandardized = {}
+  for catFram,data in pairs (object or {}) do
+    objectStandardized[standardizeSkinKey(catFram)] = data
+  end
+  return objectStandardized
+end
+
+--- A function to revert the category name
+local function revertSkinKey(category)
+  local framName = jo.framework:get()
+  for catFram,catStandard in pairs (SkinCategoryBridge[framName] or {}) do
+    if category == catStandard then
+      return catFram
+    end
+  end
+  return category
+end
+
+--- A function to revert a object of categories
+local function revertSkinKeys(object)
+  local objectStandardized = {}
+  for category,data in pairs (object) do
+    objectStandardized[revertSkinKey(category)] = data
+  end
+  return objectStandardized
+end
+
+---@param data any the clothes data
+---@return table
+local function formatClothesData(data)
+  if type(data) == "table" then
+    if type(data.hash) == "table" then --for VORP
+      return data.hash
+    end
+    return data
+  end
+  if type(data) ~= "number" then data = tonumber(data) end
+  if data == 0 or data == -1 or data == 1 or data == nil then
+    data = false
+  end
+  return {
+    hash = data
+  }
+end
+
+---@param clothesList table
+local function cleanClothesTable(clothesList)
+  local list = {}
+  -- for _,cat in pairs (listClothesCategory) do
+  --   list[cat] = 0
+  -- end
+  for cat,hash in pairs (clothesList or {}) do
+    if list[cat] then
+      list[cat] = formatClothesData(hash)
+    end
+  end
+  return list
+end
+
+function FrameworkClass:getUserClothes(source)
+  local clothes = {}
+  if OWFramework.getUserClothes then
+    clothes = OWFramework.getUserClothes(source)
+  elseif self:is('VORP') then
+    local user = User:get(source)
+    local clothesVORP = UnJson(user.data.comps)
+    local clothesTints = UnJson(user.data.compTints)
+    for category,data in pairs (clothesTints) do
+      for hash,data2 in pairs (data) do
+        if tonumber(clothesVORP[category]) == tonumber(hash) then
+          clothesVORP[category] = {
+            hash = clothesVORP[category]
+          }
+          table.merge(clothesVORP[category],data2)
+        end
+      end
+    end
+  elseif self:is("RedEM2023") or self:is("RedEM") then
+    local user = self:getUserIdentifiers(source)
+    clothes = MySQL.scalar.await('SELECT clothes FROM clothes WHERE identifier=? AND charid=?;', {user.identifier,user.charid})
+  elseif self:is("QBR") then
+    local user = self:getUserIdentifiers(source)
+    clothes = MySQL.scalar.await('SELECT clothes FROM playerskins WHERE citizenid=? AND active=1', {user.identifier})
+  elseif self:is("RSG") then
+    local user = self:getUserIdentifiers(source)
+    clothes = MySQL.scalar.await('SELECT clothes FROM playerskins WHERE citizenid=?', {user.identifier})
+  elseif self:is("QR") then
+    local user = self:getUserIdentifiers(source)
+    clothes = MySQL.scalar.await('SELECT clothes FROM playerclothe WHERE citizenid=?', {user.identifier})
+  elseif self:is("RPX") then
+    local user = User:get(source)
+    clothes = user.data.clothes
+  end
+
+  if not clothes then return {} end
+  clothes = UnJson(clothes)
+
+  local clothesStandardized = standardizeSkinKeys(clothes)
+
+  clothesStandardized = cleanClothesTable(clothesStandardized)
+
+  return clothesStandardized
+end
+
+---@param source string
+---@param _clothes table with key = category
+---@param value? table
+function FrameworkClass:updateUserClothes(source,_clothes,value)
+  if value then
+    _clothes = {[_clothes] = formatClothesData(value)}
+  end
+  local clothes = revertSkinKeys(_clothes)
+  if OWFramework.updateUserClothes then
+    return OWFramework.updateUserClothes(source,category,value)
+  end
+  if self:is('VORP') then
+    local newClothes = {}
+    for category,value in pairs (clothes) do
+      newClothes[category] = {
+        comp = value
+      }
+    end
+    TriggerClientEvent("vorpcharacter:updateCache",source,false,newClothes)
+    local user = User:get(source)
+    if not user.data.updateCompTints then return end
+    local tints = UnJson(user.data.comptTints)
+    for category,value in pairs (clothes) do
+      tints[category] = {}
+      if value.palette and value.palette ~= 0 then
+        tints[category][value.hash] = {
+          tint0 = value.tint0 or 0,
+          tint1 = value.tint1 or 0,
+          tint2 = value.tint2 or 0,
+          palette = value.palette or 0,
+        }
+      end
+    end
+    user.data.updateCompTints(json.encode(tints))
+  elseif self:is('RedEM2023') or self:is('RedEM') then
+    local identifiers = self:getUserIdentifiers(source)
+    MySQL.scalar('SELECT clothes FROM clothes WHERE identifier=? AND charid=?;', {identifiers.identifier, identifiers.charid}, function(oldClothes)
+      local decoded = UnJson(oldClothes)
+      table.merge(decoded,clothes)
+      local SQL = "UPDATE clothes SET clothes=@clothes WHERE identifier=@identifier AND charid=@charid"
+      if not oldClothes then
+        SQL = "INSERT INTO clothes VALUES(NULL,@identifier,@charid,@clothes)"
+      end
+      MySQL.update(SQL, {
+        identifier = identifiers.identifier,
+        charid = identifiers.charid,
+        clothes = json.encode(decoded)
+      })
+    end)
+  elseif self:is('QBR') or self:is('RSG') then
+    local identifiers = self:getUserIdentifiers(source)
+    MySQL.scalar('SELECT clothes FROM playerskins WHERE citizenid=? ', {identifiers.identifier}, function(oldClothes)
+      local decoded = UnJson(oldClothes)
+      table.merge(decoded,clothes)
+      MySQL.update("UPDATE playerskins SET clothes=? WHERE citizenid=?", {json.encode(decoded), identifiers.identifier})
+    end)
+  elseif self:is('RPX') then
+    local user = User:get(source)
+    local newClothes = table.merge(user.data.clothes,clothes)
+    user.data.SetClothesData(newClothes)
+  elseif self:is('QR') then
+    local identifiers = self:getUserIdentifiers(source)
+    MySQL.scalar('SELECT clothes FROM playerclothe WHERE citizenid=?', {identifiers.identifier}, function(oldClothes)
+      local decoded = UnJson(oldClothes)
+      table.merge(decoded,clothes)
+      MySQL.update("UPDATE playerclothe SET clothes=? WHERE citizenid=?", {json.encode(decoed), identifiers.identifier})
+    end)
+  end
+end
+
+---@param source integer
+function FrameworkClass:getUserSkin(source)
+  if OWFramework.getUserSkin then
+    return UnJson(OWFramework.getUserSkin(source))
+  end
+  local user = User:get(source)
+  local skin = {}
+  if not user then return {} end
+  if self:is("VORP") then
+    skin = user.data.skin
+  elseif self:is("RedEM2023") or self:is("RedEM") then
+    local identifiers = user:getIdentifiers()
+    skin = MySQL.scalar.await("SELECT skin FROM skins WHERE identifier=? AND charid=?;", {identifiers.identifier, identifiers.charid})
+  elseif self:is("QBR") or self:is("RSG") then
+    local identifiers = user:getIdentifiers()
+    skin = MySQL.scalar.await('SELECT skin FROM playerskins WHERE citizenid=?', {identifiers.identifier})
+ elseif self:is("RPX") then
+    skin = user.data.skin
+  end
+  skin = UnJson(skin)
+
+  local skinStandardized = standardizeSkinKeys(skin)
+  return skinStandardized
+end
+
+---@param source integer
+---@param _skin any key = category, value = data OR category name if three parameters
+---@param value? table if set, _skin is the category name
+function FrameworkClass:updateUserSkin(source,_skin,value)
+  if value then
+    _skin = {[_skin] = value}
+  end
+  local skin = revertSkinKeys(_skin)
+  if OWFramework.updateUserSkin then
+    return OWFramework.updateUserSkin(source,skin)
+  end
+  if self:is("VORP") then
+    TriggerClientEvent("vorpcharacter:savenew", source, false, skin)
+  elseif self:is("RedEM2023") or self:is("RedEM") then
+    local identifiers = self:getUserIdentifiers(source)
+    MySQL.scalar("SELECT skin FROM skins WHERE identifier=? AND charid=?", {identifiers.identifier, identifiers.charid}, function(oldSkin)
+      local decoded = UnJson(oldSkin)
+      table.merge(decoded,skin)
+      MySQL.update("UPDATE skins SET skin=? WHERE identifier=? AND charid=?", {json.encode(decoded),identifiers.identifier, identifiers.charid})
+    end)
+  elseif self:is("QBR") or self:is('RSG') then
+    local identifiers = self:getUserIdentifiers(source)
+    MySQL.scalar("SELECT skin FROM playerskins WHERE citizenid=?", {identifiers.identifier}, function(oldSkin)
+      local decoded = UnJson(oldSkin)
+      table.merge(decoded,skin)
+      MySQL.update("INSERT INTO playerskins VALUES (@citizen,@skin,@clothes) ON DUPLICATE KEY UPDATE skin = @skin", {
+        citizen = identifiers.identifier,
+        skin = json.encode(decoded),
+        clothes = '[]'
+      })
+    end)
+  elseif self:is("RPX") then
+    local user = User:get(source)
+    local skin = UnJson(user.data.skin)
+    skin[category] = value
+    user.data.SetSkinData(skin)
+  end
 end
 
 jo.framework = FrameworkClass:new()

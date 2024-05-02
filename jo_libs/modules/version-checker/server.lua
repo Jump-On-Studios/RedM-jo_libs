@@ -1,3 +1,7 @@
+-------------
+-- ONLY FOR Jump On Studios Scripts !
+-------------
+
 jo.versionChecker = {}
 
 local function urlencode(str)

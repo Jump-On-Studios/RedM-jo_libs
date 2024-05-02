@@ -19,7 +19,7 @@ function jo.database.addTrigger(triggerName,definition)
   if isExist then
     return false
   end
-  MySQL.query.await("CREATE TRIGGER `".."` "..definition)
+  MySQL.query.await("CREATE TRIGGER `"..triggerName.."` "..definition)
   gprint('Database trigger created : '..triggerName)
   return true
 end
