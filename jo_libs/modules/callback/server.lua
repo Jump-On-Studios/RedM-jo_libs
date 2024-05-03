@@ -1,13 +1,17 @@
 local serverCallbacks = {}
 
+jo.callback = {}
+
 ---@param name string the name of the event
 ---@param cb function
-function jo.registerServerCallback(name, cb)
+function jo.callback.register(name, cb)
   serverCallbacks[name] = {
     cb = cb,
     resource = GetCurrentResourceName()
   }
 end
+
+jo.registerServerCallback = jo.callback.register
 
 local function FireServerCallback(name, source, cb, ...)
   cb(serverCallbacks[name].cb(source, ...))
@@ -21,3 +25,5 @@ RegisterServerEvent('jo_libs:triggerServerCallback', function(name, requestId,fr
     TriggerClientEvent('jo_libs:serverCallback', source, requestId,fromRessource, ...)
   end, ...)
 end)
+
+return jo.callback
