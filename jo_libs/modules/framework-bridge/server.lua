@@ -895,9 +895,7 @@ local function cleanClothesTable(clothesList)
   --   list[cat] = 0
   -- end
   for cat,hash in pairs (clothesList or {}) do
-    if list[cat] then
-      list[cat] = formatClothesData(hash)
-    end
+    list[cat] = formatClothesData(hash)
   end
   return list
 end
