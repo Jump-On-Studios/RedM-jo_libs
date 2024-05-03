@@ -1,7 +1,7 @@
 jo.me = PlayerPedId()
 jo.meCoords = GetEntityCoords(me)
 jo.mePlayerId = PlayerId()
-jo.meServerId = GetPlayerServerId(PlayerId())
+jo.meServerId = GetPlayerServerId(jo.mePlayerId)
 jo.meIsMale =  IsPedMale(PlayerPedId())
 local timer = 1000
 
@@ -14,7 +14,7 @@ function jo.forceUpdateMe()
   jo.me = PlayerPedId()
   jo.meCoords = GetEntityCoords(jo.me)
   jo.mePlayerId = PlayerId()
-  jo.meServerId = GetPlayerServerId(jo.meServerId)
+  jo.meServerId = GetPlayerServerId(jo.mePlayerId)
   jo.meIsMale =  IsPedMale(jo.me)
 end
 

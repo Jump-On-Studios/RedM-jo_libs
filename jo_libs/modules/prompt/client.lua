@@ -19,7 +19,7 @@ end
 ---@param group string Name of the group
 ---@param key string Input
 function jo.prompt.isEnabled(group,key)
-  if not jo.prompt.isPromptExist(group,key) then return end
+  if not jo.prompt.isPromptExist(group,key) then return false end
   return UiPromptIsEnabled(promptGroups[group].prompts[key])
 end
 
@@ -141,7 +141,7 @@ function jo.prompt.create(group, str, key, holdTime, page)
   if holdTime > 0 then
     PromptSetHoldMode(promptGroups[group].prompts[key], holdTime)
   end
-	if group ~= "interaction" then
+	if type(group) ~= "string" or not group:find("interaction") then
   	PromptSetGroup(promptGroups[group].prompts[key], promptGroups[group].group,page)
 	end
   PromptRegisterEnd(promptGroups[group].prompts[key])
@@ -206,5 +206,11 @@ end
 function jo.prompt.getAll()
   return promptGroups
 end
+
+---@param key string the input of the key
+function jo.prompt.isPressed(key)
+  return IsControlPressed(0,joaat(key))
+end
+
 
 return jo.prompt
