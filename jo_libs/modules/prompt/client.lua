@@ -19,7 +19,7 @@ end
 ---@param group string Name of the group
 ---@param key string Input
 function jo.prompt.isEnabled(group,key)
-  if not jo.prompt.isPromptExist(group,key) then return end
+  if not jo.prompt.isPromptExist(group,key) then return false end
   return UiPromptIsEnabled(promptGroups[group].prompts[key])
 end
 
