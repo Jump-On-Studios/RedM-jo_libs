@@ -73,7 +73,7 @@ for _,category in pairs (jo.clothes.order) do
   jo.clothes.categoryName[joaat(category)] = category
 end
 
-local currentTimeout
+local currentTimeoutReapply
 
 -------------
 -- local functions
@@ -144,6 +144,9 @@ end
 local function ResetCachedColor(ped,category)
   if not jo.cache.clothes.color[ped] then return end
 	jo.cache.clothes.color[ped][category] = nil
+  if category == joaat('neckwear') then
+	  jo.cache.clothes.color[ped][joaat('neckerchiefs')] = nil
+  end
 end
 
 ---@param ped integer the entity ID
@@ -185,21 +188,6 @@ local function PutInCacheCurrentColor(ped)
   return jo.cache.clothes.color[ped]
 end
 
----@param ped integer the entity ID
-local function ReapplyCustomColor(ped)
-	if not jo.cache.clothes.color[ped] then return end
-  if currentTimeout then
-    currentTimeout:clear()
-  end
-  currentTimeout = jo.timeout:set(50, function()
-		for category,data in pairs (jo.cache.clothes.color[ped] or {}) do
-			SetTextureOutfitTints(ped,category,data.palette,data.tint0,data.tint1,data.tint2)
-		end
-		jo.cache.clothes.color[ped] = nil
-    RefreshPed(ped)
-	end)
-end
-
 -------------
 -- Cache management
 -------------
@@ -210,18 +198,30 @@ local function ReapplyClothesStats(ped)
   if isEquiped and state and state ~= `base` then
     hash = GetShopItemComponentAtIndex(ped,index)
     --Manage bandana UP item
-    if hash and hash ~= 0 then
+    -- if hash and hash ~= 0 then
       UpdateShopItemWearableState(ped, hash, state)
-    end
+    -- end
   end
   RefreshPed(ped)
 end
 
+local function ReapplyClothesColor(ped)
+  for category,data in pairs (jo.cache.clothes.color[ped] or {}) do
+    SetTextureOutfitTints(ped,category,data.palette,data.tint0,data.tint1,data.tint2)
+  end
+  jo.cache.clothes.color[ped] = nil
+end
+
 local function ReapplyCached(ped)
-  WaitRefreshPed(ped)
-  ReapplyClothesStats(ped)
-  WaitRefreshPed(ped)
-  ReapplyCustomColor(ped)
+  if not jo.cache.clothes.color[ped] then return end
+  if currentTimeoutReapply then
+    currentTimeoutReapply:clear()
+  end
+  currentTimeoutReapply = jo.timeout:set(function() WaitRefreshPed(ped) end, function()
+    ReapplyClothesStats(ped)
+		ReapplyClothesColor(ped)
+    RefreshPed(ped)
+	end)
 end
 
 -------------
