@@ -1,7 +1,7 @@
 ---@class TimeoutClass : table Timeout class
 local TimeoutClass = {}
 
----@param msec integer timeout in ms
+---@param msec any timeout in ms/waiter function
 ---@param cb function
 ---@return TimeoutClass TimeoutClass class
 function TimeoutClass:set(msec,cb)
@@ -18,14 +18,26 @@ function TimeoutClass:start(msec,cb)
   self.cb = cb
   self.id = math.random()
   self.canceled = false
-  SetTimeout(self.msec, function()
-    if self.canceled then
-      return
-    else
-      self.cb()
-    end
-    self = nil
-  end)
+  if (type(self.msec) == "number") then
+    SetTimeout(self.msec, function()
+      if self.canceled then
+        return
+      else
+        self.cb()
+      end
+      self = nil
+    end)
+  elseif (type(self.msec) == "function") then
+    CreateThread(function()
+      self.msec()
+      if self.canceled then
+        return
+      else
+        self.cb()
+      end
+      self = nil
+    end)
+  end
 end
 
 --- Cancel the timeout
