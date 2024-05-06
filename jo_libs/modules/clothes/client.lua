@@ -8,22 +8,17 @@ if not not IsModuleLoaded('timeout') then
   jo.require('timeout')
 end
 
--------------
--- Functions to keep clothes colors
--------------
-local cachedPedColor = {}
-local currentTimeout
+if not DataView then
+  jo.require('dataview')
+end
 
-local function SetTextureOutfitTints(ped,category,palette,tint0,tint1,tint2) if palette ~= 0 then Citizen.InvokeNative(0x4EFC1F8FF1AD94DE,ped,GetHashFromString(category),palette,tint0,tint1,tint2) end end
-local function N_0xAAB86462966168CE(ped) return Citizen.InvokeNative(0xAAB86462966168CE,ped,true) end
-local function GetShopItemBaseLayers(hash,metapedType,isMp) return Citizen.InvokeNative(0x63342C50EC115CE8, hash,0,0,metapedType,isMp,Citizen.PointerValueInt(),Citizen.PointerValueInt(),Citizen.PointerValueInt(),Citizen.PointerValueInt(),Citizen.PointerValueInt(),Citizen.PointerValueInt(),Citizen.PointerValueInt(),Citizen.PointerValueInt()) end
-local function UpdatePedVariation(ped) return Citizen.InvokeNative(0xCC8CA3E88256E58F, ped, false, true, true, true, false) end
-local function RefreshPed(ped) Citizen.InvokeNative(0x704C908E9C405136, ped) UpdatePedVariation(ped) end
-local function GetCategoryOfComponentAtIndex(ped, componentIndex) return Citizen.InvokeNative(0x9b90842304c938a7, ped, componentIndex, 0, Citizen.ResultAsInteger()) end
-local function GetMetaPedAssetTint(ped, index) return Citizen.InvokeNative(0xE7998FEC53A33BBE, ped, index, Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt()) end
-local function GetNumComponentsInPed(ped) return Citizen.InvokeNative(0x90403E8107B60E81, ped) end
-local function GetMetaPedType(ped) return Citizen.InvokeNative(0xEC9A1261BF0CE510, ped) end
-local function GetShopItemComponentCategory(...) return Citizen.InvokeNative(0x5FF9A878C3D115B8,...) end
+-------------
+-- Variables
+-------------
+jo.cache.clothes = {
+  color = {},
+  getEquiped = {}
+}
 
 jo.clothes.order = {
 	'ponchos',
@@ -67,74 +62,63 @@ jo.clothes.order = {
   'beards_complete',
   'teeth'
 }
-
----@param ped integer the entity ID
----@param category integer the category hash
-local function ResetCachedColor(ped,category)
-  if not cachedPedColor[ped] then return end
-	cachedPedColor[ped].comps[category] = nil
+jo.clothes.categoryName = {
+  [joaat('heads')] = "heads",
+  [joaat('bodies_lower')] = "bodies_lower",
+  [joaat('bodies_upper')] = "bodies_upper",
+  [joaat('eyes')] = "eyes",
+  [joaat('neckerchiefs')] = "neckerchiefs"
+}
+for _,category in pairs (jo.clothes.order) do
+  jo.clothes.categoryName[joaat(category)] = category
 end
 
----@param ped integer the entity ID
----@param category integer the category hash
----@param palette integer the palette hash
----@param tint0 integer
----@param tint1 integer
----@param tint2 integer
-local function AddCachedColor(ped,category,palette,tint0,tint1,tint2)
-  if not cachedPedColor[ped] then cachedPedColor[ped] = { comps = {} } end
-  cachedPedColor[ped].comps[category] = {
-    category = category,
-    palette = palette,
-    tint0 = tint0,
-    tint1 = tint1,
-    tint2 = tint2
-  }
-end
+local currentTimeout
 
----@param ped integer the entity ID
-local function PutInCacheCurrentColor(ped)
-  if cachedPedColor[ped] then return end
-	local numComponent = GetNumComponentsInPed(ped)
-	if not numComponent then return end -- No component detected on the ped
-	for index = 0, numComponent-1 do
-		--Get current clothes
-		local palette,tint0,tint1,tint2 = GetMetaPedAssetTint(ped,index)
-		local category = GetCategoryOfComponentAtIndex(ped,index)
-		AddCachedColor(ped,category,palette,tint0,tint1,tint2)
-	end
-end
+-------------
+-- local functions
+-------------
 
----@param ped integer the entity ID
-local function ReapplyCustomColor(ped)
-	if not cachedPedColor[ped] then return end
-  if currentTimeout then
-    currentTimeout:clear()
+local function SetTextureOutfitTints(ped,category,palette,tint0,tint1,tint2)
+  if palette == 0 then return end
+  Citizen.InvokeNative(0x4EFC1F8FF1AD94DE,ped,GetHashFromString(category),palette,tint0,tint1,tint2)
+end
+local function N_0xAAB86462966168CE(ped) return Citizen.InvokeNative(0xAAB86462966168CE,ped,true) end
+local function N_0x704C908E9C405136(ped) return Citizen.InvokeNative(0x704C908E9C405136,ped) end
+local function GetShopItemBaseLayers(hash,metapedType,isMp) return Citizen.InvokeNative(0x63342C50EC115CE8, hash,0,0,metapedType,isMp,Citizen.PointerValueInt(),Citizen.PointerValueInt(),Citizen.PointerValueInt(),Citizen.PointerValueInt(),Citizen.PointerValueInt(),Citizen.PointerValueInt(),Citizen.PointerValueInt(),Citizen.PointerValueInt()) end
+local function UpdatePedVariation(ped) return Citizen.InvokeNative(0xCC8CA3E88256E58F, ped, false, true, true, true, false) end
+local function IsPedReadyToRender(...) return Citizen.InvokeNative(0xA0BC8FAED8CFEB3C,...) end
+local function RefreshPed(ped)
+  N_0xAAB86462966168CE(ped)
+  UpdatePedVariation(ped)
+  N_0x704C908E9C405136(ped)
+end
+local function GetCategoryOfComponentAtIndex(ped, componentIndex) return Citizen.InvokeNative(0x9b90842304c938a7, ped, componentIndex, 0, Citizen.ResultAsInteger()) end
+local function GetMetaPedAssetTint(ped, index) return Citizen.InvokeNative(0xE7998FEC53A33BBE, ped, index, Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt()) end
+local function GetNumComponentsInPed(ped) return Citizen.InvokeNative(0x90403E8107B60E81, ped) end
+local function GetMetaPedType(ped) return Citizen.InvokeNative(0xEC9A1261BF0CE510, ped) end
+local function GetShopItemComponentCategory(...) return Citizen.InvokeNative(0x5FF9A878C3D115B8,...) end
+local function GetShopItemComponentAtIndex(ped, index)
+	local dataStruct = DataView.ArrayBuffer(10 * 8)
+	local componentHash = GetShopPedComponentAtIndex(ped, index, true, dataStruct:Buffer(), dataStruct:Buffer())
+  if not componentHash or componentHash == 0 then
+    componentHash = GetShopPedComponentAtIndex(ped, index, false, dataStruct:Buffer(), dataStruct:Buffer())
   end
-  currentTimeout = jo.timeout:set(50, function()
-		for _,data in pairs (cachedPedColor[ped].comps or {}) do
-			SetTextureOutfitTints(ped,data.category,data.palette,data.tint0,data.tint1,data.tint2)
-		end
-		cachedPedColor[ped] = nil
-		N_0xAAB86462966168CE(ped)
- 		UpdatePedVariation(ped)
-	end)
+  return componentHash
+end
+local function UpdateShopItemWearableState(ped, hash, state)
+  state = GetHashFromString(state)
+  return Citizen.InvokeNative(0x66B957AAC2EAAEAB,ped, hash, state,0,true,1)
+end
+local function WaitRefreshPed(ped) while not IsPedReadyToRender(ped) do Wait(0) end end
+
+---@return string categoryName 
+local function getCategoryName(category)
+  if type(category) == "string" then return category end
+  return jo.clothes.categoryName[category] or ('unknown:'..category)
 end
 
----@param ped integer the entity ID of the ped
----@param hash integer the hash of the clothes
----@return integer categoryHash
----@return boolean isMp
-function jo.clothes.getComponentCategory(ped,hash)
-  local isMp = true
-  local categoryHash = GetShopItemComponentCategory(hash,GetMetaPedType(ped), true)
-  if not categoryHash then
-    isMp = false
-    categoryHash = GetShopItemComponentCategory(hash,GetMetaPedType(ped), false)
-  end
-  return categoryHash,isMp
-end
-
+---@return table data formatted table for clothes data
 local function formatClothesData(data)
   if type(data) == "table" then
     if type(data.hash) == "table" then --for VORP
@@ -149,6 +133,113 @@ local function formatClothesData(data)
   return {
     hash = data
   }
+end
+
+-------------
+-- Color management
+-------------
+
+---@param ped integer the entity ID
+---@param category integer the category hash
+local function ResetCachedColor(ped,category)
+  if not jo.cache.clothes.color[ped] then return end
+	jo.cache.clothes.color[ped][category] = nil
+end
+
+---@param ped integer the entity ID
+---@param category integer the category hash
+---@param palette integer the palette hash
+---@param tint0 integer
+---@param tint1 integer
+---@param tint2 integer
+local function AddCachedColor(ped,category,palette,tint0,tint1,tint2)
+  category = GetHashFromString(category)
+  if not jo.cache.clothes.color[ped] then jo.cache.clothes.color[ped] = {} end
+  jo.cache.clothes.color[ped][category] = {
+    category = getCategoryName(category),
+    palette = palette,
+    tint0 = tint0,
+    tint1 = tint1,
+    tint2 = tint2,
+  }
+  if category == joaat('neckwear') then
+    jo.cache.clothes.color[ped][joaat('neckerchiefs')] = jo.cache.clothes.color[ped][category]
+    jo.cache.clothes.color[ped][joaat('neckerchiefs')].category = "neckerchiefs"
+  elseif category == joaat('neckerchiefs') then
+    jo.cache.clothes.color[ped][joaat('neckwear')] = jo.cache.clothes.color[ped][category]
+    jo.cache.clothes.color[ped][joaat('neckwear')].category = 'neckwear'
+  end
+end
+
+---@param ped integer the entity ID
+local function PutInCacheCurrentColor(ped)
+  if jo.cache.clothes.color[ped] then return jo.cache.clothes.color[ped] end
+	local numComponent = GetNumComponentsInPed(ped)
+	if not numComponent then return end -- No component detected on the ped
+	for index = 0, numComponent-1 do
+		--Get current clothes
+		local palette,tint0,tint1,tint2 = GetMetaPedAssetTint(ped,index)
+		local category = GetCategoryOfComponentAtIndex(ped,index)
+		AddCachedColor(ped,category,palette,tint0,tint1,tint2)
+	end
+  return jo.cache.clothes.color[ped]
+end
+
+---@param ped integer the entity ID
+local function ReapplyCustomColor(ped)
+	if not jo.cache.clothes.color[ped] then return end
+  if currentTimeout then
+    currentTimeout:clear()
+  end
+  currentTimeout = jo.timeout:set(50, function()
+		for category,data in pairs (jo.cache.clothes.color[ped] or {}) do
+			SetTextureOutfitTints(ped,category,data.palette,data.tint0,data.tint1,data.tint2)
+		end
+		jo.cache.clothes.color[ped] = nil
+    RefreshPed(ped)
+	end)
+end
+
+-------------
+-- Cache management
+-------------
+local function ReapplyClothesStats(ped)
+  local hash = 0
+  local isEquiped,index = jo.clothes.isCategoryEquiped(ped,'neckwear')
+  local state = Entity(ped).state['wearableState:neckwear']
+  if isEquiped and state and state ~= `base` then
+    hash = GetShopItemComponentAtIndex(ped,index)
+    --Manage bandana UP item
+    if hash and hash ~= 0 then
+      UpdateShopItemWearableState(ped, hash, state)
+    end
+  end
+  RefreshPed(ped)
+end
+
+local function ReapplyCached(ped)
+  WaitRefreshPed(ped)
+  ReapplyClothesStats(ped)
+  WaitRefreshPed(ped)
+  ReapplyCustomColor(ped)
+end
+
+-------------
+-- Modules functions
+-------------
+
+---@param ped integer the entity ID of the ped
+---@param hash integer the hash of the clothes
+---@return integer categoryHash
+---@return boolean isMp
+function jo.clothes.getComponentCategory(ped,hash)
+  local isMp = true
+  local categoryHash = GetShopItemComponentCategory(hash,GetMetaPedType(ped), true)
+  if not categoryHash then
+    isMp = false
+    categoryHash = GetShopItemComponentCategory(hash,GetMetaPedType(ped), false)
+  end
+  return categoryHash,isMp
 end
 
 ---@param ped integer the entity
@@ -199,16 +290,68 @@ function jo.clothes.apply(ped,category,data)
       if data.palette and data.palette ~= 0 then
         AddCachedColor(ped,categoryHash, GetHashFromString(data.palette),data.tint0,data.tint1,data.tint2)
       end
+      local state = Entity(ped).state['wearableState:'..category]
+      if state then
+        UpdateShopItemWearableState(ped, data.hash, state)
+      end
     end
 	end
 	RefreshPed(ped)
-	ReapplyCustomColor(ped)
+  ReapplyCached(ped)
 end
 
 ---@param ped integer the entity
 ---@param category string the clothes category 
 function jo.clothes.remove(ped,category)
   return jo.clothes.apply(ped,category,0)
+end
+
+---@param ped integer the entity
+---@param category string the category
+---@param hash any the hash of the clothes
+---@param state any
+function jo.clothes.setWearableState(ped,category,hash,state)
+  Entity(ped).state:set('wearableState:'..category,state)
+  PutInCacheCurrentColor(ped)
+  local data = formatClothesData(hash)
+  UpdateShopItemWearableState(ped, data.hash, state)
+  RefreshPed(ped)
+  ReapplyCached(ped)
+end
+
+function jo.clothes.getCategoriesEquiped(ped)
+  if jo.cache.clothes.getEquiped[ped] then
+    return jo.cache.clothes.getEquiped[ped]
+  end
+  jo.cache.clothes.getEquiped[ped] = {}
+  local numComponent = GetNumComponentsInPed(ped) or 0
+	for index = 0, numComponent-1 do
+		--Get current clothes
+		local category = GetCategoryOfComponentAtIndex(ped,index)
+    jo.cache.clothes.getEquiped[ped][category] = {
+      index = index,
+      category = getCategoryName(category),
+    }
+    if category == joaat('neckwear') then
+      jo.cache.clothes.getEquiped[ped][joaat('neckerchiefs')] = jo.cache.clothes.getEquiped[ped][category]
+      jo.cache.clothes.getEquiped[ped][joaat('neckerchiefs')].category = 'neckerchiefs'
+    elseif category == joaat('neckerchiefs') then
+      jo.cache.clothes.getEquiped[ped][joaat('neckwear')] = jo.cache.clothes.getEquiped[ped][category]
+      jo.cache.clothes.getEquiped[ped][joaat('neckwear')].category = 'neckwear'
+    end
+	end
+  --clear cached value
+  SetTimeout(500,function()
+    jo.cache.clothes.getEquiped[ped] = nil
+  end)
+  return jo.cache.clothes.getEquiped[ped]
+end
+
+function jo.clothes.isCategoryEquiped(ped,category)
+  local categoryHash = GetHashFromString(category)
+  local equiped = jo.clothes.getCategoriesEquiped(ped)
+  if equiped[categoryHash] then return true, equiped[categoryHash].index end
+  return false,0
 end
 
 return jo.clothes
