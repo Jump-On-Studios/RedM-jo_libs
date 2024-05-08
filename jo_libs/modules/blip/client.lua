@@ -20,7 +20,9 @@ function jo.blip.create(location,name,sprite,blipHash,color)
   local blip = BlipAddForCoords(blipHash,location.x, location.y, location.z)
   SetBlipSprite(blip, sprite)
   SetBlipName(blip, name)
-  if not color then color = GetHashKey("BLIP_MODIFIER_MP_COLOR_32") end
+  if color then
+    BlipAddModifier(blip, GetHashKey(color))
+  end
   Blips[#Blips+1] = blip
   return blip
 end
