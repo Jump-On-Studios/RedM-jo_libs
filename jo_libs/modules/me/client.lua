@@ -4,10 +4,27 @@ jo.mePlayerId = PlayerId()
 jo.meServerId = GetPlayerServerId(jo.mePlayerId)
 jo.meIsMale =  IsPedMale(PlayerPedId())
 local timer = 1000
+local timeout
+
+if not not IsModuleLoaded('timeout') then
+  jo.require('timeout')
+end
+
+local function updateMe()
+  jo.forceUpdateMe()
+  timeout = jo.timeout:set(timer,updateMe)
+end
+timeout = jo.timeout:set(timer,updateMe)
 
 ---@param value integer the new interval to update me values
 function jo.updateMeTimer(value)
   timer = value
+  if timeout then
+    timeout:clear()
+  end
+  if timer then
+    timeout = jo.timeout:set(timer,updateMe)
+  end
 end
 
 function jo.forceUpdateMe()
@@ -17,11 +34,5 @@ function jo.forceUpdateMe()
   jo.meServerId = GetPlayerServerId(jo.mePlayerId)
   jo.meIsMale =  IsPedMale(jo.me)
 end
-
-local function updateMe()
-  jo.forceUpdateMe()
-  SetTimeout(timer,updateMe)
-end
-SetTimeout(timer,updateMe)
 
 return jo.me

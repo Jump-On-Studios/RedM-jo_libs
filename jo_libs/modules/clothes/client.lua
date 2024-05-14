@@ -73,8 +73,34 @@ for _,category in pairs (jo.clothes.order) do
   jo.clothes.categoryName[joaat(category)] = category
 end
 
-local currentTimeoutReapply
+jo.clothes.wearableStates = {
+  shirts_full = {
+    -- first digit for collar : 0 = closed/1 = opened
+    -- second digit for sleeve : 0 = full/1 = rolled
+    [00] = 'base',
+    [01] = 'closed_collar_rolled_sleeve',
+    [10] = 'open_collar_full_sleeve',
+    [11] = 'open_collar_rolled_sleeve',
+  },
+  neckwear = {
+    [0] = 'base', --down
+    [1] = -1829635046 --up
+  },
+  boots = {
+    [0] = 'base', --upper
+    [1] = -2081918609 --under
+  },
+  loadouts = {
+    [0] = 'base', --right
+    [1] = -1169324489, --left
+  },
+  vests = {
+    [0] = 'base', --upper
+    [1] = -1169324489 --under
+  }
+}
 
+local currentTimeoutReapply
 -------------
 -- local functions
 -------------
@@ -193,14 +219,13 @@ end
 -------------
 local function ReapplyClothesStats(ped)
   local hash = 0
-  local isEquiped,index = jo.clothes.isCategoryEquiped(ped,'neckwear')
-  local state = Entity(ped).state['wearableState:neckwear']
-  if isEquiped and state and state ~= `base` then
-    hash = GetShopItemComponentAtIndex(ped,index)
-    --Manage bandana UP item
-    -- if hash and hash ~= 0 then
+  for category,_ in pairs (jo.clothes.wearableStates) do
+    local isEquiped,index = jo.clothes.isCategoryEquiped(ped,category)
+    local state = Entity(ped).state['wearableState:'..category]
+    if isEquiped and state and state ~= 'base' then
+      hash = GetShopItemComponentAtIndex(ped,index)
       UpdateShopItemWearableState(ped, hash, state)
-    -- end
+    end
   end
   RefreshPed(ped)
 end
@@ -248,7 +273,6 @@ end
 function jo.clothes.apply(ped,category,data)
 	data = formatClothesData(data)
 
-
 	local categoryHash = GetHashFromString(category)
 	local isMp = true
 
@@ -260,6 +284,9 @@ function jo.clothes.apply(ped,category,data)
 
   --remove the current clothes for this category
   RemoveTagFromMetaPed(ped, categoryHash, 0)
+  if (categoryHash == `neckwear`) then
+    RemoveTagFromMetaPed(ped, `neckerchiefs`, 0)
+  end
   ResetCachedColor(ped,categoryHash)
 
   if data.hash then
@@ -317,6 +344,50 @@ function jo.clothes.setWearableState(ped,category,hash,state)
   UpdateShopItemWearableState(ped, data.hash, state)
   RefreshPed(ped)
   ReapplyCached(ped)
+end
+
+function jo.clothes.isNeckweaUp(ped)
+  return Entity(ped).state['wearableState:neckwear'] == jo.clothes.wearableStates.neckwear[1]
+end
+
+function jo.clothes.isSleeveRolled(ped)
+  return (Entity(ped).state['wearableState:shirts_full'] or ""):find('rolled')
+end
+
+function jo.clothes.isCollarOpened(ped)
+  return (Entity(ped).state['wearableState:shirts_full'] or ""):find('open') and true or false
+end
+
+function jo.clothes.unrollSleeve(ped,hash)
+  if jo.clothes.isCollarOpened(ped) then
+    jo.clothes.setWearableState(ped,'shirts_full',hash,jo.clothes.wearableStates.shirts_full[10])
+  else
+    jo.clothes.setWearableState(ped,'shirts_full',hash,jo.clothes.wearableStates.shirts_full[00])
+  end
+end
+
+function jo.clothes.rollSleeve(ped,hash)
+  if jo.clothes.isCollarOpened(ped) then
+    jo.clothes.setWearableState(ped,'shirts_full',hash,jo.clothes.wearableStates.shirts_full[11])
+  else
+    jo.clothes.setWearableState(ped,'shirts_full',hash,jo.clothes.wearableStates.shirts_full[01])
+  end
+end
+
+function jo.clothes.openCollar(ped,hash)
+  if jo.clothes.isSleeveRolled(ped) then
+    jo.clothes.setWearableState(ped,'shirts_full',hash,jo.clothes.wearableStates.shirts_full[11])
+  else
+    jo.clothes.setWearableState(ped,'shirts_full',hash,jo.clothes.wearableStates.shirts_full[10])
+  end
+end
+
+function jo.clothes.closeCollar(ped,hash)
+  if jo.clothes.isSleeveRolled(ped) then
+    jo.clothes.setWearableState(ped,'shirts_full',hash,jo.clothes.wearableStates.shirts_full[01])
+  else
+    jo.clothes.setWearableState(ped,'shirts_full',hash,jo.clothes.wearableStates.shirts_full[00])
+  end
 end
 
 function jo.clothes.getCategoriesEquiped(ped)
