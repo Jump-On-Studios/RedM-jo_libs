@@ -81,7 +81,8 @@ end
 local jo = setmetatable ({
   libLoaded = false,
   name = jo_libs,
-  context = context
+  context = context,
+  cache = {}
 }, {
   __index = call,
   __call = noFunction

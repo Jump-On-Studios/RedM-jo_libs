@@ -881,7 +881,7 @@ local function formatClothesData(data)
   end
   if type(data) ~= "number" then data = tonumber(data) end
   if data == 0 or data == -1 or data == 1 or data == nil then
-    data = false
+    return nil
   end
   return {
     hash = data
@@ -906,15 +906,15 @@ function FrameworkClass:getUserClothes(source)
     clothes = OWFramework.getUserClothes(source)
   elseif self:is('VORP') then
     local user = User:get(source)
-    local clothesVORP = UnJson(user.data.comps)
+    clothes = UnJson(user.data.comps)
     local clothesTints = UnJson(user.data.compTints)
     for category,data in pairs (clothesTints) do
       for hash,data2 in pairs (data) do
-        if tonumber(clothesVORP[category]) == tonumber(hash) then
-          clothesVORP[category] = {
-            hash = clothesVORP[category]
+        if tonumber(clothes[category]) == tonumber(hash) then
+          clothes[category] = {
+            hash = clothes[category]
           }
-          table.merge(clothesVORP[category],data2)
+          table.merge(clothes[category],data2)
         end
       end
     end
@@ -941,7 +941,6 @@ function FrameworkClass:getUserClothes(source)
   local clothesStandardized = standardizeSkinKeys(clothes)
 
   clothesStandardized = cleanClothesTable(clothesStandardized)
-
   return clothesStandardized
 end
 
@@ -1077,3 +1076,4 @@ end
 
 jo.framework = FrameworkClass:new()
 return jo.framework
+
