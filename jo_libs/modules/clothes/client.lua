@@ -406,14 +406,14 @@ end
 
 ---@param ped integer the entity
 ---@return boolean
-function jo.clothes.isBootsOverPant(ped)
-  return Entity(ped).state['wearableState:boots'] == jo.clothes.wearableStates.boots[0]
+function jo.clothes.isBootsUnderPant(ped)
+  return Entity(ped).state['wearableState:boots'] == jo.clothes.wearableStates.boots[1]
 end
 
 ---@param ped integer the entity
 ---@return boolean
-function jo.clothes.isVestOverPant(ped)
-  return Entity(ped).state['wearableState:vests'] == jo.clothes.wearableStates.vests[0]
+function jo.clothes.isVestUnderPant(ped)
+  return Entity(ped).state['wearableState:vests'] == jo.clothes.wearableStates.vests[1]
 end
 
 ---@param ped integer the entity
