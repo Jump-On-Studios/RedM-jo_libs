@@ -92,11 +92,11 @@ jo.clothes.wearableStates = {
   },
   loadouts = {
     [0] = 'base', --right
-    [1] = -1169324489, --left
+    [1] = 1169324489, --left
   },
   vests = {
     [0] = 'base', --upper
-    [1] = -1169324489 --under
+    [1] = -2081918609 --under
   }
 }
 
@@ -346,18 +346,26 @@ function jo.clothes.setWearableState(ped,category,hash,state)
   ReapplyCached(ped)
 end
 
+---@param ped integer the entity
+---@return boolean
 function jo.clothes.isNeckweaUp(ped)
   return Entity(ped).state['wearableState:neckwear'] == jo.clothes.wearableStates.neckwear[1]
 end
 
+---@param ped integer the entity
+---@return boolean
 function jo.clothes.isSleeveRolled(ped)
-  return (Entity(ped).state['wearableState:shirts_full'] or ""):find('rolled')
+  return (Entity(ped).state['wearableState:shirts_full'] or ""):find('rolled') ~= nil
 end
 
+---@param ped integer the entity
+---@return boolean
 function jo.clothes.isCollarOpened(ped)
   return (Entity(ped).state['wearableState:shirts_full'] or ""):find('open') and true or false
 end
 
+---@param ped integer the entity
+---@param hash any the hash of the clothes
 function jo.clothes.unrollSleeve(ped,hash)
   if jo.clothes.isCollarOpened(ped) then
     jo.clothes.setWearableState(ped,'shirts_full',hash,jo.clothes.wearableStates.shirts_full[10])
@@ -366,6 +374,8 @@ function jo.clothes.unrollSleeve(ped,hash)
   end
 end
 
+---@param ped integer the entity
+---@param hash any the hash of the clothes
 function jo.clothes.rollSleeve(ped,hash)
   if jo.clothes.isCollarOpened(ped) then
     jo.clothes.setWearableState(ped,'shirts_full',hash,jo.clothes.wearableStates.shirts_full[11])
@@ -374,6 +384,8 @@ function jo.clothes.rollSleeve(ped,hash)
   end
 end
 
+---@param ped integer the entity
+---@param hash any the hash of the clothes
 function jo.clothes.openCollar(ped,hash)
   if jo.clothes.isSleeveRolled(ped) then
     jo.clothes.setWearableState(ped,'shirts_full',hash,jo.clothes.wearableStates.shirts_full[11])
@@ -382,6 +394,8 @@ function jo.clothes.openCollar(ped,hash)
   end
 end
 
+---@param ped integer the entity
+---@param hash any the hash of the clothes
 function jo.clothes.closeCollar(ped,hash)
   if jo.clothes.isSleeveRolled(ped) then
     jo.clothes.setWearableState(ped,'shirts_full',hash,jo.clothes.wearableStates.shirts_full[01])
@@ -390,6 +404,26 @@ function jo.clothes.closeCollar(ped,hash)
   end
 end
 
+---@param ped integer the entity
+---@return boolean
+function jo.clothes.isBootsOverPant(ped)
+  return Entity(ped).state['wearableState:boots'] == jo.clothes.wearableStates.boots[0]
+end
+
+---@param ped integer the entity
+---@return boolean
+function jo.clothes.isVestOverPant(ped)
+  return Entity(ped).state['wearableState:vests'] == jo.clothes.wearableStates.vests[0]
+end
+
+---@param ped integer the entity
+---@return boolean
+function jo.clothes.isLoadoutOnRight(ped)
+  return Entity(ped).state['wearableState:loadouts'] == jo.clothes.wearableStates.loadouts[1]
+end
+
+---@param ped integer the entity
+---@return table
 function jo.clothes.getCategoriesEquiped(ped)
   if jo.cache.clothes.getEquiped[ped] then
     return jo.cache.clothes.getEquiped[ped]
@@ -418,6 +452,9 @@ function jo.clothes.getCategoriesEquiped(ped)
   return jo.cache.clothes.getEquiped[ped]
 end
 
+---@param ped integer the entity
+---@param category string
+---@return boolean,integer
 function jo.clothes.isCategoryEquiped(ped,category)
   local categoryHash = GetHashFromString(category)
   local equiped = jo.clothes.getCategoriesEquiped(ped)
