@@ -1,5 +1,5 @@
 author "JUMP ON studios : shop.jumpon-studios.com"
-documentation 'https://docs.kaddarem.com'
+documentation 'https://docs.jumpon-studios.com'
 version '1.4.0'
 package_id '1'
 

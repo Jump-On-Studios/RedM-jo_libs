@@ -1,5 +1,8 @@
 jo.entity = {}
 
+if not IsModuleLoaded('utils') then
+end
+
 ---@param entity integer
 function jo.entity.requestControl(entity)
   while not NetworkHasControlOfEntity(entity) do
@@ -46,6 +49,33 @@ function jo.entity.fadeAndDelete(entity,duration)
 		Wait(10)
 	end
 	jo.entity.delete(entity)
+end
+
+function jo.entity.create(model,coords,heading,networked)
+	local model = GetHashFromString(model)
+	jo.utils.loadGameData(model,true)
+	local entity = CreatePed(model,vec4(0,0,0,0),networked)
+	SetModelAsNoLongerNeeded(model)
+	if model == joaat("mp_female") then
+		EquipMetaPedOutfitPreset(entity, 7)
+		ApplyShopItemToPed(entity,joaat('CLOTHING_ITEM_F_HEAD_001_V_001'), true, true, false) --head
+		ApplyShopItemToPed(entity,joaat('CLOTHING_ITEM_F_BODIES_UPPER_001_V_001'), true, true, false)
+		ApplyShopItemToPed(entity,joaat('CLOTHING_ITEM_F_BODIES_LOWER_001_V_001'), true, true, false)
+		ApplyShopItemToPed(entity,joaat('CLOTHING_ITEM_F_EYES_001_TINT_001'), true, true, false)
+	elseif model == joaat('mp_male') then
+		EquipMetaPedOutfitPreset(entity, 4)
+		ApplyShopItemToPed(entity,joaat('CLOTHING_ITEM_M_HEAD_001_V_001'), true, true, false) --head
+		ApplyShopItemToPed(entity,joaat('CLOTHING_ITEM_M_BODIES_UPPER_001_V_001'), true, true, false)
+		ApplyShopItemToPed(entity,joaat('CLOTHING_ITEM_M_BODIES_LOWER_001_V_001'), true, true, false)
+		ApplyShopItemToPed(entity,joaat('CLOTHING_ITEM_M_EYES_001_TINT_001'), true, true, false)
+	end
+	SetEntityCoords(entity,coords.xyz)
+	SetEntityHeading(entity,heading*1.0)
+	SetAttributeCoreValue(entity, 0, 100)  --_SET_ATTRIBUTE_CORE_VALUE
+	SetEntityHealth(entity, 600, 1)
+	SetAttributeCoreValue(entity, 1, 100)  --_SET_ATTRIBUTE_CORE_VALUE
+	RestorePedStamina(entity, 1065330373)
+	return entity
 end
 
 return jo.entity
