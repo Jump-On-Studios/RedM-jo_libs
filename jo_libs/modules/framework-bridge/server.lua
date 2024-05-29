@@ -281,14 +281,12 @@ function User:addMoney(amount,moneyType)
     end
   elseif jo.framework:is("QBR") or jo.framework:is('RSG') or jo.framework:is('QR') then
     if moneyType == 0 then
-      self.Functions.AddMoney('cash', amount)
+      self.data.Functions.AddMoney('cash', amount)
     elseif moneyType == 1 then
       OWFramework.User.addSecondMoney(self.source, amount)
     elseif moneyType == 2 then
       OWFramework.User.addThirdMoney(self.source, amount)
     end
-    local xPlayer = self.getUser(source)
-    xPlayer.data.Functions.AddMoney('cash', tonumber(amount), 'clothing-store')
   end
 end
 
@@ -301,6 +299,8 @@ function User:getIdentifiers()
   if OWFramework.User.getIdentifiers then
     return OWFramework.User.getIdentifiers(self.source)
   end
+
+  if not self.data then return {} end
 
   if jo.framework:is("VORP") then
     return {
