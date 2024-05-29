@@ -379,7 +379,7 @@ end
 
 function FrameworkClass:init()
   if OWFramework.initFramework then
-    return OWFramework.initFramework()
+    return OWFramework.initFramework(self)
   elseif self:is("VORP") then
     bprint('VORP detected')
     Wait(100)
