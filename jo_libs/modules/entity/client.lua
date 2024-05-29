@@ -68,6 +68,8 @@ function jo.entity.create(model,coords,heading,networked)
 		ApplyShopItemToPed(entity,joaat('CLOTHING_ITEM_M_BODIES_UPPER_001_V_001'), true, true, false)
 		ApplyShopItemToPed(entity,joaat('CLOTHING_ITEM_M_BODIES_LOWER_001_V_001'), true, true, false)
 		ApplyShopItemToPed(entity,joaat('CLOTHING_ITEM_M_EYES_001_TINT_001'), true, true, false)
+	else
+		SetRandomOutfitVariation(entity,true)
 	end
 	SetEntityCoords(entity,coords.xyz)
 	SetEntityHeading(entity,heading*1.0)
