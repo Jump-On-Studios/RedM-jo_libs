@@ -299,8 +299,8 @@ end
 ---@param data table
 function jo.pedTexture.apply(ped,category,layerName,data)
   local index, albedo, normal, material, layerIndex, textureId,palette
-  pedsTextures[ped]= pedsTextures[ped] or {}
-  pedsTextures[ped][category] = pedsTextures[ped][category] or Entity(ped).state['jo_pedTexture_'..category] or {layers = {}}
+  pedsTextures[ped] = pedsTextures[ped] or Entity(ped).state['jo_pedTexture'] or {}
+  pedsTextures[ped][category] = pedsTextures[ped][category] or {layers = {}}
 
   if not data.albedo then
     pedsTextures[ped][category].layers[layerName] = nil
@@ -354,14 +354,31 @@ function jo.pedTexture.apply(ped,category,layerName,data)
     ApplyTextureOnPed(ped, GetHashFromString(category), textureId)
     UpdatePedTexture(textureId)
     UpdatePedVariation(ped)
-    Entity(ped).state:set('jo_pedTexture_'..category,pedsTextures[ped][category])
+    Entity(ped).state:set('jo_pedTexture',pedsTextures[ped])
   else
     ReleaseTexture(textureId)
   end
 end
 
+---@param ped integer
+---@param category string
+---@param layerName string
 function jo.pedTexture.remove(ped,category,layerName)
   jo.pedTexture.apply(ped,category,layerName,{})
+end
+
+---@param ped integer
+function jo.pedTexture.refreshAll(ped)
+  pedsTextures[ped] = pedsTextures[ped] or Entity(ped).state['jo_pedTexture'] or {}
+  if table.count(pedsTextures[ped]) == 0 then return end
+
+  for category,data in pairs (pedsTextures[ped]) do
+    ReleaseTexture(data.textureId)
+    data.textureId = nil
+    for layername,layer in pairs (data.layers) do
+      jo.pedTexture.apply(ped,category,layername,layer)
+    end
+  end
 end
 
 return jo.pedTexture
