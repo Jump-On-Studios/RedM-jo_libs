@@ -11,12 +11,18 @@ local pedsTextures = {}
 
 AddEventHandler('onResourceStop', function(resourceName)
   if (GetCurrentResourceName() ~= resourceName) then return end
-  for ped,textures in pairs (pedsTextures) do
-		for category,data in pairs (textures) do
+  for _,textures in pairs (pedsTextures) do
+		for _,data in pairs (textures) do
       ReleaseTexture(data.textureId)
     end
 	end
 end)
+
+
+local function GetNumComponentsInPed(ped) return Citizen.InvokeNative(0x90403E8107B60E81, ped) end
+local function GetCategoryOfComponentAtIndex(ped, componentIndex) return Citizen.InvokeNative(0x9b90842304c938a7, ped, componentIndex, 0, Citizen.ResultAsInteger()) end
+local function GetMetaPedAssetGuids(ped, index) return Citizen.InvokeNative(0xA9C28516A6DC9D56, ped, index, Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt()) end
+local function RequestTexture(...) return Citizen.InvokeNative(0xC5E7204F322E49EB,...) end
 
 local function ClearTextures()
   for ped,textures in pairs (pedsTextures) do
@@ -31,12 +37,6 @@ local function ClearTextures()
 end
 SetTimeout(10000,ClearTextures)
 
-
-local function GetNumComponentsInPed(ped) return Citizen.InvokeNative(0x90403E8107B60E81, ped) end
-local function GetCategoryOfComponentAtIndex(ped, componentIndex) return Citizen.InvokeNative(0x9b90842304c938a7, ped, componentIndex, 0, Citizen.ResultAsInteger()) end
-local function GetMetaPedAssetGuids(ped, index) return Citizen.InvokeNative(0xA9C28516A6DC9D56, ped, index, Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt()) end
-local function RequestTexture(...) return Citizen.InvokeNative(0xC5E7204F322E49EB,...) end
-
 local function GetComponentIndexByCategory(ped, category)
 	category = GetHashFromString(category)
 	local numComponents = GetNumComponentsInPed(ped)
@@ -49,6 +49,18 @@ local function GetComponentIndexByCategory(ped, category)
 	end
 	return false
 end
+
+jo.pedTexture.variations = {
+  eyeshadow = {
+    {label="none",value=false},
+    {label="smokyEye",value={id=0,sheetGrid = 0}},
+    {label="neatArc",value={id=0,sheetGrid = 1}},
+    {label="heavyWing",value={id=0,sheetGrid = 2}},
+    {label="blendedFlick",value={id=0,sheetGrid = 3}},
+    {label="twotoneWing",value={id=0,sheetGrid = 4}},
+    {label="highlighted",value={id=0,sheetGrid = 5}},
+  }
+}
 
 ---@param isMale boolean
 ---@param category string
@@ -81,7 +93,7 @@ function jo.pedTexture.apply(ped,category,layerName,data)
     index = GetComponentIndexByCategory(ped,category)
     _, albedo, normal, material = GetMetaPedAssetGuids(ped, index)
     if albedo == 0 then
-      return
+      return  
     end
     textureId = RequestTexture(albedo, normal, material)
     pedsTextures[ped][category].textureId = textureId
@@ -121,6 +133,7 @@ function jo.pedTexture.apply(ped,category,layerName,data)
   if IsTextureValid(textureId) then
     ApplyTextureOnPed(ped, GetHashFromString(category), textureId)
     UpdatePedTexture(textureId)
+    UpdatePedVariation(ped)
     Entity(ped).state:set('jo_pedTexture_'..category,pedsTextures[ped][category])
   else
     ReleaseTexture(textureId)
