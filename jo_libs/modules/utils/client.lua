@@ -56,4 +56,19 @@ function jo.utils.releaseGameData(name)
 	end
 end
 
+
+---@param cb function the tester
+---@param maxDuration integer (default: 1000)
+---@param loopTimer integer (default: 0)
+function jo.utils.waiter(cb,maxDuration,loopTimer)
+	local endTimer = GetGameTimer()+ (maxDuration or 1000)
+	while cb() do
+		Wait(loopTimer or 0)
+		if endTimer < GetGameTimer() then
+			return false
+		end
+	end
+	return true
+end
+
 return jo.utils
