@@ -19,7 +19,7 @@ end
 ---@param t2 table
 ---@return table
 table.merge = function(t1, t2)
-  for k,v in pairs(t2) do
+  for k,v in pairs(t2 or {}) do
     if type(v) == "table" then
       if type(t1[k] or false) == "table" then
           table.merge(t1[k] or {}, t2[k] or {})
@@ -36,7 +36,7 @@ end
 ---@param _table table
 ---@return boolean
 table.isEmpty = function (_table)
-	for _,_ in pairs (_table) do
+	for _,_ in pairs (_table or {}) do
 		return false
 	end
 	return true
@@ -46,7 +46,7 @@ end
 ---@return integer
 table.count = function(_table)
   local counter = 0
-  for _,_ in pairs (_table) do
+  for _,_ in pairs (_table or {}) do
     counter += 1
   end
   return counter
