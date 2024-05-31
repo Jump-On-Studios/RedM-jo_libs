@@ -72,7 +72,6 @@ function jo.pedTexture.apply(ped,category,layerName,data)
 
   if not data.albedo then
     pedsTextures[ped][category].layers[layerName] = nil
-    if table.count(pedsTextures[ped][category].layers) == 0 then return end
   end
 
   if pedsTextures[ped][category].textureId ~= nil then
@@ -89,6 +88,8 @@ function jo.pedTexture.apply(ped,category,layerName,data)
   end
 
   pedsTextures[ped][category].layers[layerName] = data
+  
+  if table.count(pedsTextures[ped][category].layers) == 0 then return end
 
   for name,layer in pairs (pedsTextures[ped][category].layers) do
     albedo = GetHashFromString(layer.albedo)
@@ -120,7 +121,6 @@ function jo.pedTexture.apply(ped,category,layerName,data)
   if IsTextureValid(textureId) then
     ApplyTextureOnPed(ped, GetHashFromString(category), textureId)
     UpdatePedTexture(textureId)
-    UpdatePedVariation(ped)
     Entity(ped).state:set('jo_pedTexture_'..category,pedsTextures[ped][category])
   else
     ReleaseTexture(textureId)
