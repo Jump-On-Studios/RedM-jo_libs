@@ -51,3 +51,14 @@ table.count = function(_table)
   end
   return counter
 end
+
+---@param t table the table to filter
+---@param filterIter function the function to filter the table
+---@return table out the filtered table
+table.filter = function(t, filterIter)
+  local out = {}
+  for k, v in pairs(t) do
+    if filterIter(v, k, t) then out[k] = v end
+  end
+  return out
+end
