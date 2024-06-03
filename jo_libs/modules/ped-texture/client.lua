@@ -9,33 +9,26 @@ end
 
 local pedsTextures = {}
 
-AddEventHandler('onResourceStop', function(resourceName)
-  if (GetCurrentResourceName() ~= resourceName) then return end
-  for _,textures in pairs (pedsTextures) do
-		for _,data in pairs (textures) do
-      ReleaseTexture(data.textureId)
-    end
-	end
-end)
-
-
-local function GetNumComponentsInPed(ped) return Citizen.InvokeNative(0x90403E8107B60E81, ped) end
+local function AddTextureLayer(...) return Citizen.InvokeNative(0x86BB5FF45F193A02,...) end
+local function ApplyTextureOnPed(...) return Citizen.InvokeNative(0x0B46E25761519058,...) end
+local function ClearPedTexture(...) return Citizen.InvokeNative(0xB63B9178D0F58D82,...) end
 local function GetCategoryOfComponentAtIndex(ped, componentIndex) return Citizen.InvokeNative(0x9b90842304c938a7, ped, componentIndex, 0, Citizen.ResultAsInteger()) end
 local function GetMetaPedAssetGuids(ped, index) return Citizen.InvokeNative(0xA9C28516A6DC9D56, ped, index, Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt()) end
+local function GetNumComponentsInPed(ped) return Citizen.InvokeNative(0x90403E8107B60E81, ped) end
+local function IsTextureValid(...) return Citizen.InvokeNative(0x31DC8D3F216D8509,...) end
+local function ReleaseTexture(...) return Citizen.InvokeNative(0x6BEFAA907B076859,...) end
 local function RequestTexture(...) return Citizen.InvokeNative(0xC5E7204F322E49EB,...) end
-
-local function ClearTextures()
-  for ped,textures in pairs (pedsTextures) do
-    if not DoesEntityExist(ped) then
-      for _,data in pairs (textures) do
-        ReleaseTexture(data.textureId)
-      end
-      pedsTextures[ped] = nil
-    end
-	end
-  SetTimeout(10000,ClearTextures)
+local function SetTextureLayerAlpha(...) return Citizen.InvokeNative(0x6C76BC24F8BB709A,...) end
+local function SetTextureLayerPallete(...) return Citizen.InvokeNative(0x1ED8588524AC9BE1,...) end
+local function SetTextureLayerSheetGridIndex(...) return Citizen.InvokeNative(0x3329AAE2882FC8E4,...) end
+local function SetTextureLayerTint(...) return Citizen.InvokeNative(0x2DF59FFE6FFD6044,...) end
+local function UpdatePedTexture(...) return Citizen.InvokeNative(0x92DAABA2C1C10B0E,...) end
+local function N_0x704C908E9C405136(...) return Citizen.InvokeNative(0x704C908E9C405136,...) end
+local function UpdatePedVariation(ped) return Citizen.InvokeNative(0xCC8CA3E88256E58F,ped, false, true, true, true, false) end
+local function _updatePedVariation(ped)
+  N_0x704C908E9C405136(ped)
+  return UpdatePedVariation(ped)
 end
-SetTimeout(10000,ClearTextures)
 
 local function GetComponentIndexByCategory(ped, category)
 	category = GetHashFromString(category)
@@ -239,7 +232,7 @@ jo.pedTexture.variations = {
     {label="varied",value={id=2}},
     {label="bunch",value={id=3}},
     {label="scarce",value={id=4}},
-    {label="specked",value={id=5}},
+    {label="speckled",value={id=5}},
     {label="peppered",value={id=6}},
     {label="pronounced",value={id=7}},
     {label="dotted",value={id=8}},
@@ -321,7 +314,6 @@ function jo.pedTexture.getOverlayAssetFromId(isMale,category,id)
 end
 
 ---@param ped integer
----@param category string
 ---@param layerName string
 ---@param data table
 function jo.pedTexture.apply(ped,layerName,data)
@@ -339,16 +331,14 @@ function jo.pedTexture.apply(ped,layerName,data)
 
   if pedsTextures[ped][category].textureId ~= nil then
     ClearPedTexture(pedsTextures[ped][category].textureId)
-    textureId = pedsTextures[ped][category].textureId
-  else
-    index = GetComponentIndexByCategory(ped,category)
-    _, albedo, normal, material = GetMetaPedAssetGuids(ped, index)
-    if albedo == 0 then
-      return  
-    end
-    textureId = RequestTexture(albedo, normal, material)
-    pedsTextures[ped][category].textureId = textureId
   end
+  index = GetComponentIndexByCategory(ped,category)
+  _, albedo, normal, material = GetMetaPedAssetGuids(ped, index)
+  if albedo == 0 then
+    return  
+  end
+  textureId = RequestTexture(albedo, normal, material)
+  pedsTextures[ped][category].textureId = textureId
 
   pedsTextures[ped][category].layers[layerName] = data
   
@@ -384,8 +374,13 @@ function jo.pedTexture.apply(ped,layerName,data)
   if IsTextureValid(textureId) then
     ApplyTextureOnPed(ped, GetHashFromString(category), textureId)
     UpdatePedTexture(textureId)
-    UpdatePedVariation(ped)
+    _updatePedVariation(ped)
     Entity(ped).state:set('jo_pedTexture',pedsTextures[ped])
+    CreateThread(function()
+      local textureId = textureId
+      jo.utils.waiter(function() return IsPedReadyToRender(ped) end)
+      ReleaseTexture(textureId)
+    end)
   else
     ReleaseTexture(textureId)
   end
@@ -404,7 +399,6 @@ function jo.pedTexture.refreshAll(ped)
   if table.count(pedsTextures[ped]) == 0 then return end
 
   for _,data in pairs (pedsTextures[ped]) do
-    ReleaseTexture(data.textureId)
     data.textureId = nil
     for layername,layer in pairs (data.layers) do
       jo.pedTexture.apply(ped,layername,layer)
@@ -413,3 +407,5 @@ function jo.pedTexture.refreshAll(ped)
 end
 
 return jo.pedTexture
+
+
