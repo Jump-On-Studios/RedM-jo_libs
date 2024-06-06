@@ -199,6 +199,9 @@ function User:canBuy(price, moneyType, removeIfCan)
   if moneyType == nil then
     moneyType = 0
   end
+  if not price then
+    return eprint('PRICE IS NIL !')
+  end
   local money = self:getMoney(moneyType)
   local hasEnough = money >= price
   if removeIfCan == true and hasEnough then
@@ -906,7 +909,7 @@ local function standardizeSkinKeys(object)
   for layerName,_ in pairs (layerNamesNotNeeded) do
     overlays[layerName] = nil
   end
-  objectStandardized.overlays = overlays
+  objectStandardized.overlays = table.merge(objectStandardized.overlays,overlays)
   return objectStandardized
 end
 
@@ -1103,7 +1106,7 @@ end
 ---@param source integer
 ---@param _skin any key = category, value = data OR category name if three parameters
 ---@param value? table if set, _skin is the category name
-function FrameworkClass:updateUserSkin(source,_skin,value)
+function FrameworkClass:updateUserSkin(source,_skin,value,overwrite)
   if value then
     _skin = {[_skin] = value}
   end
@@ -1112,7 +1115,11 @@ function FrameworkClass:updateUserSkin(source,_skin,value)
     return OWFramework.updateUserSkin(source,skin)
   end
   if self:is("VORP") then
-    TriggerClientEvent("vorpcharacter:savenew", source, false, skin)
+    if overwrite then
+      TriggerClientEvent("vorpcharacter:updateCache",source,skin)
+    else
+      TriggerClientEvent("vorpcharacter:savenew", source, false, skin)
+    end
   elseif self:is("RedEM2023") or self:is("RedEM") then
     local identifiers = self:getUserIdentifiers(source)
     MySQL.scalar("SELECT skin FROM skins WHERE identifier=? AND charid=?", {identifiers.identifier, identifiers.charid}, function(oldSkin)

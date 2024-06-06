@@ -322,6 +322,7 @@ end
 ---@param layerName string
 ---@param data table
 function jo.pedTexture.apply(ped,layerName,data)
+  local data = table.copy(data)
   local index, albedo, normal, material, layerIndex, textureId,palette
   local category = jo.pedTexture.categories[layerName]
   if not category then
