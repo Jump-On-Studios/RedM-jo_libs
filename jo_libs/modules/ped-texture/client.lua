@@ -6,8 +6,12 @@ end
 if not IsModuleLoaded('table') then
   jo.require('table')
 end
+if not IsModuleLoaded('timeout') then
+  jo.require('timeout')
+end
 
 local pedsTextures = {}
+local timeOut = false
 
 local function AddTextureLayer(...) return Citizen.InvokeNative(0x86BB5FF45F193A02,...) end
 local function ApplyTextureOnPed(...) return Citizen.InvokeNative(0x0B46E25761519058,...) end
@@ -325,65 +329,84 @@ function jo.pedTexture.apply(ped,layerName,data)
   pedsTextures[ped] = pedsTextures[ped] or Entity(ped).state['jo_pedTexture'] or {}
   pedsTextures[ped][category] = pedsTextures[ped][category] or {layers = {}}
 
+  if data.id then
+    data.albedo = jo.pedTexture.getOverlayAssetFromId(IsPedMale(ped),layerName, data.id)
+    data.normal = data.albedo.."_nm"
+    data.material = data.albedo.."_ab"
+    data.id = nil
+  end
+
+  if not data.palette and category == "heads" then
+    data.palette = "metaped_tint_makeup"
+  end
+
   if not data.albedo then
     pedsTextures[ped][category].layers[layerName] = nil
-  end
-
-  if pedsTextures[ped][category].textureId ~= nil then
-    ClearPedTexture(pedsTextures[ped][category].textureId)
-  end
-  index = GetComponentIndexByCategory(ped,category)
-  _, albedo, normal, material = GetMetaPedAssetGuids(ped, index)
-  if albedo == 0 then
-    return  
-  end
-  textureId = RequestTexture(albedo, normal, material)
-  pedsTextures[ped][category].textureId = textureId
-
-  pedsTextures[ped][category].layers[layerName] = data
-  
-  if table.count(pedsTextures[ped][category].layers) == 0 then return end
-
-  for name,layer in pairs (pedsTextures[ped][category].layers) do
-    albedo = GetHashFromString(layer.albedo)
-    normal = GetHashFromString(layer.normal)
-    material = GetHashFromString(layer.material)
-    local blendType = 0
-    if name == "scar"
-      or name == "spots"
-      or name == "disc"
-      or name == "complex"
-      or name == "acne"
-      or name == "ageing"
-      or name == "moles"
-      or name == "freckles"
-    then
-      blendType = 1
-    end
-    layerIndex = AddTextureLayer(textureId, albedo, normal, material, layer.blendType or blendType, layer.alpha or 1.0, layer.sheetGrid or 0)
-    if blendType == 0 and layer.palette ~= nil then
-      palette = GetHashFromString(layer.palette)
-      SetTextureLayerPallete(textureId, layerIndex, palette)
-      SetTextureLayerTint(textureId, layerIndex, layer.tint0 or 0, layer.tint1 or 0, layer.tint2 or 0)
-    end
-    SetTextureLayerSheetGridIndex(textureId, layerIndex, layer.sheetGrid or 0)
-    SetTextureLayerAlpha(textureId, layerIndex, layer.opacity or 1.0)
-  end
-  jo.utils.waiter(function() return not IsTextureValid(textureId) end)
-
-  if IsTextureValid(textureId) then
-    ApplyTextureOnPed(ped, GetHashFromString(category), textureId)
-    UpdatePedTexture(textureId)
-    _updatePedVariation(ped)
-    Entity(ped).state:set('jo_pedTexture',pedsTextures[ped])
-    CreateThread(function()
-      local textureId = textureId
-      jo.utils.waiter(function() return IsPedReadyToRender(ped) end)
-      ReleaseTexture(textureId)
-    end)
   else
-    ReleaseTexture(textureId)
+    pedsTextures[ped][category].layers[layerName] = data
   end
+
+  if timeOut then
+    timeOut:clear()
+  end
+
+  timeOut = jo.timeout:set(100, function()
+    timeOut = false
+    if pedsTextures[ped][category].textureId ~= nil then
+      ClearPedTexture(pedsTextures[ped][category].textureId)
+    end
+    index = GetComponentIndexByCategory(ped,category)
+    _, albedo, normal, material = GetMetaPedAssetGuids(ped, index)
+    if albedo == 0 then
+      return  
+    end
+    textureId = RequestTexture(albedo, normal, material)
+    if (textureId == -1) then
+      return print('IMPOSSIBLE TO APPLY THE TEXTURES')
+    end
+    pedsTextures[ped][category].textureId = textureId
+
+    for name,layer in pairs (pedsTextures[ped][category].layers) do
+      albedo = GetHashFromString(layer.albedo)
+      normal = GetHashFromString(layer.normal)
+      material = GetHashFromString(layer.material)
+      local blendType = 0
+      if name == "scar"
+        or name == "spots"
+        or name == "disc"
+        or name == "complex"
+        or name == "acne"
+        or name == "ageing"
+        or name == "moles"
+        or name == "freckles"
+      then
+        blendType = 1
+      end
+      layerIndex = AddTextureLayer(textureId, albedo, normal, material, layer.blendType or blendType, layer.alpha or 1.0, layer.sheetGrid or 0)
+      if blendType == 0 and layer.palette ~= nil then
+        palette = GetHashFromString(layer.palette)
+        SetTextureLayerPallete(textureId, layerIndex, palette)
+        SetTextureLayerTint(textureId, layerIndex, layer.tint0 or 0, layer.tint1 or 0, layer.tint2 or 0)
+      end
+      SetTextureLayerSheetGridIndex(textureId, layerIndex, layer.sheetGrid or 0)
+      SetTextureLayerAlpha(textureId, layerIndex, layer.opacity or 1.0)
+    end
+    jo.utils.waiter(function() return not IsTextureValid(textureId) end)
+
+    if IsTextureValid(textureId) then
+      ApplyTextureOnPed(ped, GetHashFromString(category), textureId)
+      UpdatePedTexture(textureId)
+      _updatePedVariation(ped)
+      Entity(ped).state:set('jo_pedTexture',pedsTextures[ped])
+      CreateThread(function()
+        local textureId = textureId
+        jo.utils.waiter(function() return IsPedReadyToRender(ped) end)
+        ReleaseTexture(textureId)
+      end)
+    else
+      ReleaseTexture(textureId)
+    end
+  end)
 end
 
 ---@param ped integer
@@ -399,12 +422,41 @@ function jo.pedTexture.refreshAll(ped)
   if table.count(pedsTextures[ped]) == 0 then return end
 
   for _,data in pairs (pedsTextures[ped]) do
-    data.textureId = nil
     for layername,layer in pairs (data.layers) do
       jo.pedTexture.apply(ped,layername,layer)
     end
   end
 end
+
+function jo.pedTexture.overwriteCategory(ped,category,overlays)
+  pedsTextures[ped] = pedsTextures[ped] or Entity(ped).state['jo_pedTexture'] or {}
+  if pedsTextures[ped][category] then
+    pedsTextures[ped][category].layers = {}
+    for layername,cat in pairs (jo.pedTexture.categories) do
+      if cat == category then
+        jo.pedTexture.remove(ped,layername)
+        break
+      end
+    end
+  end
+
+  for layername,layer in pairs (overlays) do
+    jo.pedTexture.apply(ped,layername,layer)
+  end
+end
+
+function jo.pedTexture.getAll(ped)
+  local layers = {}
+  pedsTextures[ped] = pedsTextures[ped] or Entity(ped).state['jo_pedTexture'] or {}
+  for _,data in pairs (pedsTextures[ped]) do
+    for layername,layer in pairs (data.layers) do
+      layers[layername] = layer
+    end
+  end
+  return layers
+end
+
+-- Entity(PlayerPedId()).state:set('jo_pedTexture',nil)
 
 return jo.pedTexture
 

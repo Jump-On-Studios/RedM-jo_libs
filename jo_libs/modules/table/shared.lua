@@ -19,6 +19,8 @@ end
 ---@param t2 table
 ---@return table
 table.merge = function(t1, t2)
+  t1 = t1 or {}
+  if not t2 then return t1 end
   for k,v in pairs(t2 or {}) do
     if type(v) == "table" then
       if type(t1[k] or false) == "table" then
