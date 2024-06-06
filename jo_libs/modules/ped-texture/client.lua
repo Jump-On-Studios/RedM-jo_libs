@@ -304,6 +304,7 @@ jo.pedTexture.categories = {
   moles = "heads",
   scar = "heads",
   spots = "heads",
+  masks = "heads",
 }
 
 ---@param isMale boolean
