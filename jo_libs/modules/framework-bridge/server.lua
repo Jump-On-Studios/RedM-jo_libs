@@ -660,7 +660,7 @@ function FrameworkClass:openInventory(source,invName)
   local name = self.inventories[invName].name
   local invConfig = self.inventories[invName].invConfig
   if OWFramework.openInventory then
-    OWFramework.openInventory(source, invName, name, invConfig)
+    return OWFramework.openInventory(source, invName, name, invConfig)
   elseif self:is("VORP") then
     self:createInventory(invName, name, invConfig)
     return self.inv:openInventory(source,invName)
@@ -1071,6 +1071,23 @@ function FrameworkClass:updateUserSkin(source,_skin,value)
     local skin = UnJson(user.data.skin)
     skin[category] = value
     user.data.SetSkinData(skin)
+  end
+end
+
+function FrameworkClass:example()
+  if OWFramework.example then
+    return OWFramework.example()
+  end
+  if self:is("VORP") then
+    return
+  elseif self:is("RedEM2023") or self:is("RedEM") then
+    return
+  elseif self:is("QBR") then
+    return
+  elseif self:is('RSG') then
+    return
+  elseif self:is("RPX") then
+    return
   end
 end
 
