@@ -322,6 +322,9 @@ end
 ---@param layerName string
 ---@param data table
 function jo.pedTexture.apply(ped,layerName,data)
+  if not NetworkGetEntityIsNetworked(ped) then
+    return eprint("ERROR: RedM doesn't allow editing of texture on a local entity")
+  end
   local data = table.copy(data or {})
   local index, albedo, normal, material, layerIndex, textureId,palette
   local category = jo.pedTexture.categories[layerName]
