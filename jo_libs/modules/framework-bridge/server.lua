@@ -828,6 +828,37 @@ function FrameworkClass:addMoney(source,amount,moneyType)
   user:addMoney(amount,moneyType or 0)
 end
 
+---@param key string
+local function isOverlayKey(key)
+  local converter = {
+    beardstabble_ = "beard",
+    hair_ = "hair",
+    scars_ = "scar",
+    spots_ = "spots",
+    disc_ = "disc",
+    complex_ = "complex",
+    acne_ = "acne",
+    ageing_ = "ageing",
+    freckles_ = "freckles",
+    moles_ = "moles",
+    shadows_ = "eyeshadow",
+    eyebrows_ = "eyebrow",
+    eyeliner_ = "eyeliner",
+    blush_ = "blush",
+    lipsticks_ = "lipstick",
+    grime_ = "grime",
+    foundation_ = "foundation",
+    paintedmasks_ = "masks",
+  }
+
+  for search,layerName in pairs (converter) do
+    if key:find(search) then
+      return layerName
+    end
+  end
+  return false
+end
+
 --- A function to standardize the category name
 ---@param category string the category name
 local function standardizeSkinKey(category)
@@ -842,10 +873,40 @@ end
 
 --- A function to standardize a object of categories
 local function standardizeSkinKeys(object)
-  local objectStandardized = {}
+  local objectStandardized = {overlays = {}}
+
+  local layerNamesNotNeeded = {}
+  local overlays = {}
+
   for catFram,data in pairs (object or {}) do
-    objectStandardized[standardizeSkinKey(catFram)] = data
+    local layerName = isOverlayKey(catFram)
+    if layerName then
+      overlays[layerName] = overlays[layerName] or {}
+      if catFram:find('_visibility') then
+        if data == 0 then
+          layerNamesNotNeeded[layerName] = true
+        end
+      elseif catFram:find('_tx_id') then
+        overlays[layerName].id = data
+      elseif catFram:find('_opacity') then
+        overlays[layerName].opacity = data
+      elseif catFram:find('_palette_id') then
+        overlays[layerName].palette = data
+      elseif catFram:find('_color_primary') then
+        overlays[layerName].tint0 = data
+      elseif catFram:find('_color_secondary') then
+        overlays[layerName].tint1 = data
+      elseif catFram:find('_color_tertiary') then
+        overlays[layerName].tint2 = data
+      end
+    else
+      objectStandardized[standardizeSkinKey(catFram)] = data
+    end
   end
+  for layerName,_ in pairs (layerNamesNotNeeded) do
+    overlays[layerName] = nil
+  end
+  objectStandardized.overlays = overlays
   return objectStandardized
 end
 
