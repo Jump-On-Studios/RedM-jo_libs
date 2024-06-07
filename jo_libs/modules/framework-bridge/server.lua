@@ -199,6 +199,9 @@ function User:canBuy(price, moneyType, removeIfCan)
   if moneyType == nil then
     moneyType = 0
   end
+  if not price then
+    return eprint('PRICE IS NIL !')
+  end
   local money = self:getMoney(moneyType)
   local hasEnough = money >= price
   if removeIfCan == true and hasEnough then
@@ -660,7 +663,7 @@ function FrameworkClass:openInventory(source,invName)
   local name = self.inventories[invName].name
   local invConfig = self.inventories[invName].invConfig
   if OWFramework.openInventory then
-    OWFramework.openInventory(source, invName, name, invConfig)
+    return OWFramework.openInventory(source, invName, name, invConfig)
   elseif self:is("VORP") then
     self:createInventory(invName, name, invConfig)
     return self.inv:openInventory(source,invName)
@@ -828,6 +831,37 @@ function FrameworkClass:addMoney(source,amount,moneyType)
   user:addMoney(amount,moneyType or 0)
 end
 
+---@param key string
+local function isOverlayKey(key)
+  local converter = {
+    beardstabble_ = "beard",
+    hair_ = "hair",
+    scars_ = "scar",
+    spots_ = "spots",
+    disc_ = "disc",
+    complex_ = "complex",
+    acne_ = "acne",
+    ageing_ = "ageing",
+    freckles_ = "freckles",
+    moles_ = "moles",
+    shadows_ = "eyeshadow",
+    eyebrows_ = "eyebrow",
+    eyeliner_ = "eyeliner",
+    blush_ = "blush",
+    lipsticks_ = "lipstick",
+    grime_ = "grime",
+    foundation_ = "foundation",
+    paintedmasks_ = "masks",
+  }
+
+  for search,layerName in pairs (converter) do
+    if key:find(search) then
+      return layerName
+    end
+  end
+  return false
+end
+
 --- A function to standardize the category name
 ---@param category string the category name
 local function standardizeSkinKey(category)
@@ -842,10 +876,40 @@ end
 
 --- A function to standardize a object of categories
 local function standardizeSkinKeys(object)
-  local objectStandardized = {}
+  local objectStandardized = {overlays = {}}
+
+  local layerNamesNotNeeded = {}
+  local overlays = {}
+
   for catFram,data in pairs (object or {}) do
-    objectStandardized[standardizeSkinKey(catFram)] = data
+    local layerName = isOverlayKey(catFram)
+    if layerName then
+      overlays[layerName] = overlays[layerName] or {}
+      if catFram:find('_visibility') then
+        if data == 0 then
+          layerNamesNotNeeded[layerName] = true
+        end
+      elseif catFram:find('_tx_id') then
+        overlays[layerName].id = data
+      elseif catFram:find('_opacity') then
+        overlays[layerName].opacity = data
+      elseif catFram:find('_palette_id') then
+        overlays[layerName].palette = data
+      elseif catFram:find('_color_primary') then
+        overlays[layerName].tint0 = data
+      elseif catFram:find('_color_secondary') then
+        overlays[layerName].tint1 = data
+      elseif catFram:find('_color_tertiary') then
+        overlays[layerName].tint2 = data
+      end
+    else
+      objectStandardized[standardizeSkinKey(catFram)] = data
+    end
   end
+  for layerName,_ in pairs (layerNamesNotNeeded) do
+    overlays[layerName] = nil
+  end
+  objectStandardized.overlays = table.merge(objectStandardized.overlays,overlays)
   return objectStandardized
 end
 
@@ -1042,7 +1106,7 @@ end
 ---@param source integer
 ---@param _skin any key = category, value = data OR category name if three parameters
 ---@param value? table if set, _skin is the category name
-function FrameworkClass:updateUserSkin(source,_skin,value)
+function FrameworkClass:updateUserSkin(source,_skin,value,overwrite)
   if value then
     _skin = {[_skin] = value}
   end
@@ -1051,7 +1115,11 @@ function FrameworkClass:updateUserSkin(source,_skin,value)
     return OWFramework.updateUserSkin(source,skin)
   end
   if self:is("VORP") then
-    TriggerClientEvent("vorpcharacter:savenew", source, false, skin)
+    if overwrite then
+      TriggerClientEvent("vorpcharacter:updateCache",source,skin)
+    else
+      TriggerClientEvent("vorpcharacter:savenew", source, false, skin)
+    end
   elseif self:is("RedEM2023") or self:is("RedEM") then
     local identifiers = self:getUserIdentifiers(source)
     MySQL.scalar("SELECT skin FROM skins WHERE identifier=? AND charid=?", {identifiers.identifier, identifiers.charid}, function(oldSkin)
@@ -1071,6 +1139,23 @@ function FrameworkClass:updateUserSkin(source,_skin,value)
     local skin = UnJson(user.data.skin)
     skin[category] = value
     user.data.SetSkinData(skin)
+  end
+end
+
+function FrameworkClass:example()
+  if OWFramework.example then
+    return OWFramework.example()
+  end
+  if self:is("VORP") then
+    return
+  elseif self:is("RedEM2023") or self:is("RedEM") then
+    return
+  elseif self:is("QBR") then
+    return
+  elseif self:is('RSG') then
+    return
+  elseif self:is("RPX") then
+    return
   end
 end
 

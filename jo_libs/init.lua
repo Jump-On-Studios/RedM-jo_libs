@@ -9,6 +9,7 @@ local alias = {
   framework = "framework-bridge",
   versionChecker = "version-checker",
   notif = "notification",
+  pedTexture = 'ped-texture'
 }
 
 
