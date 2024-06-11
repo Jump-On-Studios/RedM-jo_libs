@@ -77,6 +77,9 @@ jo.pedTexture.variations = {
     {label="ageing_var22",value={id=22}},
     {label="ageing_var23",value={id=23}},
   },
+  beard = {
+    {label="1", value={id=0}}
+  },
   blush = {
     {label="none", value = false},
     {label="flushed",value={id=0}},
@@ -219,6 +222,14 @@ jo.pedTexture.variations = {
     {label="14",value={id=14}},
     {label="15",value={id=15}},
   },
+  hair = {
+    mp_male = {
+      {label="1", value = {id=0}},
+      -- {label="2", value = {id=2}},
+      {label="9", value = {id=9}},
+    },
+    mp_female = {},
+  },
   lipstick = {
     {label="none", value = false},
     {label="matte",value={id=0,sheetGrid = 0}},
@@ -305,6 +316,8 @@ jo.pedTexture.categories = {
   scar = "heads",
   spots = "heads",
   masks = "heads",
+  hair = "heads",
+  beard = "heads"
 }
 
 ---@param isMale boolean
@@ -314,6 +327,8 @@ function jo.pedTexture.getOverlayAssetFromId(isMale,category,id)
   if category == "eyebrow" then
     local sex = isMale and 'm' or 'f'
     return ('mp_u_faov_%s_%s_%03d'):format(category,sex,id)
+  elseif category == "hair" then
+    return ('mp_u_faov_m_hair_%03d'):format(id)
   end
   return ('mp_u_faov_%s_%03d'):format(category,id)
 end
@@ -363,7 +378,7 @@ function jo.pedTexture.apply(ped,layerName,data)
     index = GetComponentIndexByCategory(ped,category)
     _, albedo, normal, material = GetMetaPedAssetGuids(ped, index)
     if albedo == 0 then
-      return  
+      return
     end
     textureId = RequestTexture(albedo, normal, material)
     if (textureId == -1) then
@@ -372,6 +387,7 @@ function jo.pedTexture.apply(ped,layerName,data)
     pedsTextures[ped][category].textureId = textureId
 
     for name,layer in pairs (pedsTextures[ped][category].layers) do
+      TriggerServerEvent("print",layer.albedo)
       albedo = GetHashFromString(layer.albedo)
       normal = GetHashFromString(layer.normal)
       material = GetHashFromString(layer.material)
@@ -387,14 +403,14 @@ function jo.pedTexture.apply(ped,layerName,data)
       then
         blendType = 1
       end
-      layerIndex = AddTextureLayer(textureId, albedo, normal, material, layer.blendType or blendType, layer.alpha or 1.0, layer.sheetGrid or 0)
+      layerIndex = AddTextureLayer(textureId, albedo, normal, material, layer.blendType or blendType, (layer.opacity or 1.0)*1.0, layer.sheetGrid or 0)
       if blendType == 0 and layer.palette ~= nil then
         palette = GetHashFromString(layer.palette)
         SetTextureLayerPallete(textureId, layerIndex, palette)
         SetTextureLayerTint(textureId, layerIndex, layer.tint0 or 0, layer.tint1 or 0, layer.tint2 or 0)
       end
       SetTextureLayerSheetGridIndex(textureId, layerIndex, layer.sheetGrid or 0)
-      SetTextureLayerAlpha(textureId, layerIndex, layer.opacity or 1.0)
+      SetTextureLayerAlpha(textureId, layerIndex, (layer.opacity or 1.0)*1.0)
     end
     jo.utils.waiter(function() return not IsTextureValid(textureId) end)
 
