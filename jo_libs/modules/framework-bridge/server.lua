@@ -200,7 +200,7 @@ function User:canBuy(price, moneyType, removeIfCan)
     moneyType = 0
   end
   if not price then
-    return eprint('PRICE IS NIL !')
+    return false,eprint('PRICE IS NIL !')
   end
   local money = self:getMoney(moneyType)
   local hasEnough = money >= price
