@@ -387,7 +387,6 @@ function jo.pedTexture.apply(ped,layerName,data)
     pedsTextures[ped][category].textureId = textureId
 
     for name,layer in pairs (pedsTextures[ped][category].layers) do
-      TriggerServerEvent("print",layer.albedo)
       albedo = GetHashFromString(layer.albedo)
       normal = GetHashFromString(layer.normal)
       material = GetHashFromString(layer.material)
