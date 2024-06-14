@@ -92,7 +92,7 @@ jo.clothes.wearableStates = {
   },
   loadouts = {
     [0] = 'base', --right
-    [1] = 1169324489, --left
+    [1] = 'base_right', --left
   },
   vests = {
     [0] = 'base', --upper
