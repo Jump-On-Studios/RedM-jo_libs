@@ -125,32 +125,32 @@ jo.pedTexture.variations = {
   },
   eyebrow = {
     mp_male = {
-      {label = "full", value={id=0}},
-      {label = "short", value={id=1}},
-      {label = "blunt", value={id=2}},
-      {label = "fluffy", value={id=3}},
-      {label = "slight", value={id=4}},
-      {label = "natural", value={id=5}},
-      {label = "thin", value={id=6}},
-      {label = "blushy", value={id=7}},
-      {label = "low", value={id=8}},
-      {label = "plucked", value={id=9}},
-      {label = "arched", value={id=10}},
-      {label = "neat", value={id=11}},
-      {label = "sharp", value={id=12}},
-      {label = "pointed", value={id=13}},
-      {label = "trimmed", value={id=14}},
-      {label = "thick", value={id=15}},
+      {label = "full", value={id=0, sexe="m"}},
+      {label = "short", value={id=1, sexe="m"}},
+      {label = "blunt", value={id=2, sexe="m"}},
+      {label = "fluffy", value={id=3, sexe="m"}},
+      {label = "slight", value={id=4, sexe="m"}},
+      {label = "natural", value={id=5, sexe="m"}},
+      {label = "thin", value={id=6, sexe="m"}},
+      {label = "blushy", value={id=7, sexe="m"}},
+      {label = "low", value={id=8, sexe="m"}},
+      {label = "plucked", value={id=9, sexe="m"}},
+      {label = "arched", value={id=10, sexe="m"}},
+      {label = "neat", value={id=11, sexe="m"}},
+      {label = "sharp", value={id=12, sexe="m"}},
+      {label = "pointed", value={id=13, sexe="m"}},
+      {label = "trimmed", value={id=14, sexe="m"}},
+      {label = "thick", value={id=15, sexe="m"}},
     },
     mp_female = {
-      {label = "plucked", value={id=0}},
-      {label = "full", value={id=1}},
-      {label = "trimmed", value={id=2}},
-      {label = "shaped", value={id=3}},
-      {label = "thick", value={id=4}},
-      {label = "fluffy", value={id=5}},
-      {label = "natural", value={id=6}},
-      {label = "heavy", value={id=7}},
+      {label = "plucked", value={id=0, sexe="f"}},
+      {label = "full", value={id=1, sexe="f"}},
+      {label = "trimmed", value={id=2, sexe="f"}},
+      {label = "shaped", value={id=3, sexe="f"}},
+      {label = "thick", value={id=4, sexe="f"}},
+      {label = "fluffy", value={id=5, sexe="f"}},
+      {label = "natural", value={id=6, sexe="f"}},
+      {label = "heavy", value={id=7, sexe="f"}},
     }
   },
   eyeliner = {
@@ -322,15 +322,18 @@ jo.pedTexture.categories = {
 
 ---@param isMale boolean
 ---@param category string
----@param id integer
-function jo.pedTexture.getOverlayAssetFromId(isMale,category,id)
-  if category == "eyebrow" then
-    local sex = isMale and 'm' or 'f'
-    return ('mp_u_faov_%s_%s_%03d'):format(category,sex,id)
-  elseif category == "hair" then
-    return ('mp_u_faov_m_hair_%03d'):format(id)
+---@param data table
+function jo.pedTexture.getOverlayAssetFromId(isMale,category,data)
+  if type(data) == "number" then
+    data = {id = data}
   end
-  return ('mp_u_faov_%s_%03d'):format(category,id)
+  if category == "eyebrow" then
+    local sex = data.sexe or (isMale and 'm' or 'f')
+    return ('mp_u_faov_%s_%s_%03d'):format(category,sex,data.id)
+  elseif category == "hair" then
+    return ('mp_u_faov_m_hair_%03d'):format(data.id)
+  end
+  return ('mp_u_faov_%s_%03d'):format(category,data.id)
 end
 
 ---@param ped integer
@@ -350,7 +353,7 @@ function jo.pedTexture.apply(ped,layerName,data)
   pedsTextures[ped][category] = pedsTextures[ped][category] or {layers = {}}
 
   if data.id then
-    data.albedo = jo.pedTexture.getOverlayAssetFromId(IsPedMale(ped),layerName, data.id)
+    data.albedo = jo.pedTexture.getOverlayAssetFromId(IsPedMale(ped),layerName, data)
     data.normal = data.albedo.."_nm"
     data.material = data.albedo.."_ab"
     data.id = nil
@@ -403,10 +406,11 @@ function jo.pedTexture.apply(ped,layerName,data)
         blendType = 1
       end
       layerIndex = AddTextureLayer(textureId, albedo, normal, material, layer.blendType or blendType, (layer.opacity or 1.0)*1.0, layer.sheetGrid or 0)
-      if blendType == 0 and layer.palette ~= nil then
+      if blendType == 0 then
         palette = GetHashFromString(layer.palette)
         SetTextureLayerPallete(textureId, layerIndex, palette)
-        SetTextureLayerTint(textureId, layerIndex, layer.tint0 or 0, layer.tint1 or 0, layer.tint2 or 0)
+        -- SetTextureLayerTint(textureId, layerIndex, layer.tint0 or 0, layer.tint1 or 0, layer.tint2 or 0)
+        SetTextureLayerTint(textureId, layerIndex, 20,20,20)
       end
       SetTextureLayerSheetGridIndex(textureId, layerIndex, layer.sheetGrid or 0)
       SetTextureLayerAlpha(textureId, layerIndex, (layer.opacity or 1.0)*1.0)

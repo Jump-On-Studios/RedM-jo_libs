@@ -890,11 +890,22 @@ local function standardizeSkinKeys(object)
           layerNamesNotNeeded[layerName] = true
         end
       elseif catFram:find('_tx_id') then
-        overlays[layerName].id = data
+        if layerName == "eyebrow" then
+          local id = data - 1
+          local sexe = "m"
+          if data > 15 then
+            data = data - 15
+            sexe = "f"
+          end
+          overlays[layerName].id = id
+          overlays[layerName].sexe = sexe
+        else
+          overlays[layerName].id = data - 1
+        end
       elseif catFram:find('_opacity') then
         overlays[layerName].opacity = data
       elseif catFram:find('_palette_id') then
-        overlays[layerName].palette = data
+        overlays[layerName].sheetGrid = data
       elseif catFram:find('_color_primary') then
         overlays[layerName].tint0 = data
       elseif catFram:find('_color_secondary') then
@@ -910,6 +921,7 @@ local function standardizeSkinKeys(object)
     overlays[layerName] = nil
   end
   objectStandardized.overlays = table.merge(objectStandardized.overlays,overlays)
+
   return objectStandardized
 end
 
