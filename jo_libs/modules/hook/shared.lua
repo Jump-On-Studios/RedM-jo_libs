@@ -75,7 +75,7 @@ end
 -- DEPRECIATED
 -------------
 function jo.hook.RegisterFilter(...)
-  jo.hook.RegisterFilter(...)
+  jo.hook.registerFilter(...)
   CreateThread(function()
     Wait(3000)
     oprint('RegisterFilter with "R" in uppercase is depreciated. Use registerFilter with "r" in lowercase !')
