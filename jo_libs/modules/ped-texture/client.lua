@@ -401,11 +401,10 @@ function jo.pedTexture.apply(ped,layerName,data)
         blendType = 1
       end
       layerIndex = AddTextureLayer(textureId, albedo, normal, material, layer.blendType or blendType, (layer.opacity or 1.0)*1.0, layer.sheetGrid or 0)
-      if blendType == 0 then
+      if blendType == 0 and layer.palette then
         palette = GetHashFromString(layer.palette)
         SetTextureLayerPallete(textureId, layerIndex, palette)
-        -- SetTextureLayerTint(textureId, layerIndex, layer.tint0 or 0, layer.tint1 or 0, layer.tint2 or 0)
-        SetTextureLayerTint(textureId, layerIndex, 20,20,20)
+        SetTextureLayerTint(textureId, layerIndex, layer.tint0 or 0, layer.tint1 or 0, layer.tint2 or 0)
       end
       SetTextureLayerSheetGridIndex(textureId, layerIndex, layer.sheetGrid or 0)
       SetTextureLayerAlpha(textureId, layerIndex, (layer.opacity or 1.0)*1.0)
