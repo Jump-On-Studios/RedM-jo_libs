@@ -68,6 +68,7 @@ local MenuItem = {
   previewPalette = true;
   onActive = function() end,
   onClick = function() end,
+  onChange = function() end,
   onExit = function() end
 }
 
@@ -190,6 +191,8 @@ RegisterNUICallback('updatePreview', function(data,cb)
         oldButton.onExit(data)
       end
       button.onActive(data)
+    else
+      button.onChange(data)
     end
   end)
 end)
