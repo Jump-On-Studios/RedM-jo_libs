@@ -899,6 +899,16 @@ local function standardizeSkinKeys(object)
           end
           overlays[layerName].id = id
           overlays[layerName].sexe = sexe
+        elseif layerName == "hair" then
+          if data == 1 then
+            overlays[layerName].albedo = 'mp_u_faov_m_hair_000'
+          elseif data == 2 then
+            overlays[layerName].albedo = 'mp_u_faov_m_hair_002'
+          elseif data == 3 then
+            overlays[layerName].albedo = 'mp_u_faov_m_hair_009'
+          elseif data == 4 then
+            overlays[layerName].albedo = 'mp_u_faov_m_hair_shared_000'
+          end
         else
           overlays[layerName].id = data - 1
         end
