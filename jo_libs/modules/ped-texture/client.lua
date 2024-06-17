@@ -11,7 +11,6 @@ if not IsModuleLoaded('timeout') then
 end
 
 local pedsTextures = {}
-local timeOut = false
 
 local function AddTextureLayer(...) return Citizen.InvokeNative(0x86BB5FF45F193A02,...) end
 local function ApplyTextureOnPed(...) return Citizen.InvokeNative(0x0B46E25761519058,...) end
@@ -352,6 +351,7 @@ function jo.pedTexture.apply(ped,layerName,data)
   pedsTextures[ped] = pedsTextures[ped] or Entity(ped).state['jo_pedTexture'] or {}
   pedsTextures[ped][category] = pedsTextures[ped][category] or {layers = {}}
 
+
   if data.id then
     data.albedo = jo.pedTexture.getOverlayAssetFromId(IsPedMale(ped),layerName, data)
     data.normal = data.albedo.."_nm"
@@ -369,12 +369,7 @@ function jo.pedTexture.apply(ped,layerName,data)
     pedsTextures[ped][category].layers[layerName] = data
   end
 
-  if timeOut then
-    timeOut:clear()
-  end
-
-  timeOut = jo.timeout:set(100, function()
-    timeOut = false
+  jo.timeout:delay('updatePedTexture',200, function()
     if pedsTextures[ped][category].textureId ~= nil then
       ClearPedTexture(pedsTextures[ped][category].textureId)
     end
