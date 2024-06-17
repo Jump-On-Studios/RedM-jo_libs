@@ -323,11 +323,11 @@ jo.pedTexture.categories = {
 ---@param category string
 ---@param data table
 function jo.pedTexture.getOverlayAssetFromId(isMale,category,data)
-  if data.albedo then
-    return data.albedo
-  end
   if type(data) == "number" then
     data = {id = data}
+  end
+  if data.albedo then
+    return data.albedo
   end
   if category == "eyebrow" then
     local sex = data.sexe or (isMale and 'm' or 'f')
