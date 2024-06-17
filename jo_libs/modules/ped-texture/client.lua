@@ -11,7 +11,6 @@ if not IsModuleLoaded('timeout') then
 end
 
 local pedsTextures = {}
-local timeOut = false
 
 local function AddTextureLayer(...) return Citizen.InvokeNative(0x86BB5FF45F193A02,...) end
 local function ApplyTextureOnPed(...) return Citizen.InvokeNative(0x0B46E25761519058,...) end
@@ -324,6 +323,9 @@ jo.pedTexture.categories = {
 ---@param category string
 ---@param data table
 function jo.pedTexture.getOverlayAssetFromId(isMale,category,data)
+  if data.albedo then
+    return data.albedo
+  end
   if type(data) == "number" then
     data = {id = data}
   end
@@ -331,7 +333,11 @@ function jo.pedTexture.getOverlayAssetFromId(isMale,category,data)
     local sex = data.sexe or (isMale and 'm' or 'f')
     return ('mp_u_faov_%s_%s_%03d'):format(category,sex,data.id)
   elseif category == "hair" then
-    return ('mp_u_faov_m_hair_%03d'):format(data.id)
+    if type(data.id) == "number" then
+      return ('mp_u_faov_m_hair_%03d'):format(data.id)
+    else
+      return ('mp_u_faov_m_hair_%s'):format(data.id)
+    end
   end
   return ('mp_u_faov_%s_%03d'):format(category,data.id)
 end
@@ -352,29 +358,24 @@ function jo.pedTexture.apply(ped,layerName,data)
   pedsTextures[ped] = pedsTextures[ped] or Entity(ped).state['jo_pedTexture'] or {}
   pedsTextures[ped][category] = pedsTextures[ped][category] or {layers = {}}
 
+
   if data.id then
     data.albedo = jo.pedTexture.getOverlayAssetFromId(IsPedMale(ped),layerName, data)
-    data.normal = data.albedo.."_nm"
-    data.material = data.albedo.."_ab"
     data.id = nil
-  end
-
-  if not data.palette and category == "heads" then
-    data.palette = "metaped_tint_makeup"
   end
 
   if not data.albedo then
     pedsTextures[ped][category].layers[layerName] = nil
   else
+    if not data.palette and category == "heads" then
+      data.palette = "metaped_tint_makeup"
+    end
+    data.normal = data.albedo.."_nm"
+    data.material = data.albedo.."_ab"
     pedsTextures[ped][category].layers[layerName] = data
   end
 
-  if timeOut then
-    timeOut:clear()
-  end
-
-  timeOut = jo.timeout:set(100, function()
-    timeOut = false
+  jo.timeout:delay('updatePedTexture',200, function()
     if pedsTextures[ped][category].textureId ~= nil then
       ClearPedTexture(pedsTextures[ped][category].textureId)
     end
@@ -406,11 +407,10 @@ function jo.pedTexture.apply(ped,layerName,data)
         blendType = 1
       end
       layerIndex = AddTextureLayer(textureId, albedo, normal, material, layer.blendType or blendType, (layer.opacity or 1.0)*1.0, layer.sheetGrid or 0)
-      if blendType == 0 then
+      if blendType == 0 and layer.palette then
         palette = GetHashFromString(layer.palette)
         SetTextureLayerPallete(textureId, layerIndex, palette)
-        -- SetTextureLayerTint(textureId, layerIndex, layer.tint0 or 0, layer.tint1 or 0, layer.tint2 or 0)
-        SetTextureLayerTint(textureId, layerIndex, 20,20,20)
+        SetTextureLayerTint(textureId, layerIndex, layer.tint0 or 0, layer.tint1 or 0, layer.tint2 or 0)
       end
       SetTextureLayerSheetGridIndex(textureId, layerIndex, layer.sheetGrid or 0)
       SetTextureLayerAlpha(textureId, layerIndex, (layer.opacity or 1.0)*1.0)

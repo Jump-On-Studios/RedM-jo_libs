@@ -1,3 +1,5 @@
+local delays = {}
+
 ---@class TimeoutClass : table Timeout class
 local TimeoutClass = {}
 
@@ -33,7 +35,7 @@ function TimeoutClass:start(msec,cb)
       if self.canceled then
         return
       else
-        self.cb()
+        Citizen.CreateThread(self.cb)
       end
       self = nil
     end)
@@ -45,5 +47,16 @@ function TimeoutClass:clear()
   self.canceled = true
 end
 
+---@param id string identifier
+---@param msec any function/integer the waiter
+---@param cb function the function to execute after the waiter
+function TimeoutClass:delay(id,msec,cb)
+  if delays[id] then
+    delays[id]:clear()
+  end
+  delays[id] = jo.timeout:set(msec, cb)
+end
+
 jo.timeout = TimeoutClass
+
 return jo.timeout
