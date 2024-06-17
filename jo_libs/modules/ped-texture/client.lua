@@ -323,6 +323,9 @@ jo.pedTexture.categories = {
 ---@param category string
 ---@param data table
 function jo.pedTexture.getOverlayAssetFromId(isMale,category,data)
+  if data.albedo then
+    return data.albedo
+  end
   if type(data) == "number" then
     data = {id = data}
   end
@@ -330,7 +333,11 @@ function jo.pedTexture.getOverlayAssetFromId(isMale,category,data)
     local sex = data.sexe or (isMale and 'm' or 'f')
     return ('mp_u_faov_%s_%s_%03d'):format(category,sex,data.id)
   elseif category == "hair" then
-    return ('mp_u_faov_m_hair_%03d'):format(data.id)
+    if type(data.id) == "number" then
+      return ('mp_u_faov_m_hair_%03d'):format(data.id)
+    else
+      return ('mp_u_faov_m_hair_%s'):format(data.id)
+    end
   end
   return ('mp_u_faov_%s_%03d'):format(category,data.id)
 end
@@ -354,18 +361,17 @@ function jo.pedTexture.apply(ped,layerName,data)
 
   if data.id then
     data.albedo = jo.pedTexture.getOverlayAssetFromId(IsPedMale(ped),layerName, data)
-    data.normal = data.albedo.."_nm"
-    data.material = data.albedo.."_ab"
     data.id = nil
-  end
-
-  if not data.palette and category == "heads" then
-    data.palette = "metaped_tint_makeup"
   end
 
   if not data.albedo then
     pedsTextures[ped][category].layers[layerName] = nil
   else
+    if not data.palette and category == "heads" then
+      data.palette = "metaped_tint_makeup"
+    end
+    data.normal = data.albedo.."_nm"
+    data.material = data.albedo.."_ab"
     pedsTextures[ped][category].layers[layerName] = data
   end
 
