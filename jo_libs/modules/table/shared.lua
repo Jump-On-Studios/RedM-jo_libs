@@ -64,3 +64,14 @@ table.filter = function(t, filterIter)
   end
   return out
 end
+
+---@param t table the table to map
+---@param func function the function to map the table
+---@return table new_table the mapped table
+table.map = function(t, func)
+  local new_table = {}
+  for i, v in pairs(t or {}) do
+    new_table[i] = func(v, i, t)
+  end
+  return new_table
+end
