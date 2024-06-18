@@ -16,6 +16,8 @@ local menus = {}
 local nuiShow = false
 local radarAlreadyHidden = false
 local clockStart = GetGameTimer()
+local currentData = {}
+local previousData = {}
 local NativeSendNUIMessage = SendNUIMessage
 local function SendNUIMessage(data)
   if clockStart == GetGameTimer() then Wait(100) end
@@ -42,6 +44,7 @@ local MenuClass = {
   numberOnScreen = 8,
   disableEscape = false,
   onEnter = function() end,
+  onBack = function() end,
   onExit = function() end,
 }
 
@@ -133,8 +136,7 @@ function jo.menu.show(show,keepInput,hideRadar)
       SetNuiFocus(true, true)
       SetNuiFocusKeepInput(keepInput)
     end
-    print('show')
-    SendNUIMessage({show= show})
+    SendNUIMessage({event='updateShow',show= show})
     if show then
       radarAlreadyHidden = IsRadarHidden()
     end
@@ -144,31 +146,44 @@ function jo.menu.show(show,keepInput,hideRadar)
   end)
 end
 
-function jo.menu.setCurrentMenu(id)
+---@param id string ID of the next menu
+---@param keepHistoric boolean Keep the menu historic (default: true)
+---@param resetMenu boolean Clear the menu before draw it (default: true)
+function jo.menu.setCurrentMenu(id,keepHistoric,resetMenu)
+  keepHistoric = (keepHistoric == nil) and true or keepHistoric
+  resetMenu = (resetMenu == nil) and true or resetMenu
   SendNUIMessage({
-		event='setCurrentMenu',
-		id= id
-	})
+    event='setCurrentMenu',
+    menu= id,
+    keepHistoric = keepHistoric,
+    reset = resetMenu
+  })
 end
 
 -------------
 -- NUI
 -------------
-local currentData = {}
-local previousData = {}
 
 RegisterNUICallback('close', function(data,cb)
   cb('ok')
 
 end)
 
-RegisterNUICallback('action', function(data,cb)
+RegisterNUICallback('click', function(data,cb)
   cb('ok')
 
   if not menus[data.menu] then return end
   if not menus[data.menu].items[data.item.index] then return end
 
   menus[data.menu].items[data.item.index].onClick(data)
+end)
+
+RegisterNUICallback('backMenu', function(data,cb)
+  cb('ok')
+
+  if not menus[data.menu] then return end
+
+  menus[data.menu].onBack(data)
 end)
 
 RegisterNUICallback('updatePreview', function(data,cb)
@@ -182,17 +197,29 @@ RegisterNUICallback('updatePreview', function(data,cb)
 
     currentData.menu = data.menu
     currentData.index = data.item.index
-
+    
     local button = menus[currentData.menu].items[currentData.index]
-    local oldButton = previousData.menu and menus[previousData.menu].items[previousData.index] or false
+    local oldButton = false
+    if previousData.menu then
+      oldButton = menus[previousData.menu].items[previousData.index]
+    end
 
-    if previousData.index ~= currentData.index then
+    if previousData.menu ~= currentData.menu then
       if oldButton then
         oldButton.onExit(data)
+        menus[previewData.menu].onExit(data)
       end
+      menus[currentData.menu].onEnter(data)
       button.onActive(data)
     else
-      button.onChange(data)
+      if previousData.index ~= currentData.index then
+        if oldButton then
+          oldButton.onExit(data)
+        end
+        button.onActive(data)
+      else
+        button.onChange(data)
+      end
     end
   end)
 end)
