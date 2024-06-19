@@ -207,7 +207,7 @@ RegisterNUICallback('updatePreview', function(data,cb)
     if previousData.menu ~= currentData.menu then
       if oldButton then
         oldButton.onExit(data)
-        menus[previewData.menu].onExit(data)
+        menus[previousData.menu].onExit(data)
       end
       menus[currentData.menu].onEnter(data)
       button.onActive(data)
