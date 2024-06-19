@@ -147,8 +147,8 @@ function jo.menu.show(show,keepInput,hideRadar)
 end
 
 ---@param id string ID of the next menu
----@param keepHistoric boolean Keep the menu historic (default: true)
----@param resetMenu boolean Clear the menu before draw it (default: true)
+---@param keepHistoric? boolean Keep the menu historic (default: true)
+---@param resetMenu? boolean Clear the menu before draw it (default: true)
 function jo.menu.setCurrentMenu(id,keepHistoric,resetMenu)
   keepHistoric = (keepHistoric == nil) and true or keepHistoric
   resetMenu = (resetMenu == nil) and true or resetMenu
