@@ -75,3 +75,18 @@ table.map = function(t, func)
   end
   return new_table
 end
+
+---@param t table the table to clean
+---@return table new_table the table without functions
+table.clearForNui = function (t)
+  local new_table = {}
+  for key,data in pairs (t) do
+    if type(data) == "function" then
+    elseif type(data) == "table" then
+      new_table[key] = table.clearForNui(data)
+    else
+      new_table[key] = data
+    end
+  end
+  return new_table
+end
