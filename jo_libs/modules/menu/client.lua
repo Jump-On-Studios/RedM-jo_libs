@@ -40,11 +40,8 @@ local MenuClass = {
   title = "Jump On",
   subtitle = "",
   type = "list",
-  translateTitle = false,
-  translateSubtitle = false,
   items = {},
   numberOnScreen = 8,
-  disableEscape = false,
   onEnter = function() end,
   onBack = function() end,
   onExit = function() end,
@@ -52,38 +49,35 @@ local MenuClass = {
 
 local MenuItem = {
   title = '',
-  icon = false,
-  iconRight = false,
-  iconClass = '',
   child = false,
   sliders = {},
   price = false,
-  priceTitle = false,
-  priceRight = false,
   data = {},
   visible = true,
   description = '',
-  translate = false,
-  translateDescription = false,
   prefix = false,
   statistics = {},
   disabled = false,
   textRight = false,
-  translateTextRight = false,
-  previewPalette = true,
   onActive = function() end,
   onClick = function() end,
   onChange = function() end,
   onExit = function() end
 }
 
----@param reset? boolean reset the selector to the first button (default: true)
 function MenuClass:refresh()
   local datas = table.clearForNui(self)
   SendNUIMessage({
     event = 'updateMenuData',
     menu = self.id,
     data = datas
+  })
+end
+
+function MenuClass:reset()
+  SendNUIMessage({
+    event = "resetMenu",
+    menu = self.id
   })
 end
 
