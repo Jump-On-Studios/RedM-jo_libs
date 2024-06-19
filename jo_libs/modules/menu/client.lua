@@ -14,6 +14,7 @@ end
 
 local menus = {}
 local nuiShow = false
+local timeoutClose = nil
 local radarAlreadyHidden = false
 local clockStart = GetGameTimer()
 local currentData = {}
@@ -130,13 +131,19 @@ function jo.menu.show(show, keepInput, hideRadar)
     keepInput = keepInput == nil and true or keepInput
     hideRadar = hideRadar == nil and true or hideRadar
     nuiShow = show
+    if timeoutClose then
+      timeoutClose:clear()
+    end
     if not nuiShow then
-      SetNuiFocus(false, false)
+      timeoutClose = jo.timeout:set(150, function()
+        SetNuiFocus(false, false)
+        SendNUIMessage({ event = 'updateShow', show = show })
+      end)
     else
       SetNuiFocus(true, true)
       SetNuiFocusKeepInput(keepInput)
+      SendNUIMessage({ event = 'updateShow', show = show })
     end
-    SendNUIMessage({ event = 'updateShow', show = show })
     if show then
       radarAlreadyHidden = IsRadarHidden()
     end
@@ -240,17 +247,14 @@ function MenuData.Open(type, namespace, name, data, submit, cancel, change, clos
   local close = close or function() end
   menu.close = function()
     close(menu)
-    if data.lastmenu and menus[data.lastmenu] then
-      jo.menu.setCurrentMenu(data.lastmenu,false,false)
-    else
-      jo.menu.show(false)
-      TriggerEvent("menuapi:closemenu")
-    end
+    jo.menu.show(false)
+    TriggerEvent("menuapi:closemenu")
   end
-  menu.onBack = function(data)
-    cancel(menu)
+  menu.onBack = function()
+    cancel(menu,menu)
+    submit({current = "backup",trigger = data.lastmenu})
   end
-  menu.onExit = function(data)
+  menu.onExit = function()
     close(menu)
   end
 
@@ -262,11 +266,29 @@ function MenuData.Open(type, namespace, name, data, submit, cancel, change, clos
     local item = element
     item.title = item.label
     item.description = item.desc
+    if element.type == "slider" then
+      local values = {}
+      for i = element.min, element.max, element.hop or 1 do
+        table.insert(values,{label = i, value = i})
+      end
+      item.sliders = {
+        {
+          type = 'switch',
+          current = item.value,
+          values = values
+        }
+      }
+    end
     item.onActive = function(data)
       change({ current = data.item }, menu)
     end
     item.onChange = function(data)
+      TriggerServerEvent("print",data.item.sliders[1])
+      if #data.item.sliders > 0 then
+        data.item.value = data.item.sliders[1].values[data.item.sliders[1].current].value
+      end
       change({ current = data.item }, menu)
+      submit({ current = data.item }, menu)
     end
     item.onClick = function(data)
       submit({ current = data.item }, menu)
@@ -341,7 +363,7 @@ function MenuData.Open(type, namespace, name, data, submit, cancel, change, clos
 
   nuiMenu:refresh(true)
   jo.menu.setCurrentMenu(name,false,true)
-  jo.menu.show(true, false, false)
+  jo.menu.show(true, true, false)
   return menu
 end
 
@@ -350,12 +372,7 @@ function MenuData.Close(type, namespace, name)
 end
 
 function MenuData.CloseAll()
-  nuiShow = false
-  jo.timeout:delay('closeAllMenu', 100, function()
-    if not nuiShow then
-      jo.menu.show(false)
-    end
-  end)
+  jo.menu.show(false)
 end
 
 function MenuData.GetOpened(type, namespace, name)
