@@ -42,7 +42,6 @@ local MenuClass = {
   type = "list",
   translateTitle = false,
   translateSubtitle = false,
-  currentItem = 0,
   items = {},
   numberOnScreen = 8,
   disableEscape = false,
@@ -57,7 +56,7 @@ local MenuItem = {
   iconRight = false,
   iconClass = '',
   child = false,
-  sliders = false,
+  sliders = {},
   price = false,
   priceTitle = false,
   priceRight = false,
@@ -79,12 +78,20 @@ local MenuItem = {
 }
 
 ---@param reset? boolean reset the selector to the first button (default: true)
-function MenuClass:refresh(reset)
-  reset = reset == nil and true or reset
+function MenuClass:refresh()
+  local datas = table.clearForNui(self)
+  SendNUIMessage({
+    event = 'updateMenuData',
+    menu = self.id,
+    data = datas
+  })
+end
+
+function MenuClass:send()
   local datas = table.clearForNui(self)
   SendNUIMessage({
     event = 'updateMenu',
-    reset = reset,
+    reset = true,
     menu = datas
   })
 end
@@ -110,6 +117,7 @@ function jo.menu.create(id, data)
   menus[id] = setmetatable(menus[id], MenuClass)
   menus[id].__index = table.copy(MenuClass)
   menus[id].id = id
+  menus[id]:send()
   return menus[id]
 end
 
@@ -203,7 +211,21 @@ RegisterNUICallback('updatePreview', function(data, cb)
 
     currentData.menu = data.menu
     currentData.index = data.item.index
+    -- menus[data.menu].currentItem = data.item.index
+    menus[data.menu].items[data.item.index] = table.merge(menus[data.menu].items[data.item.index], data.item)
     currentData.item = menus[data.menu].items[data.item.index]
+
+    for _,slider in pairs (currentData.item.sliders) do
+      if slider.type == "switch" then
+        slider.value = slider.values[slider.current]
+      elseif slider.type == "grid" then
+        slider.value = {}
+        slider.value[1] = slider.values[1] and slider.values[1].current or nil
+        slider.value[2] = slider.values[2] and slider.values[2].current or nil
+      else
+        slider.value = slider.current
+      end
+    end
 
     local button = menus[currentData.menu].items[currentData.index]
     local oldButton = false
@@ -241,6 +263,7 @@ function MenuData.Open(type, namespace, name, data, submit, cancel, change, clos
   menu.id = name
   menu.title = data.title
   menu.subtitle = data.subtext
+  menu.data = data
   local submit = submit or function() end
   local cancel = cancel or function() end
   local change = change or function() end
@@ -262,56 +285,57 @@ function MenuData.Open(type, namespace, name, data, submit, cancel, change, clos
 
   local nuiMenu = jo.menu.create(name, menu)
 
-  for _, element in pairs(data.elements) do
+  local function convertElement(element)
     local item = element
     item.title = item.label
     item.description = item.desc
     if element.type == "slider" then
       local values = {}
-      for i = element.min, element.max, element.hop or 1 do
+      local min = (element.min < 0) and 0 or element.min
+      local max = (element.max)
+      for i = min, max, element.hop or 1 do
         table.insert(values,{label = i, value = i})
+      end
+      if item.value == 0 then
+        item.value = 1
       end
       item.sliders = {
         {
           type = 'switch',
-          current = item.value,
+          current = item.value or 1,
           values = values
         }
       }
     end
     item.onActive = function(data)
-      change({ current = data.item }, menu)
+      menu.data.elements = menus[name].items
+      change({ current = menu.data.elements[data.index] }, menu)
     end
     item.onChange = function(data)
-      TriggerServerEvent("print",data.item.sliders[1])
-      if #data.item.sliders > 0 then
-        data.item.value = data.item.sliders[1].values[data.item.sliders[1].current].value
+      menu.data.elements = menus[name].items
+      if #menu.data.elements[data.index].sliders > 0 then
+        menu.data.elements[data.index].value = menu.data.elements[data.index].sliders[1].value.value
       end
-      change({ current = data.item }, menu)
-      submit({ current = data.item }, menu)
+      change({ current = menus[name].items[data.index] }, menu)
+      submit({ current = menus[name].items[data.index] }, menu)
     end
     item.onClick = function(data)
-      submit({ current = data.item }, menu)
+      menu.data.elements = menus[name].items
+      submit({ current = menus[name].items[data.index] }, menu)
     end
     nuiMenu:addItem(item)
+  end
+
+  for _, element in pairs(data.elements) do
+    convertElement(element)
   end
 
   menu.update = function(query, newData)
-    nuiMenu:refresh(true)
+    nuiMenu:refresh(false)
   end
 
   menu.addNewElement = function(element)
-    local item = element
-    item.title = item.label
-    item.description = item.desc
-    item.onActive = function(data)
-      change({ current = data.item }, menu)
-    end
-    item.onChange = function(data)
-      change({ current = data.item }, menu)
-    end
-    nuiMenu:addItem(item)
-    nuiMenu:refresh(true)
+    convertElement(element)
   end
 
   menu.removeElementByValue = function(value, stop)
@@ -330,11 +354,25 @@ function MenuData.Open(type, namespace, name, data, submit, cancel, change, clos
   end
 
   menu.refresh = function()
-    nuiMenu:refresh(true)
+    nuiMenu:refresh(false)
   end
 
   menu.setElement = function(i, key, val)
-    nuiMenu.items[i][key] = val
+    if key == "label" then key = "title" end
+    if key == "desc" then key = "description" end
+    if key == "value" and nuiMenu.items[i].type == "slider" then
+      if val <= 0 then val = 1 end
+      nuiMenu.items[i].sliders[1].current = val
+    end
+    if key == "max" and nuiMenu.items[i].type == "slider" then
+      local values = {}
+      for i = 1, val, 1 do
+        table.insert(values,{label = i, value = i})
+      end
+      nuiMenu.items[i].sliders[1].values = values
+    else
+      nuiMenu.items[i][key] = val
+    end
   end
   -- override all elements
   menu.setElements = function(newElements)
