@@ -65,6 +65,17 @@ local MenuItem = {
   onExit = function() end
 }
 
+function MenuClass:addItem(item)
+  item.index = #self.items + 1
+  self.items[#self.items + 1] = table.merge(table.copy(MenuItem), item)
+end
+
+function MenuClass:addItems(items)
+  for _, item in ipairs(items) do
+    self:addItem(item)
+  end
+end
+
 function MenuClass:refresh()
   local datas = table.clearForNui(self)
   SendNUIMessage({
@@ -90,17 +101,6 @@ function MenuClass:send()
   })
 end
 
-function MenuClass:addItem(item)
-  item.index = #self.items + 1
-  self.items[#self.items + 1] = table.merge(table.copy(MenuItem), item)
-end
-
-function MenuClass:addItems(items)
-  for _, item in ipairs(items) do
-    self:addItem(item)
-  end
-end
-
 ---@param id string Unique ID of the menu
 ---@param data? MenuClass
 function jo.menu.create(id, data)
@@ -122,6 +122,24 @@ function jo.menu.delete(id)
   SendNUIMessage({
     event = "removeMenu",
     menu = id
+  })
+end
+
+function jo.menu.isOpen()
+  return nuiShow
+end
+
+---@param id string ID of the next menu
+---@param keepHistoric? boolean Keep the menu historic (default: true)
+---@param resetMenu? boolean Clear the menu before draw it (default: true)
+function jo.menu.setCurrentMenu(id, keepHistoric, resetMenu)
+  keepHistoric = (keepHistoric == nil) and true or keepHistoric
+  resetMenu = (resetMenu == nil) and true or resetMenu
+  SendNUIMessage({
+    event = 'setCurrentMenu',
+    menu = id,
+    keepHistoric = keepHistoric,
+    reset = resetMenu
   })
 end
 
@@ -153,24 +171,6 @@ function jo.menu.show(show, keepInput, hideRadar)
       DisplayRadar(not show)
     end
   end)
-end
-
----@param id string ID of the next menu
----@param keepHistoric? boolean Keep the menu historic (default: true)
----@param resetMenu? boolean Clear the menu before draw it (default: true)
-function jo.menu.setCurrentMenu(id, keepHistoric, resetMenu)
-  keepHistoric = (keepHistoric == nil) and true or keepHistoric
-  resetMenu = (resetMenu == nil) and true or resetMenu
-  SendNUIMessage({
-    event = 'setCurrentMenu',
-    menu = id,
-    keepHistoric = keepHistoric,
-    reset = resetMenu
-  })
-end
-
-function jo.menu.isOpen()
-  return nuiShow
 end
 
 -------------
