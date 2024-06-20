@@ -268,8 +268,11 @@ function MenuData.Open(type, namespace, name, data, submit, cancel, change, clos
     TriggerEvent("menuapi:closemenu")
   end
   menu.onBack = function()
+    menu.data.elements = menus[name].items
     cancel(menu,menu)
-    submit({current = "backup",trigger = data.lastmenu})
+    if (GetCurrentResourceName() == "vorp_menu") then
+      submit({current = "backup",trigger = data.lastmenu})
+    end
   end
   menu.onExit = function()
     close(menu)
@@ -424,6 +427,6 @@ function MenuData.ReOpen(oldMenu)
     oldMenu.change, oldMenu.close)
 end
 
-jo.menu.bridgeVORP = MenuData
+jo.menu.bridgeOldMenu = MenuData
 
 return jo.menu
