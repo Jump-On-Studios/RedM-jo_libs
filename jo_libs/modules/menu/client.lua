@@ -251,6 +251,7 @@ end)
 -- BRIDGE OTHER MENU
 -------------
 local MenuData = {}
+local menusOpened = {}
 
 function MenuData.Open(type, namespace, name, data, submit, cancel, change, close)
   local menu = {}
@@ -263,9 +264,12 @@ function MenuData.Open(type, namespace, name, data, submit, cancel, change, clos
   local change = change or function() end
   local close = close or function() end
   menu.close = function()
+    menusOpened[name] = nil
     close(menu)
-    jo.menu.show(false)
-    TriggerEvent("menuapi:closemenu")
+    if table.count(menusOpened) == 0 then
+      jo.menu.show(false)
+      TriggerEvent("menuapi:closemenu")
+    end
   end
   menu.onBack = function()
     menu.data.elements = menus[name].items
@@ -275,7 +279,7 @@ function MenuData.Open(type, namespace, name, data, submit, cancel, change, clos
     end
   end
   menu.onExit = function()
-    close(menu)
+    --menu.close()
   end
 
   jo.menu.delete(name)
@@ -396,8 +400,9 @@ function MenuData.Open(type, namespace, name, data, submit, cancel, change, clos
     end
   end
 
+  menusOpened[name] = true
   nuiMenu:refresh(true)
-  jo.menu.setCurrentMenu(name,false,true)
+  jo.menu.setCurrentMenu(name,true,true)
   jo.menu.show(true, true, false)
   return menu
 end
