@@ -64,3 +64,29 @@ table.filter = function(t, filterIter)
   end
   return out
 end
+
+---@param t table the table to map
+---@param func function the function to map the table
+---@return table new_table the mapped table
+table.map = function(t, func)
+  local new_table = {}
+  for i, v in pairs(t or {}) do
+    new_table[i] = func(v, i, t)
+  end
+  return new_table
+end
+
+---@param t table the table to clean
+---@return table new_table the table without functions
+table.clearForNui = function (t)
+  local new_table = {}
+  for key,data in pairs (t) do
+    if type(data) == "function" then
+    elseif type(data) == "table" then
+      new_table[key] = table.clearForNui(data)
+    else
+      new_table[key] = data
+    end
+  end
+  return new_table
+end

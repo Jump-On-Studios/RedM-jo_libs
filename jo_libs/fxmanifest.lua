@@ -13,6 +13,7 @@ lua54 'yes'
 files {
   "init.lua",
   "modules/**.lua",
+	--OLD MENU
 	"html/dist/**.html",
 	"html/dist/**.js",
 	"html/dist/**.css",
@@ -20,6 +21,14 @@ files {
 	"html/dist/**.png",
 	"html/dist/**.mp3",
 	"html/dist/**.gif",
+
+	"nui/**/**.html",
+	"nui/**/**.js",
+	"nui/**/**.css",
+	"nui/**/**.ttf",
+	"nui/**/**.png",
+	"nui/**/**.mp3",
+	"nui/**/**.gif",
 }
 
 shared_scripts {
