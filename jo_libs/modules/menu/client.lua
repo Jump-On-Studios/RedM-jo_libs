@@ -24,6 +24,12 @@ local function SendNUIMessage(data)
   if clockStart == GetGameTimer() then Wait(100) end
   NativeSendNUIMessage(data)
 end
+local disabledKeys = {
+  `INPUT_SELECT_NEXT_WEAPON`,
+  `INPUT_NEXT_WEAPON`,
+  `INPUT_SELECT_PREV_WEAPON`,
+  `INPUT_PREV_WEAPON`,
+}
 
 if not IsModuleLoaded('table') then
   jo.require('table')
@@ -142,6 +148,17 @@ function jo.menu.setCurrentMenu(id, keepHistoric, resetMenu)
     reset = resetMenu
   })
 end
+
+function LoopDisableKeys()
+  while nuiShow do
+    for _,key in pairs (disabledKeys) do
+      DisableControlAction(0,key,true)
+    end
+    Wait(0)
+  end
+  SetTimeout(1000,LoopDisableKeys)
+end
+SetTimeout(0,LoopDisableKeys)
 
 ---@param show boolean if the menu is show or hiddeng
 ---@param keepInput? boolean if the game input has to be keep (default: true)
