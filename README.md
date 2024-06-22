@@ -66,7 +66,7 @@ For help, discussion, support or any other conversations:
 
 ## ➕ Contributing
 
-If you're interested in constributing to Jo Libraries, please open a PR.
+If you're interested in constributing to Jo Libraries, please open a [new PR](https://github.com/Jump-On-Studios/RedM-jo_libs/pulls).
 
 ## 🔗 Download
 
