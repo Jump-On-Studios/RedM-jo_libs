@@ -76,6 +76,19 @@ table.map = function(t, func)
   return new_table
 end
 
+---@param t table the table to search in
+---@param func function the function to test the value
+---@return table new_table the found table
+table.find = function(t, func)
+  local new_table = {}
+  for i, v in pairs(t or {}) do
+    if func(v, i, t) then
+        return v
+    end
+  end
+  return false
+end
+
 ---@param t table the table to clean
 ---@return table new_table the table without functions
 table.clearForNui = function (t)
