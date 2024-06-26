@@ -1,25 +1,32 @@
 local delays = {}
+jo.timeout = {}
+
+if not IsModuleLoaded('table') then
+  jo.require('table')
+end
 
 ---@class TimeoutClass : table Timeout class
-local TimeoutClass = {}
+local TimeoutClass = {
+  msec = 1000,
+  cb = function() end,
+  id = 0,
+  canceled = false,
+}
 
 ---@param msec any timeout in ms/waiter function
 ---@param cb function
 ---@return TimeoutClass TimeoutClass class
 function TimeoutClass:set(msec,cb)
-	local t = setmetatable({}, self)
-	self.__index = self
-  t:start(msec,cb)
+  local t = table.copy(TimeoutClass)
+	local t = setmetatable(t, TimeoutClass)
+	t.__index = table.copy(TimeoutClass)
+  t.msec = msec
+  t.cb = cb
+  t.id = math.random()
 	return t
 end
 
----@param msec integer timeout in ms
----@param cb function
-function TimeoutClass:start(msec,cb)
-  self.msec = msec
-  self.cb = cb
-  self.id = math.random()
-  self.canceled = false
+function TimeoutClass:exec()
   if (type(self.msec) == "number") then
     SetTimeout(self.msec, function()
       if self.canceled then
@@ -42,6 +49,14 @@ function TimeoutClass:start(msec,cb)
   end
 end
 
+function TimeoutClass:setCb(cb)
+  self.cb = cb
+end
+
+function TimeoutClass:setMsec(msec)
+  self.msec = msec
+end
+
 --- Cancel the timeout
 function TimeoutClass:clear()
   self.canceled = true
@@ -57,6 +72,27 @@ function TimeoutClass:delay(id,msec,cb)
   delays[id] = jo.timeout:set(msec, cb)
 end
 
-jo.timeout = TimeoutClass
+function jo.timeout.set(msec,cb)
+  local t = TimeoutClass:set(msec,cb)
+  t:exec()
+  return t
+end
+
+function jo.timeout:set(msec,cb)
+  local t = TimeoutClass:set(msec,cb)
+  t:exec()
+  return t
+end
+
+function jo.timeout.loop(msec,cb)
+  local t = TimeoutClass:set(msec,cb)
+  CreateThread(function()
+    while not t.canceled do
+      cb()
+      Wait(t.msec)
+    end
+  end)
+  return t
+end
 
 return jo.timeout
