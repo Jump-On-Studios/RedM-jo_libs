@@ -214,7 +214,7 @@ end)
 RegisterNUICallback('updatePreview', function(data, cb)
   cb('ok')
 
-  jo.timeout:delay('menuNUIChange', 100, function()
+  jo.timeout.delay('menuNUIChange', 100, function()
     previousData = table.copy(currentData)
 
     if not menus[data.menu] then return end

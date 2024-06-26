@@ -375,7 +375,7 @@ function jo.pedTexture.apply(ped,layerName,data)
     pedsTextures[ped][category].layers[layerName] = data
   end
 
-  jo.timeout:delay('updatePedTexture',200, function()
+  jo.timeout.delay('updatePedTexture',200, function()
     if pedsTextures[ped][category].textureId ~= nil then
       ClearPedTexture(pedsTextures[ped][category].textureId)
     end
