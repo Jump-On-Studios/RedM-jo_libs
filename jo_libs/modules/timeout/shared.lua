@@ -92,7 +92,7 @@ function jo.timeout.delay(id,msec,cb)
   if delays[id] then
     delays[id]:clear()
   end
-  delays[id] = TimeoutClass:set(msec, cb)
+  delays[id] = jo.timeout.set(msec, cb)
 end
 
 return jo.timeout
