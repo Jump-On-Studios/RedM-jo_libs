@@ -54,6 +54,10 @@ function jo.versionChecker.StopAddon()
   end)
 end
 
+exports('StopAddon', function(resource)
+  jo.versionChecker.StopAddon()
+end)
+
 function jo.versionChecker.checkUpdate()
   local myResource = GetCurrentResourceName()
   local currentVersion = GetResourceMetadata(myResource,'version',0)
