@@ -48,14 +48,15 @@ function jo.versionChecker.GetScriptVersion()
   return GetResourceMetadata(GetCurrentResourceName(),'version',0) or 1
 end
 
-function jo.versionChecker.StopAddon()
+function jo.versionChecker.StopAddon(resource)
   CreateThread(function()
     StopResource(resource)
   end)
+  return true
 end
 
 exports('StopAddon', function(resource)
-  jo.versionChecker.StopAddon()
+  return jo.versionChecker.StopAddon(resource)
 end)
 
 function jo.versionChecker.checkUpdate()
@@ -78,19 +79,19 @@ function jo.versionChecker.checkUpdate()
   PerformHttpRequest(link,function (errorCode, resultData, resultHeaders, errorData)
     waiter:resolve('')
     if errorCode ~= 200 then
-      return print("^3"..GetCurrentResourceName()..": version checker API is offline. Impossible to check your version.^0")
+      return print("^3"..myResource..": version checker API is offline. Impossible to check your version.^0")
     end
     resultData = json.decode(resultData)
     if not resultData.version then
-      return print("^3"..GetCurrentResourceName()..": error in the format of version checker. Impossible to check your version.^0")
+      return print("^3"..myResource..": error in the format of version checker. Impossible to check your version.^0")
     end
     local lastVersion = convertVersion(resultData.version:sub(2))
     if convertVersion(currentVersion) >= lastVersion then
-      return print(("^3%s: \x1b[92mUp to date - Version %s^0"):format(GetCurrentResourceName(),currentVersion))
+      return print(("^3%s: \x1b[92mUp to date - Version %s^0"):format(myResource,currentVersion))
     end
     print('^3┌───────────────────────────────────────────────────┐^0')
     print('')
-    print("^3"..GetCurrentResourceName()..": ^5 Update found : Version "..resultData.version.."^0")
+    print("^3"..myResource..": ^5 Update found : Version "..resultData.version.."^0")
     print("^3Download it on ^0https://keymaster.fivem.net/asset-grants")
     print('')
     print('^3 Description of '..resultData.version..':^0')
@@ -98,6 +99,8 @@ function jo.versionChecker.checkUpdate()
     print('')
     print('^3└─────────────── shop.jumpon-studios.com ───────────────┘^0')
   end)
+
+  Citizen.Await(waiter)
 
   local dependencies = GetResourceMetadata(myResource,'dependencies_version_min',0)
   if dependencies then
@@ -113,8 +116,6 @@ function jo.versionChecker.checkUpdate()
         local currentVersion = exports[script]:GetScriptVersion()
         if convertVersion(currentVersion) < convertVersion(minVersion) then
           print("^1"..script..' needs to be updated^0: Required version: '..minVersion..", Your version: "..currentVersion)
-          print("^1"..GetCurrentResourceName()..' stopped^0')
-          return exports[script]:StopAddon(GetCurrentResourceName())
         end
       end
     end
