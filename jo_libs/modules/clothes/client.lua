@@ -238,7 +238,7 @@ end
 
 local function ReapplyCached(ped)
   if not jo.cache.clothes.color[ped] then return end
-  jo.timeout:delay('ReapplyCachedColor',function() WaitRefreshPed(ped) end, function()
+  jo.timeout.delay('ReapplyCachedColor',function() WaitRefreshPed(ped) end, function()
     ReapplyClothesStats(ped)
 		ReapplyClothesColor(ped)
     RefreshPed(ped)
