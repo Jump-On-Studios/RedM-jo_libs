@@ -16,10 +16,15 @@ function jo.prompt.displayGroup(group,title)
   PromptSetActiveGroupThisFrame(promptGroups[group].group, promptName)
 end
 
+function jo.prompt.isActive(group,key)
+  if not jo.prompt.isExist(group,key) then return false end
+  return UiPromptIsActive(promptGroups[group].prompts[key])
+end
+
 ---@param group string Name of the group
 ---@param key string Input
 function jo.prompt.isEnabled(group,key)
-  if not jo.prompt.isPromptExist(group,key) then return false end
+  if not jo.prompt.isActive(group,key) then return false end
   return UiPromptIsEnabled(promptGroups[group].prompts[key])
 end
 
@@ -27,7 +32,7 @@ end
 ---@param key string Input
 ---@param value boolean
 function jo.prompt.setEnabled(group,key,value)
-  if not jo.prompt.isPromptExist(group,key) then return end
+  if not jo.prompt.isExist(group,key) then return end
   UiPromptSetEnabled(promptGroups[group].prompts[key],value)
 end
 
@@ -35,7 +40,7 @@ end
 ---@param key string Input
 ---@param value boolean
 function jo.prompt.setVisible(group,key,value)
-  if not jo.prompt.isPromptExist(group,key) then return end
+  if not jo.prompt.isExist(group,key) then return end
   UiPromptSetVisible(promptGroups[group].prompts[key],value)
 end
 
@@ -43,7 +48,7 @@ end
 ---@param key string Input
 ---@param label string Label of the prompt
 function jo.prompt.editKeyLabel(group,key,label)
-  if not jo.prompt.isPromptExist(group,key) then return end
+  if not jo.prompt.isExist(group,key) then return end
   local str = CreateVarString(10, 'LITERAL_STRING', label)
   PromptSetText(promptGroups[group].prompts[key], str)
 end
@@ -95,7 +100,7 @@ end
 ---@param key string Input
 ---@return boolean
 function jo.prompt.doesLastCompletedIs(group,key)
-  if not jo.prompt.isPromptExist(group,key) then return false end
+  if not jo.prompt.isExist(group,key) then return false end
 	return lastKey == promptGroups[group].prompts[key]
 end
 
@@ -145,6 +150,7 @@ function jo.prompt.create(group, str, key, holdTime, page)
   	PromptSetGroup(promptGroups[group].prompts[key], promptGroups[group].group,page)
 	end
   PromptRegisterEnd(promptGroups[group].prompts[key])
+  return promptGroups[group].prompts[key]
 end
 
 function jo.prompt.deleteAllGroups()
@@ -155,10 +161,11 @@ end
 
 ---@param group string Group of the prompt
 ---@param key string Input
-function jo.prompt.deletePrompt(group,key)
-  if not jo.prompt.isPromptExist(group,key) then return end
+function jo.prompt.delete(group,key)
+  if not jo.prompt.isExist(group,key) then return end
 	PromptDelete(promptGroups[group].prompts[key])
 end
+jo.prompt.deletePrompt= jo.prompt.delete
 
 ---@param group string Group of the prompt
 function jo.prompt.deleteGroup(group)
@@ -185,17 +192,20 @@ end
 
 ---@param group string the name of the group
 ---@param key string the input of the key
-function jo.prompt.isPromptExist(group, key)
+function jo.prompt.isExist(group, key)
   if not jo.prompt.isGroupExist(group) then return false end
   return promptGroups[group].prompts[key] and true or false
 end
 
+jo.prompt.isPromptExist = jo.prompt.isExist
+
 ---@param group string the name of the group
 ---@param key string the input of the key
-function jo.prompt.getPromptProgress(group,key)
-  if not jo.prompt.isPromptExist(group,key) then return 0 end
+function jo.prompt.getProgress(group,key)
+  if not jo.prompt.isExist(group,key) then return 0 end
   return UiPromptGetProgress(promptGroups[group].prompts[key])
 end
+jo.prompt.getPromptProgress = jo.prompt.getProgress
 
 ---@param groups table groups of prompt
 function jo.prompt.setGroups(groups)
@@ -210,6 +220,14 @@ end
 ---@param key string the input of the key
 function jo.prompt.isPressed(key)
   return IsControlPressed(0,joaat(key))
+end
+
+---@param group string the name of the group
+---@param key string the input of the key
+---@return integer promptId The prompt ID
+function jo.prompt.get(group,key)
+  if not jo.prompt.isExist(group, key) then return false end
+  return promptGroups[group].prompts[key]
 end
 
 
