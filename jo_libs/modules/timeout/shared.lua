@@ -68,12 +68,6 @@ function jo.timeout.set(msec,cb)
   return t
 end
 
-function jo.timeout:set(msec,cb)
-  local t = TimeoutClass:set(msec,cb)
-  t:exec()
-  return t
-end
-
 function jo.timeout.loop(msec,cb)
   local t = TimeoutClass:set(msec,cb)
   CreateThread(function()

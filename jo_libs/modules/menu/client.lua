@@ -156,9 +156,8 @@ function LoopDisableKeys()
     end
     Wait(0)
   end
-  SetTimeout(1000,LoopDisableKeys)
 end
-SetTimeout(0,LoopDisableKeys)
+jo.timeout.loop(1000,LoopDisableKeys)
 
 ---@param show boolean if the menu is show or hiddeng
 ---@param keepInput? boolean if the game input has to be keep (default: true)
@@ -172,7 +171,7 @@ function jo.menu.show(show, keepInput, hideRadar)
       timeoutClose:clear()
     end
     if not nuiShow then
-      timeoutClose = jo.timeout:set(150, function()
+      timeoutClose = jo.timeout.set(150, function()
         SetNuiFocus(false, false)
         SendNUIMessage({ event = 'updateShow', show = show })
       end)

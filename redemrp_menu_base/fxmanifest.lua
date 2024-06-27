@@ -13,6 +13,10 @@ client_scripts {
 	'client.lua',
 }
 
+dependencies {
+	'jo_libs'
+}
+
 ui_page "nui://jo_libs/nui/menu/index.html"
 
 jo_libs {

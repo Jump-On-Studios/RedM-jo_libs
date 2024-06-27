@@ -12,9 +12,8 @@ end
 
 local function updateMe()
   jo.forceUpdateMe()
-  timeout = jo.timeout:set(timer,updateMe)
 end
-timeout = jo.timeout:set(timer,updateMe)
+timeout = jo.timeout.loop(timer,updateMe)
 
 ---@param value integer the new interval to update me values
 function jo.updateMeTimer(value)
@@ -23,7 +22,7 @@ function jo.updateMeTimer(value)
     timeout:clear()
   end
   if timer then
-    timeout = jo.timeout:set(timer,updateMe)
+    timeout = jo.timeout.loop(timer,updateMe)
   end
 end
 
