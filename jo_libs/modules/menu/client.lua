@@ -276,10 +276,10 @@ function MenuData.Open(type, namespace, name, data, submit, cancel, change, clos
   menu.title = data.title
   menu.subtitle = data.subtext
   menu.data = data
-  local submit = submit or function() end
-  local cancel = cancel or function() end
-  local change = change or function() end
-  local close = close or function() end
+  submit = submit or function() end
+  cancel = cancel or function() end
+  change = change or function() end
+  close = close or function() end
   menu.close = function()
     menusOpened[name] = nil
     close(menu)
