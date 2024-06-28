@@ -409,10 +409,10 @@ jo.clothes.closeCollar = jo.clothes.collarClose
 
 ---@param ped integer the entity
 ---@return boolean
-function jo.clothes.bootsIsUnderPant(ped)
+function jo.clothes.bootsAreUnderPant(ped)
   return Entity(ped).state['wearableState:boots'] == jo.clothes.wearableStates.boots[1]
 end
-jo.clothes.isBootsUnderPant = jo.clothes.bootsIsUnderPant
+jo.clothes.isBootsUnderPant = jo.clothes.bootsAreUnderPant
 
 ---@param ped integer the entity
 ---@return boolean
