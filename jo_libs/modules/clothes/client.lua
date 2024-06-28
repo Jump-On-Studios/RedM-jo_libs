@@ -344,9 +344,10 @@ end
 
 ---@param ped integer the entity
 ---@return boolean
-function jo.clothes.isNeckweaUp(ped)
+function jo.clothes.isNeckwearUp(ped)
   return Entity(ped).state['wearableState:neckwear'] == jo.clothes.wearableStates.neckwear[1]
 end
+function jo.clothes.isNeckweaUp = jo.clothes.isNeckwearUp
 
 ---@param ped integer the entity
 ---@return boolean
