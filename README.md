@@ -22,8 +22,8 @@ For the full documentation, visit [docs.jumpon-studios.com](https://docs.jumpon-
 
 ## 🧷 Modules
 
-* Animation
-* Blip
+* [Animation](https://docs.jumpon-studios.com/jo_libs/modules/animation/)
+* [Blip](https://docs.jumpon-studios.com/jo_libs/modules/blip/)
 * [Callback](https://docs.jumpon-studios.com/jo_libs/modules/callback/)
 * Clothes
 * [Database](https://docs.jumpon-studios.com/jo_libs/modules/database/)
