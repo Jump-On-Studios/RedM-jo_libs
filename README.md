@@ -24,24 +24,24 @@ For the full documentation, visit [docs.jumpon-studios.com](https://docs.jumpon-
 
 * Animation
 * Blip
-* Callback
+* [Callback](https://docs.jumpon-studios.com/jo_libs/modules/callback/)
 * Clothes
-* Database
-* Dataview
-* Entity
-* Framework bridge
-* Hook
-* Me
-* Menu
-* Notification
+* [Database](https://docs.jumpon-studios.com/jo_libs/modules/database/)
+* [Dataview](https://docs.jumpon-studios.com/jo_libs/modules/dataview/)
+* [Entity](https://docs.jumpon-studios.com/jo_libs/modules/entity/)
+* [Framework bridge](https://docs.jumpon-studios.com/jo_libs/modules/framework-bridge/)
+* [Hook](https://docs.jumpon-studios.com/jo_libs/modules/hook/)
+* [Me](https://docs.jumpon-studios.com/jo_libs/modules/me/)
+* [Menu](https://docs.jumpon-studios.com/jo_libs/modules/menu/)
+* [Notification](https://docs.jumpon-studios.com/jo_libs/modules/notification/)
 * Ped texture
 * Print
-* Prompt
+* [Prompt](https://docs.jumpon-studios.com/jo_libs/modules/prompt/)
 * String
-* Table
+* [Table](https://docs.jumpon-studios.com/jo_libs/modules/table/)
 * Timeout
 * UI
-* Utils
+* [Utils](https://docs.jumpon-studios.com/jo_libs/modules/utils/)
 
 ## ❔ Usage
 1. To use libraries, add the initiator as a shared script inside of your **fxmanifest.lua** file.
