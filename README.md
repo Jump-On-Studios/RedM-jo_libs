@@ -34,7 +34,7 @@ For the full documentation, visit [docs.jumpon-studios.com](https://docs.jumpon-
 * [Me](https://docs.jumpon-studios.com/jo_libs/modules/me/)
 * [Menu](https://docs.jumpon-studios.com/jo_libs/modules/menu/)
 * [Notification](https://docs.jumpon-studios.com/jo_libs/modules/notification/)
-* Ped texture
+* [Ped texture](https://docs.jumpon-studios.com/jo_libs/modules/ped-texture/)
 * Print
 * [Prompt](https://docs.jumpon-studios.com/jo_libs/modules/prompt/)
 * String
