@@ -37,10 +37,10 @@ For the full documentation, visit [docs.jumpon-studios.com](https://docs.jumpon-
 * [Ped texture](https://docs.jumpon-studios.com/jo_libs/modules/ped-texture/)
 * [Print](https://docs.jumpon-studios.com/jo_libs/modules/print/)
 * [Prompt](https://docs.jumpon-studios.com/jo_libs/modules/prompt/)
-* String
+* [String](https://docs.jumpon-studios.com/jo_libs/modules/string/)
 * [Table](https://docs.jumpon-studios.com/jo_libs/modules/table/)
-* Timeout
-* UI
+* [Timeout](https://docs.jumpon-studios.com/jo_libs/modules/timeout/)
+* [UI](https://docs.jumpon-studios.com/jo_libs/modules/ui/)
 * [Utils](https://docs.jumpon-studios.com/jo_libs/modules/utils/)
 
 ## ❔ Usage
