@@ -1128,9 +1128,17 @@ end
 ---@param source integer
 ---@param _skin any key = category, value = data OR category name if three parameters
 ---@param value? table if set, _skin is the category name
-function FrameworkClass:updateUserSkin(source,_skin,value,overwrite)
-  if value then
-    _skin = {[_skin] = value}
+function FrameworkClass:updateUserSkin(...)
+  local args = table.pack(...)
+  local source,_skin,overwrite
+  if #args == 4 then
+    source = args[1]
+    _skin = {[args[2]] = args[3]}
+    overwrite = args[4] or false
+  else
+    source = args[1]
+    _skin = args[2]
+    overwrite = args[3] or false
   end
   local skin = revertSkinKeys(_skin)
   if OWFramework.updateUserSkin then
@@ -1145,9 +1153,13 @@ function FrameworkClass:updateUserSkin(source,_skin,value,overwrite)
   elseif self:is("RedEM2023") or self:is("RedEM") then
     local identifiers = self:getUserIdentifiers(source)
     MySQL.scalar("SELECT skin FROM skins WHERE identifier=? AND charid=?", {identifiers.identifier, identifiers.charid}, function(oldSkin)
-      local decoded = UnJson(oldSkin)
-      table.merge(decoded,skin)
-      MySQL.update("UPDATE skins SET skin=? WHERE identifier=? AND charid=?", {json.encode(decoded),identifiers.identifier, identifiers.charid})
+      if not oldSkin then
+        MySQL.insert('INSERT INTO skins VALUES (NULL, ?,?,?)',{identifiers.identifier, identifiers.charid, json.encode(skin)})
+      else
+        local decoded = UnJson(oldSkin)
+        table.merge(decoded,skin)
+        MySQL.update("UPDATE skins SET skin=? WHERE identifier=? AND charid=?", {json.encode(decoded),identifiers.identifier, identifiers.charid})
+      end
     end)
   elseif self:is("QBR") or self:is('RSG') then
     local identifiers = self:getUserIdentifiers(source)
