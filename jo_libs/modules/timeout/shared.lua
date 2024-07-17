@@ -26,13 +26,14 @@ function TimeoutClass:set(msec,cb)
 	return t
 end
 
-function TimeoutClass:exec()
+function TimeoutClass:exec(...)
+  local args = table.pack(...)
   if (type(self.msec) == "number") then
     SetTimeout(self.msec, function()
       if self.canceled then
         return
       else
-        self.cb()
+        self.cb(table.unpack(args))
       end
       self = nil
     end)
@@ -42,7 +43,9 @@ function TimeoutClass:exec()
       if self.canceled then
         return
       else
-        Citizen.CreateThread(self.cb)
+        CreateThread(function()
+          self.cb(table.unpack(args))
+        end)
       end
       self = nil
     end)
@@ -62,17 +65,18 @@ function TimeoutClass:clear()
   self.canceled = true
 end
 
-function jo.timeout.set(msec,cb)
+function jo.timeout.set(msec,cb,...)
   local t = TimeoutClass:set(msec,cb)
-  t:exec()
+  t:exec(...)
   return t
 end
 
-function jo.timeout.loop(msec,cb)
+function jo.timeout.loop(msec,cb,...)
   local t = TimeoutClass:set(msec,cb)
+  local args = table.pack(...)
   CreateThread(function()
     while not t.canceled do
-      cb()
+      cb(table.unpack(args))
       Wait(t.msec)
     end
   end)
@@ -82,11 +86,11 @@ end
 ---@param id string identifier
 ---@param msec any function/integer the waiter
 ---@param cb function the function to execute after the waiter
-function jo.timeout.delay(id,msec,cb)
+function jo.timeout.delay(id,msec,cb,...)
   if delays[id] then
     delays[id]:clear()
   end
-  delays[id] = jo.timeout.set(msec, cb)
+  delays[id] = jo.timeout.set(msec, cb, ...)
 end
 
 return jo.timeout
