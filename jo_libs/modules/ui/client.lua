@@ -30,14 +30,12 @@ function jo.ui.initTimer()
     while not UiflowblockIsLoaded(jo.ui.TimerUI.data.uiFlowblock) do
         temp = temp + 1
         if temp > 10000 then
-            print('Failed To Load Flowblock')
             return
         end
         Citizen.Wait(1)
     end
 
     if not Citizen.InvokeNative(0x10A93C057B6BD944, jo.ui.TimerUI.data.uiFlowblock) then
-        print("uiflowblock failed to load")
         return
     end
 
@@ -92,15 +90,12 @@ function jo.ui.finishTimer()
     if not jo.ui.TimerUI then return end
     UiStateMachineDestroy(1546991729)
     if DatabindingIsEntryValid(jo.ui.TimerUI.data.container) then
-        print('Removed Container')
         DatabindingRemoveDataEntry(jo.ui.TimerUI.data.container)
     end
     if DatabindingIsEntryValid(jo.ui.TimerUI.data.timer) then
-        print('Removed Timer String')
         DatabindingRemoveDataEntry(jo.ui.TimerUI.data.timer)
     end
     if DatabindingIsEntryValid(jo.ui.TimerUI.data.show) then
-        print('Removed Show Bool')
         DatabindingRemoveDataEntry(jo.ui.TimerUI.data.show)
     end
 end
