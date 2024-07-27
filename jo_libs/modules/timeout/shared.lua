@@ -27,7 +27,7 @@ function TimeoutClass:set(msec,cb)
 end
 
 function TimeoutClass:exec(...)
-  local args = table.pack(...)
+  local args = table.pack(...) or {}
   if (type(self.msec) == "number") then
     SetTimeout(self.msec, function()
       if self.canceled then
@@ -45,9 +45,9 @@ function TimeoutClass:exec(...)
       else
         CreateThread(function()
           self.cb(table.unpack(args))
+          self = nil
         end)
       end
-      self = nil
     end)
   end
 end

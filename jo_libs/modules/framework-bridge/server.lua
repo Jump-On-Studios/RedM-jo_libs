@@ -149,9 +149,7 @@ end
 ---@param moneyType integer 0: money, 1: gold, 2: rol
 ---@return number
 function User:getMoney(moneyType)
-  if moneyType == nil then
-    moneyType = 0
-  end
+  moneyType = moneyType or 0
   if OWFramework.User.getMoney then
     return OWFramework.User.getMoney(self.source,moneyType)
   end
@@ -196,9 +194,7 @@ end
 ---@param removeIfCan? boolean (optional) default: false
 ---@return boolean
 function User:canBuy(price, moneyType, removeIfCan)
-  if moneyType == nil then
-    moneyType = 0
-  end
+  moneyType = moneyType or 0
   if not price then
     return false,eprint('PRICE IS NIL !')
   end
@@ -213,9 +209,7 @@ end
 ---@param amount number amount to remove
 ---@param moneyType integer 0: money, 1: gold, 2: rol
 function User:removeMoney(amount, moneyType)
-  if moneyType == nil then
-    moneyType = 0
-  end
+  moneyType = moneyType or 0
   if OWFramework.User.removeMoney then
     return OWFramework.User.removeMoney(self, amount, moneyType)
   elseif jo.framework:is("VORP") then
@@ -258,9 +252,7 @@ end
 ---@param amount number amount to remove
 ---@param moneyType integer 0: money, 1: gold, 2: rol
 function User:addMoney(amount,moneyType)
-  if moneyType == nil then
-    moneyType = 0
-  end
+  moneyType = moneyType or 0
   if OWFramework.User.addMoney then
     return OWFramework.User.addMoney(self.source,amount, moneyType)
   end
