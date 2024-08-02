@@ -88,7 +88,7 @@ jo.clothes.wearableStates = {
   },
   boots = {
     [0] = 'base', --upper
-    [1] = -2081918609 --under
+    [1] = 'under_pants' --under
   },
   loadouts = {
     [0] = 'base', --right
@@ -96,7 +96,7 @@ jo.clothes.wearableStates = {
   },
   vests = {
     [0] = 'base', --upper
-    [1] = -2081918609 --under
+    [1] = 'under_pants' --under
   }
 }
 
