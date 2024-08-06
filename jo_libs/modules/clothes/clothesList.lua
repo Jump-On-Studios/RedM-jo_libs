@@ -12369,16 +12369,16 @@ clothes_list_sorted = {
 			{
 				{hash = -485667500,hashname = 'CLOTHING_ITEM_M_HAT_313_TINT_001'},
 			},
-			{ -- Not loaded
-				{hash = -1972506787,hashname = 'CLOTHING_ITEM_M_HAT_314_TINT_001'},
-				{hash = 2027375664,hashname = 'CLOTHING_ITEM_M_HAT_314_TINT_002'},
-				{hash = -1108486564,hashname = 'CLOTHING_ITEM_M_HAT_314_TINT_003'},
-				{hash = 1482033966,hashname = 'CLOTHING_ITEM_M_HAT_314_TINT_004'},
-				{hash = -1607263513,hashname = 'CLOTHING_ITEM_M_HAT_314_TINT_005'},
-				{hash = -773783998,hashname = 'CLOTHING_ITEM_M_HAT_314_TINT_006'},
-				{hash = -222478334,hashname = 'CLOTHING_ITEM_M_HAT_314_TINT_007'},
-				{hash = -1514986009,hashname = 'CLOTHING_ITEM_M_HAT_314_TINT_008'},
-			},
+			-- { -- Not loaded
+			-- 	{hash = -1972506787,hashname = 'CLOTHING_ITEM_M_HAT_314_TINT_001'},
+			-- 	{hash = 2027375664,hashname = 'CLOTHING_ITEM_M_HAT_314_TINT_002'},
+			-- 	{hash = -1108486564,hashname = 'CLOTHING_ITEM_M_HAT_314_TINT_003'},
+			-- 	{hash = 1482033966,hashname = 'CLOTHING_ITEM_M_HAT_314_TINT_004'},
+			-- 	{hash = -1607263513,hashname = 'CLOTHING_ITEM_M_HAT_314_TINT_005'},
+			-- 	{hash = -773783998,hashname = 'CLOTHING_ITEM_M_HAT_314_TINT_006'},
+			-- 	{hash = -222478334,hashname = 'CLOTHING_ITEM_M_HAT_314_TINT_007'},
+			-- 	{hash = -1514986009,hashname = 'CLOTHING_ITEM_M_HAT_314_TINT_008'},
+			-- },
 			{
 				{hash = 723351012,hashname = 'CLOTHING_ITEM_M_HAT_315_TINT_001'},
 				{hash = -2098027115,hashname = 'CLOTHING_ITEM_M_HAT_315_TINT_002'},
