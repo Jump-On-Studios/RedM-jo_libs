@@ -176,11 +176,12 @@ end
 
 ---@param ped integer the entity ID
 ---@param category integer the category hash
+---@param hash integer the component hash
 ---@param palette integer the palette hash
 ---@param tint0 integer
 ---@param tint1 integer
 ---@param tint2 integer
-local function AddCachedColor(ped,category,palette,tint0,tint1,tint2)
+local function AddCachedClothes(ped,category,hash,palette,tint0,tint1,tint2)
   category = GetHashFromString(category)
   if not jo.cache.clothes.color[ped] then jo.cache.clothes.color[ped] = {} end
   jo.cache.clothes.color[ped][category] = {
@@ -189,6 +190,7 @@ local function AddCachedColor(ped,category,palette,tint0,tint1,tint2)
     tint0 = tint0,
     tint1 = tint1,
     tint2 = tint2,
+    hash = hash
   }
   if category == joaat('neckwear') then
     jo.cache.clothes.color[ped][joaat('neckerchiefs')] = jo.cache.clothes.color[ped][category]
@@ -200,7 +202,7 @@ local function AddCachedColor(ped,category,palette,tint0,tint1,tint2)
 end
 
 ---@param ped integer the entity ID
-local function PutInCacheCurrentColor(ped)
+local function PutInCacheCurrentClothes(ped)
   if jo.cache.clothes.color[ped] then return jo.cache.clothes.color[ped] end
 	local numComponent = GetNumComponentsInPed(ped)
 	if not numComponent then return end -- No component detected on the ped
@@ -208,7 +210,8 @@ local function PutInCacheCurrentColor(ped)
 		--Get current clothes
 		local palette,tint0,tint1,tint2 = GetMetaPedAssetTint(ped,index)
 		local category = GetCategoryOfComponentAtIndex(ped,index)
-		AddCachedColor(ped,category,palette,tint0,tint1,tint2)
+		local hash = GetShopItemComponentAtIndex(ped,index)
+		AddCachedClothes(ped,category,hash,palette,tint0,tint1,tint2)
 	end
   return jo.cache.clothes.color[ped]
 end
@@ -273,10 +276,10 @@ function jo.clothes.apply(ped,category,data)
 	local isMp = true
 
  	if data.hash then
-	    	categoryHash,isMp = jo.clothes.getComponentCategory(ped,data.hash)
+	  categoryHash,isMp = jo.clothes.getComponentCategory(ped,data.hash)
 	end
 	
-	PutInCacheCurrentColor(ped)
+	PutInCacheCurrentClothes(ped)
 	
 	--remove the current clothes for this category
 	RemoveTagFromMetaPed(ped, categoryHash, 0)
@@ -312,7 +315,7 @@ function jo.clothes.apply(ped,category,data)
       ApplyShopItemToPed(ped,data.hash, true, true, false)
       ApplyShopItemToPed(ped,data.hash, true, false, false)
       if data.palette and data.palette ~= 0 then
-        AddCachedColor(ped,categoryHash, GetHashFromString(data.palette),data.tint0,data.tint1,data.tint2)
+        AddCachedClothes(ped,categoryHash, data.hash, GetHashFromString(data.palette),data.tint0,data.tint1,data.tint2)
       end
       local state = Entity(ped).state['wearableState:'..category]
       if state then
@@ -336,9 +339,12 @@ end
 ---@param state any
 function jo.clothes.setWearableState(ped,category,hash,state)
   Entity(ped).state:set('wearableState:'..category,state)
-  PutInCacheCurrentColor(ped)
+  PutInCacheCurrentClothes(ped)
   local data = formatClothesData(hash)
   UpdateShopItemWearableState(ped, data.hash, state)
+  if category == "neckwear" and GetHashFromString(state) == `base` then
+    jo.clothes.apply(ped,"beards_complete",jo.cache.clothes.color[ped][`beards_complete`])
+  end
   RefreshPed(ped)
   ReapplyCached(ped)
 end
