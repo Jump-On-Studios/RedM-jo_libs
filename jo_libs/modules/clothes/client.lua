@@ -295,29 +295,30 @@ function jo.clothes.apply(ped,category,data)
 			if data.hash then
 				drawable, albedo, normal, material,palette, tint0, tint1, tint2 = GetShopItemBaseLayers(data.hash,GetMetaPedType(ped),isMp)
 			end
-	      		if data.drawable then
-	        		drawable = data.drawable
-	        		albedo = data.albedo
-			        normal = data.normal
-	        		material = data.material
-	      		end
-	      		if data.palette then
-	        		palette = data.palette
-	        		tint0 = data.tint0
-	        		tint1 = data.tint1
-	        		tint2 = data.tint2
-	      		end
+      if data.drawable then
+        drawable = data.drawable
+        albedo = data.albedo
+        normal = data.normal
+        material = data.material
+      end
+      if data.palette then
+        palette = data.palette
+        tint0 = data.tint0
+        tint1 = data.tint1
+        tint2 = data.tint2
+      end
 			SetMetaPedTag(ped, drawable, albedo, normal, material, palette, tint0, tint1, tint2) -- 10 is black in the case of this asset's palette_id
 		else
-	      		ApplyShopItemToPed(ped,data.hash, true, isMp, false)
-	      		if data.palette and data.palette ~= 0 then
-	        		AddCachedColor(ped,categoryHash, GetHashFromString(data.palette),data.tint0,data.tint1,data.tint2)
-	      		end
-	      		local state = Entity(ped).state['wearableState:'..category]
-	      		if state then
-	        		UpdateShopItemWearableState(ped, data.hash, state)
-	      		end
-	    	end
+      ApplyShopItemToPed(ped,data.hash, true, true, false)
+      ApplyShopItemToPed(ped,data.hash, true, false, false)
+      if data.palette and data.palette ~= 0 then
+        AddCachedColor(ped,categoryHash, GetHashFromString(data.palette),data.tint0,data.tint1,data.tint2)
+      end
+      local state = Entity(ped).state['wearableState:'..category]
+      if state then
+        UpdateShopItemWearableState(ped, data.hash, state)
+      end
+    end
 	end
 	RefreshPed(ped)
   	ReapplyCached(ped)
