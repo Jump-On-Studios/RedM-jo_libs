@@ -910,6 +910,8 @@ local function standardizeSkinKeys(object)
         overlays[layerName].sheetGrid = data
       elseif catFram:find('_color_primary') then
         overlays[layerName].tint0 = data
+      elseif catFram:find('_color') then
+        overlays[layerName].tint0 = data
       elseif catFram:find('_color_secondary') then
         overlays[layerName].tint1 = data
       elseif catFram:find('_color_tertiary') then
