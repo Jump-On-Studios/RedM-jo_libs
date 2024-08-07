@@ -322,9 +322,9 @@ function jo.clothes.apply(ped,category,data)
         UpdateShopItemWearableState(ped, data.hash, state)
       end
     end
-	end
-	RefreshPed(ped)
-  	ReapplyCached(ped)
+  end
+  RefreshPed(ped)
+  ReapplyCached(ped)
 end
 
 ---@param ped integer the entity
