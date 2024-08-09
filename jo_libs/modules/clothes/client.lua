@@ -110,22 +110,16 @@ local function SetTextureOutfitTints(ped, category, palette, tint0, tint1, tint2
 end
 local function N_0xAAB86462966168CE(ped) return Citizen.InvokeNative(0xAAB86462966168CE, ped, true) end
 local function N_0x704C908E9C405136(ped) return Citizen.InvokeNative(0x704C908E9C405136, ped) end
-local function GetShopItemBaseLayers(hash, metapedType, isMp) return Citizen.InvokeNative(0x63342C50EC115CE8, hash, 0, 0,
-    metapedType, isMp, Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt(),
-    Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt(),
-    Citizen.PointerValueInt()) end
-local function UpdatePedVariation(ped) return Citizen.InvokeNative(0xCC8CA3E88256E58F, ped, false, true, true, true,
-    false) end
+local function GetShopItemBaseLayers(hash, metapedType, isMp) return Citizen.InvokeNative(0x63342C50EC115CE8, hash, 0, 0,metapedType, isMp, Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt(),Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt(),Citizen.PointerValueInt()) end
+local function UpdatePedVariation(ped) return Citizen.InvokeNative(0xCC8CA3E88256E58F, ped, false, true, true, true,false) end
 local function IsPedReadyToRender(...) return Citizen.InvokeNative(0xA0BC8FAED8CFEB3C, ...) end
 local function RefreshPed(ped)
   N_0xAAB86462966168CE(ped)
   UpdatePedVariation(ped)
   N_0x704C908E9C405136(ped)
 end
-local function GetCategoryOfComponentAtIndex(ped, componentIndex) return Citizen.InvokeNative(0x9b90842304c938a7, ped,
-    componentIndex, 0, Citizen.ResultAsInteger()) end
-local function GetMetaPedAssetTint(ped, index) return Citizen.InvokeNative(0xE7998FEC53A33BBE, ped, index,
-    Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt()) end
+local function GetCategoryOfComponentAtIndex(ped, componentIndex) return Citizen.InvokeNative(0x9b90842304c938a7, ped,componentIndex, 0, Citizen.ResultAsInteger()) end
+local function GetMetaPedAssetTint(ped, index) return Citizen.InvokeNative(0xE7998FEC53A33BBE, ped, index,Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt()) end
 local function GetNumComponentsInPed(ped) return Citizen.InvokeNative(0x90403E8107B60E81, ped) end
 local function GetMetaPedType(ped) return Citizen.InvokeNative(0xEC9A1261BF0CE510, ped) end
 local function GetShopItemComponentCategory(...) return Citizen.InvokeNative(0x5FF9A878C3D115B8, ...) end
@@ -175,7 +169,7 @@ end
 local function ResetCachedColor(ped, category)
   if not jo.cache.clothes.color[ped] then return end
   jo.cache.clothes.color[ped][category] = nil
-  if category == `neckwear) then
+  if category == `neckwear` then
     jo.cache.clothes.color[ped][`neckerchiefs`] = nil
   end
 end
