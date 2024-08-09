@@ -1047,14 +1047,16 @@ function FrameworkClass:updateUserClothes(source,_clothes,value)
     if not user.data.updateCompTints then return end
     local tints = UnJson(user.data.comptTints)
     for category,value in pairs (clothes) do
-      tints[category] = {}
-      if value.palette and value.palette ~= 0 then
-        tints[category][value.hash] = {
-          tint0 = value.tint0 or 0,
-          tint1 = value.tint1 or 0,
-          tint2 = value.tint2 or 0,
-          palette = value.palette or 0,
-        }
+      if type(value) == "table" then
+        tints[category] = {}
+        if value.palette and value.palette ~= 0 then
+          tints[category][value.hash] = {
+            tint0 = value.tint0 or 0,
+            tint1 = value.tint1 or 0,
+            tint2 = value.tint2 or 0,
+            palette = value.palette or 0,
+          }
+        end
       end
     end
     user.data.updateCompTints(json.encode(tints))
