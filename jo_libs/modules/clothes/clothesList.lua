@@ -989,31 +989,6 @@ clothes_list_sorted = {
 		},
 		ponchos = {
 			{
-				{hash = -1081614863,hashname = 'CLOTHING_ITEM_M_SEASONAL_005_PONCHO_VAR_001'},
-			},
-			{
-				{hash = 365661718,hashname = ''},
-				{hash = 546153370,hashname = ''},
-				{hash = 1021238328,hashname = ''},
-				{hash = -1728277390,hashname = ''},
-				{hash = -600859937,hashname = ''},
-				{hash = -244398755,hashname = ''},
-			},
-			{
-				{hash = 430280399,hashname = ''},
-				{hash = 659565092,hashname = ''},
-				{hash = 1138484027,hashname = ''},
-				{hash = 2098189730,hashname = ''},
-				{hash = -1482511665,hashname = ''},
-				{hash = -42969495,hashname = ''},
-			},
-			{
-				{hash = -1739847393,hashname = ''},
-				{hash = -1434473082,hashname = ''},
-				{hash = -1276198812,hashname = ''},
-				{hash = -50015601,hashname = ''},
-			},
-			{
 				{hash = -1906282886,hashname = 'CLOTHING_ITEM_F_SEASONAL_005_PONCHO_VAR_001'},
 			},
 			{
@@ -8717,6 +8692,35 @@ clothes_list_sorted = {
 				{hash = 1189692760,hashname = ''},
 				{hash = -1904323455,hashname = ''},
 				{hash = -440564994,hashname = ''},
+			},
+			{
+				{hash = -72137890, hashname = 'CLOTHING_HL_PLAYER_CLOAK_000_1'},
+				{hash = 1103691625, hashname = 'CLOTHING_HL_PLAYER_CLOAK_001_1'},
+			},
+			{
+				{hash = 365661718,hashname = ''},
+				{hash = 546153370,hashname = ''},
+				{hash = 1021238328,hashname = ''},
+				{hash = -1728277390,hashname = ''},
+				{hash = -600859937,hashname = ''},
+				{hash = -244398755,hashname = ''},
+			},
+			{
+				{hash = 430280399,hashname = ''},
+				{hash = 659565092,hashname = ''},
+				{hash = 1138484027,hashname = ''},
+				{hash = 2098189730,hashname = ''},
+				{hash = -1482511665,hashname = ''},
+				{hash = -42969495,hashname = ''},
+			},
+			{
+				{hash = -1739847393,hashname = ''},
+				{hash = -1434473082,hashname = ''},
+				{hash = -1276198812,hashname = ''},
+				{hash = -50015601,hashname = ''},
+			},
+			{
+				{hash = -1081614863,hashname = 'CLOTHING_ITEM_M_SEASONAL_005_PONCHO_VAR_001'},
 			},
 		},
 		jewelry_rings_right = {
