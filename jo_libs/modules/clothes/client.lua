@@ -202,7 +202,7 @@ local function AddCachedClothes(ped, category, hash, palette, tint0, tint1, tint
 end
 
 ---@param ped integer the entity ID
-local function PutInCacheCurrentClothes(ped)
+function PutInCacheCurrentClothes(ped)
   if jo.cache.clothes.color[ped] then return jo.cache.clothes.color[ped] end
   local numComponent = GetNumComponentsInPed(ped)
   if not numComponent then return end -- No component detected on the ped
@@ -304,11 +304,10 @@ function jo.clothes.apply(ped, category, data)
     elseif category == "skirts" then
       RemoveTagFromMetaPed(ped, 'pants', 0);
     end
-    if category == "masks" or (data.drawable) then
+    if category == "masks" or (data.drawable) or category == "hats" then
       local drawable, albedo, normal, material, palette, tint0, tint1, tint2 = 0, 0, 0, 0, 0, 0, 0, 0
       if data.hash then
-        drawable, albedo, normal, material, palette, tint0, tint1, tint2 = GetShopItemBaseLayers(data.hash,
-          GetMetaPedType(ped), isMp)
+        drawable, albedo, normal, material, palette, tint0, tint1, tint2 = GetShopItemBaseLayers(data.hash,GetMetaPedType(ped), isMp)
       end
       if data.drawable then
         drawable = data.drawable
