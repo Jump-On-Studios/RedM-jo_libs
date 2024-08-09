@@ -51,6 +51,7 @@ local MenuClass = {
   onEnter = function() end,
   onBack = function() end,
   onExit = function() end,
+  onChange = function() end
 }
 
 local MenuItem = {
@@ -189,6 +190,22 @@ function jo.menu.show(show, keepInput, hideRadar)
   end)
 end
 
+---@param lang table list of translated strings
+function jo.menu.updateLang(lang)
+  SendNUIMessage({
+    event="updateLang",
+    lang = lang
+  })
+end
+
+---@param volume number volume of sound effect 0.0 <> 1.0
+function jo.menu.updateVolume(volume)
+  SendNUIMessage({
+    event="updateVolume",
+    volume = volume
+  })
+end
+
 -------------
 -- NUI
 -------------
@@ -259,7 +276,10 @@ RegisterNUICallback('updatePreview', function(data, cb)
       else
         button.onChange(currentData)
       end
+      menus[previousData.menu].onChange(currentData)
     end
+
+
   end)
 end)
 
