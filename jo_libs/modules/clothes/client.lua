@@ -297,7 +297,6 @@ function jo.clothes.apply(ped, category, data)
   ResetCachedColor(ped, categoryHash)
 
   if data.hash then
-    print(category)
     if category == "coats" then
       RemoveTagFromMetaPed(ped, 'coats_closed', 0);
     elseif category == "coats_closed" then
