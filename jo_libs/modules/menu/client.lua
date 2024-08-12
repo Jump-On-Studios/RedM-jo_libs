@@ -103,6 +103,35 @@ function MenuClass:reset()
   })
 end
 
+---@param first? integer pos of the first element to sort (default: 1)
+---@param last? integer pos of the last element to sort (default: n)
+function MenuClass:sort(first,last)
+  local sortFunc = function(i1,i2)
+    local title1 = i1.title
+    local title2 = i2.title
+    return title1 < title2
+  end
+
+  first = math.max(1, first or 1)
+  last = math.min(#self.items, last or #self.items)
+ 
+  local sortedTable = {}
+  if first == 1 and last == #self.items then
+    sortedTable = self.items
+  else
+    local index = 1
+    for i = first, last do
+      sortedTable[index] = self.items[i]
+      index += 1
+    end
+  end
+  table.sort(sortedTable, sortFunc)
+
+  for i = first, last do
+    self.items[i] = sortedTable[i - first + 1]
+  end
+end
+
 function MenuClass:send()
   local datas = table.clearForNui(self)
   SendNUIMessage({
@@ -247,9 +276,7 @@ RegisterNUICallback('updatePreview', function(data, cb)
     currentData.item = menus[data.menu].items[data.item.index]
 
     for _,slider in pairs (currentData.item.sliders) do
-      if slider.type == "switch" then
-        slider.value = slider.values[slider.current]
-      elseif slider.type == "grid" then
+      if slider.type == "grid" then
         slider.value = {}
         slider.value[1] = slider.values[1] and slider.values[1].current or nil
         slider.value[2] = slider.values[2] and slider.values[2].current or nil
