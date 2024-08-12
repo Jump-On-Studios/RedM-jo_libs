@@ -72,9 +72,13 @@ local MenuItem = {
   onExit = function() end
 }
 
-function MenuClass:addItem(item)
-  item.index = #self.items + 1
-  self.items[#self.items + 1] = table.merge(table.copy(MenuItem), item)
+function MenuClass:addItem(p,item)
+  if item == nil then
+    item = p
+    p = #self.items + 1
+  end
+  item.index = p
+  table.insert(self.items, p, table.merge(table.copy(MenuItem), item))
 end
 
 function MenuClass:addItems(items)
@@ -250,7 +254,7 @@ RegisterNUICallback('updatePreview', function(data, cb)
         slider.value[1] = slider.values[1] and slider.values[1].current or nil
         slider.value[2] = slider.values[2] and slider.values[2].current or nil
       else
-        slider.value = slider.current
+        slider.value = slider.values[slider.current]
       end
     end
 
