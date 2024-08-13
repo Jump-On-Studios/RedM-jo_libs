@@ -1121,20 +1121,21 @@ function FrameworkClass:getUserSkin(source)
   return skinStandardized
 end
 
+---Can be used with 3 or 4 arguments
 ---@param source integer
 ---@param _skin any key = category, value = data OR category name if three parameters
 ---@param value? table if set, _skin is the category name
+---@param overwrite? boolean if true, all skin data will be overwrited (default: false)
 function FrameworkClass:updateUserSkin(...)
   local args = table.pack(...)
-  local source,_skin,overwrite
-  if #args == 4 then
-    source = args[1]
+  local source,_skin,overwrite = args[1],{},false
+
+  if type(args[2]) == "string" then
     _skin = {[args[2]] = args[3]}
-    overwrite = args[4] or false
+    overwrite = args[#args] or overwrite
   else
-    source = args[1]
     _skin = args[2]
-    overwrite = args[3] or false
+    overwrite = args[#args] or overwrite
   end
   local skin = revertSkinKeys(_skin)
   if OWFramework.updateUserSkin then
