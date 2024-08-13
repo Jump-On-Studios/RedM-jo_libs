@@ -278,8 +278,8 @@ RegisterNUICallback('updatePreview', function(data, cb)
     for _,slider in pairs (currentData.item.sliders) do
       if slider.type == "grid" then
         slider.value = {}
-        slider.value[1] = slider.values[1] and slider.values[1].current or nil
-        slider.value[2] = slider.values[2] and slider.values[2].current or nil
+        slider.value[1] = slider.values[1] and math.floor(slider.values[1].current*1000)/1000 or nil
+        slider.value[2] = slider.values[2] and math.floor(slider.values[2].current*1000)/1000 or nil
       else
         slider.value = slider.values[slider.current]
       end
