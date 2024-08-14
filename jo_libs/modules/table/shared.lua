@@ -60,7 +60,13 @@ end
 table.filter = function(t, filterIter)
   local out = {}
   for k, v in pairs(t) do
-    if filterIter(v, k, t) then out[k] = v end
+    if filterIter(v, k, t) then
+      if type(k) == "number" then
+        out[#out+1] = v
+      else
+        out[k] = v
+      end
+    end
   end
   return out
 end
@@ -103,3 +109,6 @@ table.clearForNui = function (t)
   end
   return new_table
 end
+
+jo.table = {}
+return jo.table
