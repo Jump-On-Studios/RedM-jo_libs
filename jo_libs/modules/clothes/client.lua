@@ -123,6 +123,7 @@ local function GetMetaPedAssetTint(ped, index) return Citizen.InvokeNative(0xE79
 local function GetNumComponentsInPed(ped) return Citizen.InvokeNative(0x90403E8107B60E81, ped) end
 local function GetMetaPedType(ped) return Citizen.InvokeNative(0xEC9A1261BF0CE510, ped) end
 local function GetShopItemComponentCategory(...) return Citizen.InvokeNative(0x5FF9A878C3D115B8, ...) end
+local function IsMetaPedUsingComponent(...) return Citizen.InvokeNative(0xFB4891BD7578CDC1, ...) == 1 end
 local function GetShopItemComponentAtIndex(ped, index)
   local dataStruct = DataView.ArrayBuffer(10 * 8)
   local componentHash = GetShopPedComponentAtIndex(ped, index, true, dataStruct:Buffer(), dataStruct:Buffer())
@@ -492,9 +493,21 @@ end
 ---@return boolean,integer
 function jo.clothes.isCategoryEquiped(ped, category)
   local categoryHash = GetHashFromString(category)
+  if not IsMetaPedUsingComponent(ped,categoryHash) then
+    return false,0
+  end
   local equiped = jo.clothes.getCategoriesEquiped(ped)
-  if equiped[categoryHash] then return true, equiped[categoryHash].index end
-  return false, 0
+  return true, equiped[categoryHash].index
+end
+
+function jo.clothes.getComponentEquiped(ped,category)
+  local categoryHash = GetHashFromString(category)
+  if not IsMetaPedUsingComponent(ped,categoryHash) then
+    return false
+  end
+  local equiped = jo.clothes.getCategoriesEquiped(ped)
+  local index = equiped[categoryHash].index
+  return GetShopItemComponentAtIndex(ped, index)
 end
 
 return jo.clothes
