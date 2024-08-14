@@ -1,5 +1,8 @@
 jo.animation = {}
 
+jo.animation.easeIn = 4.0
+jo.animation.easeOut = -4.
+
 function jo.animation.load(dict,waiter)
   if HasAnimDictLoaded(dict) then return end
   RequestAnimDict(dict)
@@ -13,7 +16,7 @@ function jo.animation.play(ped,dict,name,duration,flag,offset)
   if not flag then flag = 0 end
   if not offset then offset = 0.0 end
   jo.animation.load(dict,true)
-  TaskPlayAnim(ped, dict, name, 4.0, -4.0, duration, flag, offset, false, false, false)
+  TaskPlayAnim(ped, dict, name, jo.animation.easeIn, jo.animation.easeOut, duration, flag, offset, false, false, false)
   return GetAnimDuration(dict, name)*1000
 end
 
