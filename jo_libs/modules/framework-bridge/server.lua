@@ -1132,10 +1132,10 @@ function FrameworkClass:updateUserSkin(...)
 
   if type(args[2]) == "string" then
     _skin = {[args[2]] = args[3]}
-    overwrite = args[#args] or overwrite
+    overwrite = args[math.max(4,#args)] or overwrite
   else
     _skin = args[2]
-    overwrite = args[#args] or overwrite
+    overwrite = args[math.max(3,#args)] or overwrite
   end
   local skin = revertSkinKeys(_skin)
   if OWFramework.updateUserSkin then
