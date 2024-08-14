@@ -130,13 +130,20 @@ function MenuClass:sort(first,last)
   for i = first, last do
     self.items[i] = sortedTable[i - first + 1]
   end
+
+  for i,item in pairs (self.items) do
+    item.index = i
+  end
 end
 
-function MenuClass:send()
+function MenuClass:send(reset)
   local datas = table.clearForNui(self)
+  if reset == nil then
+    reset = true
+  end
   SendNUIMessage({
     event = 'updateMenu',
-    reset = true,
+    reset = reset,
     menu = datas
   })
 end
@@ -237,6 +244,15 @@ function jo.menu.updateVolume(volume)
     event="updateVolume",
     volume = volume
   })
+end
+
+function jo.menu.refresh(id)
+  if not menus[id] then return eprint("menu: "..id.." is not defined") end
+  menus[id]:refresh()
+end
+
+function jo.menu.get(id)
+  return menus[id]
 end
 
 -------------
