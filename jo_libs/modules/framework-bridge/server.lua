@@ -48,6 +48,7 @@ local SkinCategoryBridge = {
     bow = "hair_accessories",
     Hair = "hair",
     Beard = "beards_complete",
+    Teeth = "teeth",
   },
   RSG = {
     beard = "beards_complete"
@@ -1115,9 +1116,16 @@ function FrameworkClass:getUserSkin(source)
  elseif self:is("RPX") then
     skin = user.data.skin
   end
+
   skin = UnJson(skin)
 
   local skinStandardized = standardizeSkinKeys(skin)
+
+  if not skinStandardized.teeth then
+    local clothes = self:getUserClothes(source)
+    skinStandardized.teeth = clothes.teeth.hash
+  end
+
   return skinStandardized
 end
 
