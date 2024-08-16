@@ -110,5 +110,42 @@ table.clearForNui = function (t)
   return new_table
 end
 
+
+---@param table1 table first table to compare
+---@param table2 table second table to compare
+---@param strict? boolean  if all keys should be in both table (default: true)
+---@param canMissInTable1? any if table2 keys can miss in table1 (default: false)
+---@param canMissInTable2? any if table1 keys can miss in table2 (default: false)
+table.isEgal = function (table1,table2,strict,canMissInTable1,canMissInTable2)
+  strict = strict ~= false  -- strict est par défaut true, sauf si explicitement mis à false
+  canMissInTable1 = canMissInTable1 or false  -- par défaut false
+  canMissInTable2 = canMissInTable2 or false  -- par défaut false
+
+  if type(table1) ~= "table" or type(table2) ~= "table" then
+    return table1 == table2
+  end
+
+	for key, value in pairs(table1) do
+    if not canMissInTable2 or table2[key] ~= nil then
+      if not table.isEgal(value, table2[key], strict, canMissInTable1, canMissInTable2) then
+        return false
+      end
+    end
+  end
+
+  if strict then
+    for key, value in pairs(table2) do
+      if not canMissInTable1 or table1[key] ~= nil then
+        if not table.isEgal(value, table1[key], strict, canMissInTable1, canMissInTable2) then
+          return false
+        end
+      end
+    end
+  end
+
+  return true
+end
+
+
 jo.table = {}
 return jo.table
