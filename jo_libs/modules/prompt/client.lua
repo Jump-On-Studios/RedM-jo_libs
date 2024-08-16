@@ -3,6 +3,10 @@ local lastKey = 0
 
 jo.prompt = {}
 
+if not IsModuleLoaded('timeout') then
+  jo.require('timeout')
+end
+
 local function UiPromptHasHoldMode(...) return Citizen.InvokeNative(0xB60C9F9ED47ABB76, ...) end
 local function UiPromptSetEnabled(...) return Citizen.InvokeNative(0x8A0FB4D03A630D21,...) end
 local function UiPromptIsEnabled(...) return Citizen.InvokeNative(0x0D00EDDFB58B7F28,...) end
@@ -76,6 +80,7 @@ function jo.prompt.isCompleted(group,key,fireMultipleTimes)
         while IsDisabledControlPressed(0,joaat(key)) or IsControlPressed(0,joaat(key)) do
           Wait(0)
         end
+        lastKey = 0
         jo.prompt.setEnabled(group,key, true)
       end)
       return true
@@ -83,6 +88,14 @@ function jo.prompt.isCompleted(group,key,fireMultipleTimes)
   else
     if IsControlJustPressed(0,joaat(key)) then
 			lastKey = key
+      CreateThread(function()
+        while IsControlPressed(0,joaat(key)) do
+          Wait(0)
+        end
+        lastKey = 0
+      end)
+      return true
+    elseif fireMultipleTimes and IsControlPressed(0,joaat(key)) then
       return true
     end
   end
