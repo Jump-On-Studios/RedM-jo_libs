@@ -1,10 +1,11 @@
 jo.menu = {}
+jo.menu.exports = {}
 local resourceName = GetCurrentResourceName()
-jo.menu.resourceName = resourceName
+local resourceNUI = resourceName
 
 CreateThread(function()
   Wait(1000)
-  if jo.menu.resourceName ~= resourceName then return end
+  if resourceNUI ~= resourceName then return end
   if not GetResourceMetadata(resourceName, 'ui_page') then
     eprint('WARNING ! NUI page is not defined. To use JO Menu, add ui_page "nui://jo_libs/nui/menu/index.html" inside your fxmanifest.lua')
     eprint('WARNING ! NUI page is not defined. To use JO Menu, add ui_page "nui://jo_libs/nui/menu/index.html" inside your fxmanifest.lua')
@@ -26,14 +27,15 @@ local clockStart = GetGameTimer()
 local currentData = {}
 local previousData = {}
 local NativeSendNUIMessage = SendNUIMessage
-exports('NativeSendNUIMessage', NativeSendNUIMessage)
+local function hasMainScript()
+  return resourceName ~= resourceNUI
+end
 local function SendNUIMessage(data)
   if clockStart == GetGameTimer() then Wait(100) end
-  if resourceName ~= jo.menu.resourceName then
-    exports[jo.menu.resourceName]:NativeSendNUIMessage(data)
-  else
-    NativeSendNUIMessage(data)
+  if hasMainScript() then
+    return jo.menu.exports.sendNUIMessage(data)
   end
+  NativeSendNUIMessage(data)
 end
 local disabledKeys = {
   `INPUT_SELECT_NEXT_WEAPON`,
@@ -64,6 +66,17 @@ local MenuClass = {
   onExit = function() end,
   onChange = function() end
 }
+local function clearForCopy(data)
+  for key,value in pairs (MenuClass) do
+    print(key,type(value))
+  end
+  data.send = nil
+  data.refresh = nil
+  data.addItems = nil
+  data.addItem = nil
+  data.reset = nil
+  data.sort = nil
+end
 
 local MenuItem = {
   title = '',
@@ -88,8 +101,9 @@ function MenuClass:addItem(p,item)
     item = p
     p = #self.items + 1
   end
+  item = table.merge(table.copy(MenuItem), item)
   item.index = p
-  table.insert(self.items, p, table.merge(table.copy(MenuItem), item))
+  table.insert(self.items, p, item)
 end
 
 function MenuClass:addItems(items)
@@ -99,6 +113,10 @@ function MenuClass:addItems(items)
 end
 
 function MenuClass:refresh()
+  if hasMainScript() then
+    return jo.menu.exports.refreshMenu(self)
+  end
+  print('REFRESH',self.id)
   local datas = table.clearForNui(self)
   SendNUIMessage({
     event = 'updateMenuData',
@@ -148,6 +166,9 @@ function MenuClass:sort(first,last)
 end
 
 function MenuClass:send(reset)
+  if hasMainScript() then
+    return jo.menu.exports.sendMenu(self)
+  end
   local datas = table.clearForNui(self)
   if reset == nil then
     reset = true
@@ -266,9 +287,34 @@ function jo.menu.get(id)
   return menus[id]
 end
 
-function jo.menu.setResourceName(name)
-  jo.menu.resourceName = name
+function jo.menu.setMainResource(name)
+  resourceNUI = name
+  jo.menu.exports = exports[name]:jo_menu_exports()
 end
+
+--------------
+-- EXPORT FOR CHILD SCRIPT
+-------------
+function jo.menu.exports.send(data)
+end
+
+exports('jo_menu_exports', function()
+  return {
+    sendMenu = function(data)
+      local items = data.items
+      local menu = jo.menu.create(data.id,clearForCopy(data))
+      menu:addItems(items)
+      menu:send()
+    end,
+    refreshMenu = function(data)
+      menus[data.id] = table.copy(menus[data.id],clearForCopy(data))
+      menus[data.id]:refresh()
+    end,
+    sendNUIMessage = function(data)
+      NativeSendNUIMessage(data)
+    end
+  }
+end)
 
 -------------
 -- NUI
@@ -291,59 +337,60 @@ RegisterNUICallback('backMenu', function(data, cb)
   menus[data.menu].onBack(currentData)
 end)
 
-RegisterNUICallback('updatePreview', function(data, cb)
-  cb('ok')
+local function menuNUIChange(data)
+  previousData = table.copy(currentData)
 
-  jo.timeout.delay('menuNUIChange', 100, function()
-    previousData = table.copy(currentData)
+  if not menus[data.menu] then return end
+  if not menus[data.menu].items[data.item.index] then return end
 
-    if not menus[data.menu] then return end
-    if not menus[data.menu].items[data.item.index] then return end
+  currentData.menu = data.menu
+  currentData.index = data.item.index
+  -- menus[data.menu].currentItem = data.item.index
+  menus[data.menu].items[data.item.index] = table.merge(menus[data.menu].items[data.item.index], data.item)
+  currentData.item = menus[data.menu].items[data.item.index]
 
-    currentData.menu = data.menu
-    currentData.index = data.item.index
-    -- menus[data.menu].currentItem = data.item.index
-    menus[data.menu].items[data.item.index] = table.merge(menus[data.menu].items[data.item.index], data.item)
-    currentData.item = menus[data.menu].items[data.item.index]
-
-    for _,slider in pairs (currentData.item.sliders) do
-      if slider.type == "grid" then
-        slider.value = {}
-        slider.value[1] = slider.values[1] and math.floor(slider.values[1].current*1000)/1000 or nil
-        slider.value[2] = slider.values[2] and math.floor(slider.values[2].current*1000)/1000 or nil
-      elseif slider.type == "palette" then
-        slider.value = slider.current
-      else
-        slider.value = slider.values[slider.current]
-      end
+  for _,slider in pairs (currentData.item.sliders) do
+    if slider.type == "grid" then
+      slider.value = {}
+      slider.value[1] = slider.values[1] and math.floor(slider.values[1].current*1000)/1000 or nil
+      slider.value[2] = slider.values[2] and math.floor(slider.values[2].current*1000)/1000 or nil
+    elseif slider.type == "palette" then
+      slider.value = slider.current
+    else
+      slider.value = slider.values[slider.current]
     end
+  end
 
-    local button = menus[currentData.menu].items[currentData.index]
-    local oldButton = false
-    if previousData.menu then
-      oldButton = menus[previousData.menu].items[previousData.index]
+  local button = menus[currentData.menu].items[currentData.index]
+  local oldButton = false
+  if previousData.menu then
+    oldButton = menus[previousData.menu].items[previousData.index]
+  end
+
+  if previousData.menu ~= currentData.menu then
+    if oldButton then
+      oldButton.onExit(currentData)
+      menus[previousData.menu].onExit(currentData)
     end
-
-    if previousData.menu ~= currentData.menu then
+    menus[currentData.menu].onEnter(currentData)
+    button.onActive(currentData)
+  else
+    if previousData.index ~= currentData.index then
       if oldButton then
         oldButton.onExit(currentData)
-        menus[previousData.menu].onExit(currentData)
       end
-      menus[currentData.menu].onEnter(currentData)
       button.onActive(currentData)
     else
-      if previousData.index ~= currentData.index then
-        if oldButton then
-          oldButton.onExit(currentData)
-        end
-        button.onActive(currentData)
-      else
-        button.onChange(currentData)
-      end
-      menus[previousData.menu].onChange(currentData)
+      button.onChange(currentData)
     end
+    menus[previousData.menu].onChange(currentData)
+  end
+end
 
-
+RegisterNUICallback('updatePreview', function(data, cb)
+  cb('ok')
+  jo.timeout.delay('menuNUIChange', 100, function()
+    menuNUIChange(data)
   end)
 end)
 

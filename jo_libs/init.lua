@@ -145,3 +145,15 @@ for i = 1, GetNumResourceMetadata(resourceName, 'jo_lib') do
   jo.require(name)
 end
 jo.libLoaded = true
+
+local function onReady(cb)
+	while GetResourceState('jo_libs') ~= 'started' or not jo.libLoaded do Wait(50) end
+
+	return cb and cb() or true
+end
+
+jo.ready = setmetatable({}, {
+	__call = function(_, cb)
+		Citizen.CreateThreadNow(function() onReady(cb) end)
+	end,
+})
