@@ -296,6 +296,8 @@ RegisterNUICallback('updatePreview', function(data, cb)
         slider.value = {}
         slider.value[1] = slider.values[1] and math.floor(slider.values[1].current*1000)/1000 or nil
         slider.value[2] = slider.values[2] and math.floor(slider.values[2].current*1000)/1000 or nil
+      elseif slider.type == "palette" then
+        slider.value = slider.current
       else
         slider.value = slider.values[slider.current]
       end
