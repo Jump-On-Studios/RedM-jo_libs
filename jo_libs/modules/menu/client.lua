@@ -1,16 +1,22 @@
 jo.menu = {}
+local resourceName = GetCurrentResourceName()
+jo.menu.resourceName = resourceName
 
-if not GetResourceMetadata(GetCurrentResourceName(), 'ui_page') then
-  eprint('WARNING ! NUI page is not defined. To use JO Menu, add ui_page "nui://jo_libs/nui/menu/index.html" inside your fxmanifest.lua')
-  eprint('WARNING ! NUI page is not defined. To use JO Menu, add ui_page "nui://jo_libs/nui/menu/index.html" inside your fxmanifest.lua')
-  eprint('WARNING ! NUI page is not defined. To use JO Menu, add ui_page "nui://jo_libs/nui/menu/index.html" inside your fxmanifest.lua')
-  eprint('WARNING ! NUI page is not defined. To use JO Menu, add ui_page "nui://jo_libs/nui/menu/index.html" inside your fxmanifest.lua')
-  eprint('WARNING ! NUI page is not defined. To use JO Menu, add ui_page "nui://jo_libs/nui/menu/index.html" inside your fxmanifest.lua')
-  eprint('WARNING ! NUI page is not defined. To use JO Menu, add ui_page "nui://jo_libs/nui/menu/index.html" inside your fxmanifest.lua')
-  eprint('WARNING ! NUI page is not defined. To use JO Menu, add ui_page "nui://jo_libs/nui/menu/index.html" inside your fxmanifest.lua')
-  eprint('WARNING ! NUI page is not defined. To use JO Menu, add ui_page "nui://jo_libs/nui/menu/index.html" inside your fxmanifest.lua')
-  eprint('WARNING ! NUI page is not defined. To use JO Menu, add ui_page "nui://jo_libs/nui/menu/index.html" inside your fxmanifest.lua')
-end
+CreateThread(function()
+  Wait(1000)
+  if jo.menu.resourceName ~= resourceName then return end
+  if not GetResourceMetadata(resourceName, 'ui_page') then
+    eprint('WARNING ! NUI page is not defined. To use JO Menu, add ui_page "nui://jo_libs/nui/menu/index.html" inside your fxmanifest.lua')
+    eprint('WARNING ! NUI page is not defined. To use JO Menu, add ui_page "nui://jo_libs/nui/menu/index.html" inside your fxmanifest.lua')
+    eprint('WARNING ! NUI page is not defined. To use JO Menu, add ui_page "nui://jo_libs/nui/menu/index.html" inside your fxmanifest.lua')
+    eprint('WARNING ! NUI page is not defined. To use JO Menu, add ui_page "nui://jo_libs/nui/menu/index.html" inside your fxmanifest.lua')
+    eprint('WARNING ! NUI page is not defined. To use JO Menu, add ui_page "nui://jo_libs/nui/menu/index.html" inside your fxmanifest.lua')
+    eprint('WARNING ! NUI page is not defined. To use JO Menu, add ui_page "nui://jo_libs/nui/menu/index.html" inside your fxmanifest.lua')
+    eprint('WARNING ! NUI page is not defined. To use JO Menu, add ui_page "nui://jo_libs/nui/menu/index.html" inside your fxmanifest.lua')
+    eprint('WARNING ! NUI page is not defined. To use JO Menu, add ui_page "nui://jo_libs/nui/menu/index.html" inside your fxmanifest.lua')
+    eprint('WARNING ! NUI page is not defined. To use JO Menu, add ui_page "nui://jo_libs/nui/menu/index.html" inside your fxmanifest.lua')
+  end
+end)
 
 local menus = {}
 local nuiShow = false
@@ -20,9 +26,14 @@ local clockStart = GetGameTimer()
 local currentData = {}
 local previousData = {}
 local NativeSendNUIMessage = SendNUIMessage
+exports('NativeSendNUIMessage', NativeSendNUIMessage)
 local function SendNUIMessage(data)
   if clockStart == GetGameTimer() then Wait(100) end
-  NativeSendNUIMessage(data)
+  if resourceName ~= jo.menu.resourceName then
+    exports[jo.menu.resourceName]:NativeSendNUIMessage(data)
+  else
+    NativeSendNUIMessage(data)
+  end
 end
 local disabledKeys = {
   `INPUT_SELECT_NEXT_WEAPON`,
@@ -253,6 +264,10 @@ end
 
 function jo.menu.get(id)
   return menus[id]
+end
+
+function jo.menu.setResourceName(name)
+  jo.menu.resourceName = name
 end
 
 -------------
