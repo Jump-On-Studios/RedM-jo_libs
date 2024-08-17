@@ -67,15 +67,14 @@ local MenuClass = {
   onChange = function() end
 }
 local function clearForCopy(data)
-  for key,value in pairs (MenuClass) do
-    print(key,type(value))
-  end
-  data.send = nil
-  data.refresh = nil
-  data.addItems = nil
-  data.addItem = nil
-  data.reset = nil
-  data.sort = nil
+  local t = table.copy(data)
+  t.send = nil
+  t.refresh = nil
+  t.addItems = nil
+  t.addItem = nil
+  t.reset = nil
+  t.sort = nil
+  return t
 end
 
 local MenuItem = {
@@ -105,18 +104,24 @@ function MenuClass:addItem(p,item)
   item.index = p
   table.insert(self.items, p, item)
 end
+function jo.menu.addItem(id,p,item) menus[id]:addItem(p,item) end
 
 function MenuClass:addItems(items)
   for _, item in ipairs(items) do
     self:addItem(item)
   end
 end
+function jo.menu.addItems(id,items) menus[id]:addItems(items) end
+
+function MenuClass:updateItem(index,key,value)
+  self.items[index][key] = value
+end
+function jo.menu.updateItem(id,index,key,value) menus[id]:updateItem(index,key,value) end
 
 function MenuClass:refresh()
   if hasMainScript() then
-    return jo.menu.exports.refreshMenu(self)
+    return jo.menu.exports.refreshMenu(self.id)
   end
-  print('REFRESH',self.id)
   local datas = table.clearForNui(self)
   SendNUIMessage({
     event = 'updateMenuData',
@@ -124,6 +129,7 @@ function MenuClass:refresh()
     data = datas
   })
 end
+function jo.menu.refresh(id) menus[id]:refresh() end
 
 function MenuClass:reset()
   SendNUIMessage({
@@ -131,6 +137,7 @@ function MenuClass:reset()
     menu = self.id
   })
 end
+function jo.menu.reset(id) menus[id]:reset() end
 
 ---@param first? integer pos of the first element to sort (default: 1)
 ---@param last? integer pos of the last element to sort (default: n)
@@ -164,10 +171,12 @@ function MenuClass:sort(first,last)
     item.index = i
   end
 end
+function jo.menu.sort(id,first,last) menus[id]:sort(first,last) end
 
 function MenuClass:send(reset)
   if hasMainScript() then
-    return jo.menu.exports.sendMenu(self)
+    jo.menu.exports.sendMenu(clearForCopy(self))
+    return
   end
   local datas = table.clearForNui(self)
   if reset == nil then
@@ -179,6 +188,7 @@ function MenuClass:send(reset)
     menu = datas
   })
 end
+function jo.menu.send(id) menus[id]:send() end
 
 ---@param id string Unique ID of the menu
 ---@param data? MenuClass
@@ -278,43 +288,17 @@ function jo.menu.updateVolume(volume)
   })
 end
 
-function jo.menu.refresh(id)
-  if not menus[id] then return eprint("menu: "..id.." is not defined") end
-  menus[id]:refresh()
-end
-
 function jo.menu.get(id)
   return menus[id]
 end
 
-function jo.menu.setMainResource(name)
+function jo.menu.set(id,menu)
+  menus[id] = menu
+end
+
+function jo.menu.setMainScript(name)
   resourceNUI = name
-  jo.menu.exports = exports[name]:jo_menu_exports()
 end
-
---------------
--- EXPORT FOR CHILD SCRIPT
--------------
-function jo.menu.exports.send(data)
-end
-
-exports('jo_menu_exports', function()
-  return {
-    sendMenu = function(data)
-      local items = data.items
-      local menu = jo.menu.create(data.id,clearForCopy(data))
-      menu:addItems(items)
-      menu:send()
-    end,
-    refreshMenu = function(data)
-      menus[data.id] = table.copy(menus[data.id],clearForCopy(data))
-      menus[data.id]:refresh()
-    end,
-    sendNUIMessage = function(data)
-      NativeSendNUIMessage(data)
-    end
-  }
-end)
 
 -------------
 -- NUI
@@ -581,4 +565,10 @@ end
 
 jo.menu.bridgeOldMenu = MenuData
 
+exports('jo_menu_get', function()
+  return jo.menu
+end)
+exports('jo_menu_get_current_data', function()
+  return currentData
+end)
 return jo.menu
