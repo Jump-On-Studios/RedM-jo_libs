@@ -67,15 +67,14 @@ local MenuClass = {
   onChange = function() end
 }
 local function clearForCopy(data)
-  for key,value in pairs (MenuClass) do
-    print(key,type(value))
-  end
-  data.send = nil
-  data.refresh = nil
-  data.addItems = nil
-  data.addItem = nil
-  data.reset = nil
-  data.sort = nil
+  local t = table.copy(data)
+  t.send = nil
+  t.refresh = nil
+  t.addItems = nil
+  t.addItem = nil
+  t.reset = nil
+  t.sort = nil
+  return t
 end
 
 local MenuItem = {
@@ -114,9 +113,8 @@ end
 
 function MenuClass:refresh()
   if hasMainScript() then
-    return jo.menu.exports.refreshMenu(self)
+    return jo.menu.exports.refreshMenu(self.id)
   end
-  print('REFRESH',self.id)
   local datas = table.clearForNui(self)
   SendNUIMessage({
     event = 'updateMenuData',
@@ -167,7 +165,8 @@ end
 
 function MenuClass:send(reset)
   if hasMainScript() then
-    return jo.menu.exports.sendMenu(self)
+    jo.menu.exports.sendMenu(clearForCopy(self))
+    return
   end
   local datas = table.clearForNui(self)
   if reset == nil then
@@ -295,25 +294,26 @@ end
 --------------
 -- EXPORT FOR CHILD SCRIPT
 -------------
-function jo.menu.exports.send(data)
-end
-
 exports('jo_menu_exports', function()
   return {
     sendMenu = function(data)
       local items = data.items
-      local menu = jo.menu.create(data.id,clearForCopy(data))
+      local menu = jo.menu.create(data.id,data)
       menu:addItems(items)
       menu:send()
     end,
-    refreshMenu = function(data)
-      menus[data.id] = table.copy(menus[data.id],clearForCopy(data))
-      menus[data.id]:refresh()
+    refreshMenu = function(id)
+      TriggerServerEvent("print",menus[id].items[1].description)
+      menus[id]:refresh()
     end,
     sendNUIMessage = function(data)
       NativeSendNUIMessage(data)
     end
   }
+end)
+
+exports('jo_menu_get', function()
+  return jo.menu
 end)
 
 -------------

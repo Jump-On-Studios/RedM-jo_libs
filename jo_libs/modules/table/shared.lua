@@ -24,9 +24,9 @@ table.merge = function(t1, t2)
   for k,v in pairs(t2 or {}) do
     if type(v) == "table" then
       if type(t1[k] or false) == "table" then
-          table.merge(t1[k] or {}, t2[k] or {})
+        table.merge(t1[k] or {}, t2[k] or {})
       else
-          t1[k] = v
+        t1[k] = v
       end
     else
       t1[k] = v
@@ -86,7 +86,6 @@ end
 ---@param func function the function to test the value
 ---@return table new_table the found table
 table.find = function(t, func)
-  local new_table = {}
   for i, v in pairs(t or {}) do
     if func(v, i, t) then
         return v
