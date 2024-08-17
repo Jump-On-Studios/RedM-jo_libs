@@ -110,15 +110,13 @@ function MenuClass:addItems(items)
   for _, item in ipairs(items) do
     self:addItem(item)
   end
-  print(#self.items)
-  TriggerServerEvent("print",self)
 end
 function jo.menu.addItems(id,items) menus[id]:addItems(items) end
-function jo.menu.updateItem(id,index,key,value)
-  menus[id].items[index][key] = value
+
+function MenuClass:updateItem(index,key,value)
+  self.items[index][key] = value
 end
-
-
+function jo.menu.updateItem(id,index,key,value) menus[id]:updateItem(index,key,value) end
 
 function MenuClass:refresh()
   if hasMainScript() then
