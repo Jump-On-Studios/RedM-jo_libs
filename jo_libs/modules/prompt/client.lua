@@ -243,5 +243,9 @@ function jo.prompt.get(group,key)
   return promptGroups[group].prompts[key]
 end
 
+exports('jo_prompt_get', function()
+  return jo.prompt
+end)
+
 
 return jo.prompt
