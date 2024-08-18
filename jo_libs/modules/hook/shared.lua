@@ -19,7 +19,8 @@ function jo.hook.registerAction(name,fct,priority)
   end
 	table.insert(listActions[name],pos,{
     cb = fct,
-    priority = priority
+    priority = priority,
+    resource = GetInvokingResource() or GetCurrentResourceName()
   })
 end
 exports('registerAction',jo.hook.registerAction)
@@ -53,7 +54,8 @@ function jo.hook.registerFilter(name,fct,priority)
   end
 	table.insert(listFilters[name],pos,{
     cb = fct,
-    priority = priority
+    priority = priority,
+    resource = GetInvokingResource() or GetCurrentResourceName()
   })
 end
 
@@ -88,5 +90,21 @@ function jo.hook.RegisterAction(...)
     oprint('RegisterAction with "R" in uppercase is depreciated. Use registerAction with "r" in lowercase !')
   end)
 end
+
+-------------
+-- CLEAR Filters & Actions when script stopped
+-------------
+AddEventHandler('onResourceStop', function(resourceName)
+  for name,filters in pairs (listFilters) do
+    listFilters[name] = table.filter(filters, function(filter)
+      return filter.resource ~= resourceName
+    end)
+  end
+  for name,actions in pairs (listActions) do
+    listActions[name] = table.filter(actions, function(action)
+      return action.resource ~= resourceName
+    end)
+  end
+end)
 
 return jo.hook
