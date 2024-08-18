@@ -84,7 +84,7 @@ end
 
 ---@param t table the table to search in
 ---@param func function the function to test the value
----@return table new_table the found table
+---@return any value the found table
 table.find = function(t, func)
   for i, v in pairs(t or {}) do
     if func(v, i, t) then

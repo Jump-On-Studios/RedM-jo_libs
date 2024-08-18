@@ -97,6 +97,10 @@ jo.clothes.wearableStates = {
   vests = {
     [0] = 'base',       --upper
     [1] = 'under_pants' --under
+  },
+  hair = {
+    [0] = 'base',
+    [1] = 'pomade'
   }
 }
 
@@ -346,6 +350,10 @@ function jo.clothes.remove(ped, category)
   return jo.clothes.apply(ped, category, 0)
 end
 
+-------------
+-- WEARABLE STATE
+-------------
+
 ---@param ped integer the entity
 ---@param category string the category
 ---@param hash any the hash of the clothes
@@ -354,6 +362,9 @@ function jo.clothes.setWearableState(ped, category, hash, state)
   Entity(ped).state:set('wearableState:' .. category, state)
   PutInCacheCurrentClothes(ped)
   local data = formatClothesData(hash)
+  if not data.hash then
+    data.hash = jo.clothes.getComponentEquiped(jo.me,category)
+  end
   UpdateShopItemWearableState(ped, data.hash, state)
   if category == "neckwear" and GetHashFromString(state) == `base` then
     jo.clothes.apply(ped, "beards_complete", jo.cache.clothes.color[ped][`beards_complete`])
@@ -458,6 +469,14 @@ end
 
 jo.clothes.isLoadoutOnRight = jo.clothes.loadoutIsOnRight
 
+function jo.clothes.hairIsPomade(ped)
+  return Entity(ped).state['wearableState:hair'] == jo.clothes.wearableStates.hair[1]
+end
+
+-------------
+-- CATEGORIES & COMPONENTS
+-------------
+
 ---@param ped integer the entity
 ---@return table
 function jo.clothes.getCategoriesEquiped(ped)
@@ -497,6 +516,7 @@ function jo.clothes.isCategoryEquiped(ped, category)
     return false,0
   end
   local equiped = jo.clothes.getCategoriesEquiped(ped)
+  if not equiped[categoryHash] then return false,0 end
   return true, equiped[categoryHash].index
 end
 
