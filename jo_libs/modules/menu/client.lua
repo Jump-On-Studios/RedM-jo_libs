@@ -20,6 +20,7 @@ CreateThread(function()
 end)
 
 local menus = {}
+jo.menu.listeners = {}
 local nuiShow = false
 local timeoutClose = nil
 local radarAlreadyHidden = false
@@ -321,6 +322,20 @@ RegisterNUICallback('backMenu', function(data, cb)
   menus[data.menu].onBack(currentData)
 end)
 
+function jo.menu.onChange(cb)
+  table.insert(jo.menu.listeners,{
+    resource = GetInvokingResource() or GetCurrentResourceName(),
+    cb = cb
+  })
+end
+
+AddEventHandler('onResourceStop', function(resourceName)
+  jo.menu.listeners = table.filter(jo.menu.listeners, function(listener)
+    return listener.resource ~= resourceName
+  end)
+end)
+
+
 local function menuNUIChange(data)
   previousData = table.copy(currentData)
 
@@ -368,6 +383,10 @@ local function menuNUIChange(data)
       button.onChange(currentData)
     end
     menus[previousData.menu].onChange(currentData)
+  end
+
+  for _, listener in ipairs(jo.menu.listeners) do
+    listener.cb(currentData)
   end
 end
 
