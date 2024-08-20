@@ -1123,7 +1123,9 @@ function FrameworkClass:getUserSkin(source)
 
   if not skinStandardized.teeth then
     local clothes = self:getUserClothes(source)
-    skinStandardized.teeth = clothes.teeth.hash
+    if clothes.teeth then
+      skinStandardized.teeth = clothes.teeth.hash
+    end
   end
 
   return skinStandardized
