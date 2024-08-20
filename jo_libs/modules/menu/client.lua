@@ -197,6 +197,7 @@ function jo.menu.create(id, data)
   if not id then
     return 'The `id` of the menu is missing'
   end
+  if menus[id] then menus[id] = nil end
   menus[id] = table.merge(table.copy(MenuClass), data)
   menus[id] = setmetatable(menus[id], MenuClass)
   menus[id].__index = table.copy(MenuClass)
@@ -311,6 +312,12 @@ RegisterNUICallback('click', function(data, cb)
   if not menus[data.menu] then return end
   if not menus[data.menu].items[data.item.index] then return end
 
+  if menus[data.menu].items[data.item.index].onClickClientEvent then
+    TriggerEvent(menus[data.menu].items[data.item.index].onClickClientEvent,currentData)
+  end
+  if menus[data.menu].items[data.item.index].onClickServerEvent then
+    TriggerServerEvent(menus[data.menu].items[data.item.index].onClickClientEvent,currentData)
+  end
   menus[data.menu].items[data.item.index].onClick(currentData)
 end)
 
@@ -385,6 +392,12 @@ local function menuNUIChange(data)
       end
       button.onActive(currentData)
     else
+      if button.onChangeClientEvent then
+        TriggerEvent(button.onChangeClientEvent,currentData)
+      end
+      if button.onChangeServerEvent then
+        TriggerServerEvent(button.onChangeServerEvent,currentData)
+      end
       button.onChange(currentData)
     end
     menus[previousData.menu].onChange(currentData)
