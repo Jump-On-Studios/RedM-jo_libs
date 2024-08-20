@@ -1,4 +1,9 @@
 jo.hook = {}
+
+if not table.filter then
+  jo.require('table')
+end
+
 -------------
 -- Actions
 -------------
@@ -95,15 +100,42 @@ end
 -- CLEAR Filters & Actions when script stopped
 -------------
 AddEventHandler('onResourceStop', function(resourceName)
-  for name,filters in pairs (listFilters) do
-    listFilters[name] = table.filter(filters, function(filter)
-      return filter.resource ~= resourceName
-    end)
+  local currentResource = GetCurrentResourceName()
+
+  if currentResource == resourceName then return end
+
+  local removed = 0
+  for _,filters in pairs (listFilters) do
+    local i = 1
+    while i <= #filters do
+      if filters[i].resource == resourceName then
+        table.remove(filters,i)
+        removed += 1
+      else
+        i += 1
+      end
+    end
   end
-  for name,actions in pairs (listActions) do
-    listActions[name] = table.filter(actions, function(action)
-      return action.resource ~= resourceName
-    end)
+
+  if removed > 0 then
+    print(('%d filters removed before stop %s in %s'):format(removed,resourceName, GetCurrentResourceName()))
+  end
+
+  removed = 0
+  for _,actions in pairs (listActions) do
+    local i = 1
+    while i <= #actions do
+      if actions[i].resource == resourceName then
+        table.remove(actions,i)
+        removed += 1
+      else
+        i += 1
+      end
+    end
+  end
+  
+  if removed > 0 then
+    print(('%d actions removed before stop %s in %s'):format(removed,resourceName, GetCurrentResourceName()))
   end
 end)
 
