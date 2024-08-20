@@ -330,9 +330,14 @@ function jo.menu.onChange(cb)
 end
 
 AddEventHandler('onResourceStop', function(resourceName)
-  jo.menu.listeners = table.filter(jo.menu.listeners, function(listener)
-    return listener.resource ~= resourceName
-  end)
+  local i = 1
+  while i <= #jo.menu.listeners do
+    if jo.menu.listeners[i].resource == resourceName then
+      table.remove(jo.menu.listeners,i)
+    else
+      i += 1
+    end
+  end
 end)
 
 
