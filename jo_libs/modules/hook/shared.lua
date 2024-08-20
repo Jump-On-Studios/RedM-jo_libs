@@ -1,4 +1,9 @@
 jo.hook = {}
+
+if not table.filter then
+  jo.require('table')
+end
+
 -------------
 -- Actions
 -------------
@@ -19,7 +24,8 @@ function jo.hook.registerAction(name,fct,priority)
   end
 	table.insert(listActions[name],pos,{
     cb = fct,
-    priority = priority
+    priority = priority,
+    resource = GetInvokingResource() or GetCurrentResourceName()
   })
 end
 exports('registerAction',jo.hook.registerAction)
@@ -53,7 +59,8 @@ function jo.hook.registerFilter(name,fct,priority)
   end
 	table.insert(listFilters[name],pos,{
     cb = fct,
-    priority = priority
+    priority = priority,
+    resource = GetInvokingResource() or GetCurrentResourceName()
   })
 end
 
@@ -88,5 +95,48 @@ function jo.hook.RegisterAction(...)
     oprint('RegisterAction with "R" in uppercase is depreciated. Use registerAction with "r" in lowercase !')
   end)
 end
+
+-------------
+-- CLEAR Filters & Actions when script stopped
+-------------
+AddEventHandler('onResourceStop', function(resourceName)
+  local currentResource = GetCurrentResourceName()
+
+  if currentResource == resourceName then return end
+
+  local removed = 0
+  for _,filters in pairs (listFilters) do
+    local i = 1
+    while i <= #filters do
+      if filters[i].resource == resourceName then
+        table.remove(filters,i)
+        removed += 1
+      else
+        i += 1
+      end
+    end
+  end
+
+  if removed > 0 then
+    print(('%d filters removed before stop %s in %s'):format(removed,resourceName, GetCurrentResourceName()))
+  end
+
+  removed = 0
+  for _,actions in pairs (listActions) do
+    local i = 1
+    while i <= #actions do
+      if actions[i].resource == resourceName then
+        table.remove(actions,i)
+        removed += 1
+      else
+        i += 1
+      end
+    end
+  end
+  
+  if removed > 0 then
+    print(('%d actions removed before stop %s in %s'):format(removed,resourceName, GetCurrentResourceName()))
+  end
+end)
 
 return jo.hook

@@ -24,9 +24,9 @@ table.merge = function(t1, t2)
   for k,v in pairs(t2 or {}) do
     if type(v) == "table" then
       if type(t1[k] or false) == "table" then
-          table.merge(t1[k] or {}, t2[k] or {})
+        table.merge(t1[k] or {}, t2[k] or {})
       else
-          t1[k] = v
+        t1[k] = v
       end
     else
       t1[k] = v
@@ -60,7 +60,13 @@ end
 table.filter = function(t, filterIter)
   local out = {}
   for k, v in pairs(t) do
-    if filterIter(v, k, t) then out[k] = v end
+    if filterIter(v, k, t) then
+      if type(k) == "number" then
+        out[#out+1] = v
+      else
+        out[k] = v
+      end
+    end
   end
   return out
 end
@@ -78,9 +84,8 @@ end
 
 ---@param t table the table to search in
 ---@param func function the function to test the value
----@return table new_table the found table
+---@return any value the found table
 table.find = function(t, func)
-  local new_table = {}
   for i, v in pairs(t or {}) do
     if func(v, i, t) then
         return v
@@ -103,3 +108,43 @@ table.clearForNui = function (t)
   end
   return new_table
 end
+
+
+---@param table1 table first table to compare
+---@param table2 table second table to compare
+---@param strict? boolean  if all keys should be in both table (default: true)
+---@param canMissInTable1? any if table2 keys can miss in table1 (default: false)
+---@param canMissInTable2? any if table1 keys can miss in table2 (default: false)
+table.isEgal = function (table1,table2,strict,canMissInTable1,canMissInTable2)
+  strict = strict ~= false  -- strict est par défaut true, sauf si explicitement mis à false
+  canMissInTable1 = canMissInTable1 or false  -- par défaut false
+  canMissInTable2 = canMissInTable2 or false  -- par défaut false
+
+  if type(table1) ~= "table" or type(table2) ~= "table" then
+    return table1 == table2
+  end
+
+	for key, value in pairs(table1) do
+    if not canMissInTable2 or table2[key] ~= nil then
+      if not table.isEgal(value, table2[key], strict, canMissInTable1, canMissInTable2) then
+        return false
+      end
+    end
+  end
+
+  if strict then
+    for key, value in pairs(table2) do
+      if not canMissInTable1 or table1[key] ~= nil then
+        if not table.isEgal(value, table1[key], strict, canMissInTable1, canMissInTable2) then
+          return false
+        end
+      end
+    end
+  end
+
+  return true
+end
+
+
+jo.table = {}
+return jo.table
