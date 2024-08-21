@@ -302,8 +302,8 @@ jo.pedTexture.categories = {
   complex = "heads",
   disc = "heads",
   eyebrow = "heads",
-  eyeliner = "heads",
   eyeshadow = "heads",
+  eyeliner = "heads",
   foundation = "heads",
   freckles = "heads",
   grime = "heads",
@@ -314,6 +314,29 @@ jo.pedTexture.categories = {
   masks = "heads",
   hair = "heads",
   beard = "heads"
+}
+
+jo.pedTexture.ordersToApply = {
+  heads = {
+    "hair",
+    "beard",
+    "eyebrow",
+    "ageing",
+    "scar",
+    "acne",
+    "moles",
+    "disc",
+    "freckles",
+    "complex",
+    "spots",
+    "foundation",
+    "blush",
+    "eyeshadow",
+    "eyeliner",
+    "lipstick",
+    "masks",
+    "grime",
+  }
 }
 
 ---@param isMale boolean
@@ -387,30 +410,33 @@ function jo.pedTexture.apply(ped,layerName,_data)
     end
     pedsTextures[ped][category].textureId = textureId
 
-    for name,layer in pairs (pedsTextures[ped][category].layers) do
-      albedo = GetHashFromString(layer.albedo)
-      normal = GetHashFromString(layer.normal)
-      material = GetHashFromString(layer.material)
-      local blendType = 0
-      if name == "scar"
-        or name == "spots"
-        or name == "disc"
-        or name == "complex"
-        or name == "acne"
-        or name == "ageing"
-        or name == "moles"
-        or name == "freckles"
-      then
-        blendType = 1
+    for _,name in ipairs (jo.pedTexture.ordersToApply[category]) do
+      local layer = pedsTextures[ped][category].layers[name]
+      if layer then
+        albedo = GetHashFromString(layer.albedo)
+        normal = GetHashFromString(layer.normal)
+        material = GetHashFromString(layer.material)
+        local blendType = 0
+        if name == "scar"
+          or name == "spots"
+          or name == "disc"
+          or name == "complex"
+          or name == "acne"
+          or name == "ageing"
+          or name == "moles"
+          or name == "freckles"
+        then
+          blendType = 1
+        end
+        layerIndex = AddTextureLayer(textureId, albedo, normal, material, layer.blendType or blendType, (layer.opacity or 1.0)*1.0, layer.sheetGrid or 0)
+        if blendType == 0 and layer.palette then
+          palette = GetHashFromString(layer.palette)
+          SetTextureLayerPallete(textureId, layerIndex, palette)
+          SetTextureLayerTint(textureId, layerIndex, layer.tint0 or 0, layer.tint1 or 0, layer.tint2 or 0)
+        end
+        SetTextureLayerSheetGridIndex(textureId, layerIndex, layer.sheetGrid or 0)
+        SetTextureLayerAlpha(textureId, layerIndex, (layer.opacity or 1.0)*1.0)
       end
-      layerIndex = AddTextureLayer(textureId, albedo, normal, material, layer.blendType or blendType, (layer.opacity or 1.0)*1.0, layer.sheetGrid or 0)
-      if blendType == 0 and layer.palette then
-        palette = GetHashFromString(layer.palette)
-        SetTextureLayerPallete(textureId, layerIndex, palette)
-        SetTextureLayerTint(textureId, layerIndex, layer.tint0 or 0, layer.tint1 or 0, layer.tint2 or 0)
-      end
-      SetTextureLayerSheetGridIndex(textureId, layerIndex, layer.sheetGrid or 0)
-      SetTextureLayerAlpha(textureId, layerIndex, (layer.opacity or 1.0)*1.0)
     end
     jo.utils.waiter(function() return not IsTextureValid(textureId) end)
 
