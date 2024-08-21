@@ -1117,6 +1117,17 @@ function FrameworkClass:getUserSkin(source)
 
   local skinStandardized = standardizeSkinKeys(skin)
 
+  if type(skinStandardized.hair) ~= "table" then
+    skinStandardized.hair = {
+      hash = skinStandardized.hair
+    }
+  end
+  if type(skinStandardized.beards_complete) ~= "table" then
+    skinStandardized.beards_complete = {
+      hash = skinStandardized.beards_complete
+    }
+  end
+
   if not skinStandardized.teeth then
     local clothes = self:getUserClothes(source)
     if clothes.teeth then
