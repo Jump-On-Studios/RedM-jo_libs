@@ -199,8 +199,6 @@ function jo.menu.create(id, data)
   end
   if menus[id] then menus[id] = nil end
   menus[id] = table.merge(table.copy(MenuClass), data)
-  menus[id] = setmetatable(menus[id], MenuClass)
-  menus[id].__index = table.copy(MenuClass)
   menus[id].id = id
   menus[id]:send()
   return menus[id]

@@ -117,12 +117,10 @@ local User = {
 
 ---@return User
 function User:get(source)
-  local user = {}
-  setmetatable(user, self)
+  self = table.copy(User)
   self.source = tonumber(source)
-  self.__index = self
   self:init()
-  return user
+  return self
 end
 
 function User:init()
@@ -366,9 +364,7 @@ local FrameworkClass = {
 }
 ---@return FrameworkClass FrameworkClass class
 function FrameworkClass:new(t)
-	t = t or {}
-	setmetatable(t, self)
-	self.__index = self
+	t = table.copy(FrameworkClass)
   t:init()
 	return t
 end

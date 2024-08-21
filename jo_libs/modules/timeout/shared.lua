@@ -18,8 +18,6 @@ local TimeoutClass = {
 ---@return TimeoutClass TimeoutClass class
 function TimeoutClass:set(msec,cb)
   local t = table.copy(TimeoutClass)
-	local t = setmetatable(t, TimeoutClass)
-	t.__index = table.copy(TimeoutClass)
   t.msec = msec
   t.cb = cb
   t.id = math.random()

@@ -77,8 +77,7 @@ function LightClass:update(deltaTime)
 end
 
 function jo.light.create(coords,intensity,rgb,range,ease)
-  local light = setmetatable(table.copy(LightClass), {})
-  light.__index = light
+  local light = table.copy(LightClass)
   light.coords = coords
   light.targetCoords = coords
   light.rgb = rgb or light.rgb
