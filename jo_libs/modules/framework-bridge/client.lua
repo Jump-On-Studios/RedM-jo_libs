@@ -25,11 +25,9 @@ local FrameworkClass = {
 }
 ---@return FrameworkClass FrameworkClass class
 function FrameworkClass:new(t)
-	t = t or {}
-	setmetatable(t, self)
-	self.__index = self
-  t:init()
-	return t
+  table.merge(self,t or {})
+  self:init()
+	return self
 end
 
 function FrameworkClass:init()

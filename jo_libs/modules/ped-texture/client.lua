@@ -302,8 +302,8 @@ jo.pedTexture.categories = {
   complex = "heads",
   disc = "heads",
   eyebrow = "heads",
-  eyeliner = "heads",
   eyeshadow = "heads",
+  eyeliner = "heads",
   foundation = "heads",
   freckles = "heads",
   grime = "heads",
@@ -314,6 +314,29 @@ jo.pedTexture.categories = {
   masks = "heads",
   hair = "heads",
   beard = "heads"
+}
+
+jo.pedTexture.ordersToApply = {
+  heads = {
+    "hair",
+    "beard",
+    "eyebrow",
+    "ageing",
+    "scar",
+    "acne",
+    "moles",
+    "disc",
+    "freckles",
+    "complex",
+    "spots",
+    "foundation",
+    "blush",
+    "eyeshadow",
+    "eyeliner",
+    "lipstick",
+    "masks",
+    "grime",
+  }
 }
 
 ---@param isMale boolean
@@ -342,11 +365,11 @@ end
 ---@param ped integer
 ---@param layerName string
 ---@param data table
-function jo.pedTexture.apply(ped,layerName,data)
+function jo.pedTexture.apply(ped,layerName,_data)
   if not NetworkGetEntityIsNetworked(ped) then
     return eprint("ERROR: RedM doesn't allow editing of texture on a local entity")
   end
-  local data = table.copy(data or {})
+  local data = table.copy(_data or {})
   local index, albedo, normal, material, layerIndex, textureId,palette
   local category = jo.pedTexture.categories[layerName]
   if not category then
@@ -355,8 +378,8 @@ function jo.pedTexture.apply(ped,layerName,data)
   pedsTextures[ped] = pedsTextures[ped] or Entity(ped).state['jo_pedTexture'] or {}
   pedsTextures[ped][category] = pedsTextures[ped][category] or {layers = {}}
 
-
   if data.id then
+    data.albedo = nil
     data.albedo = jo.pedTexture.getOverlayAssetFromId(IsPedMale(ped),layerName, data)
     data.id = nil
   end
@@ -387,30 +410,33 @@ function jo.pedTexture.apply(ped,layerName,data)
     end
     pedsTextures[ped][category].textureId = textureId
 
-    for name,layer in pairs (pedsTextures[ped][category].layers) do
-      albedo = GetHashFromString(layer.albedo)
-      normal = GetHashFromString(layer.normal)
-      material = GetHashFromString(layer.material)
-      local blendType = 0
-      if name == "scar"
-        or name == "spots"
-        or name == "disc"
-        or name == "complex"
-        or name == "acne"
-        or name == "ageing"
-        or name == "moles"
-        or name == "freckles"
-      then
-        blendType = 1
+    for _,name in ipairs (jo.pedTexture.ordersToApply[category]) do
+      local layer = pedsTextures[ped][category].layers[name]
+      if layer then
+        albedo = GetHashFromString(layer.albedo)
+        normal = GetHashFromString(layer.normal)
+        material = GetHashFromString(layer.material)
+        local blendType = 0
+        if name == "scar"
+          or name == "spots"
+          or name == "disc"
+          or name == "complex"
+          or name == "acne"
+          or name == "ageing"
+          or name == "moles"
+          or name == "freckles"
+        then
+          blendType = 1
+        end
+        layerIndex = AddTextureLayer(textureId, albedo, normal, material, layer.blendType or blendType, (layer.opacity or 1.0)*1.0, layer.sheetGrid or 0)
+        if blendType == 0 and layer.palette then
+          palette = GetHashFromString(layer.palette)
+          SetTextureLayerPallete(textureId, layerIndex, palette)
+          SetTextureLayerTint(textureId, layerIndex, layer.tint0 or 0, layer.tint1 or 0, layer.tint2 or 0)
+        end
+        SetTextureLayerSheetGridIndex(textureId, layerIndex, layer.sheetGrid or 0)
+        SetTextureLayerAlpha(textureId, layerIndex, (layer.opacity or 1.0)*1.0)
       end
-      layerIndex = AddTextureLayer(textureId, albedo, normal, material, layer.blendType or blendType, (layer.opacity or 1.0)*1.0, layer.sheetGrid or 0)
-      if blendType == 0 and layer.palette then
-        palette = GetHashFromString(layer.palette)
-        SetTextureLayerPallete(textureId, layerIndex, palette)
-        SetTextureLayerTint(textureId, layerIndex, layer.tint0 or 0, layer.tint1 or 0, layer.tint2 or 0)
-      end
-      SetTextureLayerSheetGridIndex(textureId, layerIndex, layer.sheetGrid or 0)
-      SetTextureLayerAlpha(textureId, layerIndex, (layer.opacity or 1.0)*1.0)
     end
     jo.utils.waiter(function() return not IsTextureValid(textureId) end)
 
@@ -449,10 +475,13 @@ function jo.pedTexture.refreshAll(ped)
   end
 end
 
-function jo.pedTexture.overwriteCategory(ped,category,overlays)
-  pedsTextures[ped] = pedsTextures[ped] or Entity(ped).state['jo_pedTexture'] or {}
-  if pedsTextures[ped][category] then
-    pedsTextures[ped][category].layers = {}
+function jo.pedTexture.overwriteCategory(ped,category,overlays,forceRemove)
+  forceRemove = forceRemove or false
+  pedsTextures[ped] = pedsTextures[ped] or Entity(ped).state['jo_pedTexture'] or {[category] = {}}
+  if pedsTextures[ped][category] or forceRemove then
+    if pedsTextures[ped][category] then
+      pedsTextures[ped][category].layers = {}
+    end
     for layername,cat in pairs (jo.pedTexture.categories) do
       if cat == category then
         jo.pedTexture.remove(ped,layername)

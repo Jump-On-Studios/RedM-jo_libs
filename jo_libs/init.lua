@@ -152,8 +152,6 @@ local function onReady(cb)
 	return cb and cb() or true
 end
 
-jo.ready = setmetatable({}, {
-	__call = function(_, cb)
-		Citizen.CreateThreadNow(function() onReady(cb) end)
-	end,
-})
+function jo.ready(cb)
+	Citizen.CreateThreadNow(function() onReady(cb) end)
+end
