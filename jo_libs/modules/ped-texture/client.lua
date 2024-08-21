@@ -342,11 +342,11 @@ end
 ---@param ped integer
 ---@param layerName string
 ---@param data table
-function jo.pedTexture.apply(ped,layerName,data)
+function jo.pedTexture.apply(ped,layerName,_data)
   if not NetworkGetEntityIsNetworked(ped) then
     return eprint("ERROR: RedM doesn't allow editing of texture on a local entity")
   end
-  local data = table.copy(data or {})
+  local data = table.copy(_data or {})
   local index, albedo, normal, material, layerIndex, textureId,palette
   local category = jo.pedTexture.categories[layerName]
   if not category then
@@ -355,8 +355,8 @@ function jo.pedTexture.apply(ped,layerName,data)
   pedsTextures[ped] = pedsTextures[ped] or Entity(ped).state['jo_pedTexture'] or {}
   pedsTextures[ped][category] = pedsTextures[ped][category] or {layers = {}}
 
-
   if data.id then
+    data.albedo = nil
     data.albedo = jo.pedTexture.getOverlayAssetFromId(IsPedMale(ped),layerName, data)
     data.id = nil
   end
@@ -449,10 +449,13 @@ function jo.pedTexture.refreshAll(ped)
   end
 end
 
-function jo.pedTexture.overwriteCategory(ped,category,overlays)
-  pedsTextures[ped] = pedsTextures[ped] or Entity(ped).state['jo_pedTexture'] or {}
-  if pedsTextures[ped][category] then
-    pedsTextures[ped][category].layers = {}
+function jo.pedTexture.overwriteCategory(ped,category,overlays,forceRemove)
+  forceRemove = forceRemove or false
+  pedsTextures[ped] = pedsTextures[ped] or Entity(ped).state['jo_pedTexture'] or {[category] = {}}
+  if pedsTextures[ped][category] or forceRemove then
+    if pedsTextures[ped][category] then
+      pedsTextures[ped][category].layers = {}
+    end
     for layername,cat in pairs (jo.pedTexture.categories) do
       if cat == category then
         jo.pedTexture.remove(ped,layername)
