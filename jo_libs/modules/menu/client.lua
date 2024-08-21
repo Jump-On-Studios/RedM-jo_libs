@@ -3,6 +3,10 @@ jo.menu.exports = {}
 local resourceName = GetCurrentResourceName()
 local resourceNUI = resourceName
 
+if not table.copy then
+  jo.require('table')
+end
+
 CreateThread(function()
   Wait(1000)
   if resourceNUI ~= resourceName then return end
@@ -345,6 +349,15 @@ AddEventHandler('onResourceStop', function(resourceName)
   end
 end)
 
+---@param item table the item to fired
+---@param eventName string the name of the event to fired
+---@param ... any the argument to send
+function jo.menu.fireEvent(item,eventName,...)
+  if item[eventName.."ClientEvent"] then TriggerEvent(item[eventName.."ClientEvent"],currentData,...) end
+  if item[eventName.."ServerEvent"] then TriggerServerEvent(item[eventName.."ServerEvent"],currentData,...) end
+  if item[eventName] then item[eventName](currentData,...) end
+end
+
 
 local function menuNUIChange(data)
   previousData = table.copy(currentData)
@@ -378,27 +391,21 @@ local function menuNUIChange(data)
 
   if previousData.menu ~= currentData.menu then
     if oldButton then
-      oldButton.onExit(currentData)
-      menus[previousData.menu].onExit(currentData)
+      jo.menu.fireEvent(oldButton,"onExit")
+      jo.menu.fireEvent(menus[previousData.menu],"onExit")
     end
-    menus[currentData.menu].onEnter(currentData)
-    button.onActive(currentData)
+    jo.menu.fireEvent(menus[currentData.menu],"onEnter")
+    jo.menu.fireEvent(button,"onActive")
   else
     if previousData.index ~= currentData.index then
       if oldButton then
-        oldButton.onExit(currentData)
+        jo.menu.fireEvent(oldButton,"onExit")
       end
-      button.onActive(currentData)
+      jo.menu.fireEvent(button,"onActive")
     else
-      if button.onChangeClientEvent then
-        TriggerEvent(button.onChangeClientEvent,currentData)
-      end
-      if button.onChangeServerEvent then
-        TriggerServerEvent(button.onChangeServerEvent,currentData)
-      end
-      button.onChange(currentData)
+      jo.menu.fireEvent(button,"onChange")
     end
-    menus[previousData.menu].onChange(currentData)
+    jo.menu.fireEvent(menus[previousData.menu],"onChange")
   end
 
   for _, listener in ipairs(jo.menu.listeners) do
