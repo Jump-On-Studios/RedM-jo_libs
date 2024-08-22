@@ -144,8 +144,9 @@ local function WaitRefreshPed(ped) while not IsPedReadyToRender(ped) do Wait(0) 
 
 ---@return string categoryName
 local function getCategoryName(category)
+  if not category then return '' end
   if type(category) == "string" then return category end
-  return jo.clothes.categoryName[category] or ('unknown:' .. category)
+  return jo.clothes.categoryName[category]
 end
 
 ---@return table data formatted table for clothes data
