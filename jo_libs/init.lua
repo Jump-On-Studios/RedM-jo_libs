@@ -102,6 +102,10 @@ local function loadModule(self,module)
     self[module] = noFunction
   end
 
+  if resourceName ~= "jo_libs" then
+    TriggerEvent("jo_libs:loadGlobalModule",module)
+  end
+
   return self[module]
 end
 
@@ -152,9 +156,6 @@ function jo.require(name)
   local module = loadModule(jo,name)
   if type(module) == 'function' then pcall(module) end
 end
-jo.require('table')
-jo.require('print')
-jo.require('file')
 
 if resourceName == "jo_libs" then
   AddEventHandler('jo_libs:loadGlobalModule', function (module)
@@ -173,7 +174,24 @@ local function CreateExport(name,cb)
   end)
 end
 
+--Sort module by priority
+local priorityModules = {table=1,print=2,file=3,hook=4}
+table.sort(modules, function(a,b)
+  local prioA = priorityModules[a]
+  local prioB = priorityModules[b]
+  if prioA and prioB then
+    return prioA < prioB
+  end
+  if prioA then return true end
+  if prioB then return false end
+  return a < b
+end)
+-------------
+-- LOAD REQUIRED MODULES
+-------------
+
 for _,name in ipairs (modules) do
+  jo.require(name)
   if name == "hook" then
     CreateExport('registerAction',jo.hook.registerAction)
     CreateExport('RegisterAction',jo.hook.RegisterAction)
@@ -184,18 +202,10 @@ for _,name in ipairs (modules) do
     CreateExport('StopAddon', jo.versionChecker.stopAddon)
   end
 end
-
--------------
--- LOAD REQUIRED MODULES
--------------
-
-for _,name in ipairs (modules) do
-  jo.require(name)
-end
 jo.libLoaded = true
 
 local function onReady(cb)
-	while GetResourceState('jo_libs') ~= 'started' or not jo.libLoaded do Wait(50) end
+	jo.waitLibLoading()
 
 	return cb and cb() or true
 end
