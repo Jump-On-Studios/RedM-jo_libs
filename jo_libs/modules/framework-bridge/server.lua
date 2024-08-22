@@ -510,66 +510,68 @@ end
 ---@param callback function function fired when the item is used
 ---@param closeAfterUsed boolean if inventory needs to be closes
 function FrameworkClass:registerUseItem(item,closeAfterUsed,callback)
-  if (closeAfterUsed == nil) then closeAfterUsed = true end
-  if OWFramework.registerUseItem then
-    OWFramework.registerUseItem(item,closeAfterUsed,callback)
-  elseif self:is("VORP") then
-    local isExist = self.inv:getItemDB(item)
-    local count = 0
-    while not isExist and count < 10 do
-      isExist = self.inv:getItemDB(item)
-      count = count + 1
-      Wait(1000)
-    end
-    if not isExist then
-      return eprint(item .. " < item does not exist in the database")
-    end
-    self.inv:registerUsableItem(item, function(data)
-      if closeAfterUsed then
-        self.inv:closeInventory(data.source)
+  CreateThread(function()
+    if (closeAfterUsed == nil) then closeAfterUsed = true end
+    if OWFramework.registerUseItem then
+      OWFramework.registerUseItem(item,closeAfterUsed,callback)
+    elseif self:is("VORP") then
+      local isExist = self.inv:getItemDB(item)
+      local count = 0
+      while not isExist and count < 10 do
+        isExist = self.inv:getItemDB(item)
+        count = count + 1
+        Wait(1000)
       end
-      return callback(data.source,{metadata = data.item.metadata})
-    end)
-  elseif self:is("RedEM2023") or self:is("RedEM") then
-    local isExist = self.inv.getItemData(item)
-    local count = 0
-    while not isExist and count < 10 do
-      isExist = self.inv.getItemData(item)
-      count = count + 1
-      Wait(1000)
-    end
-    if not isExist then
-      return eprint(item .. " < item does not exist in the inventory configuration")
-    end
-    AddEventHandler("RegisterUsableItem:"..item, function(source,data)
-      callback(source,{metadata = data.meta})
-      if closeAfterUsed then
-        TriggerClientEvent("redemrp_inventory:closeinv", source)
+      if not isExist then
+        return eprint(item .. " < item does not exist in the database")
       end
-    end)
-  elseif self:is("QBR") then
-    local isAdded = self.core:AddItem(item,nil)
-    if isAdded then
-      return eprint(item .. " < item does not exist in the core configuration")
-    end
-    self.core:CreateUseableItem(item,function(source,data)
-      callback(source,{metadata = data.info})
-      if closeAfterUsed then
-        TriggerClientEvent("qbr-inventory:client:closeinv",source)
+      self.inv:registerUsableItem(item, function(data)
+        if closeAfterUsed then
+          self.inv:closeInventory(data.source)
+        end
+        return callback(data.source,{metadata = data.item.metadata})
+      end)
+    elseif self:is("RedEM2023") or self:is("RedEM") then
+      local isExist = self.inv.getItemData(item)
+      local count = 0
+      while not isExist and count < 10 do
+        isExist = self.inv.getItemData(item)
+        count = count + 1
+        Wait(1000)
       end
-    end)
-  elseif self:is("RSG") or self:is('QR') then
-    local isAdded = self.core.Functions.AddItem(item,nil)
-    if isAdded then
-      return eprint(item .. " < item does not exist in the core configuration")
-    end
-    self.core.Functions.CreateUseableItem(item,function(source,data)
-      callback(source,{metadata = data.info})
-      if closeAfterUsed then
-        TriggerClientEvent(string.lower(self:get()).."-inventory:client:closeinv",source)
+      if not isExist then
+        return eprint(item .. " < item does not exist in the inventory configuration")
       end
-    end)
-  end
+      AddEventHandler("RegisterUsableItem:"..item, function(source,data)
+        callback(source,{metadata = data.meta})
+        if closeAfterUsed then
+          TriggerClientEvent("redemrp_inventory:closeinv", source)
+        end
+      end)
+    elseif self:is("QBR") then
+      local isAdded = self.core:AddItem(item,nil)
+      if isAdded then
+        return eprint(item .. " < item does not exist in the core configuration")
+      end
+      self.core:CreateUseableItem(item,function(source,data)
+        callback(source,{metadata = data.info})
+        if closeAfterUsed then
+          TriggerClientEvent("qbr-inventory:client:closeinv",source)
+        end
+      end)
+    elseif self:is("RSG") or self:is('QR') then
+      local isAdded = self.core.Functions.AddItem(item,nil)
+      if isAdded then
+        return eprint(item .. " < item does not exist in the core configuration")
+      end
+      self.core.Functions.CreateUseableItem(item,function(source,data)
+        callback(source,{metadata = data.info})
+        if closeAfterUsed then
+          TriggerClientEvent(string.lower(self:get()).."-inventory:client:closeinv",source)
+        end
+      end)
+    end
+  end)
 end
 
 ---@param source integer source ID
