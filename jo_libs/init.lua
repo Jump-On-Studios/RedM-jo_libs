@@ -4,6 +4,7 @@ end
 
 local resourceName = GetCurrentResourceName()
 local jo_libs = 'jo_libs'
+local modules = {'table','print','file'}
 
 local alias = {
   framework = "framework-bridge",
@@ -11,6 +12,20 @@ local alias = {
   notif = "notification",
   pedTexture = 'ped-texture'
 }
+local function getAlias(module)
+  for alias,name in pairs (alias) do
+    if name == module then
+      return alias
+    end
+  end
+  return module
+end
+
+--list modules required
+for i = 1, GetNumResourceMetadata(resourceName, 'jo_lib') do
+  modules[#modules+1] = getAlias(GetResourceMetadata(resourceName, 'jo_lib', i - 1))
+end
+
 
 
 if jo and jo.name == jo_libs then
@@ -34,40 +49,66 @@ function UnJson(value)
 end
 
 function IsModuleLoaded(name)
-  return rawget(jo,name)
+  local isLoaded = rawget(jo,name) and true or false
+  return isLoaded
 end
+
+local function noFunction() end
 
 local LoadResourceFile = LoadResourceFile
 local context = IsDuplicityVersion() and 'server' or 'client'
 
-local function loadModule(self,module)
-  local dir = ('modules/%s'):format(module)
-  local file = LoadResourceFile(jo_libs, ('%s/%s.lua'):format(dir, context))
-  local sharedFile = LoadResourceFile(jo_libs, ('%s/shared.lua'):format(dir))
+local function doesScopedFilesRequired(name)
+  if name == "table" then return true end
+  return resourceName ~= "jo_libs" or table.find(modules,function(_name) return _name == name end)
+end
 
-  if sharedFile then
-    file = (file and ('%s\n%s'):format(sharedFile, file)) or sharedFile
+local function loadModule(self,module)
+  local folder = alias[module] or module
+  local dir = ('modules/%s'):format(folder)
+  local file = ""
+
+  --load files in the right order
+  for _,fileName in ipairs ({'shared','context'}) do
+    --convert the name if it's context
+    fileName = fileName == "context" and context or fileName
+    --load scoped files
+    if doesScopedFilesRequired(module) then
+      local tempFile = LoadResourceFile(jo_libs, ('%s/%s.lua'):format(dir, fileName))
+      if tempFile then
+        file = file .. tempFile
+      end
+    end
+    --load global files inside jo_libs
+    if resourceName == "jo_libs" then
+      fileName = "g_"..fileName
+      local tempFile = LoadResourceFile(jo_libs, ('%s/%s.lua'):format(dir, fileName))
+      if tempFile then
+        file = file .. tempFile
+      end
+    end
   end
 
   if file then
-    local fn, err = load(file, ('@@jo_libs/modules/%s/%s.lua'):format(module, context))
+    local fn, err = load(file, ('@@jo_libs/%s/%s.lua'):format(dir, context))
 
     if not fn or err then
       return error(('\n^1Error importing module (%s): %s^0'):format(dir, err), 3)
     end
 
     local result = fn()
-    self[module] = result or noFunction
-    return self[module]
+    self[module] = self[module] or result or noFunction
+  else
+    self[module] = noFunction
   end
-end
 
-function noFunction() end
+  return self[module]
+end
 
 local function call(self,index,...)
   if not index then return noFunction end
   if type(index) ~= "string" then return noFunction() end
-  if alias[index] then index = alias[index] end
+  index = getAlias(index)
 
   local module = rawget(self,index)
 
@@ -104,14 +145,23 @@ end
 -------------
 -- DEFAULT MODULES
 -------------
-loadModule(jo,'print')
-loadModule(jo,'file')
 
 function jo.require(name)
+  name = getAlias(name)
   if IsModuleLoaded(name) then return end
   local module = loadModule(jo,name)
   if type(module) == 'function' then pcall(module) end
 end
+jo.require('table')
+jo.require('print')
+jo.require('file')
+
+if resourceName == "jo_libs" then
+  AddEventHandler('jo_libs:loadGlobalModule', function (module)
+    jo.require(module)
+  end)
+end
+
 
 -------------
 -- EXPORTS (prevent call before initializes)
@@ -123,14 +173,13 @@ local function CreateExport(name,cb)
   end)
 end
 
-for i = 1, GetNumResourceMetadata(resourceName, 'jo_lib') do
-  local name = GetResourceMetadata(resourceName, 'jo_lib', i - 1)
+for _,name in ipairs (modules) do
   if name == "hook" then
     CreateExport('registerAction',jo.hook.registerAction)
     CreateExport('RegisterAction',jo.hook.RegisterAction)
     CreateExport('registerFilter',jo.hook.registerFilter)
     CreateExport('RegisterFilter',jo.hook.RegisterFilter)
-  elseif name == "version-checker" and context == "server" then
+  elseif name == "versionChecker" and context == "server" then
     CreateExport('GetScriptVersion', jo.versionChecker.GetScriptVersion)
     CreateExport('StopAddon', jo.versionChecker.stopAddon)
   end
@@ -140,8 +189,7 @@ end
 -- LOAD REQUIRED MODULES
 -------------
 
-for i = 1, GetNumResourceMetadata(resourceName, 'jo_lib') do
-  local name = GetResourceMetadata(resourceName, 'jo_lib', i - 1)
+for _,name in ipairs (modules) do
   jo.require(name)
 end
 jo.libLoaded = true

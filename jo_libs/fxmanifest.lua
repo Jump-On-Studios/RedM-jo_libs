@@ -1,6 +1,6 @@
 author "JUMP ON studios : shop.jumpon-studios.com"
 documentation 'https://docs.jumpon-studios.com'
-version '1.7.2'
+version '1.8.0'
 package_id '1'
 
 fx_version "adamant"
@@ -36,5 +36,6 @@ shared_scripts {
 }
 
 jo_libs {
+	'framework-bridge',
 	'version-checker'
 }
