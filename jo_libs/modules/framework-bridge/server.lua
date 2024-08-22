@@ -4,6 +4,15 @@ if not table.merge then
   jo.require('table')
 end
 
+local mainResourceFramework = {
+  VORP = {'vorp_core'},
+  RedEM = {'redem'},
+  RedEM2023 = {'!redem','redem_roleplay'},
+  QBR = {'qbr-core'},
+  RSG = {'rsg-core'},
+  QR = {'qr-core'},
+}
+
 -------------
 -- VARIABLES
 -------------
@@ -418,18 +427,33 @@ function FrameworkClass:get()
 
   if OWFramework.get then
     self.name = OWFramework.get()
-  elseif GetResourceState('vorp_core') == "started" then
-    self.name = "VORP"
-  elseif GetResourceState('redem') == "started" then
-    self.name = "RedEM"
-  elseif GetResourceState('redem_roleplay') == "started" then
-    self.name = "RedEM2023"
-  elseif GetResourceState('qbr-core') == "started" then
-    self.name = "QBR"
-  elseif GetResourceState('rsg-core') == "started" then
-    self.name = "RSG"
-  elseif GetResourceState('qr-core') == "started" then
-    self.name = "QR"
+  else
+    for framework,resources in pairs (mainResourceFramework) do
+      local rightFramework = true
+      for _,resource in pairs (resources) do
+        if resource:sub(1,1) == "!" then
+          if GetResourceState(resource) ~= "missing" then
+            rightFramework = false
+            break
+          end
+        else
+          if GetResourceState(resource) == "missing" then
+            rightFramework = false
+            break
+          end
+        end
+      end
+      if rightFramework then
+        self.name = framework
+        for _,resource in pairs (resources) do
+          while GetResourceState(resource) ~= "started" do
+            bprint('Waiting start of '..framework)
+            Wait(1000)
+          end
+        end
+        return self.name
+      end
+    end
   end
   return self.name
 end
