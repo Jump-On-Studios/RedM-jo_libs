@@ -1,4 +1,4 @@
-print('================> LOAD GLOBAL')
+print('================> LOAD GLOBAL',"framework")
 
 RegisterNetEvent('jo_libs:client:applySkinAndClothes', function(ped,skin,clothes)
   local source = source

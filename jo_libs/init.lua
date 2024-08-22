@@ -52,7 +52,7 @@ function UnJson(value)
 end
 
 function IsModuleLoaded(name)
-  local isLoaded = rawget(jo,name) and true or false
+  local isLoaded = (rawget(jo,name) or jo.moduleInLoading[name]) and true or false
   return isLoaded
 end
 
@@ -66,6 +66,8 @@ local function loadModule(self,module,needScoped)
   local folder = alias[module] or module
   local dir = ('modules/%s'):format(folder)
   local file = ""
+
+  jo.moduleInLoading[module] = true
 
   if resourceName ~= "jo_libs" then
     exports.jo_libs:loadGlobalModule(module)
@@ -100,10 +102,12 @@ local function loadModule(self,module,needScoped)
     end
 
     local result = fn()
-    self[module] = self[module] or result or noFunction
+    self[module] = result or self[module] or noFunction()
   else
     self[module] = noFunction
   end
+
+  jo.moduleInLoading[module] = nil
 
   return self[module]
 end
@@ -127,7 +131,8 @@ local jo = setmetatable ({
   libLoaded = false,
   name = jo_libs,
   context = context,
-  cache = {}
+  cache = {},
+  moduleInLoading = {}
 }, {
   __index = call,
   __call = noFunction
