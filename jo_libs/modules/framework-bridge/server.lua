@@ -9,46 +9,46 @@ end
 -------------
 local SkinCategoryBridge = {
   VORP = {
-    Hat = "hats",
-    Mask = "masks",
-    Shirt = "shirts_full",
-    Suspender = "suspenders",
-    Vest = "vests",
-    Coat = "coats",
-    Poncho = "ponchos",
-    Cloak = "cloaks",
-    Glove = "gloves",
-    RingRh = "jewelry_rings_right",
-    RingLh = "jewelry_rings_left",
-    Bracelet = "jewelry_bracelets",
-    Gunbelt = "gunbelts",
-    Belt = "belts",
-    Buckle = "belt_buckles",
-    Holster = "holsters_left",
-    Pant = "pants",
-    Chap = "chaps",
-    Spurs = "boot_accessories",
-    CoatClosed = "coats_closed",
+    hat = "hats",
+    mask = "masks",
+    shirt = "shirts_full",
+    suspender = "suspenders",
+    vest = "vests",
+    coat = "coats",
+    poncho = "ponchos",
+    cloak = "cloaks",
+    glove = "gloves",
+    ringrh = "jewelry_rings_right",
+    ringlh = "jewelry_rings_left",
+    bracelet = "jewelry_bracelets",
+    gunbelt = "gunbelts",
+    belt = "belts",
+    buckle = "belt_buckles",
+    holster = "holsters_left",
+    pant = "pants",
+    chap = "chaps",
+    spurs = "boot_accessories",
+    coatclosed = "coats_closed",
     --Ties = "neckties",
-    NeckTies = "neckties",
-    Skirt = "skirts",
-    Boots = "boots",
-    EyeWear = "eyewear",
-    NeckWear = "neckwear",
-    Spats = "spats",
-    GunbeltAccs = "gunbelt_accs",
-    Gauntlets = "gauntlets",
-    Loadouts = "loadouts",
-    Accessories = "accessories",
-    Satchels = "satchels",
+    neckties = "neckties",
+    skirt = "skirts",
+    boots = "boots",
+    eyewear = "eyewear",
+    neckwear = "neckwear",
+    spats = "spats",
+    gunbeltaccs = "gunbelt_accs",
+    gauntlets = "gauntlets",
+    loadouts = "loadouts",
+    accessories = "accessories",
+    satchels = "satchels",
     dresses = "dresses",
-    Dress = "dresses",
+    dress = "dresses",
     armor = "armor",
-    Badge = "badges",
+    badge = "badges",
     bow = "hair_accessories",
-    Hair = "hair",
-    Beard = "beards_complete",
-    Teeth = "teeth",
+    hair = "hair",
+    beard = "beards_complete",
+    teeth = "teeth",
   },
   RSG = {
     beard = "beards_complete"
@@ -857,12 +857,7 @@ end
 ---@param category string the category name
 local function standardizeSkinKey(category)
   local framName = jo.framework:get()
-  for catFram,catStandard in pairs(SkinCategoryBridge[framName] or {}) do
-    if catFram == category then
-      return catStandard
-    end
-  end
-  return category
+  return SkinCategoryBridge[framName]?[category:lower()] or category
 end
 
 --- A function to standardize a object of categories
@@ -925,6 +920,17 @@ local function standardizeSkinKeys(object)
   end
   objectStandardized.overlays = table.merge(objectStandardized.overlays,overlays)
 
+   if type(objectStandardized.hair) ~= "table" then
+    objectStandardized.hair = {
+      hash = objectStandardized.hair
+    }
+  end
+  if type(objectStandardized.beards_complete) ~= "table" then
+    objectStandardized.beards_complete = {
+      hash = objectStandardized.beards_complete
+    }
+  end
+
   return objectStandardized
 end
 
@@ -952,7 +958,8 @@ end
 ---@return table
 local function formatClothesData(data)
   if type(data) == "table" then
-    if not data.hash then return nil end --for RSG
+    if data.comp then data.hash = data.comp end
+    if not data.hash or data.hash == 0 then return nil end
     if type(data.hash) == "table" then --for VORP
       return data.hash
     end
@@ -977,6 +984,18 @@ local function cleanClothesTable(clothesList)
     list[cat] = formatClothesData(hash)
   end
   return list
+end
+
+local function standardizeClothesKeys(object)
+  local objectStandardized = {}
+
+  for catFram,data in pairs (object or {}) do
+    objectStandardized[standardizeSkinKey(catFram)] = data
+  end
+
+  objectStandardized = cleanClothesTable(objectStandardized)
+
+  return objectStandardized
 end
 
 function FrameworkClass:getUserClothes(source)
@@ -1017,9 +1036,7 @@ function FrameworkClass:getUserClothes(source)
   if not clothes then return {} end
   clothes = UnJson(clothes)
 
-  local clothesStandardized = standardizeSkinKeys(clothes)
-
-  clothesStandardized = cleanClothesTable(clothesStandardized)
+  local clothesStandardized = standardizeClothesKeys(clothes)
   return clothesStandardized
 end
 
@@ -1119,17 +1136,6 @@ function FrameworkClass:getUserSkin(source)
 
   local skinStandardized = standardizeSkinKeys(skin)
 
-  if type(skinStandardized.hair) ~= "table" then
-    skinStandardized.hair = {
-      hash = skinStandardized.hair
-    }
-  end
-  if type(skinStandardized.beards_complete) ~= "table" then
-    skinStandardized.beards_complete = {
-      hash = skinStandardized.beards_complete
-    }
-  end
-
   if not skinStandardized.teeth then
     local clothes = self:getUserClothes(source)
     if clothes.teeth then
@@ -1210,5 +1216,6 @@ function FrameworkClass:example()
 end
 
 jo.framework = FrameworkClass:new()
-return jo.framework
+
+-- return jo.framework
 
