@@ -5,6 +5,9 @@ end
 local resourceName = GetCurrentResourceName()
 local jo_libs = 'jo_libs'
 local modules = {'table','print','file'}
+local function noFunction() end
+local LoadResourceFile = LoadResourceFile
+local context = IsDuplicityVersion() and 'server' or 'client'
 
 local alias = {
   framework = "framework-bridge",
@@ -53,27 +56,27 @@ function IsModuleLoaded(name)
   return isLoaded
 end
 
-local function noFunction() end
-
-local LoadResourceFile = LoadResourceFile
-local context = IsDuplicityVersion() and 'server' or 'client'
-
 local function doesScopedFilesRequired(name)
   if name == "table" then return true end
   return resourceName ~= "jo_libs" or table.find(modules,function(_name) return _name == name end)
 end
 
-local function loadModule(self,module)
+local function loadModule(self,module,needScoped)
+  if needScoped == nil then needScoped = true end
   local folder = alias[module] or module
   local dir = ('modules/%s'):format(folder)
   local file = ""
+
+  if resourceName ~= "jo_libs" then
+    exports.jo_libs:loadGlobalModule(module)
+  end
 
   --load files in the right order
   for _,fileName in ipairs ({'shared','context'}) do
     --convert the name if it's context
     fileName = fileName == "context" and context or fileName
     --load scoped files
-    if doesScopedFilesRequired(module) then
+    if needScoped or doesScopedFilesRequired(module) then
       local tempFile = LoadResourceFile(jo_libs, ('%s/%s.lua'):format(dir, fileName))
       if tempFile then
         file = file .. tempFile
@@ -100,10 +103,6 @@ local function loadModule(self,module)
     self[module] = self[module] or result or noFunction
   else
     self[module] = noFunction
-  end
-
-  if resourceName ~= "jo_libs" then
-    TriggerEvent("jo_libs:loadGlobalModule",module)
   end
 
   return self[module]
@@ -150,16 +149,18 @@ end
 -- DEFAULT MODULES
 -------------
 
-function jo.require(name)
+function jo.require(name,needScoped)
+  needScoped = needScoped and true
   name = getAlias(name)
   if IsModuleLoaded(name) then return end
-  local module = loadModule(jo,name)
+  local module = loadModule(jo,name,needScoped)
   if type(module) == 'function' then pcall(module) end
 end
 
 if resourceName == "jo_libs" then
-  AddEventHandler('jo_libs:loadGlobalModule', function (module)
-    jo.require(module)
+  exports('loadGlobalModule', function (module)
+    jo.require(module,false)
+    return true
   end)
 end
 
