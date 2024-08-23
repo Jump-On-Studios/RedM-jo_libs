@@ -1,15 +1,9 @@
 jo.light = {}
 local lightActives = {}
 
-if not table.copy then
-  jo.require('table')
-end
-if not math.lerp then
-  jo.require('math')
-end
-if not IsModuleLoaded('timeout') then
-  jo.require('timeout')
-end
+jo.require('table')
+jo.require('math')
+jo.require('timeout')
 
 ---@class Light : table Light class
 local LightClass = {

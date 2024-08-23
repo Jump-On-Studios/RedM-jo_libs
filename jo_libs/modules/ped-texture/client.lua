@@ -1,14 +1,8 @@
 jo.pedTexture = {}
 
-if not IsModuleLoaded('utils') then
-  jo.require('utils')
-end
-if not IsModuleLoaded('table') then
-  jo.require('table')
-end
-if not IsModuleLoaded('timeout') then
-  jo.require('timeout')
-end
+jo.require('utils')
+jo.require('table')
+jo.require('timeout')
 
 local pedsTextures = {}
 

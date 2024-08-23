@@ -1,5 +1,5 @@
 jo.me = PlayerPedId()
-jo.meCoords = GetEntityCoords(me)
+jo.meCoords = GetEntityCoords(jo.me)
 jo.mePlayerId = PlayerId()
 jo.meServerId = GetPlayerServerId(jo.mePlayerId)
 jo.meIsMale =  IsPedMale(PlayerPedId())

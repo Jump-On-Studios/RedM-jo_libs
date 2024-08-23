@@ -1,16 +1,8 @@
 jo.clothes = {}
 
-if not table.isEmpty then
-  jo.require('table')
-end
-
-if not not IsModuleLoaded('timeout') then
-  jo.require('timeout')
-end
-
-if not DataView then
-  jo.require('dataview')
-end
+jo.require('table')
+jo.require('timeout')
+jo.require('dataview')
 
 -------------
 -- Variables

@@ -1,14 +1,14 @@
-print('================> LOAD GLOBAL',"framework")
-
-RegisterNetEvent('jo_libs:client:applySkinAndClothes', function(ped,skin,clothes)
+RegisterNetEvent('jo_libs:server:applySkinAndClothes', function(ped,skin,clothes)
   local source = source
+  local ped = ped
   local skin = standardizeSkinKeys(skin)
-  local standardizeClothes = standardizeClothesKeys(clothes)
+  local clothes = standardizeClothesKeys(clothes)
 
-  if standardizeClothes.teeth then
-    skin.teeth = type(standardizeClothes.teeth) == "table" and standardizeClothes.teeth.hash or standardizeClothes.teeth
-    standardizeClothes.teeth = nil
+  if clothes.teeth then
+    skin.teeth = type(clothes.teeth) == "table" and clothes.teeth.hash or clothes.teeth
+    clothes.teeth = nil
   end
 
-  TriggerEvent("print",standardizeClothes,skin)
+  TriggerEvent("print",clothes,skin)
+  TriggerClientEvent("jo_libs:client:applySkinAndClothes",source,ped,clothes,skin)
 end)

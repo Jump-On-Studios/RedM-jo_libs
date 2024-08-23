@@ -1,9 +1,7 @@
 local delays = {}
 jo.timeout = {}
 
-if not IsModuleLoaded('table') then
-  jo.require('table')
-end
+jo.require('table')
 
 ---@class TimeoutClass : table Timeout class
 local TimeoutClass = {
@@ -90,5 +88,3 @@ function jo.timeout.delay(id,msec,cb,...)
   end
   delays[id] = jo.timeout.set(msec, cb, ...)
 end
-
-return jo.timeout

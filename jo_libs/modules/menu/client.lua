@@ -3,14 +3,16 @@ jo.menu.exports = {}
 local resourceName = GetCurrentResourceName()
 local resourceNUI = resourceName
 
-if not table.copy then
-  jo.require('table')
-end
+jo.require('table')
+jo.require('timeout')
 
 CreateThread(function()
   Wait(1000)
   if resourceNUI ~= resourceName then return end
   if not GetResourceMetadata(resourceName, 'ui_page') then
+    eprint('WARNING ! NUI page is not defined. To use JO Menu, add ui_page "nui://jo_libs/nui/menu/index.html" inside your fxmanifest.lua')
+    eprint('WARNING ! NUI page is not defined. To use JO Menu, add ui_page "nui://jo_libs/nui/menu/index.html" inside your fxmanifest.lua')
+    eprint('WARNING ! NUI page is not defined. To use JO Menu, add ui_page "nui://jo_libs/nui/menu/index.html" inside your fxmanifest.lua')
     eprint('WARNING ! NUI page is not defined. To use JO Menu, add ui_page "nui://jo_libs/nui/menu/index.html" inside your fxmanifest.lua')
     eprint('WARNING ! NUI page is not defined. To use JO Menu, add ui_page "nui://jo_libs/nui/menu/index.html" inside your fxmanifest.lua')
     eprint('WARNING ! NUI page is not defined. To use JO Menu, add ui_page "nui://jo_libs/nui/menu/index.html" inside your fxmanifest.lua')
@@ -49,12 +51,7 @@ local disabledKeys = {
   `INPUT_PREV_WEAPON`,
 }
 
-if not IsModuleLoaded('table') then
-  jo.require('table')
-end
-if not IsModuleLoaded('timeout') then
-  jo.require('timeout')
-end
+
 
 jo.file.load('menu.nui')
 

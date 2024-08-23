@@ -8,6 +8,8 @@ local modules = {'table','print','file'}
 local function noFunction() end
 local LoadResourceFile = LoadResourceFile
 local context = IsDuplicityVersion() and 'server' or 'client'
+local moduleInLoading = {}
+local moduleLocal = {}
 
 local alias = {
   framework = "framework-bridge",
@@ -16,9 +18,11 @@ local alias = {
   pedTexture = 'ped-texture'
 }
 local function getAlias(module)
-  for alias,name in pairs (alias) do
+  if module == "meCoords" or module == "mePlayerId" or module == "meServerId" then return "me" end
+  if alias[module] then return module end
+  for alia,name in pairs (alias) do
     if name == module then
-      return alias
+      return alia
     end
   end
   return module
@@ -51,9 +55,23 @@ function UnJson(value)
   return value
 end
 
-function IsModuleLoaded(name)
-  local isLoaded = (rawget(jo,name) or jo.moduleInLoading[name]) and true or false
-  return isLoaded
+local function isModuleLoaded(name,needLocal)
+  if needLocal and not moduleLocal[name] then return false end
+  if moduleInLoading[name] then return true end
+  if rawget(jo,name) then return true end
+  return false
+end
+
+local function loadGlobalModule(module)
+  if resourceName == "jo_libs" then return end
+  while GetResourceState('jo_libs') ~= "started" do Wait(0) end
+  exports.jo_libs:loadGlobalModule(module)
+  -- local waiter = promise.new()
+  -- TriggerEvent("jo_libs:loadGlobalModule",module, function()
+  --   print(name,'GLOBAL LOADED')
+  --   waiter:resolve(true)
+  -- end)
+  -- Citizen.Await(waiter)
 end
 
 local function doesScopedFilesRequired(name)
@@ -61,24 +79,29 @@ local function doesScopedFilesRequired(name)
   return resourceName ~= "jo_libs" or table.find(modules,function(_name) return _name == name end)
 end
 
-local function loadModule(self,module,needScoped)
-  if needScoped == nil then needScoped = true end
-  local folder = alias[module] or module
+local function loadModule(self,name,needLocal)
+  if needLocal == nil then needLocal = true end
+  local folder = alias[name] or name
   local dir = ('modules/%s'):format(folder)
   local file = ""
 
-  jo.moduleInLoading[module] = true
-
-  if resourceName ~= "jo_libs" then
-    exports.jo_libs:loadGlobalModule(module)
+  moduleInLoading[name] = true
+  if needLocal then
+    moduleLocal[name] = true
   end
+
+  loadGlobalModule(name)
+
+
+
+  self[name] = noFunction
 
   --load files in the right order
   for _,fileName in ipairs ({'shared','context'}) do
     --convert the name if it's context
     fileName = fileName == "context" and context or fileName
     --load scoped files
-    if needScoped or doesScopedFilesRequired(module) then
+    if needLocal or doesScopedFilesRequired(name) then
       local tempFile = LoadResourceFile(jo_libs, ('%s/%s.lua'):format(dir, fileName))
       if tempFile then
         file = file .. tempFile
@@ -101,28 +124,32 @@ local function loadModule(self,module,needScoped)
       return error(('\n^1Error importing module (%s): %s^0'):format(dir, err), 3)
     end
 
+    print("1",name,fn,#file)
     local result = fn()
-    self[module] = result or self[module] or noFunction()
-  else
-    self[module] = noFunction
+    print("2",name,result)
+    self[name] = result or self[name] or noFunction
+    print("3",name,self[name])
   end
 
-  jo.moduleInLoading[module] = nil
+  moduleInLoading[name] = nil
+  print(name,"LOADED",type(self[name]))
 
-  return self[module]
+  return self[name]
 end
 
-local function call(self,index,...)
-  if not index then return noFunction end
-  if type(index) ~= "string" then return noFunction() end
-  index = getAlias(index)
+local function call(self,name,...)
+  if not name then return noFunction end
+  if type(name) ~= "string" then return noFunction() end
+  name = getAlias(name)
 
-  local module = rawget(self,index)
+  local module = rawget(jo,name)
 
   if not module then
-    self[index] = noFunction
-    module = loadModule(self,index)
+    -- self[name] = noFunction
+    module = loadModule(self,name)
   end
+
+  while moduleInLoading[name] do Wait(0) end
 
   return module
 end
@@ -131,8 +158,7 @@ local jo = setmetatable ({
   libLoaded = false,
   name = jo_libs,
   context = context,
-  cache = {},
-  moduleInLoading = {}
+  cache = {}
 }, {
   __index = call,
   __call = noFunction
@@ -154,17 +180,22 @@ end
 -- DEFAULT MODULES
 -------------
 
-function jo.require(name,needScoped)
-  needScoped = needScoped and true
+function jo.require(name,needLocal)
+  if needLocal == nil then needLocal = true end
   name = getAlias(name)
-  if IsModuleLoaded(name) then return end
-  local module = loadModule(jo,name,needScoped)
+  if isModuleLoaded(name,needLocal) then return end
+  local module = loadModule(jo,name,needLocal)
   if type(module) == 'function' then pcall(module) end
 end
 
 if resourceName == "jo_libs" then
-  exports('loadGlobalModule', function (module)
-    jo.require(module,false)
+  exports('loadGlobalModule', function (name)
+    jo.require(name,false)
+    return true
+  end)
+  AddEventHandler('jo_libs:loadGlobalModule', function (name,cb)
+    jo.require(name,false)
+    cb()
     return true
   end)
 end
@@ -181,7 +212,7 @@ local function CreateExport(name,cb)
 end
 
 --Sort module by priority
-local priorityModules = {table=1,print=2,file=3,hook=4}
+local priorityModules = {table=1,print=2,file=3,hook=4,framework=5}
 table.sort(modules, function(a,b)
   local prioA = priorityModules[a]
   local prioB = priorityModules[b]

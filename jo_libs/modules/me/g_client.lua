@@ -6,14 +6,14 @@ jo.meIsMale =  IsPedMale(PlayerPedId())
 local timer = 1000
 local timeout
 
-if not IsModuleLoaded('timeout') then
-  jo.require('timeout')
-end
+jo.require('timeout')
+print('jo.timeout',jo.timeout)
 
 local function updateMe()
   jo.forceUpdateMe()
   TriggerEvent("jo_me:updateMe",jo.me,jo.meCoords,jo.mePlayerId,jo.meServerId,jo.meIsMale)
 end
+print("========>",jo.timeout.loop)
 timeout = jo.timeout.loop(timer,updateMe)
 
 ---@param value integer the new interval to update me values
