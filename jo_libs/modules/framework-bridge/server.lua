@@ -18,46 +18,46 @@ local mainResourceFramework = {
 -------------
 local SkinCategoryBridge = {
   VORP = {
-    hat = "hats",
-    mask = "masks",
-    shirt = "shirts_full",
-    suspender = "suspenders",
-    vest = "vests",
-    coat = "coats",
-    poncho = "ponchos",
-    cloak = "cloaks",
-    glove = "gloves",
-    ringrh = "jewelry_rings_right",
-    ringlh = "jewelry_rings_left",
-    bracelet = "jewelry_bracelets",
-    gunbelt = "gunbelts",
-    belt = "belts",
-    buckle = "belt_buckles",
-    holster = "holsters_left",
-    pant = "pants",
-    chap = "chaps",
-    spurs = "boot_accessories",
-    coatclosed = "coats_closed",
+    Hat = "hats",
+    Mask = "masks",
+    Shirt = "shirts_full",
+    Suspender = "suspenders",
+    Vest = "vests",
+    Coat = "coats",
+    Poncho = "ponchos",
+    Cloak = "cloaks",
+    Glove = "gloves",
+    RingRh = "jewelry_rings_right",
+    RingLh = "jewelry_rings_left",
+    Bracelet = "jewelry_bracelets",
+    Gunbelt = "gunbelts",
+    Belt = "belts",
+    Buckle = "belt_buckles",
+    Holster = "holsters_left",
+    Pant = "pants",
+    Chap = "chaps",
+    Spurs = "boot_accessories",
+    CoatClosed = "coats_closed",
     --Ties = "neckties",
-    neckties = "neckties",
-    skirt = "skirts",
-    boots = "boots",
-    eyewear = "eyewear",
-    neckwear = "neckwear",
-    spats = "spats",
-    gunbeltaccs = "gunbelt_accs",
-    gauntlets = "gauntlets",
-    loadouts = "loadouts",
-    accessories = "accessories",
-    satchels = "satchels",
+    NeckTies = "neckties",
+    Skirt = "skirts",
+    Boots = "boots",
+    EyeWear = "eyewear",
+    NeckWear = "neckwear",
+    Spats = "spats",
+    GunbeltAccs = "gunbelt_accs",
+    Gauntlets = "gauntlets",
+    Loadouts = "loadouts",
+    Accessories = "accessories",
+    Satchels = "satchels",
     dresses = "dresses",
-    dress = "dresses",
+    Dress = "dresses",
     armor = "armor",
-    badge = "badges",
+    Badge = "badges",
     bow = "hair_accessories",
-    hair = "hair",
-    beard = "beards_complete",
-    teeth = "teeth",
+    Hair = "hair",
+    Beard = "beards_complete",
+    Teeth = "teeth",
   },
   RSG = {
     beard = "beards_complete"
@@ -881,7 +881,10 @@ end
 ---@param category string the category name
 local function standardizeSkinKey(category)
   local framName = jo.framework:get()
-  return SkinCategoryBridge[framName]?[category:lower()] or category
+  if not SkinCategoryBridge[framName] then return category end
+  if SkinCategoryBridge[framName][category] then return SkinCategoryBridge[framName][category] end
+  local _,cat = table.find(SkinCategoryBridge[framName], function(cat,framCat) return framCat:lower() == category:lower() end)
+  return cat or category
 end
 
 --- A function to standardize a object of categories
@@ -969,21 +972,12 @@ local function revertSkinKey(category)
   return category
 end
 
---- A function to revert a object of categories
-local function revertSkinKeys(object)
-  local objectStandardized = {}
-  for category,data in pairs (object) do
-    objectStandardized[revertSkinKey(category)] = data
-  end
-  return objectStandardized
-end
-
 ---@param data any the clothes data
 ---@return table
 local function formatClothesData(data)
   if type(data) == "table" then
-    if data.comp then data.hash = data.comp end
-    if not data.hash or data.hash == 0 then return nil end
+    if data.comp then data.hash = data.comp data.comp = nil end
+    if not data.hash or data.hash == 0 or data.hash == -1 then return nil end
     if type(data.hash) == "table" then --for VORP
       return data.hash
     end
@@ -996,6 +990,15 @@ local function formatClothesData(data)
   return {
     hash = data
   }
+end
+
+--- A function to revert a object of categories
+local function revertSkinKeys(object)
+  local objectStandardized = {}
+  for category,data in pairs (object) do
+    objectStandardized[revertSkinKey(category)] = table.clone(formatClothesData(data))
+  end
+  return objectStandardized
 end
 
 ---@param clothesList table
@@ -1062,6 +1065,7 @@ function FrameworkClass:getUserClothes(source)
   clothes = UnJson(clothes)
 
   local clothesStandardized = standardizeClothesKeys(clothes)
+
   return clothesStandardized
 end
 
@@ -1079,24 +1083,30 @@ function FrameworkClass:updateUserClothes(source,_clothes,value)
   if self:is('VORP') then
     local newClothes = {}
     for category,value in pairs (clothes) do
-      newClothes[category] = {
-        comp = value
-      }
+      newClothes[category] = value
+      newClothes[category].comp = value?.hash or 0
     end
     local user = User:get(source)
     local tints = UnJson(user.data.comptTints)
     for category,value in pairs (clothes) do
-      if type(value) == "table" then
-        tints[category] = {}
-        if value.palette and value.palette ~= 0 then
-          tints[category][value.hash] = {
-            tint0 = value.tint0 or 0,
-            tint1 = value.tint1 or 0,
-            tint2 = value.tint2 or 0,
-            palette = value.palette or 0,
-          }
+      if clothes.hash ~= 0 then
+        if type(value) == "table" then
+          tints[category] = {}
+          if value.palette and value.palette ~= 0 then
+            tints[category][value.hash] = {
+              tint0 = value.tint0 or 0,
+              tint1 = value.tint1 or 0,
+              tint2 = value.tint2 or 0,
+              palette = value.palette or 0,
+            }
+          end
+          value = value.hash
         end
-        value = value.hash
+      end
+    end
+    for _,value in pairs (tints) do
+      if table.count(value) == 0 then
+        value = nil
       end
     end
     TriggerClientEvent("vorpcharacter:updateCache",source,false,newClothes)
