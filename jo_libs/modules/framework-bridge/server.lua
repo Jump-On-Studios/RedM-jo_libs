@@ -947,12 +947,12 @@ local function standardizeSkinKeys(object)
   end
   objectStandardized.overlays = table.merge(objectStandardized.overlays,overlays)
 
-   if type(objectStandardized.hair) ~= "table" then
+   if objectStandardized.hair and type(objectStandardized.hair) ~= "table" then
     objectStandardized.hair = {
       hash = objectStandardized.hair
     }
   end
-  if type(objectStandardized.beards_complete) ~= "table" then
+  if objectStandardized.beards_complete and type(objectStandardized.beards_complete) ~= "table" then
     objectStandardized.beards_complete = {
       hash = objectStandardized.beards_complete
     }
