@@ -328,8 +328,9 @@ function jo.clothes.apply(ped, category, data)
         AddCachedClothes(ped, categoryHash, data.hash, GetHashFromString(data.palette), data.tint0, data.tint1,
           data.tint2)
       end
-      local state = Entity(ped).state['wearableState:' .. category]
+      local state = data.state or Entity(ped).state['wearableState:' .. category]
       if state then
+        Entity(ped).state['wearableState:' .. category] = state
         UpdateShopItemWearableState(ped, data.hash, state)
       end
     end
