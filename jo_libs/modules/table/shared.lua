@@ -85,10 +85,11 @@ end
 ---@param t table the table to search in
 ---@param func function the function to test the value
 ---@return any value the found table
+---@return any value the key of the value
 table.find = function(t, func)
   for i, v in pairs(t or {}) do
     if func(v, i, t) then
-        return v
+        return v,i
     end
   end
   return false
