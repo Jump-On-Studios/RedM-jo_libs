@@ -996,6 +996,14 @@ end
 local function revertSkinKeys(object)
   local objectStandardized = {}
   for category,data in pairs (object) do
+    objectStandardized[revertSkinKey(category)] = type(data) == "table" and table.copy(data) or data
+  end
+  return objectStandardized
+end
+
+local function revertClothesKeys(object)
+  local objectStandardized = {}
+  for category,data in pairs (object) do
     objectStandardized[revertSkinKey(category)] = table.copy(formatClothesData(data) or {hash = 0})
   end
   return objectStandardized
@@ -1076,7 +1084,7 @@ function FrameworkClass:updateUserClothes(source,_clothes,value)
   if value then
     _clothes = {[_clothes] = formatClothesData(value)}
   end
-  local clothes = revertSkinKeys(_clothes)
+  local clothes = revertClothesKeys(_clothes)
   if OWFramework.updateUserClothes then
     return OWFramework.updateUserClothes(source,category,value)
   end
