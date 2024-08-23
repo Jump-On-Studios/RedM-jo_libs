@@ -124,15 +124,11 @@ local function loadModule(self,name,needLocal)
       return error(('\n^1Error importing module (%s): %s^0'):format(dir, err), 3)
     end
 
-    print("1",name,fn,#file)
     local result = fn()
-    print("2",name,result)
     self[name] = result or self[name] or noFunction
-    print("3",name,self[name])
   end
 
   moduleInLoading[name] = nil
-  print(name,"LOADED",type(self[name]))
 
   return self[name]
 end
