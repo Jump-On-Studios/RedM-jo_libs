@@ -133,6 +133,7 @@ local function UpdateShopItemWearableState(ped, hash, state)
   return Citizen.InvokeNative(0x66B957AAC2EAAEAB, ped, hash, state, 0, true, 1)
 end
 local function WaitRefreshPed(ped) while not IsPedReadyToRender(ped) do Wait(0) end end
+jo.clothes.waitPedLoaded = WaitRefreshPed
 
 ---@return string categoryName
 local function getCategoryName(category)

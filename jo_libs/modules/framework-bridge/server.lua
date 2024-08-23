@@ -1021,6 +1021,7 @@ local function standardizeClothesKeys(object)
 
   return objectStandardized
 end
+FrameworkClass.standardizeClothesKeys = standardizeClothesKeys
 
 function FrameworkClass:getUserClothes(source)
   local clothes = {}
@@ -1082,9 +1083,7 @@ function FrameworkClass:updateUserClothes(source,_clothes,value)
         comp = value
       }
     end
-    TriggerClientEvent("vorpcharacter:updateCache",source,false,newClothes)
     local user = User:get(source)
-    if not user.data.updateCompTints then return end
     local tints = UnJson(user.data.comptTints)
     for category,value in pairs (clothes) do
       if type(value) == "table" then
@@ -1097,8 +1096,10 @@ function FrameworkClass:updateUserClothes(source,_clothes,value)
             palette = value.palette or 0,
           }
         end
+        value = value.hash
       end
     end
+    TriggerClientEvent("vorpcharacter:updateCache",source,false,newClothes)
     user.data.updateCompTints(json.encode(tints))
   elseif self:is('RedEM2023') or self:is('RedEM') then
     local identifiers = self:getUserIdentifiers(source)
