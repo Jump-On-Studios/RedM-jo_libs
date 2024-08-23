@@ -996,7 +996,7 @@ end
 local function revertSkinKeys(object)
   local objectStandardized = {}
   for category,data in pairs (object) do
-    objectStandardized[revertSkinKey(category)] = table.clone(formatClothesData(data))
+    objectStandardized[revertSkinKey(category)] = table.copy(formatClothesData(data) or {hash = 0})
   end
   return objectStandardized
 end
@@ -1099,6 +1099,10 @@ function FrameworkClass:updateUserClothes(source,_clothes,value)
               tint2 = value.tint2 or 0,
               palette = value.palette or 0,
             }
+          end
+          if value.state then
+            tints[category][value.hash] = tints[category][value.hash] or {}
+            tints[category][value.hash].state = value.state
           end
           value = value.hash
         end
