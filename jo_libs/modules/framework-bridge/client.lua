@@ -79,5 +79,4 @@ function FrameworkClass:example()
 end
 
 jo.framework = FrameworkClass:new()
-return jo.framework
 
