@@ -3,9 +3,7 @@ local lastKey = 0
 
 jo.prompt = {}
 
-if not IsModuleLoaded('timeout') then
-  jo.require('timeout')
-end
+jo.require('timeout')
 
 local function UiPromptHasHoldMode(...) return Citizen.InvokeNative(0xB60C9F9ED47ABB76, ...) end
 local function UiPromptSetEnabled(...) return Citizen.InvokeNative(0x8A0FB4D03A630D21,...) end

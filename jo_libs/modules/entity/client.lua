@@ -1,9 +1,6 @@
 jo.entity = {}
 local Entities = {}
 
-if not IsModuleLoaded('utils') then
-end
-
 -------------
 -- Auto delete when restart
 -------------

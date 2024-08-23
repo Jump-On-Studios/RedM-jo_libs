@@ -4,6 +4,15 @@ if not table.merge then
   jo.require('table')
 end
 
+local mainResourceFramework = {
+  VORP = {'vorp_core'},
+  RedEM = {'redem'},
+  RedEM2023 = {'!redem','redem_roleplay'},
+  QBR = {'qbr-core'},
+  RSG = {'rsg-core'},
+  QR = {'qr-core'},
+}
+
 -------------
 -- VARIABLES
 -------------
@@ -418,18 +427,33 @@ function FrameworkClass:get()
 
   if OWFramework.get then
     self.name = OWFramework.get()
-  elseif GetResourceState('vorp_core') == "started" then
-    self.name = "VORP"
-  elseif GetResourceState('redem') == "started" then
-    self.name = "RedEM"
-  elseif GetResourceState('redem_roleplay') == "started" then
-    self.name = "RedEM2023"
-  elseif GetResourceState('qbr-core') == "started" then
-    self.name = "QBR"
-  elseif GetResourceState('rsg-core') == "started" then
-    self.name = "RSG"
-  elseif GetResourceState('qr-core') == "started" then
-    self.name = "QR"
+  else
+    for framework,resources in pairs (mainResourceFramework) do
+      local rightFramework = true
+      for _,resource in pairs (resources) do
+        if resource:sub(1,1) == "!" then
+          if GetResourceState(resource) ~= "missing" then
+            rightFramework = false
+            break
+          end
+        else
+          if GetResourceState(resource) == "missing" then
+            rightFramework = false
+            break
+          end
+        end
+      end
+      if rightFramework then
+        self.name = framework
+        for _,resource in pairs (resources) do
+          while GetResourceState(resource) ~= "started" do
+            bprint('Waiting start of '..framework)
+            Wait(1000)
+          end
+        end
+        return self.name
+      end
+    end
   end
   return self.name
 end
@@ -510,66 +534,68 @@ end
 ---@param callback function function fired when the item is used
 ---@param closeAfterUsed boolean if inventory needs to be closes
 function FrameworkClass:registerUseItem(item,closeAfterUsed,callback)
-  if (closeAfterUsed == nil) then closeAfterUsed = true end
-  if OWFramework.registerUseItem then
-    OWFramework.registerUseItem(item,closeAfterUsed,callback)
-  elseif self:is("VORP") then
-    local isExist = self.inv:getItemDB(item)
-    local count = 0
-    while not isExist and count < 10 do
-      isExist = self.inv:getItemDB(item)
-      count = count + 1
-      Wait(1000)
-    end
-    if not isExist then
-      return eprint(item .. " < item does not exist in the database")
-    end
-    self.inv:registerUsableItem(item, function(data)
-      if closeAfterUsed then
-        self.inv:closeInventory(data.source)
+  CreateThread(function()
+    if (closeAfterUsed == nil) then closeAfterUsed = true end
+    if OWFramework.registerUseItem then
+      OWFramework.registerUseItem(item,closeAfterUsed,callback)
+    elseif self:is("VORP") then
+      local isExist = self.inv:getItemDB(item)
+      local count = 0
+      while not isExist and count < 10 do
+        isExist = self.inv:getItemDB(item)
+        count = count + 1
+        Wait(1000)
       end
-      return callback(data.source,{metadata = data.item.metadata})
-    end)
-  elseif self:is("RedEM2023") or self:is("RedEM") then
-    local isExist = self.inv.getItemData(item)
-    local count = 0
-    while not isExist and count < 10 do
-      isExist = self.inv.getItemData(item)
-      count = count + 1
-      Wait(1000)
-    end
-    if not isExist then
-      return eprint(item .. " < item does not exist in the inventory configuration")
-    end
-    AddEventHandler("RegisterUsableItem:"..item, function(source,data)
-      callback(source,{metadata = data.meta})
-      if closeAfterUsed then
-        TriggerClientEvent("redemrp_inventory:closeinv", source)
+      if not isExist then
+        return eprint(item .. " < item does not exist in the database")
       end
-    end)
-  elseif self:is("QBR") then
-    local isAdded = self.core:AddItem(item,nil)
-    if isAdded then
-      return eprint(item .. " < item does not exist in the core configuration")
-    end
-    self.core:CreateUseableItem(item,function(source,data)
-      callback(source,{metadata = data.info})
-      if closeAfterUsed then
-        TriggerClientEvent("qbr-inventory:client:closeinv",source)
+      self.inv:registerUsableItem(item, function(data)
+        if closeAfterUsed then
+          self.inv:closeInventory(data.source)
+        end
+        return callback(data.source,{metadata = data.item.metadata})
+      end)
+    elseif self:is("RedEM2023") or self:is("RedEM") then
+      local isExist = self.inv.getItemData(item)
+      local count = 0
+      while not isExist and count < 10 do
+        isExist = self.inv.getItemData(item)
+        count = count + 1
+        Wait(1000)
       end
-    end)
-  elseif self:is("RSG") or self:is('QR') then
-    local isAdded = self.core.Functions.AddItem(item,nil)
-    if isAdded then
-      return eprint(item .. " < item does not exist in the core configuration")
-    end
-    self.core.Functions.CreateUseableItem(item,function(source,data)
-      callback(source,{metadata = data.info})
-      if closeAfterUsed then
-        TriggerClientEvent(string.lower(self:get()).."-inventory:client:closeinv",source)
+      if not isExist then
+        return eprint(item .. " < item does not exist in the inventory configuration")
       end
-    end)
-  end
+      AddEventHandler("RegisterUsableItem:"..item, function(source,data)
+        callback(source,{metadata = data.meta})
+        if closeAfterUsed then
+          TriggerClientEvent("redemrp_inventory:closeinv", source)
+        end
+      end)
+    elseif self:is("QBR") then
+      local isAdded = self.core:AddItem(item,nil)
+      if isAdded then
+        return eprint(item .. " < item does not exist in the core configuration")
+      end
+      self.core:CreateUseableItem(item,function(source,data)
+        callback(source,{metadata = data.info})
+        if closeAfterUsed then
+          TriggerClientEvent("qbr-inventory:client:closeinv",source)
+        end
+      end)
+    elseif self:is("RSG") or self:is('QR') then
+      local isAdded = self.core.Functions.AddItem(item,nil)
+      if isAdded then
+        return eprint(item .. " < item does not exist in the core configuration")
+      end
+      self.core.Functions.CreateUseableItem(item,function(source,data)
+        callback(source,{metadata = data.info})
+        if closeAfterUsed then
+          TriggerClientEvent(string.lower(self:get()).."-inventory:client:closeinv",source)
+        end
+      end)
+    end
+  end)
 end
 
 ---@param source integer source ID
@@ -855,12 +881,10 @@ end
 ---@param category string the category name
 local function standardizeSkinKey(category)
   local framName = jo.framework:get()
-  for catFram,catStandard in pairs(SkinCategoryBridge[framName] or {}) do
-    if catFram == category then
-      return catStandard
-    end
-  end
-  return category
+  if not SkinCategoryBridge[framName] then return category end
+  if SkinCategoryBridge[framName][category] then return SkinCategoryBridge[framName][category] end
+  local _,cat = table.find(SkinCategoryBridge[framName], function(cat,framCat) return framCat:lower() == category:lower() end)
+  return cat or category
 end
 
 --- A function to standardize a object of categories
@@ -923,6 +947,17 @@ local function standardizeSkinKeys(object)
   end
   objectStandardized.overlays = table.merge(objectStandardized.overlays,overlays)
 
+   if objectStandardized.hair and type(objectStandardized.hair) ~= "table" then
+    objectStandardized.hair = {
+      hash = objectStandardized.hair
+    }
+  end
+  if objectStandardized.beards_complete and type(objectStandardized.beards_complete) ~= "table" then
+    objectStandardized.beards_complete = {
+      hash = objectStandardized.beards_complete
+    }
+  end
+
   return objectStandardized
 end
 
@@ -937,20 +972,12 @@ local function revertSkinKey(category)
   return category
 end
 
---- A function to revert a object of categories
-local function revertSkinKeys(object)
-  local objectStandardized = {}
-  for category,data in pairs (object) do
-    objectStandardized[revertSkinKey(category)] = data
-  end
-  return objectStandardized
-end
-
 ---@param data any the clothes data
 ---@return table
 local function formatClothesData(data)
   if type(data) == "table" then
-    if not data.hash then return nil end --for RSG
+    if data.comp then data.hash = data.comp data.comp = nil end
+    if not data.hash or data.hash == 0 or data.hash == -1 then return nil end
     if type(data.hash) == "table" then --for VORP
       return data.hash
     end
@@ -965,6 +992,23 @@ local function formatClothesData(data)
   }
 end
 
+--- A function to revert a object of categories
+local function revertSkinKeys(object)
+  local objectStandardized = {}
+  for category,data in pairs (object) do
+    objectStandardized[revertSkinKey(category)] = type(data) == "table" and table.copy(data) or data
+  end
+  return objectStandardized
+end
+
+local function revertClothesKeys(object)
+  local objectStandardized = {}
+  for category,data in pairs (object) do
+    objectStandardized[revertSkinKey(category)] = table.copy(formatClothesData(data) or {hash = 0})
+  end
+  return objectStandardized
+end
+
 ---@param clothesList table
 local function cleanClothesTable(clothesList)
   local list = {}
@@ -976,6 +1020,19 @@ local function cleanClothesTable(clothesList)
   end
   return list
 end
+
+local function standardizeClothesKeys(object)
+  local objectStandardized = {}
+
+  for catFram,data in pairs (object or {}) do
+    objectStandardized[standardizeSkinKey(catFram)] = data
+  end
+
+  objectStandardized = cleanClothesTable(objectStandardized)
+
+  return objectStandardized
+end
+FrameworkClass.standardizeClothesKeys = standardizeClothesKeys
 
 function FrameworkClass:getUserClothes(source)
   local clothes = {}
@@ -1015,9 +1072,8 @@ function FrameworkClass:getUserClothes(source)
   if not clothes then return {} end
   clothes = UnJson(clothes)
 
-  local clothesStandardized = standardizeSkinKeys(clothes)
+  local clothesStandardized = standardizeClothesKeys(clothes)
 
-  clothesStandardized = cleanClothesTable(clothesStandardized)
   return clothesStandardized
 end
 
@@ -1028,34 +1084,44 @@ function FrameworkClass:updateUserClothes(source,_clothes,value)
   if value then
     _clothes = {[_clothes] = formatClothesData(value)}
   end
-  local clothes = revertSkinKeys(_clothes)
+  local clothes = revertClothesKeys(_clothes)
   if OWFramework.updateUserClothes then
     return OWFramework.updateUserClothes(source,category,value)
   end
   if self:is('VORP') then
     local newClothes = {}
     for category,value in pairs (clothes) do
-      newClothes[category] = {
-        comp = value
-      }
+      newClothes[category] = value
+      newClothes[category].comp = value?.hash or 0
     end
-    TriggerClientEvent("vorpcharacter:updateCache",source,false,newClothes)
     local user = User:get(source)
-    if not user.data.updateCompTints then return end
     local tints = UnJson(user.data.comptTints)
     for category,value in pairs (clothes) do
-      if type(value) == "table" then
-        tints[category] = {}
-        if value.palette and value.palette ~= 0 then
-          tints[category][value.hash] = {
-            tint0 = value.tint0 or 0,
-            tint1 = value.tint1 or 0,
-            tint2 = value.tint2 or 0,
-            palette = value.palette or 0,
-          }
+      if clothes.hash ~= 0 then
+        if type(value) == "table" then
+          tints[category] = {}
+          if value.palette and value.palette ~= 0 then
+            tints[category][value.hash] = {
+              tint0 = value.tint0 or 0,
+              tint1 = value.tint1 or 0,
+              tint2 = value.tint2 or 0,
+              palette = value.palette or 0,
+            }
+          end
+          if value.state then
+            tints[category][value.hash] = tints[category][value.hash] or {}
+            tints[category][value.hash].state = value.state
+          end
+          value = value.hash
         end
       end
     end
+    for _,value in pairs (tints) do
+      if table.count(value) == 0 then
+        value = nil
+      end
+    end
+    TriggerClientEvent("vorpcharacter:updateCache",source,false,newClothes)
     user.data.updateCompTints(json.encode(tints))
   elseif self:is('RedEM2023') or self:is('RedEM') then
     local identifiers = self:getUserIdentifiers(source)
@@ -1116,17 +1182,6 @@ function FrameworkClass:getUserSkin(source)
   skin = UnJson(skin)
 
   local skinStandardized = standardizeSkinKeys(skin)
-
-  if type(skinStandardized.hair) ~= "table" then
-    skinStandardized.hair = {
-      hash = skinStandardized.hair
-    }
-  end
-  if type(skinStandardized.beards_complete) ~= "table" then
-    skinStandardized.beards_complete = {
-      hash = skinStandardized.beards_complete
-    }
-  end
 
   if not skinStandardized.teeth then
     local clothes = self:getUserClothes(source)
@@ -1208,5 +1263,6 @@ function FrameworkClass:example()
 end
 
 jo.framework = FrameworkClass:new()
-return jo.framework
+
+-- return jo.framework
 

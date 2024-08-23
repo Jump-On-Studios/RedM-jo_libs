@@ -1,16 +1,8 @@
 jo.clothes = {}
 
-if not table.isEmpty then
-  jo.require('table')
-end
-
-if not not IsModuleLoaded('timeout') then
-  jo.require('timeout')
-end
-
-if not DataView then
-  jo.require('dataview')
-end
+jo.require('table')
+jo.require('timeout')
+jo.require('dataview')
 
 -------------
 -- Variables
@@ -141,11 +133,13 @@ local function UpdateShopItemWearableState(ped, hash, state)
   return Citizen.InvokeNative(0x66B957AAC2EAAEAB, ped, hash, state, 0, true, 1)
 end
 local function WaitRefreshPed(ped) while not IsPedReadyToRender(ped) do Wait(0) end end
+jo.clothes.waitPedLoaded = WaitRefreshPed
 
 ---@return string categoryName
 local function getCategoryName(category)
+  if not category then return '' end
   if type(category) == "string" then return category end
-  return jo.clothes.categoryName[category] or ('unknown:' .. category)
+  return jo.clothes.categoryName[category]
 end
 
 ---@return table data formatted table for clothes data
@@ -334,8 +328,9 @@ function jo.clothes.apply(ped, category, data)
         AddCachedClothes(ped, categoryHash, data.hash, GetHashFromString(data.palette), data.tint0, data.tint1,
           data.tint2)
       end
-      local state = Entity(ped).state['wearableState:' .. category]
+      local state = data.state or Entity(ped).state['wearableState:' .. category]
       if state then
+        Entity(ped).state['wearableState:' .. category] = state
         UpdateShopItemWearableState(ped, data.hash, state)
       end
     end
