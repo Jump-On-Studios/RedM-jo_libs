@@ -446,9 +446,11 @@ function FrameworkClass:get()
       if rightFramework then
         self.name = framework
         for _,resource in pairs (resources) do
-          while GetResourceState(resource) ~= "started" do
-            bprint('Waiting start of '..framework)
-            Wait(1000)
+          if resource:sub(1,1) ~= "!" then
+            while GetResourceState(resource) ~= "started" do
+              bprint('Waiting start of '..framework)
+              Wait(1000)
+            end
           end
         end
         return self.name
