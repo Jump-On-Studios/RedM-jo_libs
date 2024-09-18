@@ -27,6 +27,10 @@ local function UiFeedClearAllChannels(...)
   return Citizen.InvokeNative(0x6035E8FBCA32AC5E,...)
 end
 
+function UiFeedPostTwoTextShard(...) 
+  return Citizen.InvokeNative(0xA6F4216AB10EB08E, ...) 
+end
+
 RegisterNetEvent(GetCurrentResourceName()..":client:notif", function(text, dict, icon, color, duration,soundset_ref,soundset_name)
   jo.notif.right(text, dict, icon, color, duration,soundset_ref,soundset_name)
 end)
@@ -125,5 +129,27 @@ function  jo.notif.left(title, text, dict, icon, color, duration,soundset_ref,so
   struct2:SetInt64(8 * 6, bigInt(joaat(message.color)))
   UiFeedPostSampleToast(struct1:Buffer(), struct2:Buffer(), 1, 1)
 end
+
+
+
+---@param title string the title of the notification
+---@param subtitle string The text of the notification
+---@param duration? integer The duration of the notification in ms
+function jo.notif.simpleTop(title, subtitle, duration)
+local structConfig = DataView.ArrayBuffer(8 * 7)
+structConfig:SetInt32(8 * 0, tonumber(duration or 3000))
+
+local structData = DataView.ArrayBuffer(8 * 7)
+structData:SetInt64(8 * 1, bigInt(VarString(10, "LITERAL_STRING", title)))
+structData:SetInt64(8 * 2, bigInt(VarString(10, "LITERAL_STRING", subtitle)))
+
+UiFeedPostTwoTextShard(structConfig:Buffer(), structData:Buffer(), 1, 1)
+end
+
+RegisterNetEvent(GetCurrentResourceName()..":client:simpleTop", function(title, subtitle, duration)
+  jo.notif.simpleTop(title, subtitle, duration)
+end)
+
+
 
 return jo.notif
