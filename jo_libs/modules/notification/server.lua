@@ -37,4 +37,12 @@ function jo.notif.rightError(source,text)
   jo.notif.right(source,text,"menu_textures", "cross","COLOR_RED")
 end
 
+---@param source integer the source ID of the player
+---@param title string the title of the notification
+---@param subtitle string The subtitle of the notification
+---@param duration? integer The duration of the notification in ms
+function jo.notif.simpleTop(source, title, subtitle, duration)
+  TriggerClientEvent(GetCurrentResourceName()..":client:simpleTop", source, title, subtitle, duration)
+end
+
 return jo.notif
