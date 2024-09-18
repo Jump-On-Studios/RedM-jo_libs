@@ -27,6 +27,10 @@ local function UiFeedClearAllChannels(...)
   return Citizen.InvokeNative(0x6035E8FBCA32AC5E,...)
 end
 
+function UiFeedPostTwoTextShard(...) 
+  return Citizen.InvokeNative(0xA6F4216AB10EB08E, ...) 
+end
+
 RegisterNetEvent(GetCurrentResourceName()..":client:notif", function(text, dict, icon, color, duration,soundset_ref,soundset_name)
   jo.notif.right(text, dict, icon, color, duration,soundset_ref,soundset_name)
 end)
@@ -139,7 +143,7 @@ local structData = DataView.ArrayBuffer(8 * 7)
 structData:SetInt64(8 * 1, bigInt(VarString(10, "LITERAL_STRING", title)))
 structData:SetInt64(8 * 2, bigInt(VarString(10, "LITERAL_STRING", subtitle)))
 
-Citizen.InvokeNative(0xA6F4216AB10EB08E, structConfig:Buffer(), structData:Buffer(), 1, 1)
+UiFeedPostTwoTextShard(structConfig:Buffer(), structData:Buffer(), 1, 1)
 end
 
 RegisterNetEvent(GetCurrentResourceName()..":client:simpleTop", function(title, subtitle, duration)
