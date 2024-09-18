@@ -1,6 +1,6 @@
 author "JUMP ON studios : shop.jumpon-studios.com"
 documentation 'https://docs.jumpon-studios.com'
-version '1.8.0'
+version '1.8.1'
 package_id '1'
 
 fx_version "adamant"
@@ -11,8 +11,8 @@ game "rdr3"
 lua54 'yes'
 
 files {
-  "init.lua",
-  "modules/**.lua",
+	"init.lua",
+	"modules/**.lua",
 	--OLD MENU
 	"html/dist/**.html",
 	"html/dist/**.js",

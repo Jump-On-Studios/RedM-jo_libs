@@ -4,7 +4,7 @@ end
 
 local resourceName = GetCurrentResourceName()
 local jo_libs = 'jo_libs'
-local modules = {'table','print','file'}
+local modules = { 'table', 'print', 'file' }
 local function noFunction() end
 local LoadResourceFile = LoadResourceFile
 local context = IsDuplicityVersion() and 'server' or 'client'
@@ -20,7 +20,7 @@ local alias = {
 local function getAlias(module)
   if module == "meCoords" or module == "mePlayerId" or module == "meServerId" then return "me" end
   if alias[module] then return module end
-  for alia,name in pairs (alias) do
+  for alia, name in pairs(alias) do
     if name == module then
       return alia
     end
@@ -30,7 +30,7 @@ end
 
 --list modules required
 for i = 1, GetNumResourceMetadata(resourceName, 'jo_lib') do
-  modules[#modules+1] = getAlias(GetResourceMetadata(resourceName, 'jo_lib', i - 1))
+  modules[#modules + 1] = getAlias(GetResourceMetadata(resourceName, 'jo_lib', i - 1))
 end
 
 
@@ -55,10 +55,10 @@ function UnJson(value)
   return value
 end
 
-local function isModuleLoaded(name,needLocal)
+local function isModuleLoaded(name, needLocal)
   if needLocal and not moduleLocal[name] then return false end
   if moduleInLoading[name] then return true end
-  if rawget(jo,name) then return true end
+  if rawget(jo, name) then return true end
   return false
 end
 
@@ -76,10 +76,10 @@ end
 
 local function doesScopedFilesRequired(name)
   if name == "table" then return true end
-  return resourceName ~= "jo_libs" or table.find(modules,function(_name) return _name == name end)
+  return resourceName ~= "jo_libs" or table.find(modules, function(_name) return _name == name end)
 end
 
-local function loadModule(self,name,needLocal)
+local function loadModule(self, name, needLocal)
   if needLocal == nil then needLocal = true end
   local folder = alias[name] or name
   local dir = ('modules/%s'):format(folder)
@@ -97,7 +97,7 @@ local function loadModule(self,name,needLocal)
   self[name] = noFunction
 
   --load files in the right order
-  for _,fileName in ipairs ({'shared','context'}) do
+  for _, fileName in ipairs({ 'shared', 'context' }) do
     --convert the name if it's context
     fileName = fileName == "context" and context or fileName
     --load scoped files
@@ -109,7 +109,7 @@ local function loadModule(self,name,needLocal)
     end
     --load global files inside jo_libs
     if resourceName == "jo_libs" then
-      fileName = "g_"..fileName
+      fileName = "g_" .. fileName
       local tempFile = LoadResourceFile(jo_libs, ('%s/%s.lua'):format(dir, fileName))
       if tempFile then
         file = file .. tempFile
@@ -133,16 +133,16 @@ local function loadModule(self,name,needLocal)
   return self[name]
 end
 
-local function call(self,name,...)
+local function call(self, name, ...)
   if not name then return noFunction end
   if type(name) ~= "string" then return noFunction() end
   name = getAlias(name)
 
-  local module = rawget(jo,name)
+  local module = rawget(jo, name)
 
   if not module then
     -- self[name] = noFunction
-    module = loadModule(self,name)
+    module = loadModule(self, name)
   end
 
   while moduleInLoading[name] do Wait(0) end
@@ -150,7 +150,7 @@ local function call(self,name,...)
   return module
 end
 
-local jo = setmetatable ({
+local jo = setmetatable({
   libLoaded = false,
   name = jo_libs,
   context = context,
@@ -165,6 +165,17 @@ function jo.waitLibLoading()
     Wait(0)
   end
 end
+
+local function onReady(cb)
+  jo.waitLibLoading()
+
+  return cb and cb() or true
+end
+
+function jo.ready(cb)
+  Citizen.CreateThreadNow(function() onReady(cb) end)
+end
+
 _ENV.jo = jo
 
 
@@ -176,21 +187,21 @@ end
 -- DEFAULT MODULES
 -------------
 
-function jo.require(name,needLocal)
+function jo.require(name, needLocal)
   if needLocal == nil then needLocal = true end
   name = getAlias(name)
-  if isModuleLoaded(name,needLocal) then return end
-  local module = loadModule(jo,name,needLocal)
+  if isModuleLoaded(name, needLocal) then return end
+  local module = loadModule(jo, name, needLocal)
   if type(module) == 'function' then pcall(module) end
 end
 
 if resourceName == "jo_libs" then
-  exports('loadGlobalModule', function (name)
-    jo.require(name,false)
+  exports('loadGlobalModule', function(name)
+    jo.require(name, false)
     return true
   end)
-  AddEventHandler('jo_libs:loadGlobalModule', function (name,cb)
-    jo.require(name,false)
+  AddEventHandler('jo_libs:loadGlobalModule', function(name, cb)
+    jo.require(name, false)
     cb()
     return true
   end)
@@ -200,7 +211,7 @@ end
 -------------
 -- EXPORTS (prevent call before initializes)
 -------------
-local function CreateExport(name,cb)
+local function CreateExport(name, cb)
   exports(name, function(...)
     jo.waitLibLoading()
     return cb(...)
@@ -208,8 +219,8 @@ local function CreateExport(name,cb)
 end
 
 --Sort module by priority
-local priorityModules = {table=1,print=2,file=3,hook=4,framework=5}
-table.sort(modules, function(a,b)
+local priorityModules = { table = 1, print = 2, file = 3, hook = 4, framework = 5 }
+table.sort(modules, function(a, b)
   local prioA = priorityModules[a]
   local prioB = priorityModules[b]
   if prioA and prioB then
@@ -223,26 +234,16 @@ end)
 -- LOAD REQUIRED MODULES
 -------------
 
-for _,name in ipairs (modules) do
+for _, name in ipairs(modules) do
   jo.require(name)
   if name == "hook" then
-    CreateExport('registerAction',jo.hook.registerAction)
-    CreateExport('RegisterAction',jo.hook.RegisterAction)
-    CreateExport('registerFilter',jo.hook.registerFilter)
-    CreateExport('RegisterFilter',jo.hook.RegisterFilter)
+    CreateExport('registerAction', jo.hook.registerAction)
+    CreateExport('RegisterAction', jo.hook.RegisterAction)
+    CreateExport('registerFilter', jo.hook.registerFilter)
+    CreateExport('RegisterFilter', jo.hook.RegisterFilter)
   elseif name == "versionChecker" and context == "server" then
     CreateExport('GetScriptVersion', jo.versionChecker.GetScriptVersion)
     CreateExport('StopAddon', jo.versionChecker.stopAddon)
   end
 end
 jo.libLoaded = true
-
-local function onReady(cb)
-	jo.waitLibLoading()
-
-	return cb and cb() or true
-end
-
-function jo.ready(cb)
-	Citizen.CreateThreadNow(function() onReady(cb) end)
-end
