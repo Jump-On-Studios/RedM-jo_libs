@@ -118,8 +118,9 @@ jo.clothes.wearableStates = {
 -------------
 
 local function SetTextureOutfitTints(ped, category, palette, tint0, tint1, tint2)
-  if palette and palette == 0 then return end
-  Citizen.InvokeNative(0x4EFC1F8FF1AD94DE, ped, GetHashFromString(category), GetHashFromString(palette), tint0, tint1, tint2)
+  if not palette then return end
+  if palette == 0 then return end
+  return Citizen.InvokeNative(0x4EFC1F8FF1AD94DE, ped, GetHashFromString(category), GetHashFromString(palette), tint0, tint1, tint2)
 end
 local function N_0xAAB86462966168CE(ped) return Citizen.InvokeNative(0xAAB86462966168CE, ped, true) end
 local function N_0x704C908E9C405136(ped) return Citizen.InvokeNative(0x704C908E9C405136, ped) end
@@ -273,6 +274,8 @@ end
 local function ReapplyCached(ped)
   if not jo.cache.clothes.color[ped] then return end
   jo.timeout.delay('jo_libs:clothes:reapplyCachedColor', function() WaitRefreshPed(ped) end, function()
+    RefreshPed(ped)
+    WaitRefreshPed(ped)
     ReapplyClothesStats(ped)
     ReapplyClothesColor(ped)
     RefreshPed(ped)
@@ -353,7 +356,7 @@ function jo.clothes.apply(ped, category, data)
         tint1 = data.tint1
         tint2 = data.tint2
       end
-      SetMetaPedTag(ped, drawable, albedo, normal, material, palette, tint0, tint1, tint2) -- 10 is black in the case of this asset's palette_id
+      SetMetaPedTag(ped, drawable, albedo, normal, material, palette, tint0, tint1, tint2)
     else
       ApplyShopItemToPed(ped, data.hash, false, true, false)
       ApplyShopItemToPed(ped, data.hash, false, false, false)
