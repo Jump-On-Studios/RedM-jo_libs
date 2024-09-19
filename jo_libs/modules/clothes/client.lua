@@ -273,7 +273,6 @@ end
 local function ReapplyCached(ped)
   if not jo.cache.clothes.color[ped] then return end
   jo.timeout.delay('jo_libs:clothes:reapplyCachedColor', function() WaitRefreshPed(ped) end, function()
-    print('reapplyCachedColor')
     ReapplyClothesStats(ped)
     ReapplyClothesColor(ped)
     RefreshPed(ped)
@@ -518,7 +517,6 @@ function jo.clothes.getCategoriesEquiped(ped)
   for index = 0, numComponent - 1 do
     --Get current clothes
     local category = GetCategoryOfComponentAtIndex(ped, index)
-    print(index, "category", category)
     jo.cache.clothes.getEquiped[ped][category] = {
       index = index,
       category = getCategoryName(category),
