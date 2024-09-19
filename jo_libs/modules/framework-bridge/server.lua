@@ -221,7 +221,6 @@ function User:removeMoney(amount, moneyType)
   if OWFramework.User.removeMoney then
     return OWFramework.User.removeMoney(self, amount, moneyType)
   elseif jo.framework:is("VORP") then
-    TriggerEvent("print", "=>", self)
     self.data.removeCurrency(moneyType, amount)
   elseif jo.framework:is("RedEM2023") then
     if moneyType == 0 then
