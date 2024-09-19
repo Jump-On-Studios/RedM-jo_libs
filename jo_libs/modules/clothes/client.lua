@@ -118,8 +118,8 @@ jo.clothes.wearableStates = {
 -------------
 
 local function SetTextureOutfitTints(ped, category, palette, tint0, tint1, tint2)
-  if palette == 0 then return end
-  Citizen.InvokeNative(0x4EFC1F8FF1AD94DE, ped, GetHashFromString(category), palette, tint0, tint1, tint2)
+  if palette and palette == 0 then return end
+  Citizen.InvokeNative(0x4EFC1F8FF1AD94DE, ped, GetHashFromString(category), GetHashFromString(palette), tint0, tint1, tint2)
 end
 local function N_0xAAB86462966168CE(ped) return Citizen.InvokeNative(0xAAB86462966168CE, ped, true) end
 local function N_0x704C908E9C405136(ped) return Citizen.InvokeNative(0x704C908E9C405136, ped) end
@@ -157,6 +157,9 @@ local function UpdateShopItemWearableState(ped, hash, state)
 end
 local function WaitRefreshPed(ped) while not IsPedReadyToRender(ped) do Wait(0) end end
 jo.clothes.waitPedLoaded = WaitRefreshPed
+local function SetMetaPedTag(ped, drawable, albedo, normal, material, palette, tint0, tint1, tint2)
+  return Citizen.InvokeNative(0xBC6DF00D7A4A6819, ped, GetHashFromString(drawable), GetHashFromString(albedo), GetHashFromString(normal), GetHashFromString(material), GetHashFromString(palette), tint0, tint1, tint2)
+end
 
 ---@return string categoryName
 local function getCategoryName(category)
@@ -165,21 +168,21 @@ local function getCategoryName(category)
   return jo.clothes.categoryName[category]
 end
 
+local function isValidValue(value)
+  return value and value ~= 0 and value ~= -1 and value ~= 1
+end
+
 ---@return table data formatted table for clothes data
 local function formatClothesData(data)
-  if type(data) == "table" then
-    if type(data.hash) == "table" then --for VORP
-      return data.hash
-    end
-    return data
+  if type(data) ~= "table" then
+    if type(data) ~= "number" then data = tonumber(data) end
+    data = { hash = data }
   end
-  if type(data) ~= "number" then data = tonumber(data) end
-  if data == 0 or data == -1 or data == 1 or data == nil then
-    data = false
-  end
-  return {
-    hash = data
-  }
+  if type(data.hash) == "table" then data = data.hash end --for VORP
+  data.hash = isValidValue(data.hash) and data.hash or false
+  data.drawable = isValidValue(data.drawable) and data.drawable or false
+  data.palette = isValidValue(data.palette) and data.palette or false
+  return data
 end
 
 -------------
@@ -269,7 +272,8 @@ end
 
 local function ReapplyCached(ped)
   if not jo.cache.clothes.color[ped] then return end
-  jo.timeout.delay('ReapplyCachedColor', function() WaitRefreshPed(ped) end, function()
+  jo.timeout.delay('jo_libs:clothes:reapplyCachedColor', function() WaitRefreshPed(ped) end, function()
+    print('reapplyCachedColor')
     ReapplyClothesStats(ped)
     ReapplyClothesColor(ped)
     RefreshPed(ped)
@@ -309,8 +313,6 @@ function jo.clothes.apply(ped, category, data)
 
   PutInCacheCurrentClothes(ped)
 
-  --remove the current clothes for this category
-  RemoveTagFromMetaPed(ped, categoryHash, 0)
   if (categoryHash == `neckwear`) then
     RemoveTagFromMetaPed(ped, `neckerchiefs`, 0)
   end
@@ -324,7 +326,10 @@ function jo.clothes.apply(ped, category, data)
   end
   ResetCachedColor(ped, categoryHash)
 
-  if data.hash then
+  if data.hash or data.drawable then
+    if data.hash then
+      RemoveTagFromMetaPed(ped, categoryHash, 0)
+    end
     if category == "coats" then
       RemoveTagFromMetaPed(ped, 'coats_closed', 0);
     elseif category == "coats_closed" then
@@ -332,7 +337,7 @@ function jo.clothes.apply(ped, category, data)
     elseif category == "skirts" then
       RemoveTagFromMetaPed(ped, 'pants', 0);
     end
-    if category == "masks" or (data.drawable) or category == "hats" then
+    if data.drawable or category == "masks" or category == "hats" then
       local drawable, albedo, normal, material, palette, tint0, tint1, tint2 = 0, 0, 0, 0, 0, 0, 0, 0
       if data.hash then
         drawable, albedo, normal, material, palette, tint0, tint1, tint2 = GetShopItemBaseLayers(data.hash, GetMetaPedType(ped), isMp)
@@ -351,11 +356,10 @@ function jo.clothes.apply(ped, category, data)
       end
       SetMetaPedTag(ped, drawable, albedo, normal, material, palette, tint0, tint1, tint2) -- 10 is black in the case of this asset's palette_id
     else
-      ApplyShopItemToPed(ped, data.hash, true, true, false)
-      ApplyShopItemToPed(ped, data.hash, true, false, false)
+      ApplyShopItemToPed(ped, data.hash, false, true, false)
+      ApplyShopItemToPed(ped, data.hash, false, false, false)
       if data.palette and data.palette ~= 0 then
-        AddCachedClothes(ped, index, categoryHash, data.hash, data.drawable, data.albedo, data.normal, data.material, GetHashFromString(data.palette), data.tint0, data.tint1,
-          data.tint2)
+        AddCachedClothes(ped, nil, categoryHash, data.hash, data.drawable, data.albedo, data.normal, data.material, data.palette, data.tint0, data.tint1, data.tint2)
       end
       local state = data.state or Entity(ped).state['wearableState:' .. category]
       if state then
@@ -363,8 +367,11 @@ function jo.clothes.apply(ped, category, data)
         UpdateShopItemWearableState(ped, data.hash, state)
       end
     end
+  elseif data.palette then
+    AddCachedClothes(ped, nil, categoryHash, nil, nil, nil, nil, nil, data.palette, data.tint0, data.tint1, data.tint2)
+  else
+    RemoveTagFromMetaPed(ped, categoryHash, 0)
   end
-  RefreshPed(ped)
   ReapplyCached(ped)
 end
 
@@ -393,7 +400,6 @@ function jo.clothes.setWearableState(ped, category, hash, state)
   if category == "neckwear" and GetHashFromString(state) == `base` then
     jo.clothes.apply(ped, "beards_complete", jo.cache.clothes.color[ped][`beards_complete`])
   end
-  RefreshPed(ped)
   ReapplyCached(ped)
 end
 
