@@ -4,13 +4,13 @@ table.copy = function(orig)
   local orig_type = type(orig)
   local copy
   if orig_type == 'table' then
-      copy = {}
-      for orig_key, orig_value in next, orig, nil do
-          copy[table.copy(orig_key)] = table.copy(orig_value)
-      end
-      setmetatable(copy, table.copy(getmetatable(orig)))
+    copy = {}
+    for orig_key, orig_value in next, orig, nil do
+      copy[table.copy(orig_key)] = table.copy(orig_value)
+    end
+    setmetatable(copy, table.copy(getmetatable(orig)))
   else -- number, string, boolean, etc
-      copy = orig
+    copy = orig
   end
   return copy
 end
@@ -21,7 +21,7 @@ end
 table.merge = function(t1, t2)
   t1 = t1 or {}
   if not t2 then return t1 end
-  for k,v in pairs(t2 or {}) do
+  for k, v in pairs(t2 or {}) do
     if type(v) == "table" then
       if type(t1[k] or false) == "table" then
         table.merge(t1[k] or {}, t2[k] or {})
@@ -37,18 +37,18 @@ end
 
 ---@param _table table
 ---@return boolean
-table.isEmpty = function (_table)
-	for _,_ in pairs (_table or {}) do
-		return false
-	end
-	return true
+table.isEmpty = function(_table)
+  for _, _ in pairs(_table or {}) do
+    return false
+  end
+  return true
 end
 
 ---@param _table table
 ---@return integer
 table.count = function(_table)
   local counter = 0
-  for _,_ in pairs (_table or {}) do
+  for _, _ in pairs(_table or {}) do
     counter += 1
   end
   return counter
@@ -56,15 +56,17 @@ end
 
 ---@param t table the table to filter
 ---@param filterIter function the function to filter the table
+---@param keepKeyAssociation boolean keep the table keys (default false)
 ---@return table out the filtered table
-table.filter = function(t, filterIter)
+table.filter = function(t, filterIter, keepKeyAssociation)
   local out = {}
+  if keepKeyAssociation == nil then keepKeyAssociation = false end
   for k, v in pairs(t) do
     if filterIter(v, k, t) then
-      if type(k) == "number" then
-        out[#out+1] = v
-      else
+      if keepKeyAssociation or type(k) ~= "number" then
         out[k] = v
+      else
+        out[#out + 1] = v
       end
     end
   end
@@ -89,7 +91,7 @@ end
 table.find = function(t, func)
   for i, v in pairs(t or {}) do
     if func(v, i, t) then
-        return v,i
+      return v, i
     end
   end
   return false
@@ -97,9 +99,9 @@ end
 
 ---@param t table the table to clean
 ---@return table new_table the table without functions
-table.clearForNui = function (t)
+table.clearForNui = function(t)
   local new_table = {}
-  for key,data in pairs (t) do
+  for key, data in pairs(t) do
     if type(data) == "function" then
     elseif type(data) == "table" then
       new_table[key] = table.clearForNui(data)
@@ -116,16 +118,16 @@ end
 ---@param strict? boolean  if all keys should be in both table (default: true)
 ---@param canMissInTable1? any if table2 keys can miss in table1 (default: false)
 ---@param canMissInTable2? any if table1 keys can miss in table2 (default: false)
-table.isEgal = function (table1,table2,strict,canMissInTable1,canMissInTable2)
-  strict = strict ~= false  -- strict est par défaut true, sauf si explicitement mis à false
-  canMissInTable1 = canMissInTable1 or false  -- par défaut false
-  canMissInTable2 = canMissInTable2 or false  -- par défaut false
+table.isEgal = function(table1, table2, strict, canMissInTable1, canMissInTable2)
+  strict = strict ~= false                   -- strict est par défaut true, sauf si explicitement mis à false
+  canMissInTable1 = canMissInTable1 or false -- par défaut false
+  canMissInTable2 = canMissInTable2 or false -- par défaut false
 
   if type(table1) ~= "table" or type(table2) ~= "table" then
     return table1 == table2
   end
 
-	for key, value in pairs(table1) do
+  for key, value in pairs(table1) do
     if not canMissInTable2 or table2[key] ~= nil then
       if not table.isEgal(value, table2[key], strict, canMissInTable1, canMissInTable2) then
         return false
