@@ -27,46 +27,46 @@ jobs:
         asset_name: jo_libs.zip
         asset_content_type: application/zip
 
-    - name: Zip vorp_menu directory
-      run: |
-        zip -r vorp_menu.zip vorp_menu
+    # - name: Zip vorp_menu directory
+    #   run: |
+    #     zip -r vorp_menu.zip vorp_menu
 
-    - name: Upload vorp_menu.zip to Release
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.UPLOAD_TOKEN }}
-      with:
-        upload_url: ${{ github.event.release.upload_url }}
-        asset_path: ./vorp_menu.zip
-        asset_name: vorp_menu.zip
-        asset_content_type: application/zip
+    # - name: Upload vorp_menu.zip to Release
+    #   uses: actions/upload-release-asset@v1
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.UPLOAD_TOKEN }}
+    #   with:
+    #     upload_url: ${{ github.event.release.upload_url }}
+    #     asset_path: ./vorp_menu.zip
+    #     asset_name: vorp_menu.zip
+    #     asset_content_type: application/zip
 
-    - name: Zip redemrp_menu_base directory
-      run: |
-        zip -r redemrp_menu_base.zip redemrp_menu_base
+    # - name: Zip redemrp_menu_base directory
+    #   run: |
+    #     zip -r redemrp_menu_base.zip redemrp_menu_base
     
-    - name: Upload redemrp_menu_base.zip to Release
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.UPLOAD_TOKEN }}
-      with:
-        upload_url: ${{ github.event.release.upload_url }}
-        asset_path: ./redemrp_menu_base.zip
-        asset_name: redemrp_menu_base.zip
-        asset_content_type: application/zip
+    # - name: Upload redemrp_menu_base.zip to Release
+    #   uses: actions/upload-release-asset@v1
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.UPLOAD_TOKEN }}
+    #   with:
+    #     upload_url: ${{ github.event.release.upload_url }}
+    #     asset_path: ./redemrp_menu_base.zip
+    #     asset_name: redemrp_menu_base.zip
+    #     asset_content_type: application/zip
 
-    - name: Zip rsg-menubase directory
-      run: |
-        zip -r rsg-menubase.zip rsg-menubase
+    # - name: Zip rsg-menubase directory
+    #   run: |
+    #     zip -r rsg-menubase.zip rsg-menubase
     
-    - name: Upload rsg-menubase.zip to Release
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.UPLOAD_TOKEN }}
-      with:
-        upload_url: ${{ github.event.release.upload_url }}
-        asset_path: ./rsg-menubase.zip
-        asset_name: rsg-menubase.zip
-        asset_content_type: application/zip
+    # - name: Upload rsg-menubase.zip to Release
+    #   uses: actions/upload-release-asset@v1
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.UPLOAD_TOKEN }}
+    #   with:
+    #     upload_url: ${{ github.event.release.upload_url }}
+    #     asset_path: ./rsg-menubase.zip
+    #     asset_name: rsg-menubase.zip
+    #     asset_content_type: application/zip
 
     
