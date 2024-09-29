@@ -554,12 +554,19 @@ end
 
 function jo.clothes.getComponentEquiped(ped, category)
   local categoryHash = GetHashFromString(category)
+  
   if not IsMetaPedUsingComponent(ped, categoryHash) then
     return false
   end
+  
   local equiped = jo.clothes.getCategoriesEquiped(ped)
-  local index = equiped[categoryHash].index
-  return GetShopItemComponentAtIndex(ped, index)
+  
+  if equiped and equiped[categoryHash] then
+    local index = equiped[categoryHash].index
+    return GetShopItemComponentAtIndex(ped, index)
+  else
+    return false
+  end
 end
 
 function jo.clothes.getComponentsEquiped(ped)
