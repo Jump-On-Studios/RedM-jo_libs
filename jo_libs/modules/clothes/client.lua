@@ -33,8 +33,8 @@ jo.clothes.order = {
   'belt_buckles',
   'belts',
   'skirts',
-  'pants',
   'boots',
+  'pants',
   'boot_accessories',
   'accessories',
   'satchels',
@@ -329,7 +329,7 @@ function jo.clothes.apply(ped, category, data)
   ResetCachedColor(ped, categoryHash)
 
   if data.hash or data.drawable then
-    if data.hash then
+    if data.hash and category ~= "horse_bridles" then
       RemoveTagFromMetaPed(ped, categoryHash, 0)
     end
     if category == "coats" then
@@ -554,14 +554,12 @@ end
 
 function jo.clothes.getComponentEquiped(ped, category)
   local categoryHash = GetHashFromString(category)
-  
   if not IsMetaPedUsingComponent(ped, categoryHash) then
     return false
   end
-  
   local equiped = jo.clothes.getCategoriesEquiped(ped)
-  
-  if equiped and equiped[categoryHash] then
+
+  if equiped?[categoryHash] then
     local index = equiped[categoryHash].index
     return GetShopItemComponentAtIndex(ped, index)
   else
