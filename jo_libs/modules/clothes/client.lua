@@ -316,22 +316,20 @@ function jo.clothes.apply(ped, category, data)
 
   PutInCacheCurrentClothes(ped)
 
-  if (categoryHash == `neckwear`) then
-    RemoveTagFromMetaPed(ped, `neckerchiefs`, 0)
-  end
-  if (category == "ponchos") then
-    RemoveTagFromMetaPed(ped, `cloaks`, 0)
-    RemoveTagFromMetaPed(ped, `ponchos`, 0)
-  end
-  if (category == "cloaks") then
-    RemoveTagFromMetaPed(ped, `ponchos`, 0)
-    RemoveTagFromMetaPed(ped, `cloaks`, 0)
-  end
   ResetCachedColor(ped, categoryHash)
 
   if data.hash or data.drawable then
     if data.hash and category ~= "horse_bridles" then
       RemoveTagFromMetaPed(ped, categoryHash, 0)
+    end
+    if (categoryHash == `neckwear`) then
+      RemoveTagFromMetaPed(ped, `neckerchiefs`, 0)
+    end
+    if (category == "ponchos") then
+      RemoveTagFromMetaPed(ped, `cloaks`, 0)
+    end
+    if (category == "cloaks") then
+      RemoveTagFromMetaPed(ped, `ponchos`, 0)
     end
     if category == "coats" then
       RemoveTagFromMetaPed(ped, 'coats_closed', 0);
