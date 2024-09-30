@@ -127,6 +127,7 @@ local function N_0x704C908E9C405136(ped) return Citizen.InvokeNative(0x704C908E9
 local function GetShopItemBaseLayers(hash, metapedType, isMp) return Citizen.InvokeNative(0x63342C50EC115CE8, hash, 0, 0, metapedType, isMp, Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt()) end
 local function UpdatePedVariation(ped) return Citizen.InvokeNative(0xCC8CA3E88256E58F, ped, false, true, true, true, false) end
 local function IsPedReadyToRender(...) return Citizen.InvokeNative(0xA0BC8FAED8CFEB3C, ...) end
+local function IsThisModelAHorse(...) return Citizen.InvokeNative(0x772A1969F649E902, ...) == 1 end
 local function RefreshPed(ped)
   N_0xAAB86462966168CE(ped)
   UpdatePedVariation(ped)
@@ -358,8 +359,7 @@ function jo.clothes.apply(ped, category, data)
       end
       SetMetaPedTag(ped, drawable, albedo, normal, material, palette, tint0, tint1, tint2)
     else
-      ApplyShopItemToPed(ped, data.hash, false, true, false)
-      ApplyShopItemToPed(ped, data.hash, false, false, false)
+      ApplyShopItemToPed(ped, data.hash, false, isMp, false)
       if data.palette and data.palette ~= 0 then
         AddCachedClothes(ped, nil, categoryHash, data.hash, data.drawable, data.albedo, data.normal, data.material, data.palette, data.tint0, data.tint1, data.tint2)
       end
@@ -405,6 +405,12 @@ function jo.clothes.setWearableState(ped, category, hash, state)
   ReapplyCached(ped)
 end
 
+function jo.clothes.getWearableState(ped, category)
+  local state = Entity(ped).state['wearableState:' .. category]
+  if (type(state) == "string") then return state end
+  return ""
+end
+
 ---@param ped integer the entity
 ---@return boolean
 function jo.clothes.neckwearIsUp(ped)
@@ -416,7 +422,7 @@ jo.clothes.isNeckweaUp = jo.clothes.neckwearIsUp
 ---@param ped integer the entity
 ---@return boolean
 function jo.clothes.sleeveIsRolled(ped)
-  return (Entity(ped).state['wearableState:shirts_full'] or ""):find('rolled') ~= nil
+  return jo.clothes.getWearableState(ped, "shirts_full"):find('rolled') ~= nil
 end
 
 jo.clothes.isSleeveRolled = jo.clothes.sleeveIsRolled
@@ -424,7 +430,7 @@ jo.clothes.isSleeveRolled = jo.clothes.sleeveIsRolled
 ---@param ped integer the entity
 ---@return boolean
 function jo.clothes.collarIsOpened(ped)
-  return (Entity(ped).state['wearableState:shirts_full'] or ""):find('open') and true or false
+  return jo.clothes.getWearableState(ped, "shirts_full"):find('open') and true or false
 end
 
 jo.clothes.isCollarOpened = jo.clothes.collarIsOpened
