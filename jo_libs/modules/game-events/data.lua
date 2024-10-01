@@ -1,4 +1,4 @@
-local events = {
+AllGameEvents = {
     {
         name = "EVENT_BUCKED_OFF",
         group = 0,
