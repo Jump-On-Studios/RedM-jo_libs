@@ -15,7 +15,8 @@ local alias = {
   framework = "framework-bridge",
   versionChecker = "version-checker",
   notif = "notification",
-  pedTexture = 'ped-texture'
+  pedTexture = 'ped-texture',
+  gameEvents = 'game-events'
 }
 local function getAlias(module)
   if module == "meCoords" or module == "mePlayerId" or module == "meServerId" then return "me" end
