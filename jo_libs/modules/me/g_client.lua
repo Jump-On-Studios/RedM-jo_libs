@@ -10,7 +10,6 @@ jo.require('timeout')
 
 local function updateMe()
   jo.forceUpdateMe()
-  TriggerEvent("jo_me:updateMe",jo.me,jo.meCoords,jo.mePlayerId,jo.meServerId,jo.meIsMale)
 end
 timeout = jo.timeout.loop(timer,updateMe)
 
@@ -31,6 +30,7 @@ function jo.forceUpdateMe()
   jo.mePlayerId = PlayerId()
   jo.meServerId = GetPlayerServerId(jo.mePlayerId)
   jo.meIsMale =  IsPedMale(jo.me)
+  TriggerEvent("jo_me:updateMe",jo.me,jo.meCoords,jo.mePlayerId,jo.meServerId,jo.meIsMale)
 end
 
 exports('jo_me_forceUpdateMe', jo.forceUpdateMe)
