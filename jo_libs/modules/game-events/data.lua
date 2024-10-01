@@ -1,5 +1,5 @@
 AllGameEvents = {
-    {
+    [`EVENT_BUCKED_OFF`] = {
         name = "EVENT_BUCKED_OFF",
         group = 0,
         size = 3,
@@ -9,7 +9,7 @@ AllGameEvents = {
             { type = "int", name = "value_2" }
         }
     },
-    {
+    [`EVENT_CALCULATE_LOOT`] = {
         name = "EVENT_CALCULATE_LOOT",
         group = 0,
         size = 26,
@@ -42,7 +42,7 @@ AllGameEvents = {
             { type = "int", name = "value_25" },
         }
     },
-    {
+    [`EVENT_CALM_PED`] = {
         name = "EVENT_CALM_PED",
         group = 0,
         size = 4,
@@ -53,7 +53,7 @@ AllGameEvents = {
             { type = "bool", name = "is_fully_calmed" },
         }
     },
-    {
+    [`EVENT_CARRIABLE_UPDATE_CARRY_STATE`] = {
         name = "EVENT_CARRIABLE_UPDATE_CARRY_STATE",
         group = 0,
         size = 5,
@@ -65,7 +65,7 @@ AllGameEvents = {
             { type = "bool", name = "is_on_ground" },
         }
     },
-    {
+    [`EVENT_CARRIABLE_PROMPT_INFO_REQUEST`] = {
         name = "EVENT_CARRIABLE_PROMPT_INFO_REQUEST",
         group = 0,
         size = 6,
@@ -78,7 +78,7 @@ AllGameEvents = {
             { type = "int", name = "value_5" },
         }
     },
-    {
+    [`EVENT_CARRIABLE_VEHICLE_STOW_START`] = {
         name = "EVENT_CARRIABLE_VEHICLE_STOW_START",
         group = 0,
         size = 5,
@@ -90,7 +90,7 @@ AllGameEvents = {
             { type = "int", name = "value_4" },
         }
     },
-    {
+    [`EVENT_CARRIABLE_VEHICLE_STOW_COMPLETE`] = {
         name = "EVENT_CARRIABLE_VEHICLE_STOW_COMPLETE",
         group = 0,
         size = 3,
@@ -100,7 +100,7 @@ AllGameEvents = {
             { type = "bool", name = "is_item_to_add_cancelled" },
         }
     },
-    {
+    [`EVENT_CHALLENGE_GOAL_COMPLETE`] = {
         name = "EVENT_CHALLENGE_GOAL_COMPLETE",
         group = 0,
         size = 1,
@@ -108,7 +108,7 @@ AllGameEvents = {
             { type = "int", name = "challenge_goal" },
         }
     },
-    {
+    [`EVENT_CHALLENGE_GOAL_UPDATE`] = {
         name = "EVENT_CHALLENGE_GOAL_UPDATE",
         group = 0,
         size = 1,
@@ -116,7 +116,7 @@ AllGameEvents = {
             { type = "int", name = "challenge_goal" },
         }
     },
-    {
+    [`EVENT_CHALLENGE_REWARD`] = {
         name = "EVENT_CHALLENGE_REWARD",
         group = 0,
         size = 3,
@@ -126,7 +126,7 @@ AllGameEvents = {
             { type = "int", name = "value_2" },
         }
     },
-    {
+    [`EVENT_CONTAINER_INTERACTION`] = {
         name = "EVENT_CONTAINER_INTERACTION",
         group = 0,
         size = 4,
@@ -137,7 +137,7 @@ AllGameEvents = {
             { type = "bool", name = "is_container_closed_after_interaction" },
         }
     },
-    {
+    [`EVENT_CRIME_CONFIRMED`] = {
         name = "EVENT_CRIME_CONFIRMED",
         group = 0,
         size = 3,
@@ -147,7 +147,7 @@ AllGameEvents = {
             { type = "int", name = "witness_entity" },
         }
     },
-    {
+    [`EVENT_DAILY_CHALLENGE_STREAK_COMPLETED`] = {
         name = "EVENT_DAILY_CHALLENGE_STREAK_COMPLETED",
         group = 0,
         size = 1,
@@ -155,7 +155,7 @@ AllGameEvents = {
             { type = "bool", name = "is_daily_challenge_streak_completed" },
         }
     },
-    {
+    [`EVENT_ENTITY_BROKEN`] = {
         name = "EVENT_ENTITY_BROKEN",
         group = 0,
         size = 9,
@@ -171,7 +171,7 @@ AllGameEvents = {
             { type = "float", name = "coord_z" },
         }
     },
-    {
+    [`EVENT_ENTITY_DAMAGED`] = {
         name = "EVENT_ENTITY_DAMAGED",
         group = 0,
         size = 9,
@@ -187,7 +187,7 @@ AllGameEvents = {
             { type = "float", name = "coord_z" },
         }
     },
-    {
+    [`EVENT_ENTITY_DESTROYED`] = {
         name = "EVENT_ENTITY_DESTROYED",
         group = 0,
         size = 9,
@@ -203,7 +203,7 @@ AllGameEvents = {
             { type = "float", name = "coord_z" },
         }
     },
-    {
+    [`EVENT_ENTITY_DISARMED`] = {
         name = "EVENT_ENTITY_DISARMED",
         group = 0,
         size = 4,
@@ -214,7 +214,7 @@ AllGameEvents = {
             { type = "int", name = "value_3" },
         }
     },
-    {
+    [`EVENT_ENTITY_EXPLOSION`] = {
         name = "EVENT_ENTITY_EXPLOSION",
         group = 0,
         size = 6,
@@ -227,7 +227,7 @@ AllGameEvents = {
             { type = "float", name = "coord_z" },
         }
     },
-    {
+    [`EVENT_ENTITY_HOGTIED`] = {
         name = "EVENT_ENTITY_HOGTIED",
         group = 0,
         size = 3,
@@ -237,7 +237,7 @@ AllGameEvents = {
             { type = "int", name = "value_2" },
         }
     },
-    {
+    [`EVENT_HEADSHOT_BLOCKED_BY_HAT`] = {
         name = "EVENT_HEADSHOT_BLOCKED_BY_HAT",
         group = 0,
         size = 2,
@@ -246,7 +246,7 @@ AllGameEvents = {
             { type = "int", name = "initiator_entity" },
         }
     },
-    {
+    [`EVENT_HELP_TEXT_REQUEST`] = {
         name = "EVENT_HELP_TEXT_REQUEST",
         group = 0,
         size = 4,
@@ -257,7 +257,7 @@ AllGameEvents = {
             { type = "int", name = "inventory_item" },
         }
     },
-    {
+    [`EVENT_HITCH_ANIMAL`] = {
         name = "EVENT_HITCH_ANIMAL",
         group = 0,
         size = 4,
@@ -268,7 +268,7 @@ AllGameEvents = {
             { type = "int",  name = "hitching_type" },
         }
     },
-    {
+    [`EVENT_HOGTIED_ENTITY_PICKED_UP`] = {
         name = "EVENT_HOGTIED_ENTITY_PICKED_UP",
         group = 0,
         size = 2,
@@ -277,7 +277,7 @@ AllGameEvents = {
             { type = "int", name = "initiator_entity" },
         }
     },
-    {
+    [`EVENT_HORSE_BROKEN`] = {
         name = "EVENT_HORSE_BROKEN",
         group = 0,
         size = 3,
@@ -287,7 +287,7 @@ AllGameEvents = {
             { type = "int", name = "event_type" },
         }
     },
-    {
+    [`EVENT_IMPENDING_SAMPLE_PROMPT`] = {
         name = "EVENT_IMPENDING_SAMPLE_PROMPT",
         group = 0,
         size = 2,
@@ -296,7 +296,7 @@ AllGameEvents = {
             { type = "int", name = "inventory_item" }
         }
     },
-    {
+    [`EVENT_INVENTORY_ITEM_PICKED_UP`] = {
         name = "EVENT_INVENTORY_ITEM_PICKED_UP",
         group = 0,
         size = 5,
@@ -308,7 +308,7 @@ AllGameEvents = {
             { type = "int",  name = "target_entity" }
         }
     },
-    {
+    [`EVENT_INVENTORY_ITEM_REMOVED`] = {
         name = "EVENT_INVENTORY_ITEM_REMOVED",
         group = 0,
         size = 1,
@@ -316,7 +316,7 @@ AllGameEvents = {
             { type = "int", value = "inventory_item" }
         }
     },
-    {
+    [`EVENT_ITEM_PROMPT_INFO_REQUEST`] = {
         name = "EVENT_ITEM_PROMPT_INFO_REQUEST",
         group = 0,
         size = 2,
@@ -326,7 +326,7 @@ AllGameEvents = {
             { type = "int", name = "inventory_item" }
         }
     },
-    {
+    [`EVENT_LOOT`] = {
         name = "EVENT_LOOT",
         group = 0,
         size = 36,
@@ -369,7 +369,7 @@ AllGameEvents = {
             { type = "int", name = "value_35" }
         }
     },
-    {
+    [`EVENT_LOOT_COMPLETE`] = {
         name = "EVENT_LOOT_COMPLETE",
         group = 0,
         size = 3,
@@ -379,7 +379,7 @@ AllGameEvents = {
             { type = "bool", name = "is_loot_success" }
         }
     },
-    {
+    [`EVENT_LOOT_PLANT_START`] = {
         name = "EVENT_LOOT_PLANT_START",
         group = 0,
         size = 36,
@@ -422,7 +422,7 @@ AllGameEvents = {
             { type = "int", name = "value_35" }
         }
     },
-    {
+    [`EVENT_LOOT_VALIDATION_FAIL`] = {
         name = "EVENT_LOOT_VALIDATION_FAIL",
         group = 0,
         size = 2,
@@ -431,7 +431,7 @@ AllGameEvents = {
             { type = "int", name = "target_entity" }
         }
     },
-    {
+    [`EVENT_MISS_INTENDED_TARGET`] = {
         name = "EVENT_MISS_INTENDED_TARGET",
         group = 0,
         size = 3,
@@ -441,7 +441,7 @@ AllGameEvents = {
             { type = "int", name = "weapon" }
         }
     },
-    {
+    [`EVENT_MOUNT_OVERSPURRED`] = {
         name = "EVENT_MOUNT_OVERSPURRED",
         group = 0,
         size = 6,
@@ -454,7 +454,7 @@ AllGameEvents = {
             { type = "int",   name = "value_5" }
         }
     },
-    {
+    [`EVENT_NETWORK_AWARD_CLAIMED`] = {
         name = "EVENT_NETWORK_AWARD_CLAIMED",
         group = 1,
         size = 12,
@@ -473,7 +473,7 @@ AllGameEvents = {
             { type = "int", name = "value_11" }
         }
     },
-    {
+    [`EVENT_NETWORK_BOUNTY_REQUEST_COMPLETE`] = {
         name = "EVENT_NETWORK_BOUNTY_REQUEST_COMPLETE",
         group = 1,
         size = 7,
@@ -487,7 +487,7 @@ AllGameEvents = {
             { type = "int", name = "pay_off_value" }
         }
     },
-    {
+    [`EVENT_NETWORK_BULLET_IMPACTED_MULTIPLE_PEDS`] = {
         name = "EVENT_NETWORK_BULLET_IMPACTED_MULTIPLE_PEDS",
         group = 1,
         size = 4,
@@ -498,7 +498,7 @@ AllGameEvents = {
             { type = "int", name = "num_incapacitated" }
         }
     },
-    {
+    [`EVENT_NETWORK_CASHINVENTORY_TRANSACTION`] = {
         name = "EVENT_NETWORK_CASHINVENTORY_TRANSACTION",
         group = 1,
         size = 6,
@@ -511,7 +511,7 @@ AllGameEvents = {
             { type = "int", name = "action" }
         }
     },
-    {
+    [`EVENT_NETWORK_CREW_CREATION`] = {
         name = "EVENT_NETWORK_CREW_CREATION",
         group = 1,
         size = 10,
@@ -528,7 +528,7 @@ AllGameEvents = {
             { type = "int",  name = "value_9" }
         }
     },
-    {
+    [`EVENT_NETWORK_CREW_DISBANDED`] = {
         name = "EVENT_NETWORK_CREW_DISBANDED",
         group = 1,
         size = 2,
@@ -537,7 +537,7 @@ AllGameEvents = {
             { type = "int",  name = "value_1" }
         }
     },
-    {
+    [`EVENT_NETWORK_CREW_INVITE_RECEIVED`] = {
         name = "EVENT_NETWORK_CREW_INVITE_RECEIVED",
         group = 1,
         size = 11,
@@ -555,7 +555,7 @@ AllGameEvents = {
             { type = "int", name = "has_message" }
         }
     },
-    {
+    [`EVENT_NETWORK_CREW_JOINED`] = {
         name = "EVENT_NETWORK_CREW_JOINED",
         group = 1,
         size = 2,
@@ -564,7 +564,7 @@ AllGameEvents = {
             { type = "int", name = "value_1" }
         }
     },
-    {
+    [`EVENT_NETWORK_CREW_KICKED`] = {
         name = "EVENT_NETWORK_CREW_KICKED",
         group = 1,
         size = 2,
@@ -573,7 +573,7 @@ AllGameEvents = {
             { type = "int", name = "value_1" }
         }
     },
-    {
+    [`EVENT_NETWORK_CREW_LEFT`] = {
         name = "EVENT_NETWORK_CREW_LEFT",
         group = 1,
         size = 2,
@@ -582,7 +582,7 @@ AllGameEvents = {
             { type = "int", name = "value_1" }
         }
     },
-    {
+    [`EVENT_NETWORK_CREW_RANK_CHANGE`] = {
         name = "EVENT_NETWORK_CREW_RANK_CHANGE",
         group = 1,
         size = 7,
@@ -596,7 +596,7 @@ AllGameEvents = {
             { type = "int", name = "value_6" }
         }
     },
-    {
+    [`EVENT_NETWORK_DAMAGE_ENTITY`] = {
         name = "EVENT_NETWORK_DAMAGE_ENTITY",
         group = 1,
         size = 32,
@@ -635,7 +635,7 @@ AllGameEvents = {
             { type = "bool",  name = "is_suicide" }
         }
     },
-    {
+    [`EVENT_NETWORK_GANG`] = {
         name = "EVENT_NETWORK_GANG",
         group = 1,
         size = 18,
@@ -660,7 +660,7 @@ AllGameEvents = {
             { type = "int", name = "value_17" },
         }
     },
-    {
+    [`EVENT_NETWORK_GANG_WAYPOINT_CHANGED`] = {
         name = "EVENT_NETWORK_GANG_WAYPOINT_CHANGED",
         group = 1,
         size = 3,
@@ -670,7 +670,7 @@ AllGameEvents = {
             { type = "int", name = "type" }
         }
     },
-    {
+    [`EVENT_NETWORK_HOGTIE_BEGIN`] = {
         name = "EVENT_NETWORK_HOGTIE_BEGIN",
         group = 1,
         size = 2,
@@ -679,7 +679,7 @@ AllGameEvents = {
             { type = "int", name = "initiator_entity" }
         }
     },
-    {
+    [`EVENT_NETWORK_HOGTIE_END`] = {
         name = "EVENT_NETWORK_HOGTIE_END",
         group = 1,
         size = 2,
@@ -688,7 +688,7 @@ AllGameEvents = {
             { type = "int", name = "initiator_entity" }
         }
     },
-    {
+    [`EVENT_NETWORK_HUB_UPDATE`] = {
         name = "EVENT_NETWORK_HUB_UPDATE",
         group = 1,
         size = 1,
@@ -696,7 +696,7 @@ AllGameEvents = {
             { type = "int", name = "update" }
         }
     },
-    {
+    [`EVENT_NETWORK_INCAPACITATED_ENTITY`] = {
         name = "EVENT_NETWORK_INCAPACITATED_ENTITY",
         group = 1,
         size = 4,
@@ -707,7 +707,7 @@ AllGameEvents = {
             { type = "float", name = "damage_amount" }
         }
     },
-    {
+    [`EVENT_NETWORK_LASSO_ATTACH`] = {
         name = "EVENT_NETWORK_LASSO_ATTACH",
         group = 1,
         size = 2,
@@ -716,7 +716,7 @@ AllGameEvents = {
             { type = "int", name = "initiator_entity" }
         }
     },
-    {
+    [`EVENT_NETWORK_LASSO_DETACH`] = {
         name = "EVENT_NETWORK_LASSO_DETACH",
         group = 1,
         size = 2,
@@ -725,7 +725,7 @@ AllGameEvents = {
             { type = "int", name = "initiator_entity" }
         }
     },
-    {
+    [`EVENT_NETWORK_LOOT_CLAIMED`] = {
         name = "EVENT_NETWORK_LOOT_CLAIMED",
         group = 1,
         size = 9,
@@ -741,7 +741,7 @@ AllGameEvents = {
             { type = "int", name = "value_8" }
         }
     },
-    {
+    [`EVENT_NETWORK_MINIGAME_REQUEST_COMPLETE`] = {
         name = "EVENT_NETWORK_MINIGAME_REQUEST_COMPLETE",
         group = 1,
         size = 6,
@@ -754,7 +754,7 @@ AllGameEvents = {
             { type = "int",  name = "MinigameErrorCodeHash" }
         }
     },
-    {
+    [`EVENT_NETWORK_PED_DISARMED`] = {
         name = "EVENT_NETWORK_PED_DISARMED",
         group = 1,
         size = 3,
@@ -764,7 +764,7 @@ AllGameEvents = {
             { type = "int", name = "weapon" }
         }
     },
-    {
+    [`EVENT_NETWORK_PED_HAT_SHOT_OFF`] = {
         name = "EVENT_NETWORK_PED_HAT_SHOT_OFF",
         group = 1,
         size = 3,
@@ -774,7 +774,7 @@ AllGameEvents = {
             { type = "int", name = "weapon" }
         }
     },
-    {
+    [`EVENT_NETWORK_PERMISSION_CHECK_RESULT`] = {
         name = "EVENT_NETWORK_PERMISSION_CHECK_RESULT",
         group = 1,
         size = 2,
@@ -783,7 +783,7 @@ AllGameEvents = {
             { type = "int", name = "result_code" }
         }
     },
-    {
+    [`EVENT_NETWORK_PICKUP_COLLECTION_FAILED`] = {
         name = "EVENT_NETWORK_PICKUP_COLLECTION_FAILED",
         group = 1,
         size = 3,
@@ -793,7 +793,7 @@ AllGameEvents = {
             { type = "int", name = "pickup_type" }
         }
     },
-    {
+    [`EVENT_NETWORK_PICKUP_RESPAWNED`] = {
         name = "EVENT_NETWORK_PICKUP_RESPAWNED",
         group = 1,
         size = 2,
@@ -802,7 +802,7 @@ AllGameEvents = {
             { type = "int", name = "value_1" }
         }
     },
-    {
+    [`EVENT_NETWORK_PLAYER_COLLECTED_PICKUP`] = {
         name = "EVENT_NETWORK_PLAYER_COLLECTED_PICKUP",
         group = 1,
         size = 8,
@@ -817,7 +817,7 @@ AllGameEvents = {
             { type = "int", name = "value_7" }
         }
     },
-    {
+    [`EVENT_NETWORK_PLAYER_COLLECTED_PORTABLE_PICKUP`] = {
         name = "EVENT_NETWORK_PLAYER_COLLECTED_PORTABLE_PICKUP",
         group = 1,
         size = 3,
@@ -827,7 +827,7 @@ AllGameEvents = {
             { type = "int", name = "value_2" }
         }
     },
-    {
+    [`EVENT_NETWORK_PLAYER_DROPPED_PORTABLE_PICKUP`] = {
         name = "EVENT_NETWORK_PLAYER_DROPPED_PORTABLE_PICKUP",
         group = 1,
         size = 3,
@@ -837,7 +837,7 @@ AllGameEvents = {
             { type = "int", name = "value_2" }
         }
     },
-    {
+    [`EVENT_NETWORK_PLAYER_JOIN_SCRIPT`] = {
         name = "EVENT_NETWORK_PLAYER_JOIN_SCRIPT",
         group = 1,
         size = 41,
@@ -885,7 +885,7 @@ AllGameEvents = {
             { type = "int", name = "participant" }
         }
     },
-    {
+    [`EVENT_NETWORK_PLAYER_LEFT_SCRIPT`] = {
         name = "EVENT_NETWORK_PLAYER_LEFT_SCRIPT",
         group = 1,
         size = 41,
@@ -933,7 +933,7 @@ AllGameEvents = {
             { type = "int", name = "participant" }
         }
     },
-    {
+    [`EVENT_NETWORK_PLAYER_JOIN_SESSION`] = {
         name = "EVENT_NETWORK_PLAYER_JOIN_SESSION",
         group = 1,
         size = 10,
@@ -950,7 +950,7 @@ AllGameEvents = {
             { type = "int", name = "value_9" }
         }
     },
-    {
+    [`EVENT_NETWORK_PLAYER_LEFT_SESSION`] = {
         name = "EVENT_NETWORK_PLAYER_LEFT_SESSION",
         group = 1,
         size = 10,
@@ -967,7 +967,7 @@ AllGameEvents = {
             { type = "int", name = "value_9" }
         }
     },
-    {
+    [`EVENT_NETWORK_PLAYER_MISSED_SHOT`] = {
         name = "EVENT_NETWORK_PLAYER_MISSED_SHOT",
         group = 1,
         size = 9,
@@ -984,7 +984,7 @@ AllGameEvents = {
             { type = "int", name = "value_9" },
         }
     },
-    {
+    [`EVENT_NETWORK_POSSE_CREATED`] = {
         name = "EVENT_NETWORK_POSSE_CREATED",
         group = 1,
         size = 10,
@@ -1001,7 +1001,7 @@ AllGameEvents = {
             { type = "int",  name = "value_9" }
         }
     },
-    {
+    [`EVENT_NETWORK_POSSE_DATA_CHANGED`] = {
         name = "EVENT_NETWORK_POSSE_DATA_CHANGED",
         group = 1,
         size = 2,
@@ -1010,7 +1010,7 @@ AllGameEvents = {
             { type = "int", name = "value_1" }
         }
     },
-    {
+    [`EVENT_NETWORK_POSSE_DISBANDED`] = {
         name = "EVENT_NETWORK_POSSE_DISBANDED",
         group = 1,
         size = 2,
@@ -1019,7 +1019,7 @@ AllGameEvents = {
             { type = "int",  name = "posse" }
         }
     },
-    {
+    [`EVENT_NETWORK_POSSE_EX_ADMIN_DISBANDED`] = {
         name = "EVENT_NETWORK_POSSE_EX_ADMIN_DISBANDED",
         group = 1,
         size = 9,
@@ -1035,7 +1035,7 @@ AllGameEvents = {
             { type = "int", name = "value_8" }
         }
     },
-    {
+    [`EVENT_NETWORK_POSSE_EX_INACTIVE_DISBANDED`] = {
         name = "EVENT_NETWORK_POSSE_EX_INACTIVE_DISBANDED",
         group = 1,
         size = 10,
@@ -1052,7 +1052,7 @@ AllGameEvents = {
             { type = "int", name = "value_9" }
         }
     },
-    {
+    [`EVENT_NETWORK_POSSE_JOINED`] = {
         name = "EVENT_NETWORK_POSSE_JOINED",
         group = 1,
         size = 2,
@@ -1061,7 +1061,7 @@ AllGameEvents = {
             { type = "int", name = "posse" }
         }
     },
-    {
+    [`EVENT_NETWORK_POSSE_LEADER_SET_ACTIVE`] = {
         name = "EVENT_NETWORK_POSSE_LEADER_SET_ACTIVE",
         group = 1,
         size = 23,
@@ -1091,7 +1091,7 @@ AllGameEvents = {
             { type = "int", name = "value_22" }
         }
     },
-    {
+    [`EVENT_NETWORK_POSSE_LEFT`] = {
         name = "EVENT_NETWORK_POSSE_LEFT",
         group = 1,
         size = 1,
@@ -1099,7 +1099,7 @@ AllGameEvents = {
             { type = "int", name = "posse" }
         }
     },
-    {
+    [`EVENT_NETWORK_POSSE_MEMBER_DISBANDED`] = {
         name = "EVENT_NETWORK_POSSE_MEMBER_DISBANDED",
         group = 1,
         size = 23,
@@ -1129,7 +1129,7 @@ AllGameEvents = {
             { type = "int", name = "value_22" }
         }
     },
-    {
+    [`EVENT_NETWORK_POSSE_MEMBER_JOINED`] = {
         name = "EVENT_NETWORK_POSSE_MEMBER_JOINED",
         group = 1,
         size = 23,
@@ -1159,7 +1159,7 @@ AllGameEvents = {
             { type = "int", name = "value_22" }
         }
     },
-    {
+    [`EVENT_NETWORK_POSSE_MEMBER_KICKED`] = {
         name = "EVENT_NETWORK_POSSE_MEMBER_KICKED",
         group = 1,
         size = 23,
@@ -1189,7 +1189,7 @@ AllGameEvents = {
             { type = "int", name = "value_22" }
         }
     },
-    {
+    [`EVENT_NETWORK_POSSE_MEMBER_LEFT`] = {
         name = "EVENT_NETWORK_POSSE_MEMBER_LEFT",
         group = 1,
         size = 23,
@@ -1219,7 +1219,7 @@ AllGameEvents = {
             { type = "int", name = "value_22" }
         }
     },
-    {
+    [`EVENT_NETWORK_POSSE_MEMBER_SET_ACTIVE`] = {
         name = "EVENT_NETWORK_POSSE_MEMBER_SET_ACTIVE",
         group = 1,
         size = 23,
@@ -1249,7 +1249,7 @@ AllGameEvents = {
             { type = "int", name = "value_22" }
         }
     },
-    {
+    [`EVENT_NETWORK_PROJECTILE_ATTACHED`] = {
         name = "EVENT_NETWORK_PROJECTILE_ATTACHED",
         group = 1,
         size = 6,
@@ -1262,7 +1262,7 @@ AllGameEvents = {
             { type = "int",   name = "weapon" }
         }
     },
-    {
+    [`EVENT_NETWORK_PROJECTILE_NO_DAMAGE_IMPACT`] = {
         name = "EVENT_NETWORK_PROJECTILE_NO_DAMAGE_IMPACT",
         group = 1,
         size = 2,
@@ -1271,7 +1271,7 @@ AllGameEvents = {
             { type = "int", name = "ammo" }
         }
     },
-    {
+    [`EVENT_NETWORK_REVIVED_ENTITY`] = {
         name = "EVENT_NETWORK_REVIVED_ENTITY",
         group = 1,
         size = 2,
@@ -1280,7 +1280,7 @@ AllGameEvents = {
             { type = "int", name = "initiator_entity" }
         }
     },
-    {
+    [`EVENT_NETWORK_SESSION_EVENT`] = {
         name = "EVENT_NETWORK_SESSION_EVENT",
         group = 1,
         size = 10,
@@ -1297,7 +1297,7 @@ AllGameEvents = {
             { type = "int", name = "value_9" }
         }
     },
-    {
+    [`EVENT_NETWORK_SESSION_MERGE_END`] = {
         name = "EVENT_NETWORK_SESSION_MERGE_END",
         group = 1,
         size = 1,
@@ -1305,7 +1305,7 @@ AllGameEvents = {
             { type = "int", name = "session_message" }
         }
     },
-    {
+    [`EVENT_NETWORK_SESSION_MERGE_START`] = {
         name = "EVENT_NETWORK_SESSION_MERGE_START",
         group = 1,
         size = 1,
@@ -1313,7 +1313,7 @@ AllGameEvents = {
             { type = "int", name = "session_message" }
         }
     },
-    {
+    [`EVENT_NETWORK_VEHICLE_LOOTED`] = {
         name = "EVENT_NETWORK_VEHICLE_LOOTED",
         group = 1,
         size = 3,
@@ -1323,7 +1323,7 @@ AllGameEvents = {
             { type = "int", name = "value_2" }
         }
     },
-    {
+    [`EVENT_NETWORK_VEHICLE_UNDRIVABLE`] = {
         name = "EVENT_NETWORK_VEHICLE_UNDRIVABLE",
         group = 1,
         size = 3,
@@ -1333,7 +1333,7 @@ AllGameEvents = {
             { type = "int", name = "value_2" }
         }
     },
-    {
+    [`EVENT_OBJECT_INTERACTION`] = {
         name = "EVENT_OBJECT_INTERACTION",
         group = 0,
         size = 10,
@@ -1350,7 +1350,7 @@ AllGameEvents = {
             { type = "int", name = "value_9" }
         }
     },
-    {
+    [`EVENT_PED_ANIMAL_INTERACTION`] = {
         name = "EVENT_PED_ANIMAL_INTERACTION",
         group = 0,
         size = 3,
@@ -1360,7 +1360,7 @@ AllGameEvents = {
             { type = "int", name = "interaction_type" }
         }
     },
-    {
+    [`EVENT_PED_CREATED`] = {
         name = "EVENT_PED_CREATED",
         group = 0,
         size = 1,
@@ -1368,7 +1368,7 @@ AllGameEvents = {
             { type = "int", name = "target_entity" }
         }
     },
-    {
+    [`EVENT_PED_DESTROYED`] = {
         name = "EVENT_PED_DESTROYED",
         group = 0,
         size = 1,
@@ -1376,7 +1376,7 @@ AllGameEvents = {
             { type = "int", name = "target_entity" }
         }
     },
-    {
+    [`EVENT_PED_HAT_KNOCKED_OFF`] = {
         name = "EVENT_PED_HAT_KNOCKED_OFF",
         group = 0,
         size = 2,
@@ -1385,7 +1385,7 @@ AllGameEvents = {
             { type = "int", name = "hat_entity" }
         }
     },
-    {
+    [`EVENT_PED_WHISTLE`] = {
         name = "EVENT_PED_WHISTLE",
         group = 0,
         size = 2,
@@ -1394,7 +1394,7 @@ AllGameEvents = {
             { type = "int", name = "whistle_type" }
         }
     },
-    {
+    [`EVENT_PICKUP_CARRIABLE`] = {
         name = "EVENT_PICKUP_CARRIABLE",
         group = 0,
         size = 4,
@@ -1405,7 +1405,7 @@ AllGameEvents = {
             { type = "int",  name = "carrier_mount_entity" }
         }
     },
-    {
+    [`EVENT_PLACE_CARRIABLE_ONTO_PARENT`] = {
         name = "EVENT_PLACE_CARRIABLE_ONTO_PARENT",
         group = 0,
         size = 6,
@@ -1418,7 +1418,7 @@ AllGameEvents = {
             { type = "int",  name = "inventory_item" }
         }
     },
-    {
+    [`EVENT_PLAYER_COLLECTED_AMBIENT_PICKUP`] = {
         name = "EVENT_PLAYER_COLLECTED_AMBIENT_PICKUP",
         group = 0,
         size = 8,
@@ -1433,7 +1433,7 @@ AllGameEvents = {
             { type = "int", name = "inventory_item" }
         }
     },
-    {
+    [`EVENT_PLAYER_ESCALATED_PED`] = {
         name = "EVENT_PLAYER_ESCALATED_PED",
         group = 0,
         size = 2,
@@ -1442,7 +1442,7 @@ AllGameEvents = {
             { type = "int", name = "target_entity" }
         }
     },
-    {
+    [`EVENT_PLAYER_HAT_EQUIPPED`] = {
         name = "EVENT_PLAYER_HAT_EQUIPPED",
         group = 0,
         size = 10,
@@ -1459,7 +1459,7 @@ AllGameEvents = {
             { type = "int", name = "hat_tint3" }
         }
     },
-    {
+    [`EVENT_PLAYER_HAT_KNOCKED_OFF`] = {
         name = "EVENT_PLAYER_HAT_KNOCKED_OFF",
         group = 0,
         size = 5,
@@ -1471,7 +1471,7 @@ AllGameEvents = {
             { type = "int", name = "value_4" }
         }
     },
-    {
+    [`EVENT_PLAYER_HORSE_AGITATED_BY_ANIMAL`] = {
         name = "EVENT_PLAYER_HORSE_AGITATED_BY_ANIMAL",
         group = 0,
         size = 4,
@@ -1482,7 +1482,7 @@ AllGameEvents = {
             { type = "int", name = "value_3" }
         }
     },
-    {
+    [`EVENT_PLAYER_MOUNT_WILD_HORSE`] = {
         name = "EVENT_PLAYER_MOUNT_WILD_HORSE",
         group = 0,
         size = 1,
@@ -1490,7 +1490,7 @@ AllGameEvents = {
             { type = "int", name = "target_entity" }
         }
     },
-    {
+    [`EVENT_PLAYER_PROMPT_TRIGGERED`] = {
         name = "EVENT_PLAYER_PROMPT_TRIGGERED",
         group = 0,
         size = 10,
@@ -1507,7 +1507,7 @@ AllGameEvents = {
             { type = "int",   name = "kit_emote_action" }
         }
     },
-    {
+    [`EVENT_RAN_OVER_PED`] = {
         name = "EVENT_RAN_OVER_PED",
         group = 0,
         size = 2,
@@ -1516,7 +1516,7 @@ AllGameEvents = {
             { type = "int", name = "target_entity" }
         }
     },
-    {
+    [`EVENT_REVIVE_ENTITY`] = {
         name = "EVENT_REVIVE_ENTITY",
         group = 0,
         size = 3,
@@ -1526,7 +1526,7 @@ AllGameEvents = {
             { type = "int", name = "used_inventory_item" }
         }
     },
-    {
+    [`EVENT_SCENARIO_ADD_PED`] = {
         name = "EVENT_SCENARIO_ADD_PED",
         group = 2,
         size = 2,
@@ -1535,7 +1535,7 @@ AllGameEvents = {
             { type = "int", name = "value_1" }
         }
     },
-    {
+    [`EVENT_SCENARIO_DESTROY_PROP`] = {
         name = "EVENT_SCENARIO_DESTROY_PROP",
         group = 2,
         size = 2,
@@ -1544,7 +1544,7 @@ AllGameEvents = {
             { type = "int", name = "value_1" }
         }
     },
-    {
+    [`EVENT_SCENARIO_REMOVE_PED`] = {
         name = "EVENT_SCENARIO_REMOVE_PED",
         group = 2,
         size = 2,
@@ -1553,7 +1553,7 @@ AllGameEvents = {
             { type = "int", name = "value_1" }
         }
     },
-    {
+    [`EVENT_SHOCKING_ITEM_STOLEN`] = {
         name = "EVENT_SHOCKING_ITEM_STOLEN",
         group = 0,
         size = 3,
@@ -1563,7 +1563,7 @@ AllGameEvents = {
             { type = "int", name = "carriable_entity" }
         }
     },
-    {
+    [`EVENT_SHOT_FIRED_BULLET_IMPACT`] = {
         name = "EVENT_SHOT_FIRED_BULLET_IMPACT",
         group = 0,
         size = 1,
@@ -1571,7 +1571,7 @@ AllGameEvents = {
             { type = "int", name = "target_entity" }
         }
     },
-    {
+    [`EVENT_SHOT_FIRED_WHIZZED_BY`] = {
         name = "EVENT_SHOT_FIRED_WHIZZED_BY",
         group = 0,
         size = 1,
@@ -1579,7 +1579,7 @@ AllGameEvents = {
             { type = "int", name = "initiator_entity" }
         }
     },
-    {
+    [`EVENT_STAT_VALUE_CHANGED`] = {
         name = "EVENT_STAT_VALUE_CHANGED",
         group = 0,
         size = 2,
@@ -1588,7 +1588,7 @@ AllGameEvents = {
             { type = "int", name = "value_1" }
         }
     },
-    {
+    [`EVENT_TRIGGERED_ANIMAL_WRITHE`] = {
         name = "EVENT_TRIGGERED_ANIMAL_WRITHE",
         group = 0,
         size = 2,
@@ -1597,7 +1597,7 @@ AllGameEvents = {
             { type = "int", name = "initiator_entity" }
         }
     },
-    {
+    [`EVENT_UI_ITEM_INSPECT_ACTIONED`] = {
         name = "EVENT_UI_ITEM_INSPECT_ACTIONED",
         group = 3,
         size = 6,
@@ -1610,7 +1610,7 @@ AllGameEvents = {
             { type = "int", name = "value_5" }
         }
     },
-    {
+    [`EVENT_UI_QUICK_ITEM_USED`] = {
         name = "EVENT_UI_QUICK_ITEM_USED",
         group = 3,
         size = 6,
@@ -1623,7 +1623,7 @@ AllGameEvents = {
             { type = "int", name = "value_5" }
         }
     },
-    {
+    [`EVENT_VEHICLE_CREATED`] = {
         name = "EVENT_VEHICLE_CREATED",
         group = 0,
         size = 1,
@@ -1631,7 +1631,7 @@ AllGameEvents = {
             { type = "int", name = "target_entity" }
         }
     },
-    {
+    [`EVENT_VEHICLE_DESTROYED`] = {
         name = "EVENT_VEHICLE_DESTROYED",
         group = 0,
         size = 1,

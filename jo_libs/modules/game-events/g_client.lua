@@ -7,20 +7,15 @@ jo.file.load('game-events.data')
 
 local function GetEventData(...) return Citizen.InvokeNative(0x57EC5FA4D4D6AFCA, ...) end
 
-local eventsData = {}
-for _, data in pairs(AllGameEvents) do
-  eventsData[joaat(data.name)] = data
-end
-
 AddEventHandler('jo_libs:gameEvents:register', function(eventName)
   local eventHash = GetHashFromString(eventName)
-  local eventData = eventsData[eventHash]
+  local eventData = AllGameEvents[eventHash]
   eventListened[eventHash] = true
   groupListened[eventData.group] = true
 end)
 
 local function getDataFromEvent(eventHash, index)
-  local eventData = eventsData[eventHash]
+  local eventData = AllGameEvents[eventHash]
 
   local datas = {}
 
@@ -53,7 +48,7 @@ local function getDataFromEvent(eventHash, index)
 end
 
 local function getEventNameFromHash(eventHash)
-  return eventsData[eventHash].name
+  return AllGameEvents[eventHash].name
 end
 
 local function processEvent(groupId, index)
@@ -61,7 +56,7 @@ local function processEvent(groupId, index)
   if not eventListened[eventHash] then return end
   local data = getDataFromEvent(eventHash, index)
   if not data then return false end
-  local eventData = eventsData[eventHash]
+  local eventData = AllGameEvents[eventHash]
   TriggerEvent('jo_libs:gameEvents:' .. eventData.name, data)
 end
 
