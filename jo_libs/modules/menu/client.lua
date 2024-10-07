@@ -51,10 +51,6 @@ local disabledKeys = {
   `INPUT_PREV_WEAPON`,
 }
 
-
-
-jo.file.load('menu.nui')
-
 ---@class MenuClass : table Menu class
 local MenuClass = {
   id = "",
