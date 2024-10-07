@@ -571,6 +571,17 @@ function jo.clothes.getComponentEquiped(ped, category)
   end
 end
 
+function jo.clothes.getCategoryTint(ped, category)
+  local categoryHash = GetHashFromString(category)
+  if not IsMetaPedUsingComponent(ped, categoryHash) then
+    return false
+  end
+  local equiped, index = jo.clothes.isCategoryEquiped(ped, categoryHash)
+
+  if not equiped then return false end
+  return GetMetaPedAssetTint(ped, index)
+end
+
 function jo.clothes.getComponentsEquiped(ped)
   return PutInCacheCurrentClothes(ped) or {}
 end
