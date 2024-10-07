@@ -4,8 +4,7 @@ local Entities = {}
 -------------
 -- Auto delete when restart
 -------------
-AddEventHandler('onResourceStop', function(resourceName)
-	if GetCurrentResourceName() ~= resourceName then return end
+jo.stopped(function()
 	for entity,_ in pairs (Entities) do
 		jo.entity.delete(entity)
 	end
