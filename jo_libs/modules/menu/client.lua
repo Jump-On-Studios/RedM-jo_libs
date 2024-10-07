@@ -301,6 +301,10 @@ function jo.menu.setMainScript(name)
   resourceNUI = name
 end
 
+function jo.menu.getCurrentData()
+  return currentData
+end
+
 -------------
 -- NUI
 -------------
