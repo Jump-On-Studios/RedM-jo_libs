@@ -14,6 +14,8 @@ function jo.file.load(modname)
     end
 
     pcall(fn)
+  else
+    eprint('Impossible to load: ' .. modname)
   end
 end
 
