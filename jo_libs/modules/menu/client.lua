@@ -305,6 +305,10 @@ function jo.menu.getCurrentData()
   return currentData
 end
 
+function jo.menu.getPreviousData()
+  return previousData
+end
+
 -------------
 -- NUI
 -------------
