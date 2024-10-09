@@ -305,6 +305,14 @@ function jo.menu.getPreviousData()
   return previousData
 end
 
+function jo.menu.getCurrentItem()
+  return currentData.item
+end
+
+function jo.menu.getCurrentMenu()
+  return menus[currentData.menu]
+end
+
 function jo.menu.doesActiveButtonChange()
   return currentData.menu ~= previousData.menu or currentData.index ~= previousData.index
 end
