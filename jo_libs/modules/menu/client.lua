@@ -319,6 +319,10 @@ function jo.menu.doesActiveButtonChange()
   return currentData.menu ~= previousData.menu or currentData.index ~= previousData.index
 end
 
+function jo.menu.forceBack()
+  SendNUIMessage({ event = "menuBack" })
+end
+
 -------------
 -- NUI
 -------------
@@ -343,7 +347,7 @@ RegisterNUICallback('backMenu', function(data, cb)
 
   if not menus[data.menu] then return end
 
-  menus[data.menu].onBack(currentData)
+  jo.menu.fireEvent(menus[data.menu], 'onBack')
 end)
 
 function jo.menu.onChange(cb)
