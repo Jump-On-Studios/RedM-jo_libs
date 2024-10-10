@@ -242,10 +242,12 @@ jo.timeout.loop(1000, LoopDisableKeys)
 ---@param show boolean if the menu is show or hiddeng
 ---@param keepInput? boolean if the game input has to be keep (default: true)
 ---@param hideRadar? boolean if the radar has to be hide (default: true)
-function jo.menu.show(show, keepInput, hideRadar)
+---@param animation? boolean if the menu has to be show/hide with animation (default: true)
+function jo.menu.show(show, keepInput, hideRadar, animation)
   CreateThread(function()
     keepInput = keepInput == nil and true or keepInput
     hideRadar = hideRadar == nil and true or hideRadar
+    animation = animation == nil and true or animation
     nuiShow = show
     if timeoutClose then
       timeoutClose:clear()
@@ -253,12 +255,12 @@ function jo.menu.show(show, keepInput, hideRadar)
     if not nuiShow then
       timeoutClose = jo.timeout.set(150, function()
         SetNuiFocus(false, false)
-        SendNUIMessage({ event = 'updateShow', show = show })
+        SendNUIMessage({ event = 'updateShow', show = show, cancelAnimation = not animation })
       end)
     else
       SetNuiFocus(true, true)
       SetNuiFocusKeepInput(keepInput)
-      SendNUIMessage({ event = 'updateShow', show = show })
+      SendNUIMessage({ event = 'updateShow', show = show, cancelAnimation = not animation })
     end
     if show then
       radarAlreadyHidden = IsRadarHidden()
