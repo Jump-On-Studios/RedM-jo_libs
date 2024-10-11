@@ -1,36 +1,36 @@
-function sprint(text)
+function sprint(...)
   if IsDuplicityVersion() then
-    return print("^1"..GetCurrentResourceName()..": "..text.."^0")
+    return print("^1" .. GetCurrentResourceName() .. ":", ..., "^0")
   end
-  return print("^1"..text)
+  return print("^1", ...)
 end
 
-function eprint(text)
+function eprint(...)
   if IsDuplicityVersion() then
-    return print("^1"..GetCurrentResourceName()..": "..text.."^0")
+    return print("^1" .. GetCurrentResourceName() .. ":", ..., "^0")
   end
-  return print("^1"..text)
+  return print("^1", ...)
 end
 
-function gprint(text)
+function gprint(...)
   if IsDuplicityVersion() then
-    return print("\x1b[92m"..GetCurrentResourceName()..": "..text.."\x1b[0m")
+    return print("\x1b[92m" .. GetCurrentResourceName() .. ":", ..., "\x1b[0m")
   end
-  return print("^2"..text)
+  return print("^2", ...)
 end
 
-function oprint(text)
+function oprint(...)
   if IsDuplicityVersion() then
-    return print("\x1b[38;2;255;95;31m"..GetCurrentResourceName()..": "..text.."\x1b[0m")
+    return print("\x1b[38;2;255;95;31m" .. GetCurrentResourceName() .. ":", ..., "\x1b[0m")
   end
-  return print("^3"..text)
+  return print("^3", ...)
 end
 
-function bprint(text)
+function bprint(...)
   if IsDuplicityVersion() then
-    return print("\x1b[96m"..GetCurrentResourceName()..": "..text.."\x1b[0m")
+    return print("\x1b[96m" .. GetCurrentResourceName() .. ":", ..., "\x1b[0m")
   end
-  return print("^5"..text)
+  return print("^5", ...)
 end
 
 function dprint(...)

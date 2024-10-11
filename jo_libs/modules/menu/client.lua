@@ -241,13 +241,8 @@ jo.timeout.loop(1000, LoopDisableKeys)
 
 local function loopMenu()
   CreateThread(function()
-    while nuiShow do
-      if menus[currentData.menu]?.tick then
-        menus[currentData.menu].tick(currentData)
-      end
-      if currentData.item.tick then
-        currentData.item.tick(currentData)
-      end
+    while jo.menu.isOpen() do
+      jo.menu.fireAllLevelEvents('tick')
       Wait(0)
     end
   end)
@@ -387,9 +382,15 @@ end)
 ---@param eventName string the name of the event to fired
 ---@param ... any the argument to send
 function jo.menu.fireEvent(item, eventName, ...)
+  if not item then return end
   if item[eventName .. "ClientEvent"] then TriggerEvent(item[eventName .. "ClientEvent"], currentData, ...) end
   if item[eventName .. "ServerEvent"] then TriggerServerEvent(item[eventName .. "ServerEvent"], currentData, ...) end
   if item[eventName] then item[eventName](currentData, ...) end
+end
+
+function jo.menu.fireAllLevelEvents(eventName, ...)
+  jo.menu.fireEvent(jo.menu.getCurrentMenu(), eventName, ...)
+  jo.menu.fireEvent(jo.menu.getCurrentItem(), eventName, ...)
 end
 
 local function menuNUIChange(data)
@@ -416,7 +417,6 @@ local function menuNUIChange(data)
     end
   end
 
-  local button = menus[currentData.menu].items[currentData.index]
   local oldButton = false
   if previousData.menu then
     oldButton = menus[previousData.menu].items[previousData.index]
@@ -428,15 +428,15 @@ local function menuNUIChange(data)
       jo.menu.fireEvent(menus[previousData.menu], "onExit")
     end
     jo.menu.fireEvent(menus[currentData.menu], "onEnter")
-    jo.menu.fireEvent(button, "onActive")
+    jo.menu.fireEvent(currentData.item, "onActive")
   else
     if previousData.index ~= currentData.index then
       if oldButton then
         jo.menu.fireEvent(oldButton, "onExit")
       end
-      jo.menu.fireEvent(button, "onActive")
+      jo.menu.fireEvent(currentData.item, "onActive")
     else
-      jo.menu.fireEvent(button, "onChange")
+      jo.menu.fireEvent(currentData.item, "onChange")
     end
     jo.menu.fireEvent(menus[previousData.menu], "onChange")
   end
