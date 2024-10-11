@@ -239,6 +239,20 @@ function LoopDisableKeys()
 end
 jo.timeout.loop(1000, LoopDisableKeys)
 
+local function loopMenu()
+  CreateThread(function()
+    while nuiShow do
+      if menus[currentData.menu]?.tick then
+        menus[currentData.menu].tick(currentData)
+      end
+      if currentData.item.tick then
+        currentData.item.tick(currentData)
+      end
+      Wait(0)
+    end
+  end)
+end
+
 ---@param show boolean if the menu is show or hiddeng
 ---@param keepInput? boolean if the game input has to be keep (default: true)
 ---@param hideRadar? boolean if the radar has to be hide (default: true)
@@ -261,6 +275,7 @@ function jo.menu.show(show, keepInput, hideRadar, animation)
       SetNuiFocus(true, true)
       SetNuiFocusKeepInput(keepInput)
       SendNUIMessage({ event = 'updateShow', show = show, cancelAnimation = not animation })
+      loopMenu()
     end
     if show then
       radarAlreadyHidden = IsRadarHidden()
