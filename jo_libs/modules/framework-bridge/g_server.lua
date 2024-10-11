@@ -1,4 +1,4 @@
-RegisterNetEvent('jo_libs:server:applySkinAndClothes', function(ped,skin,clothes)
+RegisterNetEvent('jo_libs:server:applySkinAndClothes', function(ped, skin, clothes)
   local source = source
   local ped = ped
   local skin = standardizeSkinKeys(skin)
@@ -9,5 +9,5 @@ RegisterNetEvent('jo_libs:server:applySkinAndClothes', function(ped,skin,clothes
     clothes.teeth = nil
   end
 
-  TriggerClientEvent("jo_libs:client:applySkinAndClothes",source,ped,skin,clothes)
+  TriggerClientEvent("jo_libs:client:applySkinAndClothes", source, ped, skin, clothes)
 end)

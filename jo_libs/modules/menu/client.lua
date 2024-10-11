@@ -242,7 +242,7 @@ jo.timeout.loop(1000, LoopDisableKeys)
 local function loopMenu()
   CreateThread(function()
     while jo.menu.isOpen() do
-      jo.menu.fireAllLevelEvents('tick')
+      jo.menu.fireAllLevelsEvent('tick')
       Wait(0)
     end
   end)
@@ -388,7 +388,7 @@ function jo.menu.fireEvent(item, eventName, ...)
   if item[eventName] then item[eventName](currentData, ...) end
 end
 
-function jo.menu.fireAllLevelEvents(eventName, ...)
+function jo.menu.fireAllLevelsEvent(eventName, ...)
   jo.menu.fireEvent(jo.menu.getCurrentMenu(), eventName, ...)
   jo.menu.fireEvent(jo.menu.getCurrentItem(), eventName, ...)
 end
