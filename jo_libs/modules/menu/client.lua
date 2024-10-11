@@ -51,10 +51,6 @@ local disabledKeys = {
   `INPUT_PREV_WEAPON`,
 }
 
-
-
-jo.file.load('menu.nui')
-
 ---@class MenuClass : table Menu class
 local MenuClass = {
   id = "",
@@ -97,7 +93,7 @@ local MenuItem = {
   onExit = function() end
 }
 
-function MenuClass:addItem(p,item)
+function MenuClass:addItem(p, item)
   if item == nil then
     item = p
     p = #self.items + 1
@@ -106,19 +102,19 @@ function MenuClass:addItem(p,item)
   item.index = p
   table.insert(self.items, p, item)
 end
-function jo.menu.addItem(id,p,item) menus[id]:addItem(p,item) end
+function jo.menu.addItem(id, p, item) menus[id]:addItem(p, item) end
 
 function MenuClass:addItems(items)
   for _, item in ipairs(items) do
     self:addItem(item)
   end
 end
-function jo.menu.addItems(id,items) menus[id]:addItems(items) end
+function jo.menu.addItems(id, items) menus[id]:addItems(items) end
 
-function MenuClass:updateItem(index,key,value)
+function MenuClass:updateItem(index, key, value)
   self.items[index][key] = value
 end
-function jo.menu.updateItem(id,index,key,value) menus[id]:updateItem(index,key,value) end
+function jo.menu.updateItem(id, index, key, value) menus[id]:updateItem(index, key, value) end
 
 function MenuClass:refresh()
   if hasMainScript() then
@@ -143,8 +139,8 @@ function jo.menu.reset(id) menus[id]:reset() end
 
 ---@param first? integer pos of the first element to sort (default: 1)
 ---@param last? integer pos of the last element to sort (default: n)
-function MenuClass:sort(first,last)
-  local sortFunc = function(i1,i2)
+function MenuClass:sort(first, last)
+  local sortFunc = function(i1, i2)
     local title1 = i1.title
     local title2 = i2.title
     return title1 < title2
@@ -152,7 +148,7 @@ function MenuClass:sort(first,last)
 
   first = math.max(1, first or 1)
   last = math.min(#self.items, last or #self.items)
- 
+
   local sortedTable = {}
   if first == 1 and last == #self.items then
     sortedTable = self.items
@@ -169,11 +165,11 @@ function MenuClass:sort(first,last)
     self.items[i] = sortedTable[i - first + 1]
   end
 
-  for i,item in pairs (self.items) do
+  for i, item in pairs(self.items) do
     item.index = i
   end
 end
-function jo.menu.sort(id,first,last) menus[id]:sort(first,last) end
+function jo.menu.sort(id, first, last) menus[id]:sort(first, last) end
 
 function MenuClass:send(reset)
   if hasMainScript() then
@@ -235,21 +231,32 @@ end
 
 function LoopDisableKeys()
   while nuiShow do
-    for _,key in pairs (disabledKeys) do
-      DisableControlAction(0,key,true)
+    for _, key in pairs(disabledKeys) do
+      DisableControlAction(0, key, true)
     end
     Wait(0)
   end
 end
-jo.timeout.loop(1000,LoopDisableKeys)
+jo.timeout.loop(1000, LoopDisableKeys)
+
+local function loopMenu()
+  CreateThread(function()
+    while jo.menu.isOpen() do
+      jo.menu.fireAllLevelsEvent('tick')
+      Wait(0)
+    end
+  end)
+end
 
 ---@param show boolean if the menu is show or hiddeng
 ---@param keepInput? boolean if the game input has to be keep (default: true)
 ---@param hideRadar? boolean if the radar has to be hide (default: true)
-function jo.menu.show(show, keepInput, hideRadar)
+---@param animation? boolean if the menu has to be show/hide with animation (default: true)
+function jo.menu.show(show, keepInput, hideRadar, animation)
   CreateThread(function()
     keepInput = keepInput == nil and true or keepInput
     hideRadar = hideRadar == nil and true or hideRadar
+    animation = animation == nil and true or animation
     nuiShow = show
     if timeoutClose then
       timeoutClose:clear()
@@ -257,12 +264,13 @@ function jo.menu.show(show, keepInput, hideRadar)
     if not nuiShow then
       timeoutClose = jo.timeout.set(150, function()
         SetNuiFocus(false, false)
-        SendNUIMessage({ event = 'updateShow', show = show })
+        SendNUIMessage({ event = 'updateShow', show = show, cancelAnimation = not animation })
       end)
     else
       SetNuiFocus(true, true)
       SetNuiFocusKeepInput(keepInput)
-      SendNUIMessage({ event = 'updateShow', show = show })
+      SendNUIMessage({ event = 'updateShow', show = show, cancelAnimation = not animation })
+      loopMenu()
     end
     if show then
       radarAlreadyHidden = IsRadarHidden()
@@ -276,7 +284,7 @@ end
 ---@param lang table list of translated strings
 function jo.menu.updateLang(lang)
   SendNUIMessage({
-    event="updateLang",
+    event = "updateLang",
     lang = lang
   })
 end
@@ -284,7 +292,7 @@ end
 ---@param volume number volume of sound effect 0.0 <> 1.0
 function jo.menu.updateVolume(volume)
   SendNUIMessage({
-    event="updateVolume",
+    event = "updateVolume",
     volume = volume
   })
 end
@@ -293,7 +301,7 @@ function jo.menu.get(id)
   return menus[id]
 end
 
-function jo.menu.set(id,menu)
+function jo.menu.set(id, menu)
   menus[id] = menu
 end
 
@@ -309,6 +317,22 @@ function jo.menu.getPreviousData()
   return previousData
 end
 
+function jo.menu.getCurrentItem()
+  return currentData.item
+end
+
+function jo.menu.getCurrentMenu()
+  return menus[currentData.menu]
+end
+
+function jo.menu.doesActiveButtonChange()
+  return currentData.menu ~= previousData.menu or currentData.index ~= previousData.index
+end
+
+function jo.menu.forceBack()
+  SendNUIMessage({ event = "menuBack" })
+end
+
 -------------
 -- NUI
 -------------
@@ -320,10 +344,10 @@ RegisterNUICallback('click', function(data, cb)
   if not menus[data.menu].items[data.item.index] then return end
 
   if menus[data.menu].items[data.item.index].onClickClientEvent then
-    TriggerEvent(menus[data.menu].items[data.item.index].onClickClientEvent,currentData)
+    TriggerEvent(menus[data.menu].items[data.item.index].onClickClientEvent, currentData)
   end
   if menus[data.menu].items[data.item.index].onClickServerEvent then
-    TriggerServerEvent(menus[data.menu].items[data.item.index].onClickClientEvent,currentData)
+    TriggerServerEvent(menus[data.menu].items[data.item.index].onClickClientEvent, currentData)
   end
   menus[data.menu].items[data.item.index].onClick(currentData)
 end)
@@ -333,11 +357,11 @@ RegisterNUICallback('backMenu', function(data, cb)
 
   if not menus[data.menu] then return end
 
-  menus[data.menu].onBack(currentData)
+  jo.menu.fireEvent(menus[data.menu], 'onBack')
 end)
 
 function jo.menu.onChange(cb)
-  table.insert(jo.menu.listeners,{
+  table.insert(jo.menu.listeners, {
     resource = GetInvokingResource() or GetCurrentResourceName(),
     cb = cb
   })
@@ -347,7 +371,7 @@ AddEventHandler('onResourceStop', function(resourceName)
   local i = 1
   while i <= #jo.menu.listeners do
     if jo.menu.listeners[i].resource == resourceName then
-      table.remove(jo.menu.listeners,i)
+      table.remove(jo.menu.listeners, i)
     else
       i += 1
     end
@@ -357,12 +381,17 @@ end)
 ---@param item table the item to fired
 ---@param eventName string the name of the event to fired
 ---@param ... any the argument to send
-function jo.menu.fireEvent(item,eventName,...)
-  if item[eventName.."ClientEvent"] then TriggerEvent(item[eventName.."ClientEvent"],currentData,...) end
-  if item[eventName.."ServerEvent"] then TriggerServerEvent(item[eventName.."ServerEvent"],currentData,...) end
-  if item[eventName] then item[eventName](currentData,...) end
+function jo.menu.fireEvent(item, eventName, ...)
+  if not item then return end
+  if item[eventName .. "ClientEvent"] then TriggerEvent(item[eventName .. "ClientEvent"], currentData, ...) end
+  if item[eventName .. "ServerEvent"] then TriggerServerEvent(item[eventName .. "ServerEvent"], currentData, ...) end
+  if item[eventName] then item[eventName](currentData, ...) end
 end
 
+function jo.menu.fireAllLevelsEvent(eventName, ...)
+  jo.menu.fireEvent(jo.menu.getCurrentMenu(), eventName, ...)
+  jo.menu.fireEvent(jo.menu.getCurrentItem(), eventName, ...)
+end
 
 local function menuNUIChange(data)
   previousData = table.copy(currentData)
@@ -376,11 +405,11 @@ local function menuNUIChange(data)
   menus[data.menu].items[data.item.index] = table.merge(menus[data.menu].items[data.item.index], data.item)
   currentData.item = menus[data.menu].items[data.item.index]
 
-  for _,slider in pairs (currentData.item.sliders) do
+  for _, slider in pairs(currentData.item.sliders) do
     if slider.type == "grid" then
       slider.value = {}
-      slider.value[1] = slider.values[1] and math.floor(slider.values[1].current*1000)/1000 or nil
-      slider.value[2] = slider.values[2] and math.floor(slider.values[2].current*1000)/1000 or nil
+      slider.value[1] = slider.values[1] and math.floor(slider.values[1].current * 1000) / 1000 or nil
+      slider.value[2] = slider.values[2] and math.floor(slider.values[2].current * 1000) / 1000 or nil
     elseif slider.type == "palette" then
       slider.value = slider.current
     else
@@ -388,7 +417,6 @@ local function menuNUIChange(data)
     end
   end
 
-  local button = menus[currentData.menu].items[currentData.index]
   local oldButton = false
   if previousData.menu then
     oldButton = menus[previousData.menu].items[previousData.index]
@@ -396,21 +424,21 @@ local function menuNUIChange(data)
 
   if previousData.menu ~= currentData.menu then
     if oldButton then
-      jo.menu.fireEvent(oldButton,"onExit")
-      jo.menu.fireEvent(menus[previousData.menu],"onExit")
+      jo.menu.fireEvent(oldButton, "onExit")
+      jo.menu.fireEvent(menus[previousData.menu], "onExit")
     end
-    jo.menu.fireEvent(menus[currentData.menu],"onEnter")
-    jo.menu.fireEvent(button,"onActive")
+    jo.menu.fireEvent(menus[currentData.menu], "onEnter")
+    jo.menu.fireEvent(currentData.item, "onActive")
   else
     if previousData.index ~= currentData.index then
       if oldButton then
-        jo.menu.fireEvent(oldButton,"onExit")
+        jo.menu.fireEvent(oldButton, "onExit")
       end
-      jo.menu.fireEvent(button,"onActive")
+      jo.menu.fireEvent(currentData.item, "onActive")
     else
-      jo.menu.fireEvent(button,"onChange")
+      jo.menu.fireEvent(currentData.item, "onChange")
     end
-    jo.menu.fireEvent(menus[previousData.menu],"onChange")
+    jo.menu.fireEvent(menus[previousData.menu], "onChange")
   end
 
   for _, listener in ipairs(jo.menu.listeners) do
@@ -451,9 +479,9 @@ function MenuData.Open(type, namespace, name, data, submit, cancel, change, clos
   end
   menu.onBack = function()
     menu.data.elements = menus[name].items
-    cancel(menu,menu)
+    cancel(menu, menu)
     if (GetCurrentResourceName() == "vorp_menu") then
-      submit({current = "backup",trigger = data.lastmenu})
+      submit({ current = "backup", trigger = data.lastmenu })
     end
   end
   menu.onExit = function()
@@ -473,7 +501,7 @@ function MenuData.Open(type, namespace, name, data, submit, cancel, change, clos
       local min = (element.min < 0) and 0 or element.min
       local max = (element.max)
       for i = min, max, element.hop or 1 do
-        table.insert(values,{label = i, value = i})
+        table.insert(values, { label = i, value = i })
       end
       if item.value == 0 then
         item.value = 1
@@ -546,7 +574,7 @@ function MenuData.Open(type, namespace, name, data, submit, cancel, change, clos
     if key == "max" and nuiMenu.items[i].type == "slider" then
       local values = {}
       for i = 1, val, 1 do
-        table.insert(values,{label = i, value = i})
+        table.insert(values, { label = i, value = i })
       end
       nuiMenu.items[i].sliders[1].values = values
     else
@@ -555,7 +583,7 @@ function MenuData.Open(type, namespace, name, data, submit, cancel, change, clos
   end
   -- override all elements
   menu.setElements = function(newElements)
-    for _,element in pairs (newElements) do
+    for _, element in pairs(newElements) do
       menu.addNewElement(element)
     end
   end
@@ -580,7 +608,7 @@ function MenuData.Open(type, namespace, name, data, submit, cancel, change, clos
 
   menusOpened[name] = true
   nuiMenu:refresh(true)
-  jo.menu.setCurrentMenu(name,true,true)
+  jo.menu.setCurrentMenu(name, true, true)
   jo.menu.show(true, true, false)
   return menu
 end

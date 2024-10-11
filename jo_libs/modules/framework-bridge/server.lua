@@ -1231,17 +1231,25 @@ function FrameworkClass:updateUserSkin(...)
         MySQL.insert('INSERT INTO skins VALUES (NULL, ?,?,?)', { identifiers.identifier, identifiers.charid, json.encode(skin) })
       else
         local decoded = UnJson(oldSkin)
-        table.merge(decoded, skin)
+        if overwrite then
+          decoded = skin
+        else
+          table.merge(decoded, skin)
+        end
         MySQL.update("UPDATE skins SET skin=? WHERE identifier=? AND charid=?", { json.encode(decoded), identifiers.identifier, identifiers.charid })
       end
     end)
   elseif self:is("QBR") or self:is('RSG') then
     local identifiers = self:getUserIdentifiers(source)
-    MySQL.scalar("SELECT skin FROM playerskins WHERE citizenid=?", { identifiers.identifier }, function(oldSkin)
-      local decoded = UnJson(oldSkin)
-      table.merge(decoded, skin)
-      MySQL.update("UPDATE playerskins SET skin=? WHERE citizenid=?", { json.encode(decoded), identifiers.identifier })
-    end)
+    if overwrite then
+      MySQL.update("UPDATE playerskins SET skin=? WHERE citizenid=?", { json.encode(skin), identifiers.identifier })
+    else
+      MySQL.scalar("SELECT skin FROM playerskins WHERE citizenid=?", { identifiers.identifier }, function(oldSkin)
+        local decoded = UnJson(oldSkin)
+        table.merge(decoded, skin)
+        MySQL.update("UPDATE playerskins SET skin=? WHERE citizenid=?", { json.encode(decoded), identifiers.identifier })
+      end)
+    end
   elseif self:is("RPX") then
     local user = User:get(source)
     local skin = UnJson(user.data.skin)

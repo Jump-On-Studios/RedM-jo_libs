@@ -177,6 +177,13 @@ function jo.ready(cb)
   Citizen.CreateThreadNow(function() onReady(cb) end)
 end
 
+function jo.stopped(cb)
+  AddEventHandler('onResourceStop', function(resource)
+    if resource ~= resourceName then return end
+    cb()
+  end)
+end
+
 _ENV.jo = jo
 
 
