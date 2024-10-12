@@ -133,6 +133,7 @@ local function RefreshPed(ped)
   UpdatePedVariation(ped)
   N_0x704C908E9C405136(ped)
 end
+jo.clothes.refreshPed = RefreshPed
 local function GetCategoryOfComponentAtIndex(ped, componentIndex)
   local pedType = 0
   if IsThisModelAHorse(GetEntityModel(ped)) then
