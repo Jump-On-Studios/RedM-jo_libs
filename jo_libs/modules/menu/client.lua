@@ -126,6 +126,9 @@ function MenuClass:refresh()
     menu = self.id,
     data = datas
   })
+  if currentData.menu == self.id then
+    currentData.item = self.items[currentData.index]
+  end
 end
 function jo.menu.refresh(id) menus[id]:refresh() end
 
@@ -185,6 +188,9 @@ function MenuClass:send(reset)
     reset = reset,
     menu = datas
   })
+  if currentData.menu == self.id then
+    currentData.item = self.items[currentData.index]
+  end
 end
 function jo.menu.send(id) menus[id]:send() end
 
