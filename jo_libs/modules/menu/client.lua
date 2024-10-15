@@ -343,13 +343,7 @@ RegisterNUICallback('click', function(data, cb)
   if not menus[data.menu] then return end
   if not menus[data.menu].items[data.item.index] then return end
 
-  if menus[data.menu].items[data.item.index].onClickClientEvent then
-    TriggerEvent(menus[data.menu].items[data.item.index].onClickClientEvent, currentData)
-  end
-  if menus[data.menu].items[data.item.index].onClickServerEvent then
-    TriggerServerEvent(menus[data.menu].items[data.item.index].onClickClientEvent, currentData)
-  end
-  menus[data.menu].items[data.item.index].onClick(currentData)
+  jo.menu.fireEvent(jo.menu.getCurrentItem(), 'onClick')
 end)
 
 RegisterNUICallback('backMenu', function(data, cb)
