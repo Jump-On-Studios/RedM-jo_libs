@@ -287,6 +287,14 @@ function jo.menu.show(show, keepInput, hideRadar, animation)
   end)
 end
 
+jo.stopped(function()
+  if jo.menu.isOpen() then
+    if not radarAlreadyHidden then
+      DisplayRadar(true)
+    end
+  end
+end)
+
 ---@param lang table list of translated strings
 function jo.menu.updateLang(lang)
   SendNUIMessage({
