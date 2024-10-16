@@ -169,6 +169,7 @@ end
 
 local function onReady(cb)
   jo.waitLibLoading()
+  Wait(1000)
 
   return cb and cb() or true
 end
