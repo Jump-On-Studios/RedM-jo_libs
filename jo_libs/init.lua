@@ -34,8 +34,6 @@ for i = 1, GetNumResourceMetadata(resourceName, 'jo_lib') do
   modules[#modules + 1] = getAlias(GetResourceMetadata(resourceName, 'jo_lib', i - 1))
 end
 
-
-
 if jo and jo.name == jo_libs then
   error(("jo_libs is already loaded.\n\tRemove any duplicate entries from '@%s/fxmanifest.lua'"):format(resourceName))
 end
@@ -154,6 +152,7 @@ end
 local jo = setmetatable({
   libLoaded = false,
   name = jo_libs,
+  resourceName = resourceName,
   context = context,
   cache = {}
 }, {
