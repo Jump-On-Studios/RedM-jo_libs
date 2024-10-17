@@ -7,8 +7,8 @@ local isServerSide = IsDuplicityVersion()
 jo.callback = {}
 
 local function executeCallback(name, ...)
-  if not responseCallback[name] then return eprint(('No callback for: %s'):format(name)) end
-  return responseCallback[name].cb(...)
+  if not registeredCallback[name] then return eprint(('No callback for: %s'):format(name)) end
+  return registeredCallback[name].cb(...)
 end
 
 local function executeResponse(requestId, fromRessource, ...)
@@ -86,7 +86,7 @@ else
   function jo.callback.triggerServer(name, cb, ...)
     responseCallback[currentRequestId] = cb
 
-    TriggerServerEvent('jo_libs:triggerCallback', name, currentRequestId, GetInvokingresource() or 'unknown', ...)
+    TriggerServerEvent('jo_libs:triggerCallback', name, currentRequestId, GetInvokingResource() or 'unknown', ...)
 
     currentRequestId = currentRequestId < 65535 and currentRequestId + 1 or 0
   end
