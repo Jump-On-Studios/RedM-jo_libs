@@ -104,6 +104,7 @@ function MenuClass:addItem(p, item)
 end
 function jo.menu.addItem(id, p, item) menus[id]:addItem(p, item) end
 
+--- Warning, potential memory leak with addItems methods. Need the be investigate
 function MenuClass:addItems(items)
   for _, item in ipairs(items) do
     self:addItem(item)
