@@ -158,6 +158,7 @@ local function UpdateShopItemWearableState(ped, hash, state)
   state = GetHashFromString(state)
   return Citizen.InvokeNative(0x66B957AAC2EAAEAB, ped, hash, state, 0, true, 1)
 end
+---@param ped integer the entity ID
 local function WaitRefreshPed(ped) while not IsPedReadyToRender(ped) do Wait(0) end end
 jo.clothes.waitPedLoaded = WaitRefreshPed
 local function SetMetaPedTag(ped, drawable, albedo, normal, material, palette, tint0, tint1, tint2)
@@ -404,6 +405,9 @@ function jo.clothes.setWearableState(ped, category, hash, state)
   ReapplyCached(ped)
 end
 
+---@param ped integer the entity
+---@param category string the category
+---@return string wearableState
 function jo.clothes.getWearableState(ped, category)
   local state = Entity(ped).state['wearableState:' .. category]
   if (type(state) == "string") then return state end
@@ -544,8 +548,8 @@ function jo.clothes.getCategoriesEquiped(ped)
   return jo.cache.clothes.getEquiped[ped]
 end
 
----@param ped integer the entity
----@param category string
+---@param ped integer the entity ID
+---@param category string the category of clothes
 ---@return boolean,integer
 function jo.clothes.isCategoryEquiped(ped, category)
   local categoryHash = GetHashFromString(category)
@@ -557,6 +561,9 @@ function jo.clothes.isCategoryEquiped(ped, category)
   return true, equiped[categoryHash].index
 end
 
+---@param ped integer the entity ID
+---@param category string the clothes category
+---@return integer hash the clothes hash
 function jo.clothes.getComponentEquiped(ped, category)
   local categoryHash = GetHashFromString(category)
   if not IsMetaPedUsingComponent(ped, categoryHash) then
@@ -572,6 +579,9 @@ function jo.clothes.getComponentEquiped(ped, category)
   end
 end
 
+---@param ped integer the entity ID
+---@param category string the clothes category
+---@return integer,integer,integer,integer palette,tint0,tint1,tint2
 function jo.clothes.getCategoryTint(ped, category)
   local categoryHash = GetHashFromString(category)
   if not IsMetaPedUsingComponent(ped, categoryHash) then
@@ -583,6 +593,8 @@ function jo.clothes.getCategoryTint(ped, category)
   return GetMetaPedAssetTint(ped, index)
 end
 
+---@param ped integer the entity ID
+---@return table components the list of component equiped
 function jo.clothes.getComponentsEquiped(ped)
   return PutInCacheCurrentClothes(ped) or {}
 end

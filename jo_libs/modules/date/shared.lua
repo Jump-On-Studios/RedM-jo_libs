@@ -1,5 +1,7 @@
 jo.date = {}
 
+---@param ms integer the duration in ms
+---@param lang? table the translate strings
 function jo.date.convertMsToInterval(ms, lang)
   lang = lang or {
     ms = "ms",
