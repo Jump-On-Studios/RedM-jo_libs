@@ -695,6 +695,7 @@ function FrameworkClass:openInventory(source, invName)
   end
   if self:is("RSG") then
     exports['rsg-inventory']:OpenInventory(source, invName, {label = name, maxweight = invConfig.maxWeight, slots = invConfig.maxSlots })
+    return
   end
   if self:is("QBR") or self:is("QR") then
     TriggerClientEvent(GetCurrentResourceName() .. ":client:openInventory", source, invName, invConfig)
