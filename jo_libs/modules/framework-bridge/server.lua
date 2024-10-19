@@ -693,7 +693,10 @@ function FrameworkClass:openInventory(source, invName)
     TriggerClientEvent("redemrp_inventory:OpenLocker", source, invName)
     return
   end
-  if self:is("RSG") or self:is("QBR") or self:is("QR") then
+  if self:is("RSG") then
+    exports['rsg-inventory']:OpenInventory(source, invName, {label = name, maxweight = invConfig.maxWeight, slots = invConfig.maxSlots })
+  end
+  if self:is("QBR") or self:is("QR") then
     TriggerClientEvent(GetCurrentResourceName() .. ":client:openInventory", source, invName, invConfig)
     return
   end
