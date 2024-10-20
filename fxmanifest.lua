@@ -32,10 +32,10 @@ files {
 }
 
 shared_scripts {
-	'init.lua'
+	'init.lua',
 }
 
 jo_libs {
-	'framework-bridge',
+	'framewrk-bridge',
 	'version-checker'
 }
