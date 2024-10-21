@@ -23,36 +23,96 @@ function OWFramework.User.getMoney(source, moneyType)
     return currency
 end
 
-function OWFramework.User.addMoney(source, amount, moneyType)
-    print(Core)
+function OWFramework.User.addMoney(self, amount, moneyType)
+    local character = Core.GetCharacterFromPlayerId(self.source)
+    local user = Core.GetUserFromPlayerId(self.source)
+    if moneyType == 0 and (character.addMoney(amount)) or (moneyType == 1 and user.addGold(amount)) or 0 then end
 end
 
-function OWFramework.User.removeMoney(source, amount, moneyType)
-    print(Core)
+function OWFramework.User.removeMoney(self, amount, moneyType)
+    local character = Core.GetCharacterFromPlayerId(self.source)
+    local user = Core.GetUserFromPlayerId(self.source)
+    if moneyType == 0 and (character.removeMoney(amount)) or (moneyType == 1 and user.removeGold(amount)) or 0 then end
 end
 
--- Config.CanBuy = function(source, price, moneyType)
--- 	-- moneyType = 0 : dolar
--- 	-- moneyType = 1 : goldcoin
--- 	local character = Config.GetIdentifier(source)
+function OWFramework.updateUserClothes(source, clothesOrCategory, value)
 
--- 	if not character then return false end
+end
 
--- 	local user = Core.GetUserFromPlayerId(source)
+function OWFramework.getUserSkin(source)
+    local result = {
+        overlays = {}
+    }
 
--- 	if not user then return false end
+    local awaiter = promise.new()
 
--- 	local isIndio = Core.IsCharacterGroupMemberRole('Índio', character.id, -1)
+    local character = Core.GetCharacterFromPlayerId(source)
+    if character ~= nil then
+        MySQL.Async.fetchAll('SELECT * FROM characters_appearance WHERE `characterId` = @characterId', {
+            characterId = character.id
+        }, function(skins)
+            if skins[1] ~= nil then
+                local skinStandardized = jo.framework.standardizeSkinKeys(json.decode(skins[1].skin))
+                
+                if not skinStandardized.teeth then
+                    local clothes = jo.framework:getUserClothes(source)
+                    if clothes.teeth then
+                        skinStandardized.teeth = clothes.teeth
+                    end
+                end
+                result = skinStandardized
+            end
+            awaiter:resolve(result)
+        end)
+    else
+        awaiter:resolve(result)
+    end
 
--- 	if isIndio and moneyType == 0 then
--- 		price = price / 10
--- 	end
+    return Citizen.Await(awaiter);
+end
 
--- 	if moneyType == 0 and character.getMoney() >= price then
--- 		return true
--- 	elseif moneyType == 1 and user.getGold() >= price then
--- 		return true
--- 	else
--- 		return false
--- 	end
--- end
+function OWFramework.updateUserSkin(...)
+    local args = table.pack(...)
+    local source, _skin, overwrite = args[1], {}, false
+
+    if type(args[2]) == "string" then
+        _skin = { [args[2]] = args[3] }
+        overwrite = args[math.max(4, #args)] or overwrite
+    else
+        _skin = args[2]
+        overwrite = args[math.max(3, #args)] or overwrite
+    end
+
+    local character = Core.GetCharacterFromPlayerId(source)
+
+    if overwrite then
+        -- TODO
+    else
+        -- print(json.encode(_skin, { indent = true }))
+        -- print(json.encode(jo.framework.revertSkinKeys(_skin), { indent = true }))
+        local normalizedSkin = table.copy(_skin)
+
+        for skinKey, skinValue in pairs(_skin) do
+            if skinKey == "overlays" then
+                -- todo
+                -- for overlayKey, overlayValue in pairs(skinValue) do
+
+                -- end
+            elseif type(skinValue) == "table" and skinValue.hash and skinKey ~= "overlays" then
+                normalizedSkin[skinKey] = skinValue.hash
+            end
+        end
+        -- print(json.encode(normalizedSkin, { indent = true }))
+        MySQL.scalar("SELECT skin from characters_appearance WHERE `characterId`=@characterId", { characterId = character.id }, function(oldSkin)
+            local decoded = UnJson(oldSkin)
+            table.merge(decoded, _skin)
+            MySQL.Async.execute("UPDATE characters_appearance SET skin = @skin WHERE `characterId`=@characterId", { characterId = character.id, skin = json.encode(decoded) })
+        end)
+    end
+
+    -- print(source, json.encode(_skin, { indent = true }), overwrite)
+end
+
+function OWFramework.User.canBuy(self, price, moneyType)
+    print(self.source, price, moneyType)
+end
