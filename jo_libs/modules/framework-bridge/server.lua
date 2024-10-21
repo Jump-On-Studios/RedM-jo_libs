@@ -627,6 +627,17 @@ function FrameworkClass:registerUseItem(item, closeAfterUsed, callback)
           TriggerClientEvent("qbr-inventory:client:closeinv", source)
         end
       end)
+    elseif self:is("RSG") and self.isV2 then
+      local isAdded = self.core.Functions.AddItem(item, nil)
+      if isAdded then
+        return eprint(item .. " < item does not exist in the core configuration")
+      end
+      self.core.Functions.CreateUseableItem(item, function(source, data)
+        callback(source, { metadata = data.info })
+        if closeAfterUsed then
+          TriggerClientEvent("rsg-inventory:client:closeInv", source)
+        end
+      end)
     elseif self:is("RSG") or self:is('QR') then
       local isAdded = self.core.Functions.AddItem(item, nil)
       if isAdded then
@@ -768,6 +779,7 @@ function FrameworkClass:addItemInInventory(source, invId, item, quantity, metada
       end)
     end)
   elseif self:is('RSG') and self.isV2 then
+    self.inv:CreateInventory(invId)
     return self.inv:AddItem(invId, item, quantity, false, metadata)
   elseif self:is('QBR') or self:is('RSG') or self:is('RPX') then
     MySQL.scalar('SELECT items FROM stashitems WHERE stash = ?', { invId }, function(items)
@@ -834,7 +846,15 @@ function FrameworkClass:getItemsFromInventory(source, invId)
     return itemFiltered
   elseif self:is('RSG') and self.isV2 then
     local inventory = self.inv:GetInventory(invId) or { items = {} }
-    return inventory.items
+    local itemFiltered = {}
+    for _, item in pairs(inventory.items) do
+      itemFiltered[#itemFiltered + 1] = {
+        metadata = item.info,
+        amount = item.amount,
+        item = item.name
+      }
+    end
+    return itemFiltered
   elseif self:is('QBR') or self:is('RSG') or self:is('RPX') then
     local items = MySQL.scalar.await('SELECT items FROM stashitems WHERE stash = ?', { invId })
     items = UnJson(items)
