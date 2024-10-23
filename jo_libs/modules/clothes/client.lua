@@ -369,7 +369,7 @@ function jo.clothes.apply(ped, category, data)
       end
     end
   elseif data.palette then
-    AddCachedClothes(ped, nil, categoryHash, nil, nil, nil, nil, nil, data.palette, data.tint0, data.tint1, data.tint2)
+    AddCachedClothes(ped, nil, categoryHash, nil, nil, data.albedo, data.normal, data.material, data.palette, data.tint0, data.tint1, data.tint2)
   else
     RemoveTagFromMetaPed(ped, categoryHash, 0)
   end
@@ -572,7 +572,8 @@ function jo.clothes.getComponentEquiped(ped, category)
   end
 end
 
-function jo.clothes.getCategoryTint(ped, category)
+function jo.clothes.getCategoryTint(ped, category, inTable)
+  if inTable == nil then inTable = false end
   local categoryHash = GetHashFromString(category)
   if not IsMetaPedUsingComponent(ped, categoryHash) then
     return false
@@ -580,6 +581,15 @@ function jo.clothes.getCategoryTint(ped, category)
   local equiped, index = jo.clothes.isCategoryEquiped(ped, categoryHash)
 
   if not equiped then return false end
+  if inTable then
+    local palette, tint0, tint1, tint2 = GetMetaPedAssetTint(ped, index)
+    return {
+      palette = palette,
+      tint0 = tint0,
+      tint1 = tint1,
+      tint2 = tint2
+    }
+  end
   return GetMetaPedAssetTint(ped, index)
 end
 
