@@ -40,6 +40,8 @@ end
 
 function GetHashFromString(value)
   if type(value) == "string" then
+    local number = tonumber(value)
+    if number then return number end
     return joaat(value)
   end
   return value
