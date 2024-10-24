@@ -12,6 +12,14 @@ function OWFramework.initFramework(self)
     return Core
 end
 
+function OWFramework.User.getIdentifiers(source)
+    local character = Core.GetCharacterFromPlayerId(source)
+
+    return {
+        charid = character.id,
+    }
+end
+
 function OWFramework.User.getMoney(source, moneyType)
     local character = Core.GetCharacterFromPlayerId(source)
     local user = Core.GetUserFromPlayerId(source)
@@ -31,8 +39,38 @@ function OWFramework.User.removeMoney(self, amount, moneyType)
     if moneyType == 0 and (character.removeMoney(amount)) or (moneyType == 1 and user.removeGold(amount)) or 0 then end
 end
 
-function OWFramework.updateUserClothes(source, clothesOrCategory, value)
+function OWFramework.getUserClothes(source)
+    local waiter = promise.new()
+    local character = Core.GetCharacterFromPlayerId(source)
 
+    if character then
+        MySQL.Async.fetchAll('SELECT * FROM characters_outfit WHERE `ownerId` = @ownerId', {
+            ownerId = character.id
+        }, function (clothes)
+            if clothes[1] ~= nil then
+                waiter:resolve(json.decode(clothes[1].clothes))
+            else
+				waiter:resolve(false)
+            end
+        end)
+    end
+
+    return Citizen.Await(waiter)
+end
+
+function OWFramework.updateUserClothes(source, clothesOrCategory, value)
+    local character = Core.GetCharacterFromPlayerId(source)
+    if character then
+        local dadosTraje = clothesOrCategory
+        for chave, valor in pairs(dadosTraje) do
+            if type(valor) == "table" and valor.hash ~= nil then
+                dadosTraje[chave] = valor.hash
+            end
+        end
+        dadosTraje = json.encode(dadosTraje)
+
+        MySQL.Async.execute("UPDATE characters_outfit SET `clothes`=@encode WHERE `ownerId`=@characterId;", { encode = dadosTraje, characterId = character.id})
+    end
 end
 
 function OWFramework.getUserSkin(source)
@@ -81,34 +119,20 @@ function OWFramework.updateUserSkin(...)
 
     local character = Core.GetCharacterFromPlayerId(source)
 
-    if overwrite then
-        -- TODO
-    else
-        -- print(json.encode(_skin, { indent = true }))
-        -- print(json.encode(jo.framework.revertSkinKeys(_skin), { indent = true }))
-        local normalizedSkin = table.copy(_skin)
+    local normalizedSkin = table.copy(_skin)
 
-        for skinKey, skinValue in pairs(_skin) do
-            if skinKey == "overlays" then
-                -- todo
-                -- for overlayKey, overlayValue in pairs(skinValue) do
-
-                -- end
-            elseif type(skinValue) == "table" and skinValue.hash and skinKey ~= "overlays" then
-                normalizedSkin[skinKey] = skinValue.hash
-            end
+    for skinKey, skinValue in pairs(_skin) do
+        if type(skinValue) == "table" and skinValue.hash and skinKey ~= "overlays" then
+            normalizedSkin[skinKey] = skinValue.hash
         end
-        -- print(json.encode(normalizedSkin, { indent = true }))
-        MySQL.scalar("SELECT skin from characters_appearance WHERE `characterId`=@characterId", { characterId = character.id }, function(oldSkin)
-            local decoded = UnJson(oldSkin)
-            table.merge(decoded, _skin)
-            MySQL.Async.execute("UPDATE characters_appearance SET skin = @skin WHERE `characterId`=@characterId", { characterId = character.id, skin = json.encode(decoded) })
-        end)
     end
-
-    -- print(source, json.encode(_skin, { indent = true }), overwrite)
-end
-
-function OWFramework.User.canBuy(self, price, moneyType)
-    print(self.source, price, moneyType)
+    MySQL.scalar("SELECT skin from characters_appearance WHERE `characterId`=@characterId", { characterId = character.id }, function(oldSkin)
+        local decoded = UnJson(oldSkin)
+        if overwrite then
+          decoded = _skin
+        else
+          table.merge(decoded, _skin)
+        end
+        MySQL.Async.execute("UPDATE characters_appearance SET skin = @skin WHERE `characterId`=@characterId", { characterId = character.id, skin = json.encode(decoded) })
+    end)
 end
