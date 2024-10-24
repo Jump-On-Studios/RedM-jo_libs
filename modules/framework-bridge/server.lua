@@ -1038,6 +1038,10 @@ local function standardizeClothesKeys(object)
   return objectStandardized
 end
 FrameworkClass.standardizeClothesKeys = standardizeClothesKeys
+FrameworkClass.standardizeSkinKeys = standardizeSkinKeys
+
+FrameworkClass.revertSkinKeys = revertSkinKeys
+FrameworkClass.revertClothesKeys = revertClothesKeys
 
 function FrameworkClass:getUserClothes(source)
   local clothes = {}
@@ -1194,6 +1198,7 @@ function FrameworkClass:getUserSkin(source)
       skinStandardized.teeth = clothes.teeth.hash
     end
   end
+
 
   return skinStandardized
 end
