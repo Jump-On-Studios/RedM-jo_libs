@@ -12,10 +12,6 @@ function OWFramework.initFramework(self)
     return Core
 end
 
-function OWFramework.get()
-    return "core"
-end
-
 function OWFramework.User.getMoney(source, moneyType)
     local character = Core.GetCharacterFromPlayerId(source)
     local user = Core.GetUserFromPlayerId(source)
