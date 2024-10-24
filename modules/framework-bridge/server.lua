@@ -1095,7 +1095,7 @@ function FrameworkClass:updateUserClothes(source, _clothes, value)
   end
   local clothes = revertClothesKeys(_clothes)
   if OWFramework.updateUserClothes then
-    return OWFramework.updateUserClothes(source, category, value)
+    return OWFramework.updateUserClothes(source, _clothes, value)
   end
   if self:is('VORP') then
     local newClothes = {}
