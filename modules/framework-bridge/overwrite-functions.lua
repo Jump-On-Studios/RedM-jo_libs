@@ -20,11 +20,33 @@ function OWFramework.User.getIdentifiers(source)
     }
 end
 
+function OWFramework.registerUseItem(item, closeAfterUsed, callback)
+    Core.RegisterUsableItem(item, function(source, item)
+        local character = Core.GetCharacterFromPlayerId(source)
+        if character then
+            if closeAfterUsed then
+                character.triggerEvent('ox_inventory:closeInventory')
+            end
+
+            callback(source, item)
+        end
+    end)
+end
+
 function OWFramework.User.getMoney(source, moneyType)
     local character = Core.GetCharacterFromPlayerId(source)
     local user = Core.GetUserFromPlayerId(source)
-    local currency = moneyType == 0 and (character.getMoney()) or (moneyType == 1 and user.getGold()) or 0
-    return currency
+
+    local money = character.getMoney()
+    local gold = user.getGold()
+
+    local resultTypes = {
+        [0] = money,
+        [1] = gold,
+        [2] = 0
+    }
+
+    return resultTypes[moneyType]
 end
 
 function OWFramework.User.addMoney(self, amount, moneyType)
@@ -103,6 +125,14 @@ function OWFramework.getUserSkin(source)
     end
 
     return Citizen.Await(awaiter);
+end
+
+function OWFramework.giveItem(source, item, amount, metadata)
+    local character = Core.GetCharacterFromPlayerId(source)
+    if character then
+        return character.addInventoryItem(item, amount, metadata)
+    end
+    return false
 end
 
 function OWFramework.updateUserSkin(...)
