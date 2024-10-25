@@ -5,12 +5,20 @@
 OWFramework = {}
 OWFramework.User = {}
 
+---@type Core
 local Core
 
-function OWFramework.initFramework(self)
-    Core = exports.core:getSharedObject()
-    return Core
+function OWFramework.get()
+    return "custom"
 end
+
+function OWFramework.initFramework(self)
+    self.core = exports.core:getSharedObject()
+    
+    Core = self.core
+    return
+end
+
 
 function OWFramework.User.getIdentifiers(source)
     local character = Core.GetCharacterFromPlayerId(source)
