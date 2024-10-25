@@ -1,6 +1,6 @@
 author "JUMP ON studios : shop.jumpon-studios.com"
 documentation 'https://docs.jumpon-studios.com'
-version '1.10.0'
+version '1.11.0'
 package_id '1'
 
 fx_version "adamant"
@@ -32,10 +32,10 @@ files {
 }
 
 shared_scripts {
-	'init.lua',
+	'init.lua'
 }
 
 jo_libs {
-	'framewrk-bridge',
+	'framework-bridge',
 	'version-checker'
 }
