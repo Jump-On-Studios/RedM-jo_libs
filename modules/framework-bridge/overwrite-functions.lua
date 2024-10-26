@@ -14,9 +14,7 @@ end
 
 function OWFramework.initFramework(self)
     self.core = exports.core:getSharedObject()
-    
     Core = self.core
-    return
 end
 
 
