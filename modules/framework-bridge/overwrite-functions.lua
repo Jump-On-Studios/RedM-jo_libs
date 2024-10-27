@@ -22,7 +22,7 @@ function OWFramework.User.getIdentifiers(source)
     local character = Core.GetCharacterFromPlayerId(source)
 
     return {
-        charid = character.id,
+        id = tonumber(character?.id),
     }
 end
 
@@ -37,6 +37,31 @@ function OWFramework.registerUseItem(item, closeAfterUsed, callback)
             callback(source, item)
         end
     end)
+end
+
+function OWFramework.createInventory(id,label,definition)
+    
+end
+
+function OWFramework.createInventory(id,label,definition)
+    exports.ox_inventory:forceOpenInventory()
+end
+
+function OWFramework.canUseItem(source,item,amount,meta,remove)
+	local character = Core.GetCharacterFromPlayerId(source)
+	local itemData = exports.inventory:GetItem(source, item, nil, false)
+	if itemData and itemData.count >= amount then
+		if remove then
+			character.removeInventoryItem(item, amount)
+		end
+		return true
+	end
+end
+
+function OWFramework.User.getRPName(source)
+    local character = Core.GetCharacterFromPlayerId(source)
+    return character.getName()
+    -- return OWFramework.User.getIdentifiers(source).getName()
 end
 
 function OWFramework.User.getMoney(source, moneyType)
@@ -60,6 +85,8 @@ function OWFramework.User.addMoney(self, amount, moneyType)
     local user = Core.GetUserFromPlayerId(self.source)
     if moneyType == 0 and (character.addMoney(amount)) or (moneyType == 1 and user.addGold(amount)) or 0 then end
 end
+
+
 
 function OWFramework.User.removeMoney(self, amount, moneyType)
     local character = Core.GetCharacterFromPlayerId(self.source)
