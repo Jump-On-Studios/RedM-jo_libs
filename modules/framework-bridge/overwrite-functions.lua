@@ -20,9 +20,11 @@ end
 
 function OWFramework.User.getIdentifiers(source)
     local character = Core.GetCharacterFromPlayerId(source)
+    local user = Core.GetUserFromPlayerId(source)
 
     return {
-        id = tonumber(character?.id),
+        id = tonumber(user?.id),
+        charid = tonumber(character?.id),
     }
 end
 
