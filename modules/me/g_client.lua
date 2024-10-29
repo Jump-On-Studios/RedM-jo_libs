@@ -25,11 +25,7 @@ function jo.updateMeTimer(value)
 end
 
 function jo.forceUpdateMe()
-  jo.me = PlayerPedId()
-  jo.meCoords = GetEntityCoords(jo.me)
-  jo.mePlayerId = PlayerId()
-  jo.meServerId = GetPlayerServerId(jo.mePlayerId)
-  jo.meIsMale =  IsPedMale(jo.me)
+  jo.me, jo.meCoords, jo.mePlayerId, jo.meServerId, jo.meIsMale = table.unpack(jo.hook.applyFilters("jo_me_forceUpdateMe", { PlayerPedId(), GetEntityCoords(PlayerPedId()), PlayerId(), GetPlayerServerId(PlayerId()), IsPedMale(PlayerPedId()) }))
   TriggerEvent("jo_me:updateMe",jo.me,jo.meCoords,jo.mePlayerId,jo.meServerId,jo.meIsMale)
 end
 
