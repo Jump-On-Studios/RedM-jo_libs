@@ -201,3 +201,9 @@ function OWFramework.updateUserSkin(...)
         MySQL.Async.execute("UPDATE characters_appearance SET skin = @skin WHERE `characterId`=@characterId", { characterId = character.id, skin = json.encode(decoded) })
     end)
 end
+
+-- subistitui o jo.meServerId pelo id do personagem
+jo.hook.registerFilter('jo_me_forceUpdateMe', function(args)
+    args[4] = LocalPlayer.state.id
+    return args
+end, 10)
