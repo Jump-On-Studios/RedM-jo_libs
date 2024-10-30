@@ -116,18 +116,19 @@ jo.clothes.wearableStates = {
 -------------
 -- local functions
 -------------
-
+local invokeNative = Citizen.InvokeNative
 local function SetTextureOutfitTints(ped, category, palette, tint0, tint1, tint2)
   if not palette then return end
   if palette == 0 then return end
-  return Citizen.InvokeNative(0x4EFC1F8FF1AD94DE, ped, GetHashFromString(category), GetHashFromString(palette), tint0, tint1, tint2)
+  return invokeNative(0x4EFC1F8FF1AD94DE, ped, GetHashFromString(category), GetHashFromString(palette), tint0, tint1, tint2)
 end
-local function N_0xAAB86462966168CE(ped) return Citizen.InvokeNative(0xAAB86462966168CE, ped, true) end
-local function N_0x704C908E9C405136(ped) return Citizen.InvokeNative(0x704C908E9C405136, ped) end
-local function GetShopItemBaseLayers(hash, metapedType, isMp) return Citizen.InvokeNative(0x63342C50EC115CE8, hash, 0, 0, metapedType, isMp, Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt()) end
-local function UpdatePedVariation(ped) return Citizen.InvokeNative(0xCC8CA3E88256E58F, ped, false, true, true, true, false) end
-local function IsPedReadyToRender(...) return Citizen.InvokeNative(0xA0BC8FAED8CFEB3C, ...) end
-local function IsThisModelAHorse(...) return Citizen.InvokeNative(0x772A1969F649E902, ...) == 1 end
+local function N_0xAAB86462966168CE(ped) return invokeNative(0xAAB86462966168CE, ped, true) end
+local function N_0x704C908E9C405136(ped) return invokeNative(0x704C908E9C405136, ped) end
+local function GetShopItemBaseLayers(hash, metapedType, isMp) return invokeNative(0x63342C50EC115CE8, GetHashFromString(hash), 0, 0, metapedType, isMp, Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt()) end
+local function UpdatePedVariation(ped) return invokeNative(0xCC8CA3E88256E58F, ped, false, true, true, true, false) end
+local function IsPedReadyToRender(...) return invokeNative(0xA0BC8FAED8CFEB3C, ...) end
+local function IsThisModelAHorse(...) return invokeNative(0x772A1969F649E902, ...) == 1 end
+local function ApplyShopItemToPed(ped, hash, immediatly, isMp, p4) return invokeNative(0xD3A7B003ED343FD9, ped, GetHashFromString(hash), immediatly, isMp, p4) end
 local function RefreshPed(ped)
   N_0xAAB86462966168CE(ped)
   UpdatePedVariation(ped)
@@ -139,13 +140,13 @@ local function GetCategoryOfComponentAtIndex(ped, componentIndex)
   if IsThisModelAHorse(GetEntityModel(ped)) then
     pedType = 6
   end
-  return Citizen.InvokeNative(0x9b90842304c938a7, ped, componentIndex, pedType, Citizen.ResultAsInteger())
+  return invokeNative(0x9b90842304c938a7, ped, componentIndex, pedType, Citizen.ResultAsInteger())
 end
-local function GetMetaPedAssetTint(ped, index) return Citizen.InvokeNative(0xE7998FEC53A33BBE, ped, index, Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt()) end
-local function GetNumComponentsInPed(ped) return Citizen.InvokeNative(0x90403E8107B60E81, ped) end
-local function GetMetaPedType(ped) return Citizen.InvokeNative(0xEC9A1261BF0CE510, ped) end
-local function GetShopItemComponentCategory(...) return Citizen.InvokeNative(0x5FF9A878C3D115B8, ...) end
-local function IsMetaPedUsingComponent(...) return Citizen.InvokeNative(0xFB4891BD7578CDC1, ...) == 1 end
+local function GetMetaPedAssetTint(ped, index) return invokeNative(0xE7998FEC53A33BBE, ped, index, Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt()) end
+local function GetNumComponentsInPed(ped) return invokeNative(0x90403E8107B60E81, ped) end
+local function GetMetaPedType(ped) return invokeNative(0xEC9A1261BF0CE510, ped) end
+local function GetShopItemComponentCategory(...) return invokeNative(0x5FF9A878C3D115B8, ...) end
+local function IsMetaPedUsingComponent(...) return invokeNative(0xFB4891BD7578CDC1, ...) == 1 end
 local function GetShopItemComponentAtIndex(ped, index)
   local dataStruct = DataView.ArrayBuffer(10 * 8)
   local componentHash = GetShopPedComponentAtIndex(ped, index, true, dataStruct:Buffer(), dataStruct:Buffer())
@@ -155,13 +156,12 @@ local function GetShopItemComponentAtIndex(ped, index)
   return componentHash
 end
 local function UpdateShopItemWearableState(ped, hash, state)
-  state = GetHashFromString(state)
-  return Citizen.InvokeNative(0x66B957AAC2EAAEAB, ped, hash, state, 0, true, 1)
+  return invokeNative(0x66B957AAC2EAAEAB, ped, GetHashFromString(hash), GetHashFromString(state), 0, true, 1)
 end
 local function WaitRefreshPed(ped) while not IsPedReadyToRender(ped) do Wait(0) end end
 jo.clothes.waitPedLoaded = WaitRefreshPed
 local function SetMetaPedTag(ped, drawable, albedo, normal, material, palette, tint0, tint1, tint2)
-  return Citizen.InvokeNative(0xBC6DF00D7A4A6819, ped, GetHashFromString(drawable), GetHashFromString(albedo), GetHashFromString(normal), GetHashFromString(material), GetHashFromString(palette), tint0, tint1, tint2)
+  return invokeNative(0xBC6DF00D7A4A6819, ped, GetHashFromString(drawable), GetHashFromString(albedo), GetHashFromString(normal), GetHashFromString(material), GetHashFromString(palette), tint0, tint1, tint2)
 end
 
 ---@return string categoryName
@@ -178,7 +178,6 @@ end
 ---@return table data formatted table for clothes data
 local function formatClothesData(data)
   if type(data) ~= "table" then
-    if type(data) ~= "number" then data = tonumber(data) end
     data = { hash = data }
   end
   if type(data.hash) == "table" then data = data.hash end --for VORP
@@ -294,6 +293,7 @@ end
 ---@return boolean isMp
 function jo.clothes.getComponentCategory(ped, hash)
   local isMp = true
+  hash = GetHashFromString(hash)
   local categoryHash = GetShopItemComponentCategory(hash, GetMetaPedType(ped), true)
   if not categoryHash then
     isMp = false
@@ -339,23 +339,24 @@ function jo.clothes.apply(ped, category, data)
     elseif category == "skirts" then
       RemoveTagFromMetaPed(ped, 'pants', 0);
     end
-    if data.drawable or category == "masks" or category == "hats" then
+    if data.albedo or category == "masks" or category == "hats" then
       local drawable, albedo, normal, material, palette, tint0, tint1, tint2 = 0, 0, 0, 0, 0, 0, 0, 0
       if data.hash then
         drawable, albedo, normal, material, palette, tint0, tint1, tint2 = GetShopItemBaseLayers(data.hash, GetMetaPedType(ped), isMp)
+        if drawable == 0 then drawable = nil end
+        if albedo == 0 then albedo = nil end
+        if normal == 0 then normal = nil end
+        if material == 0 then material = nil end
+        if palette == 0 then palette = nil end
       end
-      if data.drawable then
-        drawable = data.drawable
-        albedo = data.albedo
-        normal = data.normal
-        material = data.material
-      end
-      if data.palette then
-        palette = data.palette
-        tint0 = data.tint0
-        tint1 = data.tint1
-        tint2 = data.tint2
-      end
+      drawable = data.drawable or drawable or data.hash or 0
+      albedo = data.albedo or albedo or 0
+      normal = data.normal or normal or 0
+      material = data.material or material or 0
+      palette = data.palette or palette or 0
+      tint0 = data.tint0 or tint0
+      tint1 = data.tint1 or tint1
+      tint2 = data.tint2 or tint2
       SetMetaPedTag(ped, drawable, albedo, normal, material, palette, tint0, tint1, tint2)
     else
       ApplyShopItemToPed(ped, data.hash, false, isMp, false)
