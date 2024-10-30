@@ -1078,8 +1078,38 @@ local function cleanClothesTable(clothesList)
   return list
 end
 
+local function convertClothesTableToObject(object)
+  --convert the data from ctrl_clothshop
+  if object[1]?.comp?.catName then
+    local clothes = {}
+    for _, value in pairs(object) do
+      if value.comp and type(value.comp) == "table" then
+        local cloth = value.comp
+        clothes[cloth.catName] = {
+          hash = cloth.hash
+        }
+        if cloth.tints then
+          clothes[cloth.catName].tint0 = cloth.tints[1]
+          clothes[cloth.catName].tint1 = cloth.tints[2]
+          clothes[cloth.catName].tint2 = cloth.tints[3]
+        end
+        if cloth.special then
+          clothes[cloth.catName].normal = cloth.special.normal
+          clothes[cloth.catName].albedo = cloth.special.albedo
+          clothes[cloth.catName].material = cloth.special.material
+        end
+      end
+    end
+    return clothes
+  else
+    return object
+  end
+end
+
 local function standardizeClothesKeys(object)
   local objectStandardized = {}
+
+  object = convertClothesTableToObject(object)
 
   for catFram, data in pairs(object or {}) do
     objectStandardized[standardizeSkinKey(catFram)] = data
