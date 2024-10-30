@@ -1080,11 +1080,14 @@ end
 
 local function convertClothesTableToObject(object)
   --convert the data from ctrl_clothshop
-  if object[1]?.comp?.catName then
+  if object[1] then
     local clothes = {}
     for _, value in pairs(object) do
-      if value.comp and type(value.comp) == "table" then
-        local cloth = value.comp
+      local cloth = value
+      if type(cloth) == "table" then
+        cloth = cloth.comp or cloth
+      end
+      if type(cloth) == "table" then
         clothes[cloth.catName] = {
           hash = cloth.hash
         }
