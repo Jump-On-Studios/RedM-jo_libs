@@ -745,7 +745,7 @@ function FrameworkClass:openInventory(source, invName)
     self.inv:OpenInventory(source, invName, data)
     return
   end
-  if self:is("RSG") and self:is("QBR") or self:is("QR") then
+  if self:is("RSG") or self:is("QBR") or self:is("QR") then
     TriggerClientEvent(GetCurrentResourceName() .. ":client:openInventory", source, invName, invConfig)
     return
   end
