@@ -41,12 +41,17 @@ function OWFramework.registerUseItem(item, closeAfterUsed, callback)
     end)
 end
 
-function OWFramework.createInventory(id,label,definition)
-    
+function OWFramework.User.getJob(source)
+    local character = Core.GetCharacterFromPlayerId(source)
+    local jobs = table.map(character?.roles, function(v, i)
+        return v.group.name
+    end)
+
+    return jobs
 end
 
 function OWFramework.createInventory(id,label,definition)
-    exports.ox_inventory:forceOpenInventory()
+    
 end
 
 function OWFramework.canUseItem(source,item,amount,meta,remove)

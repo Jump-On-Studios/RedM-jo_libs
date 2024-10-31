@@ -40,6 +40,8 @@ end
 
 function GetHashFromString(value)
   if type(value) == "string" then
+    local number = tonumber(value)
+    if number then return number end
     return joaat(value)
   end
   return value
@@ -65,12 +67,6 @@ local function loadGlobalModule(module)
   if resourceName == "jo_libs" then return end
   while GetResourceState('jo_libs') ~= "started" do Wait(0) end
   exports.jo_libs:loadGlobalModule(module)
-  -- local waiter = promise.new()
-  -- TriggerEvent("jo_libs:loadGlobalModule",module, function()
-  --   print(name,'GLOBAL LOADED')
-  --   waiter:resolve(true)
-  -- end)
-  -- Citizen.Await(waiter)
 end
 
 local function doesScopedFilesRequired(name)
