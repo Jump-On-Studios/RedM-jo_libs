@@ -77,6 +77,8 @@ end
 
 local MenuItem = {
   title = '',
+  subtitle = '',
+  footer = '',
   child = false,
   sliders = {},
   price = false,
