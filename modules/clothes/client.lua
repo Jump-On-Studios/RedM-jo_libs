@@ -302,6 +302,42 @@ function jo.clothes.getComponentCategory(ped, hash)
   return categoryHash, isMp
 end
 
+function jo.clothes.isMpComponent(ped, hash)
+  hash = GetHashFromString(hash)
+  local categoryHash = GetShopItemComponentCategory(hash, GetMetaPedType(ped), true)
+  if not categoryHash then
+    return false
+  end
+  return true
+end
+
+local function getBaseLayer(ped, hash)
+  local drawable, albedo, normal, material, palette, tint0, tint1, tint2 = GetShopItemBaseLayers(hash, GetMetaPedType(ped), jo.clothes.isMpComponent(ped, hash))
+  if drawable == 0 or drawable == 1 then drawable = nil end
+  if albedo == 0 then albedo = nil end
+  if normal == 0 then normal = nil end
+  if material == 0 then material = nil end
+  if palette == 0 then palette = nil end
+  return drawable, albedo, normal, material, palette, tint0, tint1, tint2
+end
+
+local function convertToMetaTag(ped, data)
+  --restrict to hats & masks
+  if not data.hash then return data end
+  if data.albedo then return data end
+  local drawable, albedo, normal, material, palette, tint0, tint1, tint2 = getBaseLayer(ped, data.hash)
+  data.drawable = data.drawable or drawable or data.hash or 0
+  data.albedo = data.albedo or albedo or 0
+  data.normal = data.normal or normal or 0
+  data.material = data.material or material or 0
+  data.palette = data.palette or palette or 0
+  data.tint0 = data.tint0 or tint0
+  data.tint1 = data.tint1 or tint1
+  data.tint2 = data.tint2 or tint2
+  data.hash = nil
+  return data
+end
+
 ---@param ped integer the entity
 ---@param category string the clothes category
 ---@param data any the clothes data
@@ -319,7 +355,7 @@ function jo.clothes.apply(ped, category, data)
 
   ResetCachedColor(ped, categoryHash)
 
-  if data.hash or data.drawable then
+  if data.hash or data.albedo then
     if data.hash and category ~= "horse_bridles" then
       RemoveTagFromMetaPed(ped, categoryHash, 0)
     end
@@ -339,35 +375,29 @@ function jo.clothes.apply(ped, category, data)
     elseif category == "skirts" then
       RemoveTagFromMetaPed(ped, 'pants', 0);
     end
-    if data.albedo or category == "masks" or category == "hats" then
-      local drawable, albedo, normal, material, palette, tint0, tint1, tint2 = 0, 0, 0, 0, 0, 0, 0, 0
-      if data.hash then
-        drawable, albedo, normal, material, palette, tint0, tint1, tint2 = GetShopItemBaseLayers(data.hash, GetMetaPedType(ped), isMp)
-        if drawable == 0 then drawable = nil end
-        if albedo == 0 then albedo = nil end
-        if normal == 0 then normal = nil end
-        if material == 0 then material = nil end
-        if palette == 0 then palette = nil end
-      end
-      drawable = data.drawable or drawable or data.hash or 0
-      albedo = data.albedo or albedo or 0
-      normal = data.normal or normal or 0
-      material = data.material or material or 0
-      palette = data.palette or palette or 0
-      tint0 = data.tint0 or tint0
-      tint1 = data.tint1 or tint1
-      tint2 = data.tint2 or tint2
-      SetMetaPedTag(ped, drawable, albedo, normal, material, palette, tint0, tint1, tint2)
-    else
+
+    --switch shop item to metatag to allow clothes mix
+    if category == "hats" or category == "masks" or data.albedo then
+      data = convertToMetaTag(ped, data)
+    end
+
+    if data.hash then
       ApplyShopItemToPed(ped, data.hash, false, isMp, false)
-      if data.palette and data.palette ~= 0 then
-        AddCachedClothes(ped, nil, categoryHash, data.hash, data.drawable, data.albedo, data.normal, data.material, data.palette, data.tint0, data.tint1, data.tint2)
-      end
-      local state = data.state or Entity(ped).state['wearableState:' .. category]
-      if state then
-        Entity(ped).state['wearableState:' .. category] = state
-        UpdateShopItemWearableState(ped, data.hash, state)
-      end
+    end
+
+    if data.albedo then
+      SetMetaPedTag(ped, data.drawable, data.albedo, data.normal, data.material, data.palette, data.tint0, data.tint1, data.tint2)
+      AddCachedClothes(ped, nil, categoryHash, data.hash, data.drawable, data.albedo, data.normal, data.material, data.palette, data.tint0, data.tint1, data.tint2)
+    end
+
+    if data.palette and data.palette ~= 0 then
+      AddCachedClothes(ped, nil, categoryHash, data.hash, data.drawable, data.albedo, data.normal, data.material, data.palette, data.tint0, data.tint1, data.tint2)
+    end
+
+    local state = data.state or Entity(ped).state['wearableState:' .. category]
+    if state then
+      Entity(ped).state['wearableState:' .. category] = state
+      UpdateShopItemWearableState(ped, data.hash, state)
     end
   elseif data.palette then
     AddCachedClothes(ped, nil, categoryHash, nil, nil, data.albedo, data.normal, data.material, data.palette, data.tint0, data.tint1, data.tint2)

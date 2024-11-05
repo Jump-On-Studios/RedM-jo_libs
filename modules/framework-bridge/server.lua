@@ -691,17 +691,7 @@ function FrameworkClass:createInventory(invName, name, invConfig)
   if OWFramework.createInventory then
     OWFramework.createInventory(invName, name, invConfig)
   elseif self:is('VORP') then
-    --id, name, limit, acceptWeapons, shared, ignoreItemStackLimit, whitelistItems,UsePermissions, UseBlackList, whitelistWeapons
     local invConfig = invConfig
-    -- self.inv:registerInventory({
-    --   id = invName,
-    --   name = name,
-    --   limit = invConfig.maxSlots,
-    --   acceptWeapons =  invConfig.acceptWeapons or false,
-    --   shared = invConfig.shared or true,
-    --   ignoreItemStackLimit = invConfig.ignoreStackLimit or true,
-    --   whitelistItems = invConfig.whitelist and true or false,
-    -- })
     self.inv:registerInventory({
       id = invName,
       name = name,
@@ -755,7 +745,7 @@ function FrameworkClass:openInventory(source, invName)
     self.inv:OpenInventory(source, invName, data)
     return
   end
-  if self:is("RSG") and self:is("QBR") or self:is("QR") then
+  if self:is("RSG") or self:is("QBR") or self:is("QR") then
     TriggerClientEvent(GetCurrentResourceName() .. ":client:openInventory", source, invName, invConfig)
     return
   end
@@ -1133,6 +1123,9 @@ local function standardizeClothesKeys(object)
   return objectStandardized
 end
 FrameworkClass.standardizeClothesKeys = standardizeClothesKeys
+FrameworkClass.standardizeSkinKeys = standardizeSkinKeys
+FrameworkClass.revertSkinKeys = revertSkinKeys
+FrameworkClass.revertClothesKeys = revertClothesKeys
 
 function FrameworkClass:getUserClothes(source)
   local clothes = {}
@@ -1186,7 +1179,7 @@ function FrameworkClass:updateUserClothes(source, _clothes, value)
   end
   local clothes = revertClothesKeys(_clothes)
   if OWFramework.updateUserClothes then
-    return OWFramework.updateUserClothes(source, category, value)
+    return OWFramework.updateUserClothes(source, _clothes, value)
   end
   if self:is('VORP') then
     local newClothes = {}
@@ -1289,7 +1282,6 @@ function FrameworkClass:getUserSkin(source)
       skinStandardized.teeth = clothes.teeth.hash
     end
   end
-
 
   return skinStandardized
 end
