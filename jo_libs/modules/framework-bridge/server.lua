@@ -139,7 +139,13 @@ function User:init()
   if OWFramework.User.getUser then
     self.data = OWFramework.User.getUser(self.source)
   elseif jo.framework:is("VORP") then
-    self.data = jo.framework.core.getUser(self.source).getUsedCharacter
+    local user = jo.framework.core.getUser(self.source)
+    if not user then
+      eprint("User doesn't exist. source:", self.source)
+      self.data = {}
+    else
+      self.data = user.getUsedCharacter
+    end
   elseif jo.framework:is("RedEM2023") then
     self.data = jo.framework.core.GetPlayer(self.source)
   elseif jo.framework:is("RedEM") then
