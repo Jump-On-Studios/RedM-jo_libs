@@ -47,7 +47,6 @@ if isServerSide then
   ---@param cb function return of the event
   ---@param ...? any
   function jo.callback.triggerClient(name, source, cb, ...)
-    print(name, source, ...)
     if not GetPlayerIdentifier(source) then
       return eprint('Callback Module: Player is not connected - source: ' .. source)
     end
