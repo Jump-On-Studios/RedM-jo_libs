@@ -52,7 +52,7 @@ if isServerSide then
     end
     responseCallback[currentRequestId] = cb
 
-    TriggerClientEvent('triggerCallback', source, name, currentRequestId, GetInvokingResource() or "unknown", ...)
+    TriggerClientEvent('jo_libs:triggerCallback', source, name, currentRequestId, GetInvokingResource() or "unknown", ...)
 
     currentRequestId = currentRequestId < 65535 and currentRequestId + 1 or 0
   end
