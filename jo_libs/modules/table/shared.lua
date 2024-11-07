@@ -81,7 +81,7 @@ table.map = function(t, func)
   for i, v in pairs(t or {}) do
     new_table[i] = func(v, i, t)
   end
-  return new_table
+  return table.copy(new_table)
 end
 
 ---@param t table the table to search in

@@ -34,14 +34,14 @@ for i = 1, GetNumResourceMetadata(resourceName, 'jo_lib') do
   modules[#modules + 1] = getAlias(GetResourceMetadata(resourceName, 'jo_lib', i - 1))
 end
 
-
-
 if jo and jo.name == jo_libs then
   error(("jo_libs is already loaded.\n\tRemove any duplicate entries from '@%s/fxmanifest.lua'"):format(resourceName))
 end
 
 function GetHashFromString(value)
   if type(value) == "string" then
+    local number = tonumber(value)
+    if number then return number end
     return joaat(value)
   end
   return value
@@ -67,12 +67,6 @@ local function loadGlobalModule(module)
   if resourceName == "jo_libs" then return end
   while GetResourceState('jo_libs') ~= "started" do Wait(0) end
   exports.jo_libs:loadGlobalModule(module)
-  -- local waiter = promise.new()
-  -- TriggerEvent("jo_libs:loadGlobalModule",module, function()
-  --   print(name,'GLOBAL LOADED')
-  --   waiter:resolve(true)
-  -- end)
-  -- Citizen.Await(waiter)
 end
 
 local function doesScopedFilesRequired(name)
@@ -154,6 +148,7 @@ end
 local jo = setmetatable({
   libLoaded = false,
   name = jo_libs,
+  resourceName = resourceName,
   context = context,
   cache = {}
 }, {
@@ -169,6 +164,7 @@ end
 
 local function onReady(cb)
   jo.waitLibLoading()
+  Wait(1000)
 
   return cb and cb() or true
 end

@@ -3,6 +3,9 @@ jo.file.load('framework-bridge.overwrite-functions')
 if not table.merge then
   jo.require('table')
 end
+if not string.convertVersion then
+  jo.require('string')
+end
 
 local mainResourceFramework = {
   VORP = { 'vorp_core' },
@@ -136,7 +139,13 @@ function User:init()
   if OWFramework.User.getUser then
     self.data = OWFramework.User.getUser(self.source)
   elseif jo.framework:is("VORP") then
-    self.data = jo.framework.core.getUser(self.source).getUsedCharacter
+    local user = jo.framework.core.getUser(self.source)
+    if not user then
+      eprint("User doesn't exist. source:", self.source)
+      self.data = {}
+    else
+      self.data = user.getUsedCharacter
+    end
   elseif jo.framework:is("RedEM2023") then
     self.data = jo.framework.core.GetPlayer(self.source)
   elseif jo.framework:is("RedEM") then
@@ -409,6 +418,15 @@ function FrameworkClass:init()
   elseif self:is("RSG") then
     bprint('RSG detected')
     self.core = exports['rsg-core']:GetCoreObject()
+    self.coreVersion = GetResourceMetadata('rsg-core', 'version', 0) or 1
+    if ('2.0.0'):convertVersion() <= self.coreVersion:convertVersion() then
+      self.inv = exports['rsg-inventory']
+      self.isV2 = true
+      bprint('RSG V2 detected')
+    else
+      self.isV2 = false
+      bprint('RSG V1 detected')
+    end
     return
   elseif self:is("QR") then
     bprint('QR detected')
@@ -466,6 +484,10 @@ function FrameworkClass:is(name)
   return self:get() == name
 end
 
+-------------
+-- USER DATA
+-------------
+
 ---@param source integer source ID
 ---@return table
 function FrameworkClass:getUser(source)
@@ -492,6 +514,32 @@ function FrameworkClass:getRPName(source)
   local user = User:get(source)
   return user:getRPName()
 end
+
+-------------
+-- MONEY
+-------------
+
+---@param source integer
+---@param amount number
+---@param moneyType? integer 0: money, 1: gold, 2: rol
+---@param removeIfCan? boolean (optinal) default : false
+---@return boolean
+function FrameworkClass:canUserBuy(source, amount, moneyType, removeIfCan)
+  local user = User:get(source)
+  return user:canBuy(amount, moneyType or 0, removeIfCan)
+end
+
+---@param source integer
+---@param amount number
+---@param moneyType? integer 0: money, 1: gold, 2: rol
+function FrameworkClass:addMoney(source, amount, moneyType)
+  local user = User:get(source)
+  user:addMoney(amount, moneyType or 0)
+end
+
+-------------
+-- INVENTORY
+-------------
 
 ---@param source integer source ID
 ---@param item string name of the item
@@ -585,6 +633,17 @@ function FrameworkClass:registerUseItem(item, closeAfterUsed, callback)
           TriggerClientEvent("qbr-inventory:client:closeinv", source)
         end
       end)
+    elseif self:is("RSG") and self.isV2 then
+      local isAdded = self.core.Functions.AddItem(item, nil)
+      if isAdded then
+        return eprint(item .. " < item does not exist in the core configuration")
+      end
+      self.core.Functions.CreateUseableItem(item, function(source, data)
+        callback(source, { metadata = data.info })
+        if closeAfterUsed then
+          TriggerClientEvent("rsg-inventory:client:closeInv", source)
+        end
+      end)
     elseif self:is("RSG") or self:is('QR') then
       local isAdded = self.core.Functions.AddItem(item, nil)
       if isAdded then
@@ -638,17 +697,7 @@ function FrameworkClass:createInventory(invName, name, invConfig)
   if OWFramework.createInventory then
     OWFramework.createInventory(invName, name, invConfig)
   elseif self:is('VORP') then
-    --id, name, limit, acceptWeapons, shared, ignoreItemStackLimit, whitelistItems,UsePermissions, UseBlackList, whitelistWeapons
     local invConfig = invConfig
-    -- self.inv:registerInventory({
-    --   id = invName,
-    --   name = name,
-    --   limit = invConfig.maxSlots,
-    --   acceptWeapons =  invConfig.acceptWeapons or false,
-    --   shared = invConfig.shared or true,
-    --   ignoreItemStackLimit = invConfig.ignoreStackLimit or true,
-    --   whitelistItems = invConfig.whitelist and true or false,
-    -- })
     self.inv:registerInventory({
       id = invName,
       name = name,
@@ -693,6 +742,15 @@ function FrameworkClass:openInventory(source, invName)
     TriggerClientEvent("redemrp_inventory:OpenLocker", source, invName)
     return
   end
+  if self:is("RSG") and self.isV2 then
+    local data = {
+      label = self.inventories[invName].name,
+      maxweight = self.inventories[invName].invConfig.maxWeight,
+      slots = self.inventories[invName].invConfig.maxSlots
+    }
+    self.inv:OpenInventory(source, invName, data)
+    return
+  end
   if self:is("RSG") or self:is("QBR") or self:is("QR") then
     TriggerClientEvent(GetCurrentResourceName() .. ":client:openInventory", source, invName, invConfig)
     return
@@ -726,6 +784,9 @@ function FrameworkClass:addItemInInventory(source, invId, item, quantity, metada
         waiter:resolve(true)
       end)
     end)
+  elseif self:is('RSG') and self.isV2 then
+    self.inv:CreateInventory(invId)
+    return self.inv:AddItem(invId, item, quantity, false, metadata)
   elseif self:is('QBR') or self:is('RSG') or self:is('RPX') then
     MySQL.scalar('SELECT items FROM stashitems WHERE stash = ?', { invId }, function(items)
       items = UnJson(items)
@@ -789,6 +850,17 @@ function FrameworkClass:getItemsFromInventory(source, invId)
       }
     end
     return itemFiltered
+  elseif self:is('RSG') and self.isV2 then
+    local inventory = self.inv:GetInventory(invId) or { items = {} }
+    local itemFiltered = {}
+    for _, item in pairs(inventory.items) do
+      itemFiltered[#itemFiltered + 1] = {
+        metadata = item.info,
+        amount = item.amount,
+        item = item.name
+      }
+    end
+    return itemFiltered
   elseif self:is('QBR') or self:is('RSG') or self:is('RPX') then
     local items = MySQL.scalar.await('SELECT items FROM stashitems WHERE stash = ?', { invId })
     items = UnJson(items)
@@ -830,23 +902,9 @@ function FrameworkClass:getItemsFromInventory(source, invId)
   return {}
 end
 
----@param source integer
----@param amount number
----@param moneyType? integer 0: money, 1: gold, 2: rol
----@param removeIfCan? boolean (optinal) default : false
----@return boolean
-function FrameworkClass:canUserBuy(source, amount, moneyType, removeIfCan)
-  local user = User:get(source)
-  return user:canBuy(amount, moneyType or 0, removeIfCan)
-end
-
----@param source integer
----@param amount number
----@param moneyType? integer 0: money, 1: gold, 2: rol
-function FrameworkClass:addMoney(source, amount, moneyType)
-  local user = User:get(source)
-  user:addMoney(amount, moneyType or 0)
-end
+-------------
+-- SKIN & CLOTHES
+-------------
 
 ---@param key string
 local function isOverlayKey(key)
@@ -1026,8 +1084,41 @@ local function cleanClothesTable(clothesList)
   return list
 end
 
+local function convertClothesTableToObject(object)
+  --convert the data from ctrl_clothshop
+  if object[1] then
+    local clothes = {}
+    for _, value in pairs(object) do
+      local cloth = value
+      if type(cloth) == "table" then
+        cloth = cloth.comp or cloth
+      end
+      if type(cloth) == "table" then
+        clothes[cloth.catName] = {
+          hash = cloth.hash
+        }
+        if cloth.tints then
+          clothes[cloth.catName].tint0 = cloth.tints[1]
+          clothes[cloth.catName].tint1 = cloth.tints[2]
+          clothes[cloth.catName].tint2 = cloth.tints[3]
+        end
+        if cloth.special then
+          clothes[cloth.catName].normal = cloth.special.normal
+          clothes[cloth.catName].albedo = cloth.special.albedo
+          clothes[cloth.catName].material = cloth.special.material
+        end
+      end
+    end
+    return clothes
+  else
+    return object
+  end
+end
+
 local function standardizeClothesKeys(object)
   local objectStandardized = {}
+
+  object = convertClothesTableToObject(object)
 
   for catFram, data in pairs(object or {}) do
     objectStandardized[standardizeSkinKey(catFram)] = data

@@ -77,6 +77,8 @@ end
 
 local MenuItem = {
   title = '',
+  subtitle = '',
+  footer = '',
   child = false,
   sliders = {},
   price = false,
@@ -104,6 +106,7 @@ function MenuClass:addItem(p, item)
 end
 function jo.menu.addItem(id, p, item) menus[id]:addItem(p, item) end
 
+--- Warning, potential memory leak with addItems methods. Need the be investigate
 function MenuClass:addItems(items)
   for _, item in ipairs(items) do
     self:addItem(item)
@@ -126,6 +129,9 @@ function MenuClass:refresh()
     menu = self.id,
     data = datas
   })
+  if currentData.menu == self.id then
+    currentData.item = self.items[currentData.index]
+  end
 end
 function jo.menu.refresh(id) menus[id]:refresh() end
 
@@ -185,6 +191,9 @@ function MenuClass:send(reset)
     reset = reset,
     menu = datas
   })
+  if currentData.menu == self.id then
+    currentData.item = self.items[currentData.index]
+  end
 end
 function jo.menu.send(id) menus[id]:send() end
 
@@ -281,6 +290,14 @@ function jo.menu.show(show, keepInput, hideRadar, animation)
   end)
 end
 
+jo.stopped(function()
+  if jo.menu.isOpen() then
+    if not radarAlreadyHidden then
+      DisplayRadar(true)
+    end
+  end
+end)
+
 ---@param lang table list of translated strings
 function jo.menu.updateLang(lang)
   SendNUIMessage({
@@ -343,13 +360,7 @@ RegisterNUICallback('click', function(data, cb)
   if not menus[data.menu] then return end
   if not menus[data.menu].items[data.item.index] then return end
 
-  if menus[data.menu].items[data.item.index].onClickClientEvent then
-    TriggerEvent(menus[data.menu].items[data.item.index].onClickClientEvent, currentData)
-  end
-  if menus[data.menu].items[data.item.index].onClickServerEvent then
-    TriggerServerEvent(menus[data.menu].items[data.item.index].onClickClientEvent, currentData)
-  end
-  menus[data.menu].items[data.item.index].onClick(currentData)
+  jo.menu.fireEvent(jo.menu.getCurrentItem(), 'onClick')
 end)
 
 RegisterNUICallback('backMenu', function(data, cb)
