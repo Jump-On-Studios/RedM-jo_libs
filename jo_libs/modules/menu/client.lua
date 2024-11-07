@@ -252,6 +252,7 @@ local function loopMenu()
   CreateThread(function()
     while jo.menu.isOpen() do
       jo.menu.fireAllLevelsEvent('tick')
+      jo.menu.fireAllLevelsEvent('onTick')
       Wait(0)
     end
   end)
