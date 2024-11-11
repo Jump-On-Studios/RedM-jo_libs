@@ -241,7 +241,7 @@ function PutInCacheCurrentClothes(ped)
   for index = 0, numComponent - 1 do
     --Get current clothes
     local palette, tint0, tint1, tint2 = GetMetaPedAssetTint(ped, index)
-    local drawable, albedo, normal, material = GetMetaPedAssetGuids(ped, index)
+    local _, drawable, albedo, normal, material = GetMetaPedAssetGuids(ped, index)
     local category = GetCategoryOfComponentAtIndex(ped, index)
     local hash = GetShopItemComponentAtIndex(ped, index)
     AddCachedClothes(ped, index, category, hash, drawable, albedo, normal, material, palette, tint0, tint1, tint2)

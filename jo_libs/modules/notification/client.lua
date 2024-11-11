@@ -4,7 +4,7 @@ if not DataView then
   jo.require('dataview')
 end
 
-local function LoadDictFile(dict,waiter)
+local function LoadDictFile(dict, waiter)
   if DoesStreamedTextureDictExist(dict) then
     if not HasStreamedTextureDictLoaded(dict) then
       RequestStreamedTextureDict(dict, true)
@@ -16,33 +16,33 @@ local function LoadDictFile(dict,waiter)
 end
 
 local function UiFeedPostSampleToastRight(...)
-  return Citizen.InvokeNative(0xB249EBCB30DD88E0,...)
+  return Citizen.InvokeNative(0xB249EBCB30DD88E0, ...)
 end
 
 local function UiFeedPostSampleToast(...)
-  return Citizen.InvokeNative(0x26E87218390E6729,...)
+  return Citizen.InvokeNative(0x26E87218390E6729, ...)
 end
 
 local function UiFeedClearAllChannels(...)
-  return Citizen.InvokeNative(0x6035E8FBCA32AC5E,...)
+  return Citizen.InvokeNative(0x6035E8FBCA32AC5E, ...)
 end
 
-function UiFeedPostTwoTextShard(...) 
-  return Citizen.InvokeNative(0xA6F4216AB10EB08E, ...) 
+function UiFeedPostTwoTextShard(...)
+  return Citizen.InvokeNative(0xA6F4216AB10EB08E, ...)
 end
 
-RegisterNetEvent(GetCurrentResourceName()..":client:notif", function(text, dict, icon, color, duration,soundset_ref,soundset_name)
-  jo.notif.right(text, dict, icon, color, duration,soundset_ref,soundset_name)
+RegisterNetEvent(GetCurrentResourceName() .. ":client:notif", function(text, dict, icon, color, duration, soundset_ref, soundset_name)
+  jo.notif.right(text, dict, icon, color, duration, soundset_ref, soundset_name)
 end)
 
 ---@param text string the text of the notification
 function jo.notif.rightSuccess(text)
-  jo.notif.right(text,"hud_textures","check","COLOR_GREEN")
+  jo.notif.right(text, "hud_textures", "check", "COLOR_GREEN")
 end
 
 ---@param text string the text of the notification
 function jo.notif.rightError(text)
-  jo.notif.right(text,"menu_textures", "cross","COLOR_RED",nil,nil,'Transaction_Negative')
+  jo.notif.right(text, "menu_textures", "cross", "COLOR_RED", nil, nil, 'Transaction_Negative')
 end
 
 ---@param text string The text of the notification
@@ -52,7 +52,7 @@ end
 ---@param duration? integer The duration of the notification in ms
 ---@param soundset_ref? string The dictionnary of the soundset
 ---@param soundset_name? string The name of the soundset
-function jo.notif.right(text, dict, icon, color, duration,soundset_ref,soundset_name)
+function jo.notif.right(text, dict, icon, color, duration, soundset_ref, soundset_name)
   local message = {
     type = 'notificationRight',
     text = tostring(text or ''),
@@ -65,7 +65,7 @@ function jo.notif.right(text, dict, icon, color, duration,soundset_ref,soundset_
   }
   if not message then return end
   UiFeedClearAllChannels()
-  LoadDictFile(message.dict,true)
+  LoadDictFile(message.dict, true)
   message.text = CreateVarString(10, "LITERAL_STRING", tostring(message.text))
   message.dict = CreateVarString(10, "LITERAL_STRING", tostring(message.dict))
   message.soundset_ref = CreateVarString(10, "LITERAL_STRING", message.soundset_ref)
@@ -80,13 +80,13 @@ function jo.notif.right(text, dict, icon, color, duration,soundset_ref,soundset_
   struct2:SetInt64(8 * 3, bigInt(joaat(message.icon)))
   struct2:SetInt64(8 * 5, bigInt(joaat(message.color)))
   --if showquality then
-      --struct2:SetInt32(8 * 6, quality or 1)
+  --struct2:SetInt32(8 * 6, quality or 1)
   --end
   UiFeedPostSampleToastRight(struct1:Buffer(), struct2:Buffer(), 1)
 end
 
-RegisterNetEvent(GetCurrentResourceName()..":client:notifLeft", function(title, subTitle, dict, icon, color, duration,soundset_ref,soundset_name)
-  jo.notif.left(title, subTitle, dict, icon, color, duration,soundset_ref,soundset_name)
+RegisterNetEvent(GetCurrentResourceName() .. ":client:notifLeft", function(title, subTitle, dict, icon, color, duration, soundset_ref, soundset_name)
+  jo.notif.left(title, subTitle, dict, icon, color, duration, soundset_ref, soundset_name)
 end)
 
 ---@param title string the title of the notification
@@ -97,7 +97,7 @@ end)
 ---@param duration? integer The duration of the notification in ms
 ---@param soundset_ref? string The dictionnary of the soundset
 ---@param soundset_name? string The name of the soundset
-function  jo.notif.left(title, text, dict, icon, color, duration,soundset_ref,soundset_name)
+function jo.notif.left(title, text, dict, icon, color, duration, soundset_ref, soundset_name)
   local message = {
     type = 'notificationLeft',
     title = tostring(title or ''),
@@ -111,7 +111,7 @@ function  jo.notif.left(title, text, dict, icon, color, duration,soundset_ref,so
   }
   if not message then return end
   UiFeedClearAllChannels()
-  LoadDictFile(message.dict,true)
+  LoadDictFile(message.dict, true)
   local struct1 = DataView.ArrayBuffer(8 * 7)
   local struct2 = DataView.ArrayBuffer(8 * 8)
   message.soundset_ref = CreateVarString(10, "LITERAL_STRING", message.soundset_ref)
@@ -136,17 +136,17 @@ end
 ---@param subtitle string The text of the notification
 ---@param duration? integer The duration of the notification in ms
 function jo.notif.simpleTop(title, subtitle, duration)
-local structConfig = DataView.ArrayBuffer(8 * 7)
-structConfig:SetInt32(8 * 0, tonumber(duration or 3000))
+  local structConfig = DataView.ArrayBuffer(8 * 7)
+  structConfig:SetInt32(8 * 0, tonumber(duration or 3000))
 
-local structData = DataView.ArrayBuffer(8 * 7)
-structData:SetInt64(8 * 1, bigInt(VarString(10, "LITERAL_STRING", title)))
-structData:SetInt64(8 * 2, bigInt(VarString(10, "LITERAL_STRING", subtitle)))
+  local structData = DataView.ArrayBuffer(8 * 7)
+  structData:SetInt64(8 * 1, bigInt(VarString(10, "LITERAL_STRING", title)))
+  structData:SetInt64(8 * 2, bigInt(VarString(10, "LITERAL_STRING", subtitle)))
 
-UiFeedPostTwoTextShard(structConfig:Buffer(), structData:Buffer(), 1, 1)
+  UiFeedPostTwoTextShard(structConfig:Buffer(), structData:Buffer(), 1, 1)
 end
 
-RegisterNetEvent(GetCurrentResourceName()..":client:simpleTop", function(title, subtitle, duration)
+RegisterNetEvent(GetCurrentResourceName() .. ":client:simpleTop", function(title, subtitle, duration)
   jo.notif.simpleTop(title, subtitle, duration)
 end)
 
