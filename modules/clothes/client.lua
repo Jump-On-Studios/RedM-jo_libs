@@ -176,7 +176,8 @@ local function isValidValue(value)
 end
 
 ---@return table data formatted table for clothes data
-local function formatClothesData(data)
+local function formatClothesData(_data)
+  data = table.copy(_data)
   if type(data) ~= "table" then
     data = { hash = data }
   end
@@ -241,7 +242,7 @@ function PutInCacheCurrentClothes(ped)
   for index = 0, numComponent - 1 do
     --Get current clothes
     local palette, tint0, tint1, tint2 = GetMetaPedAssetTint(ped, index)
-    local drawable, albedo, normal, material = GetMetaPedAssetGuids(ped, index)
+    local _, drawable, albedo, normal, material = GetMetaPedAssetGuids(ped, index)
     local category = GetCategoryOfComponentAtIndex(ped, index)
     local hash = GetShopItemComponentAtIndex(ped, index)
     AddCachedClothes(ped, index, category, hash, drawable, albedo, normal, material, palette, tint0, tint1, tint2)
