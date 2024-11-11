@@ -176,7 +176,8 @@ local function isValidValue(value)
 end
 
 ---@return table data formatted table for clothes data
-local function formatClothesData(data)
+local function formatClothesData(_data)
+  data = table.copy(_data)
   if type(data) ~= "table" then
     data = { hash = data }
   end
