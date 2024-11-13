@@ -35,6 +35,15 @@ table.merge = function(t1, t2)
   return t1
 end
 
+table.mergeAfter = function(t1, t2)
+  t1 = t1 or {}
+  if not t2 then return t1 end
+  for _, v in pairs(t2 or {}) do
+    t1[#t1 + 1] = v
+  end
+  return t1
+end
+
 ---@param _table table
 ---@return boolean
 table.isEmpty = function(_table)
