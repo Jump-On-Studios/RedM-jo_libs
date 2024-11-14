@@ -150,6 +150,10 @@ RegisterNetEvent(GetCurrentResourceName() .. ":client:simpleTop", function(title
   jo.notif.simpleTop(title, subtitle, duration)
 end)
 
+RegisterNetEvent(GetCurrentResourceName() .. ":client:notifPrint", function(...)
+  print(...)
+end)
+
 
 
 return jo.notif

@@ -279,8 +279,18 @@ function User:addMoney(amount, moneyType)
     if moneyType == 0 then
       self.data.AddMoney(amount)
     elseif moneyType == 1 then
+      if not OWFramework.User.addSecondMoney then
+        jo.notif.print(self.source, 'Gold in not supported by your Framework')
+        jo.notif.print(self.source, 'Please check jo_libs docs to add OWFramework.User.addSecondMoney()')
+        return
+      end
       OWFramework.User.addSecondMoney(self.source, amount)
     elseif moneyType == 2 then
+      if not OWFramework.User.addSecondMoney then
+        jo.notif.print(self.source, 'Gold in not supported by your Framework')
+        jo.notif.print(self.source, 'Please check jo_libs docs to add OWFramework.User.addSecondMoney()')
+        return
+      end
       OWFramework.User.addThirdMoney(self.source, amount)
     end
   elseif jo.framework:is("RedEM") then
@@ -295,8 +305,18 @@ function User:addMoney(amount, moneyType)
     if moneyType == 0 then
       self.data.Functions.AddMoney('cash', amount)
     elseif moneyType == 1 then
+      if not OWFramework.User.addSecondMoney then
+        jo.notif.print(self.source, 'Gold in not supported by your Framework')
+        jo.notif.print(self.source, 'Please check jo_libs docs to add OWFramework.User.addSecondMoney()')
+        return
+      end
       OWFramework.User.addSecondMoney(self.source, amount)
     elseif moneyType == 2 then
+      if not OWFramework.User.addSecondMoney then
+        jo.notif.print(self.source, 'Gold in not supported by your Framework')
+        jo.notif.print(self.source, 'Please check jo_libs docs to add OWFramework.User.addSecondMoney()')
+        return
+      end
       OWFramework.User.addThirdMoney(self.source, amount)
     end
   end
