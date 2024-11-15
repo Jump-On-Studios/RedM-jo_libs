@@ -61,6 +61,79 @@ local SkinCategoryBridge = {
     Hair = "hair",
     Beard = "beards_complete",
     Teeth = "teeth",
+    sex = "model",
+    HeadType = "", --To be confirm
+    BodyType = "", --To be confirm
+    LegsType = "", --To be investig
+    Eyes = "eyes",
+    Legs = "",
+    Torso = "",
+    Waist = "",
+    Body = "",
+    --Expressions
+    HeadSize = "headWidth",
+    FaceW = "faceWidth",
+    FaceD = "eyebrowWidth",
+    FaceS = "eyebrowHeight",
+    NeckW = "neckWidth",
+    NeckD = "neckDepth",
+    EyeBrowH = "eyebrowHeight",
+    EyeBrowW = "eyebrowWidth",
+    EyeBrowD = "eyebrowDepth",
+    EyeD = "eyesDepth",
+    EyeAng = "eyesAngle",
+    EyeDis = "eyesDistance",
+    EyeH = "eyesHeight",
+    EyeLidH = "eyelidHeight",
+    EyeLidW = "eyelidWidth",
+    EyeLidL = "eyelidLeft",
+    EyeLidR = "eyelidRight",
+    EarsW = "earsWidth",
+    EarsA = "earsAngle",
+    EarsH = "earsHeight",
+    EarsD = "earlobes",
+    CheekBonesH = "cheekbonesHeight",
+    CheekBonesW = "cheekbonesWidth",
+    CheekBonesD = "cheekbonesDepth",
+    JawH = "jawHeight",
+    JawW = "jawWidth",
+    JawD = "jawDepth",
+    ChinH = "chinHeight",
+    ChinW = "chinWidth",
+    ChinD = "chinDepth",
+    NoseW = "noseWidth",
+    NoseS = "noseSize",
+    NoseH = "noseHeight",
+    NoseAng = "noseAngle",
+    NoseC = "noseCurvature",
+    NoseDis = "nostrilsDistance",
+    MouthW = "mouthWidth",
+    MouthD = "mouthDepth",
+    MouthX = "mouthX",
+    MouthY = "mouthY",
+    ULiphH = "upperLipHeight",
+    ULiphW = "upperLipWidth",
+    ULiphD = "upperLipDepth",
+    LLiphH = "lowerLipHeight",
+    LLiphW = "lowerLipWidth",
+    LLiphD = "lowerLipDepth",
+    MouthCLW = "mouthConerLeftWidth",
+    MouthCRW = "mouthConerRightWidth",
+    MouthCLD = "mouthConerLeftDepth",
+    MouthCRD = "mouthConerRightDepth",
+    MouthCLH = "mouthConerLeftHeight",
+    MouthCRH = "mouthConerRightHeight",
+    MouthCLLD = "mouthConerLeftLipsDistance",
+    MouthCRLD = "mouthConerRightLipsDistance",
+    ArmsS = "arms",
+    ShouldersS = "shoulders",
+    ShouldersT = "shoulderThickness",
+    ShouldersM = "shoulderBlades",
+    ChestS = "chest",
+    WaistW = "waist",
+    HipsS = "hip",
+    LegsS = "thighs",
+    CalvesS = "calves",
   },
   RSG = {
     beard = "beards_complete"
@@ -115,6 +188,10 @@ local listClothesCategory = {
   'beards_complete',
   'teeth'
 }
+
+-------------
+-- END VARIABLES
+-------------
 
 -------------
 -- USER CLASS
@@ -387,6 +464,10 @@ end
 jo.User = User
 
 -------------
+-- END USER CLASS
+-------------
+
+-------------
 -- FRAMEWORK CLASS
 -------------
 
@@ -505,6 +586,10 @@ function FrameworkClass:is(name)
 end
 
 -------------
+-- END FRAMEWORK CLASS
+-------------
+
+-------------
 -- USER DATA
 -------------
 
@@ -536,6 +621,10 @@ function FrameworkClass:getRPName(source)
 end
 
 -------------
+-- END USER DATA
+-------------
+
+-------------
 -- MONEY
 -------------
 
@@ -556,6 +645,10 @@ function FrameworkClass:addMoney(source, amount, moneyType)
   local user = User:get(source)
   user:addMoney(amount, moneyType or 0)
 end
+
+-------------
+-- END MONEY
+-------------
 
 -------------
 -- INVENTORY
@@ -923,6 +1016,10 @@ function FrameworkClass:getItemsFromInventory(source, invId)
 end
 
 -------------
+-- END INVENTORY
+-------------
+
+-------------
 -- SKIN & CLOTHES
 -------------
 
@@ -1079,7 +1176,7 @@ end
 local function revertSkinKeys(object)
   local objectStandardized = {}
   for category, data in pairs(object) do
-    objectStandardized[revertSkinKey(category)] = type(data) == "table" and table.copy(data) or data
+    objectStandardized[revertSkinKey(category)] = table.copy(data)
   end
   return objectStandardized
 end
@@ -1368,6 +1465,52 @@ function FrameworkClass:updateUserSkin(...)
     user.data.SetSkinData(skin)
   end
 end
+
+
+
+function FrameworkClass:createUser(source, data, spawnCoordinate, isDead)
+  if isDead == nil then isDead = false end
+  spawnCoordinate = spawnCoordinate or vec4(2537.684, -1278.066, 49.218, 42.520)
+  data = data or {}
+  data.firstname = data.firstname or ''
+  data.lastname = data.lastname or ''
+  data.skin = revertSkinKeys(data.skin)
+  data.comps = revertClothesKeys(data.comps)
+  if OWFramework.createUser then
+    return OWFramework.createUser(source, data)
+  end
+  if self:is("VORP") then
+    local convertData = {
+      firstname = data.firstname or '',
+      lastname = data.lastname or '',
+      skin = json.encode(data.skin or {}),
+      comps = json.encode(data.comps or {}),
+      compTints = '[]',
+      age = data.age,
+      gender = data.skin.model == "mp_male" and "Male" or "Female",
+      charDescription = data.charDescription or "",
+      nickname = data.nickname or ''
+    }
+    self.core.getUser(source).addCharacter(convertData)
+    TriggerClientEvent("vorp:initCharacter", source, spawnCoordinate.xyz, spawnCoordinate.w, isDead)
+    SetTimeout(3000, function()
+      TriggerEvent("vorp_NewCharacter", source)
+    end)
+    return
+  elseif self:is("RedEM2023") or self:is("RedEM") then
+    return
+  elseif self:is("QBR") then
+    return
+  elseif self:is('RSG') then
+    return
+  elseif self:is("RPX") then
+    return
+  end
+end
+
+-------------
+-- END SKIN & CLOTHES
+-------------
 
 function FrameworkClass:example()
   if OWFramework.example then
