@@ -103,6 +103,7 @@ function MenuClass:addItem(p, item)
   item = table.merge(table.copy(MenuItem), item)
   item.index = p
   table.insert(self.items, p, item)
+  return item
 end
 function jo.menu.addItem(id, p, item) menus[id]:addItem(p, item) end
 

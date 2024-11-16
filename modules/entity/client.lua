@@ -118,9 +118,9 @@ function jo.entity.create(model, coords, heading, networked, fadeDuration)
 		else
 			SetRandomOutfitVariation(entity, true)
 		end
-		SetAttributeCoreValue(entity, 0, 100) --_SET_ATTRIBUTE_CORE_VALUE
+		SetAttributeCoreValue(entity, 0, 100)
 		SetEntityHealth(entity, 600, 1)
-		SetAttributeCoreValue(entity, 1, 100) --_SET_ATTRIBUTE_CORE_VALUE
+		SetAttributeCoreValue(entity, 1, 100)
 		RestorePedStamina(entity, 1065330373)
 	elseif IsModelAnObject(model) then
 		entity = CreateObject(model, vec3(0, 0, 0), networked, true, false)
