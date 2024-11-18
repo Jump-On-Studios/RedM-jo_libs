@@ -16,7 +16,8 @@ local alias = {
   versionChecker = "version-checker",
   notif = "notification",
   pedTexture = 'ped-texture',
-  gameEvents = 'game-events'
+  gameEvents = 'game-events',
+  cam = 'camera'
 }
 local function getAlias(module)
   if module == "meCoords" or module == "mePlayerId" or module == "meServerId" then return "me" end
