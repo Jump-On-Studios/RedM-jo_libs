@@ -68,7 +68,6 @@ end
 function OWFramework.User.getRPName(source)
     local character = Core.GetCharacterFromPlayerId(source)
     return character.getName()
-    -- return OWFramework.User.getIdentifiers(source).getName()
 end
 
 function OWFramework.User.getMoney(source, moneyType)
