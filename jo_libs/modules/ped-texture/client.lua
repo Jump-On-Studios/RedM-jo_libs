@@ -42,20 +42,20 @@ end
 
 jo.pedTexture.variations = {
   acne = {
-    { label = "none", value = false },
+    { label = "none",   value = false },
     { label = "rugged", value = { id = 0 } },
   },
   ageing = {
-    { label = "ageing_var0", value = { id = 0 } },
-    { label = "ageing_var1", value = { id = 1 } },
-    { label = "ageing_var2", value = { id = 2 } },
-    { label = "ageing_var3", value = { id = 3 } },
-    { label = "ageing_var4", value = { id = 4 } },
-    { label = "ageing_var5", value = { id = 5 } },
-    { label = "ageing_var6", value = { id = 6 } },
-    { label = "ageing_var7", value = { id = 7 } },
-    { label = "ageing_var8", value = { id = 8 } },
-    { label = "ageing_var9", value = { id = 9 } },
+    { label = "ageing_var0",  value = { id = 0 } },
+    { label = "ageing_var1",  value = { id = 1 } },
+    { label = "ageing_var2",  value = { id = 2 } },
+    { label = "ageing_var3",  value = { id = 3 } },
+    { label = "ageing_var4",  value = { id = 4 } },
+    { label = "ageing_var5",  value = { id = 5 } },
+    { label = "ageing_var6",  value = { id = 6 } },
+    { label = "ageing_var7",  value = { id = 7 } },
+    { label = "ageing_var8",  value = { id = 8 } },
+    { label = "ageing_var9",  value = { id = 9 } },
     { label = "ageing_var10", value = { id = 10 } },
     { label = "ageing_var11", value = { id = 11 } },
     { label = "ageing_var12", value = { id = 12 } },
@@ -74,47 +74,47 @@ jo.pedTexture.variations = {
     { label = "1", value = { id = 0 } }
   },
   blush = {
-    { label = "none",    value = false },
-    { label = "flushed", value = { id = 0 } },
-    { label = "rosy",    value = { id = 1 } },
-    { label = "highbrow", value = { id = 2 } },
+    { label = "none",      value = false },
+    { label = "flushed",   value = { id = 0 } },
+    { label = "rosy",      value = { id = 1 } },
+    { label = "highbrow",  value = { id = 2 } },
     { label = "contoured", value = { id = 3 } },
   },
   complex = {
-    { label = "none",      value = false },
-    { label = "exhausted", value = { id = 0 } },
-    { label = "ruddy",     value = { id = 1 } },
-    { label = "chapped",   value = { id = 2 } },
-    { label = "stippled",  value = { id = 3 } },
-    { label = "flushed",   value = { id = 4 } },
+    { label = "none",        value = false },
+    { label = "exhausted",   value = { id = 0 } },
+    { label = "ruddy",       value = { id = 1 } },
+    { label = "chapped",     value = { id = 2 } },
+    { label = "stippled",    value = { id = 3 } },
+    { label = "flushed",     value = { id = 4 } },
     { label = "healthyGlow", value = { id = 5 } },
-    { label = "alcoholic", value = { id = 6 } },
+    { label = "alcoholic",   value = { id = 6 } },
     { label = "windWhipped", value = { id = 7 } },
-    { label = "reddening", value = { id = 8 } },
-    { label = "toughened", value = { id = 9 } },
-    { label = "sunBurnt",  value = { id = 10 } },
-    { label = "weathered", value = { id = 11 } },
-    { label = "fatigued",  value = { id = 12 } },
-    { label = "damaged",   value = { id = 13 } },
+    { label = "reddening",   value = { id = 8 } },
+    { label = "toughened",   value = { id = 9 } },
+    { label = "sunBurnt",    value = { id = 10 } },
+    { label = "weathered",   value = { id = 11 } },
+    { label = "fatigued",    value = { id = 12 } },
+    { label = "damaged",     value = { id = 13 } },
   },
   disc = {
-    { label = "none",   value = false },
-    { label = "rugged", value = { id = 0 } },
-    { label = "dappled", value = { id = 1 } },
+    { label = "none",     value = false },
+    { label = "rugged",   value = { id = 0 } },
+    { label = "dappled",  value = { id = 1 } },
     { label = "speckled", value = { id = 2 } },
     { label = "styppled", value = { id = 3 } },
     { label = "constant", value = { id = 4 } },
-    { label = "uneven", value = { id = 5 } },
-    { label = "spotted", value = { id = 6 } },
-    { label = "minor",  value = { id = 7 } },
-    { label = "hearty", value = { id = 8 } },
+    { label = "uneven",   value = { id = 5 } },
+    { label = "spotted",  value = { id = 6 } },
+    { label = "minor",    value = { id = 7 } },
+    { label = "hearty",   value = { id = 8 } },
     { label = "blotched", value = { id = 9 } },
-    { label = "flecked", value = { id = 10 } },
-    { label = "random", value = { id = 11 } },
-    { label = "motley", value = { id = 12 } },
-    { label = "spread", value = { id = 13 } },
-    { label = "coarse", value = { id = 14 } },
-    { label = "patchy", value = { id = 15 } },
+    { label = "flecked",  value = { id = 10 } },
+    { label = "random",   value = { id = 11 } },
+    { label = "motley",   value = { id = 12 } },
+    { label = "spread",   value = { id = 13 } },
+    { label = "coarse",   value = { id = 14 } },
+    { label = "patchy",   value = { id = 15 } },
   },
   eyebrow = {
     { label = "none",          value = false },
@@ -144,53 +144,53 @@ jo.pedTexture.variations = {
     { label = "heavy",         value = { id = 7, sexe = "f" } },
   },
   eyeliner = {
-    { label = "none",     value = false },
-    { label = "simple",   value = { id = 0, sheetGrid = 0 } },
-    { label = "winged",   value = { id = 0, sheetGrid = 1 } },
-    { label = "long",     value = { id = 0, sheetGrid = 2 } },
+    { label = "none",       value = false },
+    { label = "simple",     value = { id = 0, sheetGrid = 0 } },
+    { label = "winged",     value = { id = 0, sheetGrid = 1 } },
+    { label = "long",       value = { id = 0, sheetGrid = 2 } },
     { label = "underlined", value = { id = 0, sheetGrid = 3 } },
-    { label = "hooked",   value = { id = 0, sheetGrid = 4 } },
-    { label = "curved",   value = { id = 0, sheetGrid = 5 } },
-    { label = "drama",    value = { id = 0, sheetGrid = 6 } },
-    { label = "indian",   value = { id = 0, sheetGrid = 7 } },
+    { label = "hooked",     value = { id = 0, sheetGrid = 4 } },
+    { label = "curved",     value = { id = 0, sheetGrid = 5 } },
+    { label = "drama",      value = { id = 0, sheetGrid = 6 } },
+    { label = "indian",     value = { id = 0, sheetGrid = 7 } },
     { label = "indianBold", value = { id = 0, sheetGrid = 13 } },
     { label = "indianFull", value = { id = 0, sheetGrid = 15 } },
-    { label = "pinup",    value = { id = 0, sheetGrid = 8 } },
-    { label = "pinupBold", value = { id = 0, sheetGrid = 14 } },
-    { label = "full",     value = { id = 0, sheetGrid = 9 } },
-    { label = "double",   value = { id = 0, sheetGrid = 10 } },
-    { label = "doubleTop", value = { id = 0, sheetGrid = 11 } },
-    { label = "egyptian", value = { id = 0, sheetGrid = 12 } },
+    { label = "pinup",      value = { id = 0, sheetGrid = 8 } },
+    { label = "pinupBold",  value = { id = 0, sheetGrid = 14 } },
+    { label = "full",       value = { id = 0, sheetGrid = 9 } },
+    { label = "double",     value = { id = 0, sheetGrid = 10 } },
+    { label = "doubleTop",  value = { id = 0, sheetGrid = 11 } },
+    { label = "egyptian",   value = { id = 0, sheetGrid = 12 } },
   },
   eyeshadow = {
-    { label = "none",       value = false },
-    { label = "smokyEye",   value = { id = 0, sheetGrid = 0 } },
-    { label = "neatArc",    value = { id = 0, sheetGrid = 1 } },
-    { label = "heavyWing",  value = { id = 0, sheetGrid = 2 } },
+    { label = "none",         value = false },
+    { label = "smokyEye",     value = { id = 0, sheetGrid = 0 } },
+    { label = "neatArc",      value = { id = 0, sheetGrid = 1 } },
+    { label = "heavyWing",    value = { id = 0, sheetGrid = 2 } },
     { label = "blendedFlick", value = { id = 0, sheetGrid = 3 } },
-    { label = "twotoneWing", value = { id = 0, sheetGrid = 4 } },
-    { label = "highlighted", value = { id = 0, sheetGrid = 5 } },
+    { label = "twotoneWing",  value = { id = 0, sheetGrid = 4 } },
+    { label = "highlighted",  value = { id = 0, sheetGrid = 5 } },
   },
   foundation = {
-    { label = "none",     value = false },
+    { label = "none",       value = false },
     { label = "facePowder", value = { id = 0 } }
   },
   freckles = {
-    { label = "none",     value = false },
-    { label = "sunned",   value = { id = 0 } },
-    { label = "cheeky",   value = { id = 1 } },
-    { label = "random",   value = { id = 2 } },
-    { label = "few",      value = { id = 3 } },
-    { label = "several",  value = { id = 4 } },
-    { label = "covered",  value = { id = 5 } },
-    { label = "faded",    value = { id = 6 } },
-    { label = "scattered", value = { id = 7 } },
-    { label = "lighted",  value = { id = 8 } },
-    { label = "visually", value = { id = 9 } },
-    { label = "dotted",   value = { id = 10 } },
+    { label = "none",       value = false },
+    { label = "sunned",     value = { id = 0 } },
+    { label = "cheeky",     value = { id = 1 } },
+    { label = "random",     value = { id = 2 } },
+    { label = "few",        value = { id = 3 } },
+    { label = "several",    value = { id = 4 } },
+    { label = "covered",    value = { id = 5 } },
+    { label = "faded",      value = { id = 6 } },
+    { label = "scattered",  value = { id = 7 } },
+    { label = "lighted",    value = { id = 8 } },
+    { label = "visually",   value = { id = 9 } },
+    { label = "dotted",     value = { id = 10 } },
     { label = "pinpricked", value = { id = 11 } },
-    { label = "nosy",     value = { id = 12 } },
-    { label = "cheeked",  value = { id = 13 } },
+    { label = "nosy",       value = { id = 12 } },
+    { label = "cheeked",    value = { id = 13 } },
     { label = "bigCheeked", value = { id = 14 } },
   },
   grime = {
@@ -221,52 +221,52 @@ jo.pedTexture.variations = {
     mp_female = {},
   },
   lipstick = {
-    { label = "none",  value = false },
-    { label = "matte", value = { id = 0, sheetGrid = 0 } },
-    { label = "lined", value = { id = 0, sheetGrid = 1 } },
-    { label = "shadow", value = { id = 0, sheetGrid = 2 } },
+    { label = "none",    value = false },
+    { label = "matte",   value = { id = 0, sheetGrid = 0 } },
+    { label = "lined",   value = { id = 0, sheetGrid = 1 } },
+    { label = "shadow",  value = { id = 0, sheetGrid = 2 } },
     { label = "smudged", value = { id = 0, sheetGrid = 3 } },
-    { label = "square", value = { id = 0, sheetGrid = 4 } },
-    { label = "heart", value = { id = 0, sheetGrid = 5 } },
-    { label = "border", value = { id = 0, sheetGrid = 7 } },
+    { label = "square",  value = { id = 0, sheetGrid = 4 } },
+    { label = "heart",   value = { id = 0, sheetGrid = 5 } },
+    { label = "border",  value = { id = 0, sheetGrid = 7 } },
   },
   moles = {
-    { label = "none",     value = false },
-    { label = "odd",      value = { id = 0 } },
-    { label = "flicked",  value = { id = 1 } },
-    { label = "varied",   value = { id = 2 } },
-    { label = "bunch",    value = { id = 3 } },
-    { label = "scarce",   value = { id = 4 } },
-    { label = "speckled", value = { id = 5 } },
-    { label = "peppered", value = { id = 6 } },
+    { label = "none",       value = false },
+    { label = "odd",        value = { id = 0 } },
+    { label = "flicked",    value = { id = 1 } },
+    { label = "varied",     value = { id = 2 } },
+    { label = "bunch",      value = { id = 3 } },
+    { label = "scarce",     value = { id = 4 } },
+    { label = "speckled",   value = { id = 5 } },
+    { label = "peppered",   value = { id = 6 } },
     { label = "pronounced", value = { id = 7 } },
-    { label = "dotted",   value = { id = 8 } },
-    { label = "dwindling", value = { id = 9 } },
-    { label = "cast",     value = { id = 10 } },
-    { label = "strewn",   value = { id = 11 } },
-    { label = "set",      value = { id = 12 } },
-    { label = "speckled", value = { id = 13 } },
-    { label = "group",    value = { id = 14 } },
-    { label = "sparse",   value = { id = 15 } },
+    { label = "dotted",     value = { id = 8 } },
+    { label = "dwindling",  value = { id = 9 } },
+    { label = "cast",       value = { id = 10 } },
+    { label = "strewn",     value = { id = 11 } },
+    { label = "set",        value = { id = 12 } },
+    { label = "speckled",   value = { id = 13 } },
+    { label = "group",      value = { id = 14 } },
+    { label = "sparse",     value = { id = 15 } },
   },
   scar = {
-    { label = "none",    value = false },
-    { label = "slashed", value = { id = 0 } },
-    { label = "clawed",  value = { id = 1 } },
-    { label = "split",   value = { id = 2 } },
-    { label = "torn",    value = { id = 3 } },
-    { label = "struck",  value = { id = 4 } },
-    { label = "sliced",  value = { id = 5 } },
-    { label = "hacked",  value = { id = 6 } },
-    { label = "cracked", value = { id = 7 } },
-    { label = "smashed", value = { id = 8 } },
-    { label = "patched", value = { id = 9 } },
-    { label = "scraped", value = { id = 10 } },
-    { label = "broken",  value = { id = 11 } },
-    { label = "marred",  value = { id = 12 } },
-    { label = "raised",  value = { id = 13 } },
+    { label = "none",      value = false },
+    { label = "slashed",   value = { id = 0 } },
+    { label = "clawed",    value = { id = 1 } },
+    { label = "split",     value = { id = 2 } },
+    { label = "torn",      value = { id = 3 } },
+    { label = "struck",    value = { id = 4 } },
+    { label = "sliced",    value = { id = 5 } },
+    { label = "hacked",    value = { id = 6 } },
+    { label = "cracked",   value = { id = 7 } },
+    { label = "smashed",   value = { id = 8 } },
+    { label = "patched",   value = { id = 9 } },
+    { label = "scraped",   value = { id = 10 } },
+    { label = "broken",    value = { id = 11 } },
+    { label = "marred",    value = { id = 12 } },
+    { label = "raised",    value = { id = 13 } },
     { label = "blemished", value = { id = 14 } },
-    { label = "scalped", value = { id = 15 } },
+    { label = "scalped",   value = { id = 15 } },
   },
   spots = {
     { label = "none", value = false },
@@ -356,80 +356,78 @@ function jo.pedTexture.getOverlayAssetFromId(isMale, category, data)
   return ('mp_u_faov_%s_%03d'):format(category, data.id)
 end
 
----@param ped integer
----@param layerName string
----@param data table
-function jo.pedTexture.apply(ped, layerName, _data)
-  if not NetworkGetEntityIsNetworked(ped) then
-    return eprint("ERROR: RedM doesn't allow editing of texture on a local entity")
-  end
-  local data = table.copy(_data or {})
-  local index, albedo, normal, material, layerIndex, textureId, palette
-  local category = jo.pedTexture.categories[layerName]
-  if not category then
-    return print('No texture category for layer: ' .. layerName)
-  end
-  pedsTextures[ped] = pedsTextures[ped] or Entity(ped).state['jo_pedTexture'] or {}
-  pedsTextures[ped][category] = pedsTextures[ped][category] or { layers = {} }
-
+local function convertDataLayer(ped, layerName, data)
   if data.id then
     data.albedo = nil
     data.albedo = jo.pedTexture.getOverlayAssetFromId(IsPedMale(ped), layerName, data)
     data.id = nil
   end
 
-  if not data.albedo then
-    pedsTextures[ped][category].layers[layerName] = nil
-  else
+  if data.albedo then
     if not data.palette and category == "heads" then
       data.palette = "metaped_tint_makeup"
     end
     data.normal = data.albedo .. "_nm"
     data.material = data.albedo .. "_ab"
-    pedsTextures[ped][category].layers[layerName] = data
   end
 
+  return data
+end
+
+local function applyLayer(textureId, name, layer)
+  if not layer then return end
+  local albedo = GetHashFromString(layer.albedo)
+  local normal = GetHashFromString(layer.normal)
+  local material = GetHashFromString(layer.material)
+  local blendType = 0
+  if name == "scar"
+      or name == "spots"
+      or name == "disc"
+      or name == "complex"
+      or name == "acne"
+      or name == "ageing"
+      or name == "moles"
+      or name == "freckles"
+  then
+    blendType = 1
+  end
+  local layerIndex = AddTextureLayer(textureId, albedo, normal, material, layer.blendType or blendType, (layer.opacity or 1.0) * 1.0, layer.sheetGrid or 0)
+  if blendType == 0 and layer.palette then
+    local palette = GetHashFromString(layer.palette)
+    SetTextureLayerPallete(textureId, layerIndex, palette)
+    SetTextureLayerTint(textureId, layerIndex, layer.tint0 or 0, layer.tint1 or 0, layer.tint2 or 0)
+  end
+  TriggerServerEvent("print", "=>", layer)
+  SetTextureLayerSheetGridIndex(textureId, layerIndex, layer.sheetGrid or 0)
+  SetTextureLayerAlpha(textureId, layerIndex, (layer.opacity or 1.0) * 1.0)
+end
+
+local function updateAllPedTexture(ped, category)
   jo.timeout.delay('updatePedTexture', 200, function()
     if pedsTextures[ped][category].textureId ~= nil then
       ClearPedTexture(pedsTextures[ped][category].textureId)
     end
-    index = GetComponentIndexByCategory(ped, category)
-    _, albedo, normal, material = GetMetaPedAssetGuids(ped, index)
+    local index = GetComponentIndexByCategory(ped, category)
+    local _, albedo, normal, material = GetMetaPedAssetGuids(ped, index)
     if albedo == 0 then
       return
     end
-    textureId = RequestTexture(albedo, normal, material)
+    local textureId = RequestTexture(albedo, normal, material)
     if (textureId == -1) then
       return print('IMPOSSIBLE TO APPLY THE TEXTURES')
     end
     pedsTextures[ped][category].textureId = textureId
 
+    TriggerServerEvent("print", pedsTextures[ped][category].layers)
+
     for _, name in ipairs(jo.pedTexture.ordersToApply[category]) do
       local layer = pedsTextures[ped][category].layers[name]
-      if layer then
-        albedo = GetHashFromString(layer.albedo)
-        normal = GetHashFromString(layer.normal)
-        material = GetHashFromString(layer.material)
-        local blendType = 0
-        if name == "scar"
-            or name == "spots"
-            or name == "disc"
-            or name == "complex"
-            or name == "acne"
-            or name == "ageing"
-            or name == "moles"
-            or name == "freckles"
-        then
-          blendType = 1
+      if layer?[1] then
+        for _, data in pairs(layer) do
+          applyLayer(textureId, name, data)
         end
-        layerIndex = AddTextureLayer(textureId, albedo, normal, material, layer.blendType or blendType, (layer.opacity or 1.0) * 1.0, layer.sheetGrid or 0)
-        if blendType == 0 and layer.palette then
-          palette = GetHashFromString(layer.palette)
-          SetTextureLayerPallete(textureId, layerIndex, palette)
-          SetTextureLayerTint(textureId, layerIndex, layer.tint0 or 0, layer.tint1 or 0, layer.tint2 or 0)
-        end
-        SetTextureLayerSheetGridIndex(textureId, layerIndex, layer.sheetGrid or 0)
-        SetTextureLayerAlpha(textureId, layerIndex, (layer.opacity or 1.0) * 1.0)
+      else
+        applyLayer(textureId, name, layer)
       end
     end
     jo.utils.waiter(function() return not IsTextureValid(textureId) end)
@@ -451,7 +449,40 @@ function jo.pedTexture.apply(ped, layerName, _data)
 end
 
 ---@param ped integer
----@param category string
+---@param layerName string
+---@param _data table
+function jo.pedTexture.apply(ped, layerName, _data)
+  if not NetworkGetEntityIsNetworked(ped) then
+    return eprint("ERROR: RedM doesn't allow editing of texture on a local entity")
+  end
+  local data = table.copy(_data or {})
+  local category = jo.pedTexture.categories[layerName]
+  if not category then
+    return print('No texture category for layer: ' .. layerName)
+  end
+  pedsTextures[ped] = pedsTextures[ped] or Entity(ped).state['jo_pedTexture'] or {}
+  pedsTextures[ped][category] = pedsTextures[ped][category] or { layers = {} }
+  pedsTextures[ped][category].layers[layerName] = nil
+
+  if data[1] then
+    pedsTextures[ped][category].layers[layerName] = {}
+    for _, d in pairs(data) do
+      local convertedData = convertDataLayer(ped, layerName, d)
+      if convertedData.albedo then
+        table.insert(pedsTextures[ped][category].layers[layerName], convertedData)
+      end
+    end
+  else
+    local convertedData = convertDataLayer(ped, layerName, data)
+    if convertedData.albedo then
+      pedsTextures[ped][category].layers[layerName] = convertedData
+    end
+  end
+
+  updateAllPedTexture(ped, category)
+end
+
+---@param ped integer
 ---@param layerName string
 function jo.pedTexture.remove(ped, layerName)
   jo.pedTexture.apply(ped, layerName, {})
