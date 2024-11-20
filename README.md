@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://docs.jumpon-studios.com/jo_libs/">
-    <img alt="Jo Libraries for RedM" src="https://shop.jumpon-studios.com/images/thumbnails/jo-libraries.webp"/>
+    <img alt="Jo Libraries for RedM" src="https://jumpon-studios.com/images/thumbnails/jo-libraries.webp"/>
   </a>
 </p>
 

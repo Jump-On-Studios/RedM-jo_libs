@@ -1137,8 +1137,8 @@ local function standardizeSkinKey(category)
   local framName = jo.framework:get()
   if not SkinCategoryBridge[framName] then return category end
   if SkinCategoryBridge[framName][category] then return SkinCategoryBridge[framName][category] end
-  local _, cat = table.find(SkinCategoryBridge[framName], function(cat, framCat) return framCat:lower() == category:lower() end)
-  return cat or category
+  local found, cat = table.find(SkinCategoryBridge[framName], function(cat, framCat) return framCat:lower() == category:lower() end)
+  return found and SkinCategoryBridge[framName][cat] or category
 end
 
 --- A function to standardize a object of categories
