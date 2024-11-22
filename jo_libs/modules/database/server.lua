@@ -36,5 +36,3 @@ function jo.database.addColumn(tableName,name,definition)
   MySQL.update.await("ALTER TABLE `"..tableName.."` ADD `"..name.."` "..definition)
   return true
 end
-
-return jo.database

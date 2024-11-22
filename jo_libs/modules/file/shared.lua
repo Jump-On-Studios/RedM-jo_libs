@@ -19,4 +19,3 @@ function jo.file.load(modname)
   end
 end
 
-return jo.file

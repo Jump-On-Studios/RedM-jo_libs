@@ -49,4 +49,3 @@ function jo.notif.print(source, ...)
   TriggerClientEvent(GetCurrentResourceName() .. ":client:notifPrint", source, ...)
 end
 
-return jo.notif

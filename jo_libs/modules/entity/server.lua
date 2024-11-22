@@ -5,5 +5,3 @@ function jo.entity.delete(entity)
   if not DoesEntityExist(entity) then return end
   DeleteEntity(entity)
 end
-
-return jo.entity

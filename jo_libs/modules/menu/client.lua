@@ -663,4 +663,3 @@ end)
 exports('jo_menu_get_current_data', function()
   return currentData
 end)
-return jo.menu

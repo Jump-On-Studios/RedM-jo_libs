@@ -62,5 +62,3 @@ function jo.animation.setDesiredHeading(ped,heading,waiter)
     end
   end
 end
-
-return jo.animation

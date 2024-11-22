@@ -645,5 +645,3 @@ for _, shortcut in pairs({ "clothes", "comp" }) do
     end
   })
 end
-
-return jo.component

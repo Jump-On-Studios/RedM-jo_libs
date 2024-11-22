@@ -159,4 +159,3 @@ end
 
 
 jo.table = {}
-return jo.table

@@ -107,5 +107,3 @@ CreateThread(function()
     Wait(counter == 0 and 100 or 0)
   end
 end)
-
-return jo.light
