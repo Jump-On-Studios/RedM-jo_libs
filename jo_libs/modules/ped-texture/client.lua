@@ -1,8 +1,8 @@
 jo.pedTexture = {}
 
-jo.require('utils')
-jo.require('table')
-jo.require('timeout')
+jo.require("utils")
+jo.require("table")
+jo.require("timeout")
 
 local pedsTextures = {}
 
@@ -290,7 +290,7 @@ jo.pedTexture.variations = {
 }
 
 jo.pedTexture.categories = {
-  acne = 'heads',
+  acne = "heads",
   ageing = "heads",
   blush = "heads",
   complex = "heads",
@@ -344,16 +344,16 @@ function jo.pedTexture.getOverlayAssetFromId(isMale, category, data)
     return data.albedo
   end
   if category == "eyebrow" then
-    local sex = data.sexe or (isMale and 'm' or 'f')
-    return ('mp_u_faov_%s_%s_%03d'):format(category, sex, data.id)
+    local sex = data.sexe or (isMale and "m" or "f")
+    return ("mp_u_faov_%s_%s_%03d"):format(category, sex, data.id)
   elseif category == "hair" then
     if type(data.id) == "number" then
-      return ('mp_u_faov_m_hair_%03d'):format(data.id)
+      return ("mp_u_faov_m_hair_%03d"):format(data.id)
     else
-      return ('mp_u_faov_m_hair_%s'):format(data.id)
+      return ("mp_u_faov_m_hair_%s"):format(data.id)
     end
   end
-  return ('mp_u_faov_%s_%03d'):format(category, data.id)
+  return ("mp_u_faov_%s_%03d"):format(category, data.id)
 end
 
 local function convertDataLayer(ped, layerName, data)
@@ -397,13 +397,12 @@ local function applyLayer(textureId, name, layer)
     SetTextureLayerPallete(textureId, layerIndex, palette)
     SetTextureLayerTint(textureId, layerIndex, layer.tint0 or 0, layer.tint1 or 0, layer.tint2 or 0)
   end
-  TriggerServerEvent("print", "=>", layer)
   SetTextureLayerSheetGridIndex(textureId, layerIndex, layer.sheetGrid or 0)
   SetTextureLayerAlpha(textureId, layerIndex, (layer.opacity or 1.0) * 1.0)
 end
 
 local function updateAllPedTexture(ped, category)
-  jo.timeout.delay('updatePedTexture', 200, function()
+  jo.timeout.delay("updatePedTexture", 200, function()
     if pedsTextures[ped][category].textureId ~= nil then
       ClearPedTexture(pedsTextures[ped][category].textureId)
     end
@@ -414,11 +413,9 @@ local function updateAllPedTexture(ped, category)
     end
     local textureId = RequestTexture(albedo, normal, material)
     if (textureId == -1) then
-      return print('IMPOSSIBLE TO APPLY THE TEXTURES')
+      return print("IMPOSSIBLE TO APPLY THE TEXTURES")
     end
     pedsTextures[ped][category].textureId = textureId
-
-    TriggerServerEvent("print", pedsTextures[ped][category].layers)
 
     for _, name in ipairs(jo.pedTexture.ordersToApply[category]) do
       local layer = pedsTextures[ped][category].layers[name]
@@ -436,7 +433,7 @@ local function updateAllPedTexture(ped, category)
       ApplyTextureOnPed(ped, GetHashFromString(category), textureId)
       UpdatePedTexture(textureId)
       _updatePedVariation(ped)
-      Entity(ped).state:set('jo_pedTexture', pedsTextures[ped])
+      Entity(ped).state:set("jo_pedTexture", pedsTextures[ped])
       CreateThread(function()
         local textureId = textureId
         jo.utils.waiter(function() return IsPedReadyToRender(ped) end)
@@ -458,9 +455,9 @@ function jo.pedTexture.apply(ped, layerName, _data)
   local data = table.copy(_data or {})
   local category = jo.pedTexture.categories[layerName]
   if not category then
-    return print('No texture category for layer: ' .. layerName)
+    return print("No texture category for layer: " .. layerName)
   end
-  pedsTextures[ped] = pedsTextures[ped] or Entity(ped).state['jo_pedTexture'] or {}
+  pedsTextures[ped] = pedsTextures[ped] or Entity(ped).state["jo_pedTexture"] or {}
   pedsTextures[ped][category] = pedsTextures[ped][category] or { layers = {} }
   pedsTextures[ped][category].layers[layerName] = nil
 
@@ -490,7 +487,7 @@ end
 
 ---@param ped integer
 function jo.pedTexture.refreshAll(ped)
-  pedsTextures[ped] = pedsTextures[ped] or Entity(ped).state['jo_pedTexture'] or {}
+  pedsTextures[ped] = pedsTextures[ped] or Entity(ped).state["jo_pedTexture"] or {}
   if table.count(pedsTextures[ped]) == 0 then return end
 
   for _, data in pairs(pedsTextures[ped]) do
@@ -502,7 +499,7 @@ end
 
 function jo.pedTexture.overwriteCategory(ped, category, overlays, forceRemove)
   forceRemove = forceRemove or false
-  pedsTextures[ped] = pedsTextures[ped] or Entity(ped).state['jo_pedTexture'] or { [category] = {} }
+  pedsTextures[ped] = pedsTextures[ped] or Entity(ped).state["jo_pedTexture"] or { [category] = {} }
   if pedsTextures[ped][category] or forceRemove then
     if pedsTextures[ped][category] then
       pedsTextures[ped][category].layers = {}
@@ -522,7 +519,7 @@ end
 
 function jo.pedTexture.getAll(ped)
   local layers = {}
-  pedsTextures[ped] = pedsTextures[ped] or Entity(ped).state['jo_pedTexture'] or {}
+  pedsTextures[ped] = pedsTextures[ped] or Entity(ped).state["jo_pedTexture"] or {}
   for _, data in pairs(pedsTextures[ped]) do
     for layername, layer in pairs(data.layers) do
       layers[layername] = layer
@@ -532,5 +529,3 @@ function jo.pedTexture.getAll(ped)
 end
 
 -- Entity(PlayerPedId()).state:set('jo_pedTexture',nil)
-
-return jo.pedTexture
