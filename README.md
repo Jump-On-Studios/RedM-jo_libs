@@ -25,7 +25,7 @@ For the full documentation, visit [docs.jumpon-studios.com](https://docs.jumpon-
 * [Animation](https://docs.jumpon-studios.com/jo_libs/modules/animation/)
 * [Blip](https://docs.jumpon-studios.com/jo_libs/modules/blip/)
 * [Callback](https://docs.jumpon-studios.com/jo_libs/modules/callback/)
-* [Clothes](https://docs.jumpon-studios.com/jo_libs/modules/clothes/)
+* [Component](https://docs.jumpon-studios.com/jo_libs/modules/component/)
 * [Database](https://docs.jumpon-studios.com/jo_libs/modules/database/)
 * [Dataview](https://docs.jumpon-studios.com/jo_libs/modules/dataview/)
 * [Entity](https://docs.jumpon-studios.com/jo_libs/modules/entity/)
