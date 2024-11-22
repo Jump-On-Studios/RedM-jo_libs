@@ -1185,14 +1185,8 @@ local function standardizeSkinKeys(object)
         overlays[layerName].sheetGrid = data
       elseif catFram:find("_color_primary") then
         overlays[layerName].tint0 = data
-        if layerName == "eyebrow" then
-          overlays[layerName].palette = overlays[layerName].palette or "metaped_tint_makeup"
-        end
       elseif catFram:find("_color") then
         overlays[layerName].tint0 = data
-        if layerName == "eyebrow" then
-          overlays[layerName].palette = overlays[layerName].palette or "metaped_tint_makeup"
-        end
       elseif catFram:find("_color_secondary") then
         overlays[layerName].tint1 = data
       elseif catFram:find("_color_tertiary") then

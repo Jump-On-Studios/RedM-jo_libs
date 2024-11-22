@@ -364,6 +364,7 @@ local function convertDataLayer(ped, layerName, data)
   end
 
   if data.albedo then
+    local category = jo.pedTexture.categories[layerName]
     if not data.palette and category == "heads" then
       data.palette = "metaped_tint_makeup"
     end
@@ -393,8 +394,7 @@ local function applyLayer(textureId, name, layer)
   end
   local layerIndex = AddTextureLayer(textureId, albedo, normal, material, layer.blendType or blendType, (layer.opacity or 1.0) * 1.0, layer.sheetGrid or 0)
   if blendType == 0 and layer.palette then
-    local palette = GetHashFromString(layer.palette)
-    SetTextureLayerPallete(textureId, layerIndex, palette)
+    SetTextureLayerPallete(textureId, layerIndex, GetHashFromString(layer.palette))
     SetTextureLayerTint(textureId, layerIndex, layer.tint0 or 0, layer.tint1 or 0, layer.tint2 or 0)
   end
   SetTextureLayerSheetGridIndex(textureId, layerIndex, layer.sheetGrid or 0)
