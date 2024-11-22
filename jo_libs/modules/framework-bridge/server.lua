@@ -1,19 +1,19 @@
-jo.file.load('framework-bridge.overwrite-functions')
+jo.file.load("framework-bridge.overwrite-functions")
 
 if not table.merge then
-  jo.require('table')
+  jo.require("table")
 end
 if not string.convertVersion then
-  jo.require('string')
+  jo.require("string")
 end
 
 local mainResourceFramework = {
-  VORP = { 'vorp_core' },
-  RedEM = { 'redem' },
-  RedEM2023 = { '!redem', 'redem_roleplay' },
-  QBR = { 'qbr-core' },
-  RSG = { 'rsg-core' },
-  QR = { 'qr-core' },
+  VORP = { "vorp_core" },
+  RedEM = { "redem" },
+  RedEM2023 = { "!redem", "redem_roleplay" },
+  QBR = { "qbr-core" },
+  RSG = { "rsg-core" },
+  QR = { "qr-core" },
 }
 
 -------------
@@ -61,9 +61,159 @@ local SkinCategoryBridge = {
     Hair = "hair",
     Beard = "beards_complete",
     Teeth = "teeth",
+    sex = "model",
+    HeadType = "headHash",  --To be confirm
+    BodyType = "bodyBuild", --To be confirm
+    LegsType = "bodyLower", --To be investig
+    Eyes = "eyes",
+    Legs = "bodyLower",
+    Torso = "bodyUpper",
+    Waist = "",
+    Body = "",
+    --Expressions
+    HeadSize = "headWidth",
+    FaceW = "faceWidth",
+    FaceD = "eyebrowWidth",
+    FaceS = "eyebrowHeight",
+    NeckW = "neckWidth",
+    NeckD = "neckDepth",
+    EyeBrowH = "eyebrowHeight",
+    EyeBrowW = "eyebrowWidth",
+    EyeBrowD = "eyebrowDepth",
+    EyeD = "eyesDepth",
+    EyeAng = "eyesAngle",
+    EyeDis = "eyesDistance",
+    EyeH = "eyesHeight",
+    EyeLidH = "eyelidHeight",
+    EyeLidW = "eyelidWidth",
+    EyeLidL = "eyelidLeft",
+    EyeLidR = "eyelidRight",
+    EarsW = "earsWidth",
+    EarsA = "earsAngle",
+    EarsH = "earsHeight",
+    EarsD = "earlobes",
+    CheekBonesH = "cheekbonesHeight",
+    CheekBonesW = "cheekbonesWidth",
+    CheekBonesD = "cheekbonesDepth",
+    JawH = "jawHeight",
+    JawW = "jawWidth",
+    JawD = "jawDepth",
+    ChinH = "chinHeight",
+    ChinW = "chinWidth",
+    ChinD = "chinDepth",
+    NoseW = "noseWidth",
+    NoseS = "noseSize",
+    NoseH = "noseHeight",
+    NoseAng = "noseAngle",
+    NoseC = "noseCurvature",
+    NoseDis = "nostrilsDistance",
+    MouthW = "mouthWidth",
+    MouthD = "mouthDepth",
+    MouthX = "mouthX",
+    MouthY = "mouthY",
+    ULiphH = "upperLipHeight",
+    ULiphW = "upperLipWidth",
+    ULiphD = "upperLipDepth",
+    LLiphH = "lowerLipHeight",
+    LLiphW = "lowerLipWidth",
+    LLiphD = "lowerLipDepth",
+    MouthCLW = "mouthConerLeftWidth",
+    MouthCRW = "mouthConerRightWidth",
+    MouthCLD = "mouthConerLeftDepth",
+    MouthCRD = "mouthConerRightDepth",
+    MouthCLH = "mouthConerLeftHeight",
+    MouthCRH = "mouthConerRightHeight",
+    MouthCLLD = "mouthConerLeftLipsDistance",
+    MouthCRLD = "mouthConerRightLipsDistance",
+    ArmsS = "arms",
+    ShouldersS = "shoulders",
+    ShouldersT = "shoulderThickness",
+    ShouldersM = "shoulderBlades",
+    ChestS = "chest",
+    WaistW = "waist",
+    HipsS = "hip",
+    LegsS = "thighs",
+    CalvesS = "calves",
+    Scale = "bodyScale"
   },
   RSG = {
-    beard = "beards_complete"
+    Hair = "hair",
+    Beard = "beards_complete",
+    Teeth = "teeth",
+    sex = "model",
+    HeadType = "headHash",  --To be confirm
+    BodyType = "bodyBuild", --To be confirm
+    LegsType = "bodyLower", --To be investig
+    Eyes = "eyes",
+    Legs = "bodyLower",
+    Torso = "bodyUpper",
+    Waist = "",
+    Body = "",
+    --Expressions
+    HeadSize = "headWidth",
+    FaceW = "faceWidth",
+    FaceD = "eyebrowWidth",
+    FaceS = "eyebrowHeight",
+    NeckW = "neckWidth",
+    NeckD = "neckDepth",
+    EyeBrowH = "eyebrowHeight",
+    EyeBrowW = "eyebrowWidth",
+    EyeBrowD = "eyebrowDepth",
+    EyeD = "eyesDepth",
+    EyeAng = "eyesAngle",
+    EyeDis = "eyesDistance",
+    EyeH = "eyesHeight",
+    EyeLidH = "eyelidHeight",
+    EyeLidW = "eyelidWidth",
+    EyeLidL = "eyelidLeft",
+    EyeLidR = "eyelidRight",
+    EarsW = "earsWidth",
+    EarsA = "earsAngle",
+    EarsH = "earsHeight",
+    EarsD = "earlobes",
+    CheekBonesH = "cheekbonesHeight",
+    CheekBonesW = "cheekbonesWidth",
+    CheekBonesD = "cheekbonesDepth",
+    JawH = "jawHeight",
+    JawW = "jawWidth",
+    JawD = "jawDepth",
+    ChinH = "chinHeight",
+    ChinW = "chinWidth",
+    ChinD = "chinDepth",
+    NoseW = "noseWidth",
+    NoseS = "noseSize",
+    NoseH = "noseHeight",
+    NoseAng = "noseAngle",
+    NoseC = "noseCurvature",
+    NoseDis = "nostrilsDistance",
+    MouthW = "mouthWidth",
+    MouthD = "mouthDepth",
+    MouthX = "mouthX",
+    MouthY = "mouthY",
+    ULiphH = "upperLipHeight",
+    ULiphW = "upperLipWidth",
+    ULiphD = "upperLipDepth",
+    LLiphH = "lowerLipHeight",
+    LLiphW = "lowerLipWidth",
+    LLiphD = "lowerLipDepth",
+    MouthCLW = "mouthConerLeftWidth",
+    MouthCRW = "mouthConerRightWidth",
+    MouthCLD = "mouthConerLeftDepth",
+    MouthCRD = "mouthConerRightDepth",
+    MouthCLH = "mouthConerLeftHeight",
+    MouthCRH = "mouthConerRightHeight",
+    MouthCLLD = "mouthConerLeftLipsDistance",
+    MouthCRLD = "mouthConerRightLipsDistance",
+    ArmsS = "arms",
+    ShouldersS = "shoulders",
+    ShouldersT = "shoulderThickness",
+    ShouldersM = "shoulderBlades",
+    ChestS = "chest",
+    WaistW = "waist",
+    HipsS = "hip",
+    LegsS = "thighs",
+    CalvesS = "calves",
+    Scale = "bodyScale"
   },
   RedEM = {
     beard = "beards_complete"
@@ -74,47 +224,51 @@ local SkinCategoryBridge = {
 }
 
 local listClothesCategory = {
-  'ponchos',
-  'cloaks',
-  'hair_accessories',
-  'dresses',
-  'gloves',
-  'coats',
-  'coats_closed',
-  'vests',
-  'suspenders',
-  'neckties',
-  'neckwear',
-  'shirts_full',
-  'spats',
-  'gunbelts',
-  'gauntlets',
-  'holsters_left',
-  'loadouts',
-  'belt_buckles',
-  'belts',
-  'skirts',
-  'pants',
-  'boots',
-  'boot_accessories',
-  'accessories',
-  'satchels',
-  'jewelry_rings_right',
-  'jewelry_rings_left',
-  'jewelry_bracelets',
-  'aprons',
-  'chaps',
-  'badges',
-  'gunbelt_accs',
-  'eyewear',
-  'armor',
-  'masks',
-  'masks_large',
-  'hats',
-  'hair',
-  'beards_complete',
-  'teeth'
+  "ponchos",
+  "cloaks",
+  "hair_accessories",
+  "dresses",
+  "gloves",
+  "coats",
+  "coats_closed",
+  "vests",
+  "suspenders",
+  "neckties",
+  "neckwear",
+  "shirts_full",
+  "spats",
+  "gunbelts",
+  "gauntlets",
+  "holsters_left",
+  "loadouts",
+  "belt_buckles",
+  "belts",
+  "skirts",
+  "pants",
+  "boots",
+  "boot_accessories",
+  "accessories",
+  "satchels",
+  "jewelry_rings_right",
+  "jewelry_rings_left",
+  "jewelry_bracelets",
+  "aprons",
+  "chaps",
+  "badges",
+  "gunbelt_accs",
+  "eyewear",
+  "armor",
+  "masks",
+  "masks_large",
+  "hats",
+  "hair",
+  "beards_complete",
+  "teeth"
 }
+
+-------------
+-- END VARIABLES
+-------------
 
 -------------
 -- USER CLASS
@@ -150,7 +304,7 @@ function User:init()
     self.data = jo.framework.core.GetPlayer(self.source)
   elseif jo.framework:is("RedEM") then
     local user = promise.new()
-    TriggerEvent('redemrp:getPlayerFromId', self.source, function(_user)
+    TriggerEvent("redemrp:getPlayerFromId", self.source, function(_user)
       user:resolve(_user)
     end)
     self.data = Citizen.Await(user)
@@ -158,7 +312,7 @@ function User:init()
     self.data = jo.framework.core:GetPlayer(self.source)
   elseif jo.framework:is("RSG") or jo.framework:is("QR") then
     self.data = jo.framework.core.Functions.GetPlayer(self.source)
-  elseif jo.framework:is('RPX') then
+  elseif jo.framework:is("RPX") then
     self.data = jo.framework.core.GetPlayer(self.source)
   end
 end
@@ -170,7 +324,7 @@ function User:getMoney(moneyType)
   if OWFramework.User.getMoney then
     return OWFramework.User.getMoney(self.source, moneyType)
   end
-  if jo.framework:is('VORP') then
+  if jo.framework:is("VORP") then
     if moneyType == 0 then
       return self.data.money
     elseif moneyType == 1 then
@@ -196,7 +350,7 @@ function User:getMoney(moneyType)
     end
   elseif jo.framework:is("QBR") or jo.framework:is("RSG") or jo.framework:is("QR") then
     if moneyType == 0 then
-      return self.data.Functions.GetMoney('cash')
+      return self.data.Functions.GetMoney("cash")
     elseif moneyType == 1 then
       return OWFramework.User.getSecondMoney(source)
     elseif moneyType == 2 then
@@ -213,7 +367,7 @@ end
 function User:canBuy(price, moneyType, removeIfCan)
   moneyType = moneyType or 0
   if not price then
-    return false, eprint('PRICE IS NIL !')
+    return false, eprint("PRICE IS NIL !")
   end
   local money = self:getMoney(moneyType)
   local hasEnough = money >= price
@@ -247,9 +401,9 @@ function User:removeMoney(amount, moneyType)
     elseif moneyType == 2 then
       OWFramework.User.removeThirdMoney(self.source, amount)
     end
-  elseif jo.framework:is("QBR") or jo.framework:is('RSG') or jo.framework:is('QR') then
+  elseif jo.framework:is("QBR") or jo.framework:is("RSG") or jo.framework:is("QR") then
     if moneyType == 0 then
-      self.data.Functions.RemoveMoney('cash', amount)
+      self.data.Functions.RemoveMoney("cash", amount)
     elseif moneyType == 1 then
       OWFramework.User.removeSecondMoney(self.source, amount)
     elseif moneyType == 2 then
@@ -257,7 +411,7 @@ function User:removeMoney(amount, moneyType)
     end
   elseif jo.framework:is("RPX") then
     if moneyType == 0 then
-      self.data.RemoveMoney('cash', amount)
+      self.data.RemoveMoney("cash", amount)
     elseif moneyType == 1 then
       OWFramework.User.removeSecondMoney(self.source, amount)
     elseif moneyType == 2 then
@@ -280,15 +434,15 @@ function User:addMoney(amount, moneyType)
       self.data.AddMoney(amount)
     elseif moneyType == 1 then
       if not OWFramework.User.addSecondMoney then
-        jo.notif.print(self.source, 'Gold in not supported by your Framework')
-        jo.notif.print(self.source, 'Please check jo_libs docs to add OWFramework.User.addSecondMoney()')
+        jo.notif.print(self.source, "Gold in not supported by your Framework")
+        jo.notif.print(self.source, "Please check jo_libs docs to add OWFramework.User.addSecondMoney()")
         return
       end
       OWFramework.User.addSecondMoney(self.source, amount)
     elseif moneyType == 2 then
       if not OWFramework.User.addSecondMoney then
-        jo.notif.print(self.source, 'Gold in not supported by your Framework')
-        jo.notif.print(self.source, 'Please check jo_libs docs to add OWFramework.User.addSecondMoney()')
+        jo.notif.print(self.source, "Gold in not supported by your Framework")
+        jo.notif.print(self.source, "Please check jo_libs docs to add OWFramework.User.addSecondMoney()")
         return
       end
       OWFramework.User.addThirdMoney(self.source, amount)
@@ -301,20 +455,20 @@ function User:addMoney(amount, moneyType)
     elseif moneyType == 2 then
       OWFramework.User.addThirdMoney(self.source, amount)
     end
-  elseif jo.framework:is("QBR") or jo.framework:is('RSG') or jo.framework:is('QR') then
+  elseif jo.framework:is("QBR") or jo.framework:is("RSG") or jo.framework:is("QR") then
     if moneyType == 0 then
-      self.data.Functions.AddMoney('cash', amount)
+      self.data.Functions.AddMoney("cash", amount)
     elseif moneyType == 1 then
       if not OWFramework.User.addSecondMoney then
-        jo.notif.print(self.source, 'Gold in not supported by your Framework')
-        jo.notif.print(self.source, 'Please check jo_libs docs to add OWFramework.User.addSecondMoney()')
+        jo.notif.print(self.source, "Gold in not supported by your Framework")
+        jo.notif.print(self.source, "Please check jo_libs docs to add OWFramework.User.addSecondMoney()")
         return
       end
       OWFramework.User.addSecondMoney(self.source, amount)
     elseif moneyType == 2 then
       if not OWFramework.User.addSecondMoney then
-        jo.notif.print(self.source, 'Gold in not supported by your Framework')
-        jo.notif.print(self.source, 'Please check jo_libs docs to add OWFramework.User.addSecondMoney()')
+        jo.notif.print(self.source, "Gold in not supported by your Framework")
+        jo.notif.print(self.source, "Please check jo_libs docs to add OWFramework.User.addSecondMoney()")
         return
       end
       OWFramework.User.addThirdMoney(self.source, amount)
@@ -361,14 +515,14 @@ end
 function User:getJob()
   if OWFramework.User.getJob then
     return OWFramework.User.getJob(self.source)
-  elseif jo.framework:is("VORP") or jo.framework:is('RedEM2023') then
+  elseif jo.framework:is("VORP") or jo.framework:is("RedEM2023") then
     return self.data.job
   elseif jo.framework:is("RedEM") then
     return self.data.getJob()
   elseif jo.framework:is("QBR") or jo.framework:is("RSG") or jo.framework:is("QR") then
     return self.data.PlayerData.job.name
   end
-  return ''
+  return ""
 end
 
 ---@return string name
@@ -385,6 +539,10 @@ function User:getRPName()
 end
 
 jo.User = User
+
+-------------
+-- END USER CLASS
+-------------
 
 -------------
 -- FRAMEWORK CLASS
@@ -411,7 +569,7 @@ function FrameworkClass:init()
   if OWFramework.initFramework then
     return OWFramework.initFramework(self)
   elseif self:is("VORP") then
-    bprint('VORP detected')
+    bprint("VORP detected")
     Wait(100)
     TriggerEvent("getCore", function(core)
       self.core = core
@@ -419,44 +577,44 @@ function FrameworkClass:init()
     end)
     return
   elseif self:is("RedEM2023") then
-    bprint('RedEM:RP 2023 detected')
+    bprint("RedEM:RP 2023 detected")
     self.core = exports["redem_roleplay"]:RedEM()
     TriggerEvent("redemrp_inventory:getData", function(call)
       self.inv = call
     end)
     return
   elseif self:is("RedEM") then
-    bprint('RedEM:RP OLD detected')
+    bprint("RedEM:RP OLD detected")
     TriggerEvent("redemrp_inventory:getData", function(call)
       self.inv = call
     end)
     return
   elseif self:is("QBR") then
-    bprint('QBR detected')
+    bprint("QBR detected")
     self.core = self.core
     return
   elseif self:is("RSG") then
-    bprint('RSG detected')
-    self.core = exports['rsg-core']:GetCoreObject()
-    self.coreVersion = GetResourceMetadata('rsg-core', 'version', 0) or 1
-    if ('2.0.0'):convertVersion() <= self.coreVersion:convertVersion() then
-      self.inv = exports['rsg-inventory']
+    bprint("RSG detected")
+    self.core = exports["rsg-core"]:GetCoreObject()
+    self.coreVersion = GetResourceMetadata("rsg-core", "version", 0) or 1
+    if ("2.0.0"):convertVersion() <= self.coreVersion:convertVersion() then
+      self.inv = exports["rsg-inventory"]
       self.isV2 = true
-      bprint('RSG V2 detected')
+      bprint("RSG V2 detected")
     else
       self.isV2 = false
-      bprint('RSG V1 detected')
+      bprint("RSG V1 detected")
     end
     return
   elseif self:is("QR") then
-    bprint('QR detected')
-    self.core = exports['qr-core']:GetCoreObject()
+    bprint("QR detected")
+    self.core = exports["qr-core"]:GetCoreObject()
     return
-  elseif self:is('RPX') then
-    bprint('RPX detected')
-    self.inv = exports['rpx-inventory']
+  elseif self:is("RPX") then
+    bprint("RPX detected")
+    self.inv = exports["rpx-inventory"]
   end
-  eprint('No compatible Framework detected. Please contact JUMP ON studios on discord')
+  eprint("No compatible Framework detected. Please contact JUMP ON studios on discord")
 end
 
 ---@return string Name of the framework
@@ -486,7 +644,7 @@ function FrameworkClass:get()
         for _, resource in pairs(resources) do
           if resource:sub(1, 1) ~= "!" then
             while GetResourceState(resource) ~= "started" do
-              bprint('Waiting start of ' .. framework)
+              bprint("Waiting start of " .. framework)
               Wait(1000)
             end
           end
@@ -503,6 +661,10 @@ end
 function FrameworkClass:is(name)
   return self:get() == name
 end
+
+-------------
+-- END FRAMEWORK CLASS
+-------------
 
 -------------
 -- USER DATA
@@ -536,6 +698,10 @@ function FrameworkClass:getRPName(source)
 end
 
 -------------
+-- END USER DATA
+-------------
+
+-------------
 -- MONEY
 -------------
 
@@ -556,6 +722,10 @@ function FrameworkClass:addMoney(source, amount, moneyType)
   local user = User:get(source)
   user:addMoney(amount, moneyType or 0)
 end
+
+-------------
+-- END MONEY
+-------------
 
 -------------
 -- INVENTORY
@@ -587,7 +757,7 @@ function FrameworkClass:canUseItem(source, item, amount, meta, remove)
       end
       return true
     end
-  elseif self:is("QBR") or self:is('RSG') or self:is('QR') then
+  elseif self:is("QBR") or self:is("RSG") or self:is("QR") then
     local Player = User:get(source)
     local itemData = Player.data.Functions.GetItemByName(item)
     if itemData and itemData.amount >= amount then
@@ -664,7 +834,7 @@ function FrameworkClass:registerUseItem(item, closeAfterUsed, callback)
           TriggerClientEvent("rsg-inventory:client:closeInv", source)
         end
       end)
-    elseif self:is("RSG") or self:is('QR') then
+    elseif self:is("RSG") or self:is("QR") then
       local isAdded = self.core.Functions.AddItem(item, nil)
       if isAdded then
         return eprint(item .. " < item does not exist in the core configuration")
@@ -696,7 +866,7 @@ function FrameworkClass:giveItem(source, item, quantity, meta)
   elseif self:is("RedEM2023") or self:is("RedEM") then
     local ItemData = self.inv.getItem(source, item, meta) -- this give you info and functions
     return ItemData.AddItem(quantity, meta)
-  elseif self:is("QBR") or self:is('RSG') or self:is('QR') then
+  elseif self:is("QBR") or self:is("RSG") or self:is("QR") then
     local Player = User:get(source)
     return Player.data.Functions.AddItem(item, quantity, false, meta)
   elseif GetFramework() == "RPX" then
@@ -716,7 +886,7 @@ function FrameworkClass:createInventory(invName, name, invConfig)
   }
   if OWFramework.createInventory then
     OWFramework.createInventory(invName, name, invConfig)
-  elseif self:is('VORP') then
+  elseif self:is("VORP") then
     local invConfig = invConfig
     self.inv:registerInventory({
       id = invName,
@@ -730,7 +900,7 @@ function FrameworkClass:createInventory(invName, name, invConfig)
     for _, data in pairs(invConfig.whitelist or {}) do
       self.inv:setCustomInventoryItemLimit(invName, data.item, data.limit)
     end
-  elseif self:is('RedEM') then
+  elseif self:is("RedEM") then
     self.inv.createLocker(invName, "empty")
   end
 end
@@ -738,7 +908,7 @@ end
 function FrameworkClass:removeInventory(invName)
   if OWFramework.removeInventory then
     OWFramework.removeInventory(invName)
-  elseif self:is('VORP') then
+  elseif self:is("VORP") then
     self.inv:removeInventory(invName)
   end
 end
@@ -786,7 +956,7 @@ function FrameworkClass:addItemInInventory(source, invId, item, quantity, metada
   local waiter = promise.new()
   if OWFramework.addItemInInventory then
     OWFramework.addItemInInventory(invId, item, quantity, metadata, needWait)
-  elseif self:is('VORP') then
+  elseif self:is("VORP") then
     local itemId = self.inv:getItemDB(item).id
     local user = User:get(source)
     local charIdentifier = user.data.charIdentifier
@@ -804,11 +974,11 @@ function FrameworkClass:addItemInInventory(source, invId, item, quantity, metada
         waiter:resolve(true)
       end)
     end)
-  elseif self:is('RSG') and self.isV2 then
+  elseif self:is("RSG") and self.isV2 then
     self.inv:CreateInventory(invId)
     return self.inv:AddItem(invId, item, quantity, false, metadata)
-  elseif self:is('QBR') or self:is('RSG') or self:is('RPX') then
-    MySQL.scalar('SELECT items FROM stashitems WHERE stash = ?', { invId }, function(items)
+  elseif self:is("QBR") or self:is("RSG") or self:is("RPX") then
+    MySQL.scalar("SELECT items FROM stashitems WHERE stash = ?", { invId }, function(items)
       items = UnJson(items)
       if not items then items = {} end
       local slot = 1
@@ -829,17 +999,17 @@ function FrameworkClass:addItemInInventory(source, invId, item, quantity, metada
         info = metadata,
         slot = slot
       }
-      MySQL.insert('INSERT INTO stashitems (stash,items) VALUES (@stash,@items) ON DUPLICATE KEY UPDATE items = @items', {
+      MySQL.insert("INSERT INTO stashitems (stash,items) VALUES (@stash,@items) ON DUPLICATE KEY UPDATE items = @items", {
         stash = invId,
         items = json.encode(items)
       }, function()
         waiter:resolve(true)
       end)
     end)
-  elseif self:is('RedEM2023') then
+  elseif self:is("RedEM2023") then
     self.inv.addItemStash(source, item, 1, metadata, invId)
     waiter:resolve(true)
-  elseif self:is('RedEM') then
+  elseif self:is("RedEM") then
     self.inv.addItemLocker(item, 1, metadata, invId)
   end
   if needWait then
@@ -852,13 +1022,13 @@ end
 function FrameworkClass:getItemsFromInventory(source, invId)
   if OWFramework.getItemsFromInventory then
     return OWFramework.getItemsFromInventory(source, invId)
-  elseif self:is('VORP') then
+  elseif self:is("VORP") then
     local items = MySQL.query.await("SELECT ci.character_id, ic.id, i.item, ci.amount, ic.metadata, ci.created_at FROM items_crafted ic\
       LEFT JOIN character_inventories ci on ic.id = ci.item_crafted_id\
       LEFT JOIN items i on ic.item_id = i.id\
       WHERE ci.inventory_type = @invType;",
       {
-        ['invType'] = invId
+        ["invType"] = invId
       })
     local itemFiltered = {}
     for _, item in pairs(items) do
@@ -870,7 +1040,7 @@ function FrameworkClass:getItemsFromInventory(source, invId)
       }
     end
     return itemFiltered
-  elseif self:is('RSG') and self.isV2 then
+  elseif self:is("RSG") and self.isV2 then
     local inventory = self.inv:GetInventory(invId) or { items = {} }
     local itemFiltered = {}
     for _, item in pairs(inventory.items) do
@@ -881,8 +1051,8 @@ function FrameworkClass:getItemsFromInventory(source, invId)
       }
     end
     return itemFiltered
-  elseif self:is('QBR') or self:is('RSG') or self:is('RPX') then
-    local items = MySQL.scalar.await('SELECT items FROM stashitems WHERE stash = ?', { invId })
+  elseif self:is("QBR") or self:is("RSG") or self:is("RPX") then
+    local items = MySQL.scalar.await("SELECT items FROM stashitems WHERE stash = ?", { invId })
     items = UnJson(items)
     if not items then items = {} end
     local itemFiltered = {}
@@ -894,7 +1064,7 @@ function FrameworkClass:getItemsFromInventory(source, invId)
       }
     end
     return itemFiltered
-  elseif self:is('RedEM2023') then
+  elseif self:is("RedEM2023") then
     local items = self.inv.getStash(invId)
     if not items then items = {} end
     local itemFiltered = {}
@@ -906,7 +1076,7 @@ function FrameworkClass:getItemsFromInventory(source, invId)
       }
     end
     return itemFiltered
-  elseif self:is('RedEM') then
+  elseif self:is("RedEM") then
     local items = self.inv.getLocker(invId)
     if not items then items = {} end
     local itemFiltered = {}
@@ -921,6 +1091,10 @@ function FrameworkClass:getItemsFromInventory(source, invId)
   end
   return {}
 end
+
+-------------
+-- END INVENTORY
+-------------
 
 -------------
 -- SKIN & CLOTHES
@@ -978,11 +1152,11 @@ local function standardizeSkinKeys(object)
     local layerName = isOverlayKey(catFram)
     if layerName then
       overlays[layerName] = overlays[layerName] or {}
-      if catFram:find('_visibility') then
+      if catFram:find("_visibility") then
         if data == 0 then
           layerNamesNotNeeded[layerName] = true
         end
-      elseif catFram:find('_tx_id') then
+      elseif catFram:find("_tx_id") then
         if layerName == "eyebrow" then
           local id = data - 1
           local sexe = "m"
@@ -994,28 +1168,28 @@ local function standardizeSkinKeys(object)
           overlays[layerName].sexe = sexe
         elseif layerName == "hair" then
           if data == 1 then
-            overlays[layerName].albedo = 'mp_u_faov_m_hair_000'
+            overlays[layerName].albedo = "mp_u_faov_m_hair_000"
           elseif data == 2 then
-            overlays[layerName].albedo = 'mp_u_faov_m_hair_002'
+            overlays[layerName].albedo = "mp_u_faov_m_hair_002"
           elseif data == 3 then
-            overlays[layerName].albedo = 'mp_u_faov_m_hair_009'
+            overlays[layerName].albedo = "mp_u_faov_m_hair_009"
           elseif data == 4 then
-            overlays[layerName].albedo = 'mp_u_faov_m_hair_shared_000'
+            overlays[layerName].albedo = "mp_u_faov_m_hair_shared_000"
           end
         else
           overlays[layerName].id = data - 1
         end
-      elseif catFram:find('_opacity') then
+      elseif catFram:find("_opacity") then
         overlays[layerName].opacity = data
-      elseif catFram:find('_palette_id') then
+      elseif catFram:find("_palette_id") then
         overlays[layerName].sheetGrid = data
-      elseif catFram:find('_color_primary') then
+      elseif catFram:find("_color_primary") then
         overlays[layerName].tint0 = data
-      elseif catFram:find('_color') then
+      elseif catFram:find("_color") then
         overlays[layerName].tint0 = data
-      elseif catFram:find('_color_secondary') then
+      elseif catFram:find("_color_secondary") then
         overlays[layerName].tint1 = data
-      elseif catFram:find('_color_tertiary') then
+      elseif catFram:find("_color_tertiary") then
         overlays[layerName].tint2 = data
       end
     else
@@ -1054,7 +1228,7 @@ end
 
 ---@param data any the clothes data
 ---@return table
-local function formatClothesData(data)
+local function formatComponentData(data)
   if type(data) == "table" then
     if data.comp then
       data.hash = data.comp
@@ -1079,7 +1253,7 @@ end
 local function revertSkinKeys(object)
   local objectStandardized = {}
   for category, data in pairs(object) do
-    objectStandardized[revertSkinKey(category)] = type(data) == "table" and table.copy(data) or data
+    objectStandardized[revertSkinKey(category)] = table.copy(data)
   end
   return objectStandardized
 end
@@ -1087,7 +1261,7 @@ end
 local function revertClothesKeys(object)
   local objectStandardized = {}
   for category, data in pairs(object) do
-    objectStandardized[revertSkinKey(category)] = table.copy(formatClothesData(data) or { hash = 0 })
+    objectStandardized[revertSkinKey(category)] = table.copy(formatComponentData(data) or { hash = 0 })
   end
   return objectStandardized
 end
@@ -1099,7 +1273,7 @@ local function cleanClothesTable(clothesList)
   --   list[cat] = 0
   -- end
   for cat, hash in pairs(clothesList or {}) do
-    list[cat] = formatClothesData(hash)
+    list[cat] = formatComponentData(hash)
   end
   return list
 end
@@ -1154,7 +1328,7 @@ function FrameworkClass:getUserClothes(source)
   local clothes = {}
   if OWFramework.getUserClothes then
     clothes = OWFramework.getUserClothes(source)
-  elseif self:is('VORP') then
+  elseif self:is("VORP") then
     local user = User:get(source)
     clothes = UnJson(user.data.comps)
     local clothesTints = UnJson(user.data.compTints)
@@ -1170,16 +1344,16 @@ function FrameworkClass:getUserClothes(source)
     end
   elseif self:is("RedEM2023") or self:is("RedEM") then
     local user = self:getUserIdentifiers(source)
-    clothes = MySQL.scalar.await('SELECT clothes FROM clothes WHERE identifier=? AND charid=?;', { user.identifier, user.charid })
+    clothes = MySQL.scalar.await("SELECT clothes FROM clothes WHERE identifier=? AND charid=?;", { user.identifier, user.charid })
   elseif self:is("QBR") then
     local user = self:getUserIdentifiers(source)
-    clothes = MySQL.scalar.await('SELECT clothes FROM playerskins WHERE citizenid=? AND active=1', { user.identifier })
+    clothes = MySQL.scalar.await("SELECT clothes FROM playerskins WHERE citizenid=? AND active=1", { user.identifier })
   elseif self:is("RSG") then
     local user = self:getUserIdentifiers(source)
-    clothes = MySQL.scalar.await('SELECT clothes FROM playerskins WHERE citizenid=?', { user.identifier })
+    clothes = MySQL.scalar.await("SELECT clothes FROM playerskins WHERE citizenid=?", { user.identifier })
   elseif self:is("QR") then
     local user = self:getUserIdentifiers(source)
-    clothes = MySQL.scalar.await('SELECT clothes FROM playerclothe WHERE citizenid=?', { user.identifier })
+    clothes = MySQL.scalar.await("SELECT clothes FROM playerclothe WHERE citizenid=?", { user.identifier })
   elseif self:is("RPX") then
     local user = User:get(source)
     clothes = user.data.clothes
@@ -1198,13 +1372,13 @@ end
 ---@param value? table
 function FrameworkClass:updateUserClothes(source, _clothes, value)
   if value then
-    _clothes = { [_clothes] = formatClothesData(value) }
+    _clothes = { [_clothes] = formatComponentData(value) }
   end
   local clothes = revertClothesKeys(_clothes)
   if OWFramework.updateUserClothes then
     return OWFramework.updateUserClothes(source, category, value)
   end
-  if self:is('VORP') then
+  if self:is("VORP") then
     local newClothes = {}
     for category, value in pairs(clothes) do
       newClothes[category] = value
@@ -1239,9 +1413,9 @@ function FrameworkClass:updateUserClothes(source, _clothes, value)
     end
     TriggerClientEvent("vorpcharacter:updateCache", source, false, newClothes)
     user.data.updateCompTints(json.encode(tints))
-  elseif self:is('RedEM2023') or self:is('RedEM') then
+  elseif self:is("RedEM2023") or self:is("RedEM") then
     local identifiers = self:getUserIdentifiers(source)
-    MySQL.scalar('SELECT clothes FROM clothes WHERE identifier=? AND charid=?;', { identifiers.identifier, identifiers.charid }, function(oldClothes)
+    MySQL.scalar("SELECT clothes FROM clothes WHERE identifier=? AND charid=?;", { identifiers.identifier, identifiers.charid }, function(oldClothes)
       local decoded = UnJson(oldClothes)
       table.merge(decoded, clothes)
       local SQL = "UPDATE clothes SET clothes=@clothes WHERE identifier=@identifier AND charid=@charid"
@@ -1254,20 +1428,20 @@ function FrameworkClass:updateUserClothes(source, _clothes, value)
         clothes = json.encode(decoded)
       })
     end)
-  elseif self:is('QBR') or self:is('RSG') then
+  elseif self:is("QBR") or self:is("RSG") then
     local identifiers = self:getUserIdentifiers(source)
-    MySQL.scalar('SELECT clothes FROM playerskins WHERE citizenid=? ', { identifiers.identifier }, function(oldClothes)
+    MySQL.scalar("SELECT clothes FROM playerskins WHERE citizenid=? ", { identifiers.identifier }, function(oldClothes)
       local decoded = UnJson(oldClothes)
       table.merge(decoded, clothes)
       MySQL.update("UPDATE playerskins SET clothes=? WHERE citizenid=?", { json.encode(decoded), identifiers.identifier })
     end)
-  elseif self:is('RPX') then
+  elseif self:is("RPX") then
     local user = User:get(source)
     local newClothes = table.merge(user.data.clothes, clothes)
     user.data.SetClothesData(newClothes)
-  elseif self:is('QR') then
+  elseif self:is("QR") then
     local identifiers = self:getUserIdentifiers(source)
-    MySQL.scalar('SELECT clothes FROM playerclothe WHERE citizenid=?', { identifiers.identifier }, function(oldClothes)
+    MySQL.scalar("SELECT clothes FROM playerclothe WHERE citizenid=?", { identifiers.identifier }, function(oldClothes)
       local decoded = UnJson(oldClothes)
       table.merge(decoded, clothes)
       MySQL.update("UPDATE playerclothe SET clothes=? WHERE citizenid=?", { json.encode(decoed), identifiers.identifier })
@@ -1290,7 +1464,7 @@ function FrameworkClass:getUserSkin(source)
     skin = MySQL.scalar.await("SELECT skin FROM skins WHERE identifier=? AND charid=?;", { identifiers.identifier, identifiers.charid })
   elseif self:is("QBR") or self:is("RSG") then
     local identifiers = user:getIdentifiers()
-    skin = MySQL.scalar.await('SELECT skin FROM playerskins WHERE citizenid=?', { identifiers.identifier })
+    skin = MySQL.scalar.await("SELECT skin FROM playerskins WHERE citizenid=?", { identifiers.identifier })
   elseif self:is("RPX") then
     skin = user.data.skin
   end
@@ -1339,7 +1513,7 @@ function FrameworkClass:updateUserSkin(...)
     local identifiers = self:getUserIdentifiers(source)
     MySQL.scalar("SELECT skin FROM skins WHERE identifier=? AND charid=?", { identifiers.identifier, identifiers.charid }, function(oldSkin)
       if not oldSkin then
-        MySQL.insert('INSERT INTO skins VALUES (NULL, ?,?,?)', { identifiers.identifier, identifiers.charid, json.encode(skin) })
+        MySQL.insert("INSERT INTO skins VALUES (NULL, ?,?,?)", { identifiers.identifier, identifiers.charid, json.encode(skin) })
       else
         local decoded = UnJson(oldSkin)
         if overwrite then
@@ -1350,7 +1524,7 @@ function FrameworkClass:updateUserSkin(...)
         MySQL.update("UPDATE skins SET skin=? WHERE identifier=? AND charid=?", { json.encode(decoded), identifiers.identifier, identifiers.charid })
       end
     end)
-  elseif self:is("QBR") or self:is('RSG') then
+  elseif self:is("QBR") or self:is("RSG") then
     local identifiers = self:getUserIdentifiers(source)
     if overwrite then
       MySQL.update("UPDATE playerskins SET skin=? WHERE citizenid=?", { json.encode(skin), identifiers.identifier })
@@ -1369,6 +1543,52 @@ function FrameworkClass:updateUserSkin(...)
   end
 end
 
+
+
+function FrameworkClass:createUser(source, data, spawnCoordinate, isDead)
+  if isDead == nil then isDead = false end
+  spawnCoordinate = spawnCoordinate or vec4(2537.684, -1278.066, 49.218, 42.520)
+  data = data or {}
+  data.firstname = data.firstname or ""
+  data.lastname = data.lastname or ""
+  data.skin = revertSkinKeys(data.skin)
+  data.comps = revertClothesKeys(data.comps)
+  if OWFramework.createUser then
+    return OWFramework.createUser(source, data)
+  end
+  if self:is("VORP") then
+    local convertData = {
+      firstname = data.firstname or "",
+      lastname = data.lastname or "",
+      skin = json.encode(data.skin or {}),
+      comps = json.encode(data.comps or {}),
+      compTints = "[]",
+      age = data.age,
+      gender = data.skin.model == "mp_male" and "Male" or "Female",
+      charDescription = data.charDescription or "",
+      nickname = data.nickname or ""
+    }
+    self.core.getUser(source).addCharacter(convertData)
+    TriggerClientEvent("vorp:initCharacter", source, spawnCoordinate.xyz, spawnCoordinate.w, isDead)
+    SetTimeout(3000, function()
+      TriggerEvent("vorp_NewCharacter", source)
+    end)
+    return
+  elseif self:is("RedEM2023") or self:is("RedEM") then
+    return
+  elseif self:is("QBR") then
+    return
+  elseif self:is("RSG") then
+    return
+  elseif self:is("RPX") then
+    return
+  end
+end
+
+-------------
+-- END SKIN & CLOTHES
+-------------
+
 function FrameworkClass:example()
   if OWFramework.example then
     return OWFramework.example()
@@ -1379,7 +1599,7 @@ function FrameworkClass:example()
     return
   elseif self:is("QBR") then
     return
-  elseif self:is('RSG') then
+  elseif self:is("RSG") then
     return
   elseif self:is("RPX") then
     return
