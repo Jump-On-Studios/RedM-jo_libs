@@ -1,14 +1,14 @@
 author "JUMP ON studios : shop.jumpon-studios.com"
-documentation 'https://docs.jumpon-studios.com'
-version '1.11.4'
-package_id '1'
+documentation "https://docs.jumpon-studios.com"
+version "1.11.4"
+package_id "1"
 
 fx_version "adamant"
 
-rdr3_warning 'I acknowledge that this is a prerelease build of RedM, and I am aware my resources *will* become incompatible once RedM ships.'
+rdr3_warning "I acknowledge that this is a prerelease build of RedM, and I am aware my resources *will* become incompatible once RedM ships."
 
 game "rdr3"
-lua54 'yes'
+lua54 "yes"
 
 files {
 	"init.lua",
@@ -32,10 +32,10 @@ files {
 }
 
 shared_scripts {
-	'init.lua'
+	"init.lua"
 }
 
 jo_libs {
-	'framework-bridge',
-	'version-checker'
+	"framework-bridge",
+	"version-checker"
 }
