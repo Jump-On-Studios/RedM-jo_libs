@@ -58,4 +58,3 @@ function jo.date.convertMsToInterval(ms, lang)
   return string
 end
 
-return jo.date

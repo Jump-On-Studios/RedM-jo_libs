@@ -138,4 +138,3 @@ function jo.entity.create(model, coords, heading, networked, fadeDuration)
 	return entity
 end
 
-return jo.entity

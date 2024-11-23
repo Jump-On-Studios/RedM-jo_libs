@@ -41,4 +41,3 @@ function string:trim()
 end
 
 jo.string = {}
-return jo.string

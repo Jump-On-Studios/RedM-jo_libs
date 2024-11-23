@@ -25,5 +25,3 @@ function jo.blip.create(location, name, sprite, blipHash, color)
   Blips[#Blips + 1] = blip
   return blip
 end
-
-return jo.blip

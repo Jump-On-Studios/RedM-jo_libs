@@ -118,4 +118,3 @@ exports('getCallbackAPI', function()
   return jo.callback
 end)
 
-return jo.callback
