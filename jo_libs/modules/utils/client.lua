@@ -70,5 +70,3 @@ function jo.utils.waiter(cb,maxDuration,loopTimer)
 	end
 	return true
 end
-
-return jo.utils

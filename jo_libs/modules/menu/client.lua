@@ -103,6 +103,7 @@ function MenuClass:addItem(p, item)
   item = table.merge(table.copy(MenuItem), item)
   item.index = p
   table.insert(self.items, p, item)
+  return item
 end
 function jo.menu.addItem(id, p, item) menus[id]:addItem(p, item) end
 
@@ -197,6 +198,10 @@ function MenuClass:send(reset)
 end
 function jo.menu.send(id) menus[id]:send() end
 
+function MenuClass:use(keepHistoric, resetMenu)
+  jo.menu.setCurrentMenu(self.id, keepHistoric, resetMenu)
+end
+
 ---@param id string Unique ID of the menu
 ---@param data? MenuClass
 function jo.menu.create(id, data)
@@ -252,6 +257,7 @@ local function loopMenu()
   CreateThread(function()
     while jo.menu.isOpen() do
       jo.menu.fireAllLevelsEvent('tick')
+      jo.menu.fireAllLevelsEvent('onTick')
       Wait(0)
     end
   end)
@@ -657,4 +663,3 @@ end)
 exports('jo_menu_get_current_data', function()
   return currentData
 end)
-return jo.menu

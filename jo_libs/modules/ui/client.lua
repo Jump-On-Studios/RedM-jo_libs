@@ -100,4 +100,3 @@ function jo.ui.finishTimer()
     end
 end
 
-return jo.ui

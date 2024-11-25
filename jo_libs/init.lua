@@ -1,13 +1,13 @@
-if not _VERSION:find('5.4') then
-  error('^1Lua 5.4 must be enabled in the resource manifest!^0', 2)
+if not _VERSION:find("5.4") then
+  error("^1Lua 5.4 must be enabled in the resource manifest!^0", 2)
 end
 
 local resourceName = GetCurrentResourceName()
-local jo_libs = 'jo_libs'
-local modules = { 'table', 'print', 'file' }
+local jo_libs = "jo_libs"
+local modules = { "table", "print", "file" }
 local function noFunction() end
 local LoadResourceFile = LoadResourceFile
-local context = IsDuplicityVersion() and 'server' or 'client'
+local context = IsDuplicityVersion() and "server" or "client"
 local moduleInLoading = {}
 local moduleLocal = {}
 
@@ -15,8 +15,9 @@ local alias = {
   framework = "framework-bridge",
   versionChecker = "version-checker",
   notif = "notification",
-  pedTexture = 'ped-texture',
-  gameEvents = 'game-events'
+  pedTexture = "ped-texture",
+  gameEvents = "game-events",
+  clothes = "component"
 }
 local function getAlias(module)
   if module == "meCoords" or module == "mePlayerId" or module == "meServerId" then return "me" end
@@ -30,8 +31,8 @@ local function getAlias(module)
 end
 
 --list modules required
-for i = 1, GetNumResourceMetadata(resourceName, 'jo_lib') do
-  modules[#modules + 1] = getAlias(GetResourceMetadata(resourceName, 'jo_lib', i - 1))
+for i = 1, GetNumResourceMetadata(resourceName, "jo_lib") do
+  modules[#modules + 1] = getAlias(GetResourceMetadata(resourceName, "jo_lib", i - 1))
 end
 
 if jo and jo.name == jo_libs then
@@ -65,7 +66,7 @@ end
 
 local function loadGlobalModule(module)
   if resourceName == "jo_libs" then return end
-  while GetResourceState('jo_libs') ~= "started" do Wait(0) end
+  while GetResourceState("jo_libs") ~= "started" do Wait(0) end
   exports.jo_libs:loadGlobalModule(module)
 end
 
@@ -77,7 +78,7 @@ end
 local function loadModule(self, name, needLocal)
   if needLocal == nil then needLocal = true end
   local folder = alias[name] or name
-  local dir = ('modules/%s'):format(folder)
+  local dir = ("modules/%s"):format(folder)
   local file = ""
 
   moduleInLoading[name] = true
@@ -92,12 +93,12 @@ local function loadModule(self, name, needLocal)
   self[name] = noFunction
 
   --load files in the right order
-  for _, fileName in ipairs({ 'shared', 'context' }) do
+  for _, fileName in ipairs({ "shared", "context" }) do
     --convert the name if it's context
     fileName = fileName == "context" and context or fileName
     --load scoped files
     if needLocal or doesScopedFilesRequired(name) then
-      local tempFile = LoadResourceFile(jo_libs, ('%s/%s.lua'):format(dir, fileName))
+      local tempFile = LoadResourceFile(jo_libs, ("%s/%s.lua"):format(dir, fileName))
       if tempFile then
         file = file .. tempFile
       end
@@ -105,7 +106,7 @@ local function loadModule(self, name, needLocal)
     --load global files inside jo_libs
     if resourceName == "jo_libs" then
       fileName = "g_" .. fileName
-      local tempFile = LoadResourceFile(jo_libs, ('%s/%s.lua'):format(dir, fileName))
+      local tempFile = LoadResourceFile(jo_libs, ("%s/%s.lua"):format(dir, fileName))
       if tempFile then
         file = file .. tempFile
       end
@@ -113,10 +114,10 @@ local function loadModule(self, name, needLocal)
   end
 
   if file then
-    local fn, err = load(file, ('@@jo_libs/%s/%s.lua'):format(dir, context))
+    local fn, err = load(file, ("@@jo_libs/%s/%s.lua"):format(dir, context))
 
     if not fn or err then
-      return error(('\n^1Error importing module (%s): %s^0'):format(dir, err), 3)
+      return error(("\n^1Error importing module (%s): %s^0"):format(dir, err), 3)
     end
 
     local result = fn()
@@ -174,7 +175,7 @@ function jo.ready(cb)
 end
 
 function jo.stopped(cb)
-  AddEventHandler('onResourceStop', function(resource)
+  AddEventHandler("onResourceStop", function(resource)
     if resource ~= resourceName then return end
     cb()
   end)
@@ -183,8 +184,8 @@ end
 _ENV.jo = jo
 
 
-if GetResourceState(jo_libs) ~= 'started' and resourceName ~= 'jo_libs' then
-  error('^1jo_libs must be started before this resource.^0', 0)
+if GetResourceState(jo_libs) ~= "started" and resourceName ~= "jo_libs" then
+  error("^1jo_libs must be started before this resource.^0", 0)
 end
 
 -------------
@@ -196,15 +197,15 @@ function jo.require(name, needLocal)
   name = getAlias(name)
   if isModuleLoaded(name, needLocal) then return end
   local module = loadModule(jo, name, needLocal)
-  if type(module) == 'function' then pcall(module) end
+  if type(module) == "function" then pcall(module) end
 end
 
 if resourceName == "jo_libs" then
-  exports('loadGlobalModule', function(name)
+  exports("loadGlobalModule", function(name)
     jo.require(name, false)
     return true
   end)
-  AddEventHandler('jo_libs:loadGlobalModule', function(name, cb)
+  AddEventHandler("jo_libs:loadGlobalModule", function(name, cb)
     jo.require(name, false)
     cb()
     return true
@@ -241,13 +242,13 @@ end)
 for _, name in ipairs(modules) do
   jo.require(name)
   if name == "hook" then
-    CreateExport('registerAction', jo.hook.registerAction)
-    CreateExport('RegisterAction', jo.hook.RegisterAction)
-    CreateExport('registerFilter', jo.hook.registerFilter)
-    CreateExport('RegisterFilter', jo.hook.RegisterFilter)
+    CreateExport("registerAction", jo.hook.registerAction)
+    CreateExport("RegisterAction", jo.hook.RegisterAction)
+    CreateExport("registerFilter", jo.hook.registerFilter)
+    CreateExport("RegisterFilter", jo.hook.RegisterFilter)
   elseif name == "versionChecker" and context == "server" then
-    CreateExport('GetScriptVersion', jo.versionChecker.GetScriptVersion)
-    CreateExport('StopAddon', jo.versionChecker.stopAddon)
+    CreateExport("GetScriptVersion", jo.versionChecker.GetScriptVersion)
+    CreateExport("StopAddon", jo.versionChecker.stopAddon)
   end
 end
 jo.libLoaded = true

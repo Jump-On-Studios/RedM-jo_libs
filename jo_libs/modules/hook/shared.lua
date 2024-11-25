@@ -139,4 +139,3 @@ AddEventHandler('onResourceStop', function(resourceName)
   end
 end)
 
-return jo.hook

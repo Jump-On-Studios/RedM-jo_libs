@@ -18,5 +18,3 @@ function jo.screen.fadeOut(duration,needWait)
     Wait(0)
   end
 end
-
-return jo.screen

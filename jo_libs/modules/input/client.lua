@@ -21,5 +21,3 @@ function jo.input.native(label, placeholder, maxStringLenght)
       return ''
     end
 end
-
-return jo.input

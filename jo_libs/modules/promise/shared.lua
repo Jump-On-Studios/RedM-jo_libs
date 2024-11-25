@@ -21,4 +21,3 @@ function jo.promise.new(cb, ...)
   return table.unpack(Citizen.Await(waiter))
 end
 
-return jo.promise

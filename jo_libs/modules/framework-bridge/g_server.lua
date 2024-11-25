@@ -1,8 +1,10 @@
-RegisterNetEvent('jo_libs:server:applySkinAndClothes', function(ped, skin, clothes)
+jo.require("framework-bridge")
+
+RegisterNetEvent("jo_libs:server:applySkinAndClothes", function(ped, skin, clothes)
   local source = source
-  local ped = ped
-  local skin = standardizeSkinKeys(skin)
-  local clothes = standardizeClothesKeys(clothes)
+  ped = ped
+  skin = jo.framework.standardizeSkinKeys(UnJson(skin))
+  clothes = jo.framework.standardizeClothesKeys(UnJson(clothes))
 
   if clothes.teeth then
     skin.teeth = clothes.teeth.hash
@@ -10,4 +12,11 @@ RegisterNetEvent('jo_libs:server:applySkinAndClothes', function(ped, skin, cloth
   end
 
   TriggerClientEvent("jo_libs:client:applySkinAndClothes", source, ped, skin, clothes)
+end)
+
+RegisterNetEvent("vorpcharacter:reloadedskinlistener", function()
+  local source = source
+  local skin = jo.framework:getUserSkin(source)
+  local clothes = jo.framework:getUserClothes(source)
+  TriggerClientEvent("jo_libs:client:applySkinAndClothes", source, nil, skin, clothes)
 end)

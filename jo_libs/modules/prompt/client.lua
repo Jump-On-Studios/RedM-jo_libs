@@ -245,4 +245,3 @@ exports('jo_prompt_get', function()
 end)
 
 
-return jo.prompt
