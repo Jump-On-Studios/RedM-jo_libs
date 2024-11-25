@@ -1258,6 +1258,7 @@ local function revertSkinKeys(object)
   end
   return objectStandardized
 end
+FrameworkClass.revertSkinKeys = revertSkinKeys
 
 local function revertClothesKeys(object)
   local objectStandardized = {}
@@ -1266,6 +1267,7 @@ local function revertClothesKeys(object)
   end
   return objectStandardized
 end
+FrameworkClass.revertClothesKeys = revertClothesKeys
 
 ---@param clothesList table
 local function cleanClothesTable(clothesList)
