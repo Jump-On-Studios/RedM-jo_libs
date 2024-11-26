@@ -8,7 +8,7 @@ OWFramework.User = {}
 local Core
 
 function OWFramework.get()
-    return "custom"
+    return "RedEM"
 end
 
 function OWFramework.initFramework(self)
@@ -167,34 +167,35 @@ function OWFramework.giveItem(source, item, amount, metadata)
     return false
 end
 
-function OWFramework.updateUserSkin(...)
-    local args = table.pack(...)
-    local source, _skin, overwrite = args[1], {}, false
-
-    if type(args[2]) == "string" then
-        _skin = { [args[2]] = args[3] }
-        overwrite = args[math.max(4, #args)] or overwrite
-    else
-        _skin = args[2]
-        overwrite = args[math.max(3, #args)] or overwrite
-    end
-
+function OWFramework.updateUserSkin(source, skin, overwrite)
     local character = Core.GetCharacterFromPlayerId(source)
 
-    local normalizedSkin = table.copy(_skin)
 
-    for skinKey, skinValue in pairs(_skin) do
-        if type(skinValue) == "table" and skinValue.hash and skinKey ~= "overlays" then
-            normalizedSkin[skinKey] = skinValue.hash
+    local function recursiveFix(tbl)
+        local fixedData = {}
+    
+        for key, value in pairs(tbl) do
+            if type(value) == "table" then
+                -- Se o valor for uma tabela, chamamos a função recursivamente
+                fixedData[key] = recursiveFix(value)
+            elseif value and type(value) == "table" and value.hash then
+                fixedData[key] = value.hash
+            else
+                fixedData[key] = value
+            end
         end
+    
+        return fixedData
     end
+    
     MySQL.scalar("SELECT skin from characters_appearance WHERE `characterId`=@characterId", { characterId = character.id }, function(oldSkin)
-        local decoded = UnJson(oldSkin)
+        local decoded = jo.framework.standardizeSkinKeys(UnJson(oldSkin))
         if overwrite then
-          decoded = _skin
+          decoded = skin
         else
-          decoded = table.merge(decoded, _skin)
+          table.merge(decoded, jo.framework.standardizeSkinKeys(skin))
         end
+
         MySQL.Async.execute("UPDATE characters_appearance SET skin = @skin WHERE `characterId`=@characterId", { characterId = character.id, skin = json.encode(decoded) })
     end)
 end
