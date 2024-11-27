@@ -3,7 +3,7 @@ local lastKey = 0
 
 jo.prompt = {}
 
-jo.require('timeout')
+jo.require("timeout")
 
 local function UiPromptHasHoldMode(...) return Citizen.InvokeNative(0xB60C9F9ED47ABB76, ...) end
 local function UiPromptSetEnabled(...) return Citizen.InvokeNative(0x8A0FB4D03A630D21, ...) end
@@ -14,7 +14,7 @@ local function UiPromptGetProgress(...) return Citizen.InvokeNative(0x8180129180
 ---@param title string Title of the prompt
 function jo.prompt.displayGroup(group, title)
   if not jo.prompt.isGroupExist(group) then return end
-  local promptName = CreateVarString(10, 'LITERAL_STRING', title)
+  local promptName = CreateVarString(10, "LITERAL_STRING", title)
   PromptSetActiveGroupThisFrame(promptGroups[group].group, promptName)
 end
 
@@ -51,7 +51,7 @@ end
 ---@param label string Label of the prompt
 function jo.prompt.editKeyLabel(group, key, label)
   if not jo.prompt.isExist(group, key) then return end
-  local str = CreateVarString(10, 'LITERAL_STRING', label)
+  local str = CreateVarString(10, "LITERAL_STRING", label)
   PromptSetText(promptGroups[group].prompts[key], str)
 end
 
@@ -124,6 +124,11 @@ function jo.prompt.create(group, str, key, holdTime, page)
   --Check if group exist
   if not page then page = 0 end
   if not holdTime then holdTime = 0 end
+
+  if key == nil or (type(key) == "table" and key[1] == nil) then
+    return eprint("No key set for", group, str)
+  end
+
   if (promptGroups[group] == nil) then
     if type(group) == "string" then
       promptGroups[group] = {
@@ -149,7 +154,7 @@ function jo.prompt.create(group, str, key, holdTime, page)
     promptGroups[group].prompts[key] = PromptRegisterBegin()
     PromptSetControlAction(promptGroups[group].prompts[key], joaat(key))
   end
-  str = CreateVarString(10, 'LITERAL_STRING', str)
+  str = CreateVarString(10, "LITERAL_STRING", str)
   PromptSetText(promptGroups[group].prompts[key], str)
   PromptSetPriority(promptGroups[group].prompts[key], 2)
   PromptSetEnabled(promptGroups[group].prompts[key], true)
@@ -240,8 +245,6 @@ function jo.prompt.get(group, key)
   return promptGroups[group].prompts[key]
 end
 
-exports('jo_prompt_get', function()
+exports("jo_prompt_get", function()
   return jo.prompt
 end)
-
-
