@@ -875,6 +875,10 @@ function FrameworkClass:giveItem(source, item, quantity, meta)
   return false
 end
 
+function FrameworkClass:removeItem(source, item, quantity, meta)
+  self:canUseItem(source, item, quantity, meta, true)
+end
+
 ---@param invName string unique ID of the inventory
 ---@param name string name of the inventory
 ---@param invConfig table Configuration of the inventory
