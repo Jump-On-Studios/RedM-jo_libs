@@ -29,21 +29,23 @@ RegisterNetEvent("jo_libs:client:applySkinAndClothes", function(ped, skin, cloth
     end
     jo.component.apply(ped, "hair", skin.hair)
 
-    for category, overlay in pairs(skin.overlays or {}) do
-      if type(overlay) == "table" then
-        local default = {
-          id = 0,
-          opacity = 0.0,
-          category = category
-        }
-        if category == "hair" or category == "beard" then
-          default.palette = "metaped_tint_hair"
-          default.tint0 = 135
+    if skin.overlays then
+      for category, overlay in pairs(skin.overlays) do
+        if type(overlay) == "table" then
+          local default = {
+            id = 0,
+            opacity = 0.0,
+            category = category
+          }
+          if category == "hair" or category == "beard" then
+            default.palette = "metaped_tint_hair"
+            default.tint0 = 135
+          end
+          overlay = table.merge(default, overlay)
         end
-        overlay = table.merge(default, overlay)
       end
+      jo.pedTexture.overwriteCategory(ped, "heads", skin.overlays, true)
     end
-    jo.pedTexture.overwriteCategory(ped, "heads", skin.overlays, true)
     jo.hook.doActions("jo_libs:applySkinAndClothes:after", ped, skin, clothes)
   end)
 end)
