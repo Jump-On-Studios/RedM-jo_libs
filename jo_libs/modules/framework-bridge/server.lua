@@ -741,10 +741,10 @@ function FrameworkClass:canUseItem(source, item, amount, meta, remove)
     return OWFramework.canUseItem(source, item, amount, meta, remove)
   end
   if self:is("VORP") then
-    local count = self.inv:getItemCount(source, nil, item)
+    local count = self.inv:getItemCount(source, nil, item, meta)
     if count >= amount then
       if remove then
-        self.inv:subItem(source, item, amount)
+        self.inv:subItem(source, item, amount, meta)
       end
       return true
     end
