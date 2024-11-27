@@ -876,7 +876,7 @@ function FrameworkClass:giveItem(source, item, quantity, meta)
 end
 
 function FrameworkClass:removeItem(source, item, quantity, meta)
-  self:canUseItem(source, item, quantity, meta, true)
+  return self:canUseItem(source, item, quantity, meta, true)
 end
 
 ---@param invName string unique ID of the inventory
