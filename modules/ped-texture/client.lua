@@ -512,7 +512,7 @@ function jo.pedTexture.overwriteCategory(ped, category, overlays, forceRemove)
     end
   end
 
-  for layername, layer in pairs(overlays) do
+  for layername, layer in pairs(overlays or {}) do
     jo.pedTexture.apply(ped, layername, layer)
   end
 end
