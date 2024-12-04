@@ -1,0 +1,93 @@
+<body>
+</body>
+
+<script>
+  window.citFrames = {};
+
+  /**
+   * @type string[]
+   */
+  let zStack = [];
+
+  /**
+   * @type string[]
+   */
+  let focusStack = [];
+
+  let handoverBlob = {};
+  let serverAddress = '';
+  let frameEscapeFunctions = {};
+
+  function createNewFrame(resourceName, uiName, url) {
+    const frame = document.createElement('iframe');
+    frame.name = uiName;
+    frame.allow = 'microphone *; camera *;';
+    frame.src = url;
+    frame.tabIndex = -1;
+
+    const curElement = document.activeElement;
+    const hadFocus = (curElement?.tagName.toUpperCase() === 'IFRAME');
+
+    document.body.appendChild(frame);
+
+    if (hadFocus) {
+      frame.blur();
+      curElement.focus();
+    }
+
+    frame.contentWindow.GetParentResourceName = function () {
+      return resourceName;
+    }
+
+    const eventsToRedirect = [
+      'click',
+      'keydown',
+      'keyup',
+      'mousemove',
+      'mousedown',
+      'mouseup',
+      'wheel',
+      'resize',
+      'scroll',
+      'message'
+    ];
+
+    eventsToRedirect.forEach(eventType => {
+      window.addEventListener(eventType, (event) => {
+        if (eventType == "message" && (event.data.messageTargetUiName !== undefined && event.data.messageTargetUiName != uiName))
+          return
+        // Créer un nouvel événement pour le transmettre
+        const redirectedEvent = new event.constructor(event.type, event);
+        frame.contentWindow.dispatchEvent(redirectedEvent);
+      });
+    });
+
+    return frame
+
+  }
+
+  window.addEventListener('message', (event) => {
+    if (event.data.action == "loadNUI") {
+      createNewFrame(GetParentResourceName(), event.data.name, event.data.url);
+    }
+  })
+</script>
+
+<style>
+  body {
+    background-color: transparent;
+    margin: 0px;
+    padding: 0px;
+  }
+
+  iframe {
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    top: 0px;
+    bottom: 0px;
+    border: 0px;
+    width: 100%;
+    height: 100%;
+  }
+</style>
