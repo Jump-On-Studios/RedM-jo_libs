@@ -1,28 +1,13 @@
 jo.menu = {}
 jo.menu.exports = {}
-local resourceName = GetCurrentResourceName()
-local resourceNUI = resourceName
 
 jo.require("table")
 jo.require("timeout")
+jo.require("nui")
 
 CreateThread(function()
-  Wait(1000)
-  if resourceNUI ~= resourceName then return end
-  if not GetResourceMetadata(resourceName, "ui_page") then
-    eprint('WARNING ! NUI page is not defined. To use JO Menu, add ui_page "nui://jo_libs/nui/menu/index.html" inside your fxmanifest.lua')
-    eprint('WARNING ! NUI page is not defined. To use JO Menu, add ui_page "nui://jo_libs/nui/menu/index.html" inside your fxmanifest.lua')
-    eprint('WARNING ! NUI page is not defined. To use JO Menu, add ui_page "nui://jo_libs/nui/menu/index.html" inside your fxmanifest.lua')
-    eprint('WARNING ! NUI page is not defined. To use JO Menu, add ui_page "nui://jo_libs/nui/menu/index.html" inside your fxmanifest.lua')
-    eprint('WARNING ! NUI page is not defined. To use JO Menu, add ui_page "nui://jo_libs/nui/menu/index.html" inside your fxmanifest.lua')
-    eprint('WARNING ! NUI page is not defined. To use JO Menu, add ui_page "nui://jo_libs/nui/menu/index.html" inside your fxmanifest.lua')
-    eprint('WARNING ! NUI page is not defined. To use JO Menu, add ui_page "nui://jo_libs/nui/menu/index.html" inside your fxmanifest.lua')
-    eprint('WARNING ! NUI page is not defined. To use JO Menu, add ui_page "nui://jo_libs/nui/menu/index.html" inside your fxmanifest.lua')
-    eprint('WARNING ! NUI page is not defined. To use JO Menu, add ui_page "nui://jo_libs/nui/menu/index.html" inside your fxmanifest.lua')
-    eprint('WARNING ! NUI page is not defined. To use JO Menu, add ui_page "nui://jo_libs/nui/menu/index.html" inside your fxmanifest.lua')
-    eprint('WARNING ! NUI page is not defined. To use JO Menu, add ui_page "nui://jo_libs/nui/menu/index.html" inside your fxmanifest.lua')
-    eprint('WARNING ! NUI page is not defined. To use JO Menu, add ui_page "nui://jo_libs/nui/menu/index.html" inside your fxmanifest.lua')
-  end
+  Wait(100)
+  jo.nui.load("jo_menu", "nui://jo_libs/nui/menu/index.html")
 end)
 
 local menus = {}
@@ -34,14 +19,9 @@ local clockStart = GetGameTimer()
 local currentData = {}
 local previousData = {}
 local NativeSendNUIMessage = SendNUIMessage
-local function hasMainScript()
-  return resourceName ~= resourceNUI
-end
 local function SendNUIMessage(data)
   if clockStart == GetGameTimer() then Wait(100) end
-  if hasMainScript() then
-    return jo.menu.exports.sendNUIMessage(data)
-  end
+  data.messageTargetUiName = "jo_menu"
   NativeSendNUIMessage(data)
 end
 local disabledKeys = {
@@ -64,16 +44,6 @@ local MenuClass = {
   onExit = function() end,
   onChange = function() end
 }
-local function clearForCopy(data)
-  local t = table.copy(data)
-  t.send = nil
-  t.refresh = nil
-  t.addItems = nil
-  t.addItem = nil
-  t.reset = nil
-  t.sort = nil
-  return t
-end
 
 local MenuItem = {
   title = "",
@@ -121,9 +91,6 @@ end
 function jo.menu.updateItem(id, index, key, value) menus[id]:updateItem(index, key, value) end
 
 function MenuClass:refresh()
-  if hasMainScript() then
-    return jo.menu.exports.refreshMenu(self.id)
-  end
   local datas = table.clearForNui(self)
   SendNUIMessage({
     event = "updateMenuData",
@@ -179,10 +146,6 @@ end
 function jo.menu.sort(id, first, last) menus[id]:sort(first, last) end
 
 function MenuClass:send(reset)
-  if hasMainScript() then
-    jo.menu.exports.sendMenu(clearForCopy(self))
-    return
-  end
   local datas = table.clearForNui(self)
   if reset == nil then
     reset = true
@@ -326,10 +289,6 @@ end
 
 function jo.menu.set(id, menu)
   menus[id] = menu
-end
-
-function jo.menu.setMainScript(name)
-  resourceNUI = name
 end
 
 function jo.menu.getCurrentData()
