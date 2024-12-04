@@ -3,13 +3,13 @@ jo.menu.exports = {}
 local resourceName = GetCurrentResourceName()
 local resourceNUI = resourceName
 
-jo.require('table')
-jo.require('timeout')
+jo.require("table")
+jo.require("timeout")
 
 CreateThread(function()
   Wait(1000)
   if resourceNUI ~= resourceName then return end
-  if not GetResourceMetadata(resourceName, 'ui_page') then
+  if not GetResourceMetadata(resourceName, "ui_page") then
     eprint('WARNING ! NUI page is not defined. To use JO Menu, add ui_page "nui://jo_libs/nui/menu/index.html" inside your fxmanifest.lua')
     eprint('WARNING ! NUI page is not defined. To use JO Menu, add ui_page "nui://jo_libs/nui/menu/index.html" inside your fxmanifest.lua')
     eprint('WARNING ! NUI page is not defined. To use JO Menu, add ui_page "nui://jo_libs/nui/menu/index.html" inside your fxmanifest.lua')
@@ -76,15 +76,15 @@ local function clearForCopy(data)
 end
 
 local MenuItem = {
-  title = '',
-  subtitle = '',
-  footer = '',
+  title = "",
+  subtitle = "",
+  footer = "",
   child = false,
   sliders = {},
   price = false,
   data = {},
   visible = true,
-  description = '',
+  description = "",
   prefix = false,
   statistics = {},
   disabled = false,
@@ -126,7 +126,7 @@ function MenuClass:refresh()
   end
   local datas = table.clearForNui(self)
   SendNUIMessage({
-    event = 'updateMenuData',
+    event = "updateMenuData",
     menu = self.id,
     data = datas
   })
@@ -188,7 +188,7 @@ function MenuClass:send(reset)
     reset = true
   end
   SendNUIMessage({
-    event = 'updateMenu',
+    event = "updateMenu",
     reset = reset,
     menu = datas
   })
@@ -206,7 +206,7 @@ end
 ---@param data? MenuClass
 function jo.menu.create(id, data)
   if not id then
-    return 'The `id` of the menu is missing'
+    return "The `id` of the menu is missing"
   end
   if menus[id] then menus[id] = nil end
   menus[id] = table.merge(table.copy(MenuClass), data)
@@ -236,7 +236,7 @@ function jo.menu.setCurrentMenu(id, keepHistoric, resetMenu)
   keepHistoric = (keepHistoric == nil) and true or keepHistoric
   resetMenu = (resetMenu == nil) and true or resetMenu
   SendNUIMessage({
-    event = 'setCurrentMenu',
+    event = "setCurrentMenu",
     menu = id,
     keepHistoric = keepHistoric,
     reset = resetMenu
@@ -256,8 +256,8 @@ jo.timeout.loop(1000, LoopDisableKeys)
 local function loopMenu()
   CreateThread(function()
     while jo.menu.isOpen() do
-      jo.menu.fireAllLevelsEvent('tick')
-      jo.menu.fireAllLevelsEvent('onTick')
+      jo.menu.fireAllLevelsEvent("tick")
+      jo.menu.fireAllLevelsEvent("onTick")
       Wait(0)
     end
   end)
@@ -279,12 +279,12 @@ function jo.menu.show(show, keepInput, hideRadar, animation)
     if not nuiShow then
       timeoutClose = jo.timeout.set(150, function()
         SetNuiFocus(false, false)
-        SendNUIMessage({ event = 'updateShow', show = show, cancelAnimation = not animation })
+        SendNUIMessage({ event = "updateShow", show = show, cancelAnimation = not animation })
       end)
     else
       SetNuiFocus(true, true)
       SetNuiFocusKeepInput(keepInput)
-      SendNUIMessage({ event = 'updateShow', show = show, cancelAnimation = not animation })
+      SendNUIMessage({ event = "updateShow", show = show, cancelAnimation = not animation })
       loopMenu()
     end
     if show then
@@ -360,21 +360,21 @@ end
 -- NUI
 -------------
 
-RegisterNUICallback('click', function(data, cb)
-  cb('ok')
+RegisterNUICallback("click", function(data, cb)
+  cb("ok")
 
   if not menus[data.menu] then return end
   if not menus[data.menu].items[data.item.index] then return end
 
-  jo.menu.fireEvent(jo.menu.getCurrentItem(), 'onClick')
+  jo.menu.fireEvent(jo.menu.getCurrentItem(), "onClick")
 end)
 
-RegisterNUICallback('backMenu', function(data, cb)
-  cb('ok')
+RegisterNUICallback("backMenu", function(data, cb)
+  cb("ok")
 
   if not menus[data.menu] then return end
 
-  jo.menu.fireEvent(menus[data.menu], 'onBack')
+  jo.menu.fireEvent(menus[data.menu], "onBack")
 end)
 
 function jo.menu.onChange(cb)
@@ -384,7 +384,7 @@ function jo.menu.onChange(cb)
   })
 end
 
-AddEventHandler('onResourceStop', function(resourceName)
+AddEventHandler("onResourceStop", function(resourceName)
   local i = 1
   while i <= #jo.menu.listeners do
     if jo.menu.listeners[i].resource == resourceName then
@@ -463,9 +463,9 @@ local function menuNUIChange(data)
   end
 end
 
-RegisterNUICallback('updatePreview', function(data, cb)
-  cb('ok')
-  jo.timeout.delay('menuNUIChange', 100, function()
+RegisterNUICallback("updatePreview", function(data, cb)
+  cb("ok")
+  jo.timeout.delay("menuNUIChange", 100, function()
     menuNUIChange(data)
   end)
 end)
@@ -525,7 +525,7 @@ function MenuData.Open(type, namespace, name, data, submit, cancel, change, clos
       end
       item.sliders = {
         {
-          type = 'switch',
+          type = "switch",
           current = item.value or 1,
           values = values
         }
@@ -657,9 +657,9 @@ end
 
 jo.menu.bridgeOldMenu = MenuData
 
-exports('jo_menu_get', function()
+exports("jo_menu_get", function()
   return jo.menu
 end)
-exports('jo_menu_get_current_data', function()
+exports("jo_menu_get_current_data", function()
   return currentData
 end)
