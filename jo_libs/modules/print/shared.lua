@@ -34,6 +34,6 @@ function bprint(...)
 end
 
 function dprint(...)
-  if not Config.debug then return end
+  if not Config?.debug then return end
   print(...)
 end
