@@ -392,6 +392,7 @@ local function getBaseLayer(ped, hash)
   if palette == 0 then palette = nil end
   return drawable, albedo, normal, material, palette, tint0, tint1, tint2
 end
+jo.component.getBaseLayer = getBaseLayer
 
 local function convertToMetaTag(ped, data)
   --restrict to hats & masks
