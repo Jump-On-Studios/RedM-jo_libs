@@ -87,7 +87,7 @@ local function applySkin(ped, skin)
 
   dprint("apply expression")
   for expression, value in pairs(skin.expressions) do
-    SetCharExpression(ped, jo.component.expressions[expression], (value or 0.0) * 1.0)
+    SetCharExpression(ped, jo.component.data.expressions[expression], (value or 0.0) * 1.0)
   end
 
   jo.component.refreshPed(ped)

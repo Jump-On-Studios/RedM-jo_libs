@@ -5,14 +5,18 @@ jo.require("timeout")
 jo.require("dataview")
 
 -------------
--- Variables
+-- CACHE
 -------------
 jo.cache.component = {
   color = {},
   getEquiped = {}
 }
 
-jo.component.order = {
+-------------
+-- DATA
+-------------
+jo.component.data = {}
+jo.component.data.order = {
   "ponchos",
   "cloaks",
   "hair_accessories",
@@ -71,7 +75,9 @@ jo.component.order = {
   "horse_saddles",
   "horse_bridles",
 }
-jo.component.pedClothes = {
+jo.component.order = jo.component.data.order --deprecated name
+
+jo.component.data.pedClothes = {
   "ponchos",
   "cloaks",
   "hair_accessories",
@@ -110,7 +116,9 @@ jo.component.pedClothes = {
   "masks_large",
   "hats"
 }
-jo.component.categoryName = {
+jo.component.pedClothes = jo.component.data.pedClothes --deprecated name
+
+jo.component.data.categoryName = {
   [`heads`] = "heads",
   [`bodies_lower`] = "bodies_lower",
   [`bodies_upper`] = "bodies_upper",
@@ -118,10 +126,11 @@ jo.component.categoryName = {
   [`neckerchiefs`] = "neckerchiefs"
 }
 for _, category in pairs(jo.component.order) do
-  jo.component.categoryName[joaat(category)] = category
+  jo.component.data.categoryName[joaat(category)] = category
 end
+jo.component.categoryName = jo.component.data.categoryName --deprecated name
 
-jo.component.wearableStates = {
+jo.component.data.wearableStates = {
   shirts_full = {
     -- first digit for collar : 0 = closed/1 = opened
     -- second digit for sleeve : 0 = full/1 = rolled
@@ -151,8 +160,9 @@ jo.component.wearableStates = {
     [1] = "pomade"
   }
 }
+jo.component.wearableStates = jo.component.data.wearableStates --deprecated name
 
-jo.component.palettes = {
+jo.component.data.palettes = {
   "metaped_tint_animal",
   "metaped_tint_combined",
   "metaped_tint_combined_leather",
@@ -176,8 +186,9 @@ jo.component.palettes = {
   "metaped_tint_skirt_weathered",
   "metaped_tint_skirt_worn",
 }
+jo.component.palettes = jo.component.data.palettes --deprecated name
 
-jo.component.expressions = {
+jo.component.data.expressions = {
   cheekbonesDepth = 13709,
   cheekbonesHeight = 27147,
   cheekbonesWidth = 43983,
@@ -245,6 +256,7 @@ jo.component.expressions = {
   calves = 42067,
   thighs = 64834,
 }
+jo.component.expressions = jo.component.data.expressions --deprecated name
 
 -------------
 -- local functions
