@@ -1,11 +1,7 @@
 jo.file.load("framework-bridge.overwrite-functions")
 
-if not table.merge then
-  jo.require("table")
-end
-if not string.convertVersion then
-  jo.require("string")
-end
+jo.require("table")
+jo.require("string")
 
 local mainResourceFramework = {
   VORP = { "vorp_core" },
@@ -21,199 +17,207 @@ local mainResourceFramework = {
 -------------
 local SkinCategoryBridge = {
   VORP = {
-    Hat = "hats",
-    Mask = "masks",
-    Shirt = "shirts_full",
-    Suspender = "suspenders",
-    Vest = "vests",
-    Coat = "coats",
-    Poncho = "ponchos",
-    Cloak = "cloaks",
-    Glove = "gloves",
-    RingRh = "jewelry_rings_right",
-    RingLh = "jewelry_rings_left",
-    Bracelet = "jewelry_bracelets",
-    Gunbelt = "gunbelts",
-    Belt = "belts",
-    Buckle = "belt_buckles",
-    Holster = "holsters_left",
-    Pant = "pants",
-    Chap = "chaps",
-    Spurs = "boot_accessories",
-    CoatClosed = "coats_closed",
-    --Ties = "neckties",
-    NeckTies = "neckties",
-    Skirt = "skirts",
-    Boots = "boots",
-    EyeWear = "eyewear",
-    NeckWear = "neckwear",
-    Spats = "spats",
-    GunbeltAccs = "gunbelt_accs",
-    Gauntlets = "gauntlets",
-    Loadouts = "loadouts",
-    Accessories = "accessories",
-    Satchels = "satchels",
-    dresses = "dresses",
-    Dress = "dresses",
-    armor = "armor",
-    Badge = "badges",
-    bow = "hair_accessories",
-    Hair = "hair",
-    Beard = "beards_complete",
-    Teeth = "teeth",
-    sex = "model",
-    HeadType = "headHash",  --To be confirm
-    BodyType = "bodyBuild", --To be confirm
-    LegsType = "bodyLower", --To be investig
-    Eyes = "eyes",
-    Legs = "bodyLower",
-    Torso = "bodyUpper",
-    Waist = "",
-    Body = "",
-    --Expressions
-    HeadSize = "headWidth",
-    FaceW = "faceWidth",
-    FaceD = "eyebrowWidth",
-    FaceS = "eyebrowHeight",
-    NeckW = "neckWidth",
-    NeckD = "neckDepth",
-    EyeBrowH = "eyebrowHeight",
-    EyeBrowW = "eyebrowWidth",
-    EyeBrowD = "eyebrowDepth",
-    EyeD = "eyesDepth",
-    EyeAng = "eyesAngle",
-    EyeDis = "eyesDistance",
-    EyeH = "eyesHeight",
-    EyeLidH = "eyelidHeight",
-    EyeLidW = "eyelidWidth",
-    EyeLidL = "eyelidLeft",
-    EyeLidR = "eyelidRight",
-    EarsW = "earsWidth",
-    EarsA = "earsAngle",
-    EarsH = "earsHeight",
-    EarsD = "earlobes",
-    CheekBonesH = "cheekbonesHeight",
-    CheekBonesW = "cheekbonesWidth",
-    CheekBonesD = "cheekbonesDepth",
-    JawH = "jawHeight",
-    JawW = "jawWidth",
-    JawD = "jawDepth",
-    ChinH = "chinHeight",
-    ChinW = "chinWidth",
-    ChinD = "chinDepth",
-    NoseW = "noseWidth",
-    NoseS = "noseSize",
-    NoseH = "noseHeight",
-    NoseAng = "noseAngle",
-    NoseC = "noseCurvature",
-    NoseDis = "nostrilsDistance",
-    MouthW = "mouthWidth",
-    MouthD = "mouthDepth",
-    MouthX = "mouthX",
-    MouthY = "mouthY",
-    ULiphH = "upperLipHeight",
-    ULiphW = "upperLipWidth",
-    ULiphD = "upperLipDepth",
-    LLiphH = "lowerLipHeight",
-    LLiphW = "lowerLipWidth",
-    LLiphD = "lowerLipDepth",
-    MouthCLW = "mouthConerLeftWidth",
-    MouthCRW = "mouthConerRightWidth",
-    MouthCLD = "mouthConerLeftDepth",
-    MouthCRD = "mouthConerRightDepth",
-    MouthCLH = "mouthConerLeftHeight",
-    MouthCRH = "mouthConerRightHeight",
-    MouthCLLD = "mouthConerLeftLipsDistance",
-    MouthCRLD = "mouthConerRightLipsDistance",
-    ArmsS = "arms",
-    ShouldersS = "shoulders",
-    ShouldersT = "shoulderThickness",
-    ShouldersM = "shoulderBlades",
-    ChestS = "chest",
-    WaistW = "waist",
-    HipsS = "hip",
-    LegsS = "thighs",
-    CalvesS = "calves",
-    Scale = "bodyScale"
+    components = {
+      Hat = "hats",
+      Mask = "masks",
+      Shirt = "shirts_full",
+      Suspender = "suspenders",
+      Vest = "vests",
+      Coat = "coats",
+      Poncho = "ponchos",
+      Cloak = "cloaks",
+      Glove = "gloves",
+      RingRh = "jewelry_rings_right",
+      RingLh = "jewelry_rings_left",
+      Bracelet = "jewelry_bracelets",
+      Gunbelt = "gunbelts",
+      Belt = "belts",
+      Buckle = "belt_buckles",
+      Holster = "holsters_left",
+      Pant = "pants",
+      Chap = "chaps",
+      Spurs = "boot_accessories",
+      CoatClosed = "coats_closed",
+      --Ties = "neckties",
+      NeckTies = "neckties",
+      Skirt = "skirts",
+      Boots = "boots",
+      EyeWear = "eyewear",
+      NeckWear = "neckwear",
+      Spats = "spats",
+      GunbeltAccs = "gunbelt_accs",
+      Gauntlets = "gauntlets",
+      Loadouts = "loadouts",
+      Accessories = "accessories",
+      Satchels = "satchels",
+      dresses = "dresses",
+      Dress = "dresses",
+      armor = "armor",
+      Badge = "badges",
+      bow = "hair_accessories",
+      Hair = "hair",
+      Beard = "beards_complete",
+      Teeth = "teeth",
+      sex = "model",
+      HeadType = "headHash",  --To be confirm
+      BodyType = "bodyBuild", --To be confirm
+      LegsType = "bodyLower", --To be investig
+      Eyes = "eyes",
+      Legs = "bodyLower",
+      Torso = "bodyUpper",
+      Waist = "",
+      Body = "",
+      Scale = "bodyScale"
+    },
+    expressions = {
+      --Expressions
+      HeadSize = "headWidth",
+      FaceW = "faceWidth",
+      FaceD = "eyebrowWidth",
+      FaceS = "eyebrowHeight",
+      NeckW = "neckWidth",
+      NeckD = "neckDepth",
+      EyeBrowH = "eyebrowHeight",
+      EyeBrowW = "eyebrowWidth",
+      EyeBrowD = "eyebrowDepth",
+      EyeD = "eyesDepth",
+      EyeAng = "eyesAngle",
+      EyeDis = "eyesDistance",
+      EyeH = "eyesHeight",
+      EyeLidH = "eyelidHeight",
+      EyeLidW = "eyelidWidth",
+      EyeLidL = "eyelidLeft",
+      EyeLidR = "eyelidRight",
+      EarsW = "earsWidth",
+      EarsA = "earsAngle",
+      EarsH = "earsHeight",
+      EarsD = "earlobes",
+      CheekBonesH = "cheekbonesHeight",
+      CheekBonesW = "cheekbonesWidth",
+      CheekBonesD = "cheekbonesDepth",
+      JawH = "jawHeight",
+      JawW = "jawWidth",
+      JawD = "jawDepth",
+      ChinH = "chinHeight",
+      ChinW = "chinWidth",
+      ChinD = "chinDepth",
+      NoseW = "noseWidth",
+      NoseS = "noseSize",
+      NoseH = "noseHeight",
+      NoseAng = "noseAngle",
+      NoseC = "noseCurvature",
+      NoseDis = "nostrilsDistance",
+      MouthW = "mouthWidth",
+      MouthD = "mouthDepth",
+      MouthX = "mouthX",
+      MouthY = "mouthY",
+      ULiphH = "upperLipHeight",
+      ULiphW = "upperLipWidth",
+      ULiphD = "upperLipDepth",
+      LLiphH = "lowerLipHeight",
+      LLiphW = "lowerLipWidth",
+      LLiphD = "lowerLipDepth",
+      MouthCLW = "mouthConerLeftWidth",
+      MouthCRW = "mouthConerRightWidth",
+      MouthCLD = "mouthConerLeftDepth",
+      MouthCRD = "mouthConerRightDepth",
+      MouthCLH = "mouthConerLeftHeight",
+      MouthCRH = "mouthConerRightHeight",
+      MouthCLLD = "mouthConerLeftLipsDistance",
+      MouthCRLD = "mouthConerRightLipsDistance",
+      ArmsS = "arms",
+      ShouldersS = "shoulders",
+      ShouldersT = "shoulderThickness",
+      ShouldersM = "shoulderBlades",
+      ChestS = "chest",
+      WaistW = "waist",
+      HipsS = "hip",
+      LegsS = "thighs",
+      CalvesS = "calves",
+    }
   },
   RSG = {
-    Hair = "hair",
-    Beard = "beards_complete",
-    Teeth = "teeth",
-    sex = "model",
-    HeadType = "headHash",  --To be confirm
-    BodyType = "bodyBuild", --To be confirm
-    LegsType = "bodyLower", --To be investig
-    Eyes = "eyes",
-    Legs = "bodyLower",
-    Torso = "bodyUpper",
-    Waist = "",
-    Body = "",
-    --Expressions
-    HeadSize = "headWidth",
-    FaceW = "faceWidth",
-    FaceD = "eyebrowWidth",
-    FaceS = "eyebrowHeight",
-    NeckW = "neckWidth",
-    NeckD = "neckDepth",
-    EyeBrowH = "eyebrowHeight",
-    EyeBrowW = "eyebrowWidth",
-    EyeBrowD = "eyebrowDepth",
-    EyeD = "eyesDepth",
-    EyeAng = "eyesAngle",
-    EyeDis = "eyesDistance",
-    EyeH = "eyesHeight",
-    EyeLidH = "eyelidHeight",
-    EyeLidW = "eyelidWidth",
-    EyeLidL = "eyelidLeft",
-    EyeLidR = "eyelidRight",
-    EarsW = "earsWidth",
-    EarsA = "earsAngle",
-    EarsH = "earsHeight",
-    EarsD = "earlobes",
-    CheekBonesH = "cheekbonesHeight",
-    CheekBonesW = "cheekbonesWidth",
-    CheekBonesD = "cheekbonesDepth",
-    JawH = "jawHeight",
-    JawW = "jawWidth",
-    JawD = "jawDepth",
-    ChinH = "chinHeight",
-    ChinW = "chinWidth",
-    ChinD = "chinDepth",
-    NoseW = "noseWidth",
-    NoseS = "noseSize",
-    NoseH = "noseHeight",
-    NoseAng = "noseAngle",
-    NoseC = "noseCurvature",
-    NoseDis = "nostrilsDistance",
-    MouthW = "mouthWidth",
-    MouthD = "mouthDepth",
-    MouthX = "mouthX",
-    MouthY = "mouthY",
-    ULiphH = "upperLipHeight",
-    ULiphW = "upperLipWidth",
-    ULiphD = "upperLipDepth",
-    LLiphH = "lowerLipHeight",
-    LLiphW = "lowerLipWidth",
-    LLiphD = "lowerLipDepth",
-    MouthCLW = "mouthConerLeftWidth",
-    MouthCRW = "mouthConerRightWidth",
-    MouthCLD = "mouthConerLeftDepth",
-    MouthCRD = "mouthConerRightDepth",
-    MouthCLH = "mouthConerLeftHeight",
-    MouthCRH = "mouthConerRightHeight",
-    MouthCLLD = "mouthConerLeftLipsDistance",
-    MouthCRLD = "mouthConerRightLipsDistance",
-    ArmsS = "arms",
-    ShouldersS = "shoulders",
-    ShouldersT = "shoulderThickness",
-    ShouldersM = "shoulderBlades",
-    ChestS = "chest",
-    WaistW = "waist",
-    HipsS = "hip",
-    LegsS = "thighs",
-    CalvesS = "calves",
-    Scale = "bodyScale"
+    components = {
+      Hair = "hair",
+      Beard = "beards_complete",
+      Teeth = "teeth",
+      sex = "model",
+      HeadType = "headHash",  --To be confirm
+      BodyType = "bodyBuild", --To be confirm
+      LegsType = "bodyLower", --To be investig
+      Eyes = "eyes",
+      Legs = "bodyLower",
+      Torso = "bodyUpper",
+      Waist = "",
+      Body = "",
+      Scale = "bodyScale"
+    },
+    expressions = {
+      --Expressions
+      HeadSize = "headWidth",
+      FaceW = "faceWidth",
+      FaceD = "eyebrowWidth",
+      FaceS = "eyebrowHeight",
+      NeckW = "neckWidth",
+      NeckD = "neckDepth",
+      EyeBrowH = "eyebrowHeight",
+      EyeBrowW = "eyebrowWidth",
+      EyeBrowD = "eyebrowDepth",
+      EyeD = "eyesDepth",
+      EyeAng = "eyesAngle",
+      EyeDis = "eyesDistance",
+      EyeH = "eyesHeight",
+      EyeLidH = "eyelidHeight",
+      EyeLidW = "eyelidWidth",
+      EyeLidL = "eyelidLeft",
+      EyeLidR = "eyelidRight",
+      EarsW = "earsWidth",
+      EarsA = "earsAngle",
+      EarsH = "earsHeight",
+      EarsD = "earlobes",
+      CheekBonesH = "cheekbonesHeight",
+      CheekBonesW = "cheekbonesWidth",
+      CheekBonesD = "cheekbonesDepth",
+      JawH = "jawHeight",
+      JawW = "jawWidth",
+      JawD = "jawDepth",
+      ChinH = "chinHeight",
+      ChinW = "chinWidth",
+      ChinD = "chinDepth",
+      NoseW = "noseWidth",
+      NoseS = "noseSize",
+      NoseH = "noseHeight",
+      NoseAng = "noseAngle",
+      NoseC = "noseCurvature",
+      NoseDis = "nostrilsDistance",
+      MouthW = "mouthWidth",
+      MouthD = "mouthDepth",
+      MouthX = "mouthX",
+      MouthY = "mouthY",
+      ULiphH = "upperLipHeight",
+      ULiphW = "upperLipWidth",
+      ULiphD = "upperLipDepth",
+      LLiphH = "lowerLipHeight",
+      LLiphW = "lowerLipWidth",
+      LLiphD = "lowerLipDepth",
+      MouthCLW = "mouthConerLeftWidth",
+      MouthCRW = "mouthConerRightWidth",
+      MouthCLD = "mouthConerLeftDepth",
+      MouthCRD = "mouthConerRightDepth",
+      MouthCLH = "mouthConerLeftHeight",
+      MouthCRH = "mouthConerRightHeight",
+      MouthCLLD = "mouthConerLeftLipsDistance",
+      MouthCRLD = "mouthConerRightLipsDistance",
+      ArmsS = "arms",
+      ShouldersS = "shoulders",
+      ShouldersT = "shoulderThickness",
+      ShouldersM = "shoulderBlades",
+      ChestS = "chest",
+      WaistW = "waist",
+      HipsS = "hip",
+      LegsS = "thighs",
+      CalvesS = "calves",
+    },
   },
   RedEM = {
     beard = "beards_complete"
@@ -1135,75 +1139,97 @@ local function isOverlayKey(key)
   return false
 end
 
+local function findKeyInList(list, key)
+  if list[key] then return true, list[key] end
+  local found, cat = table.find(list, function(cat, framCat) return framCat:lower() == key:lower() end)
+  return found, cat
+end
+
 --- A function to standardize the category name
 ---@param category string the category name
 local function standardizeSkinKey(category)
   local framName = jo.framework:get()
   if not SkinCategoryBridge[framName] then return category end
-  if SkinCategoryBridge[framName][category] then return SkinCategoryBridge[framName][category] end
-  local found, cat = table.find(SkinCategoryBridge[framName], function(cat, framCat) return framCat:lower() == category:lower() end)
-  return found and SkinCategoryBridge[framName][cat] or category
+
+  local found, key = findKeyInList(SkinCategoryBridge[framName].components)
+  if found then
+    return key, "components"
+  end
+  found, key = findKeyInList(SkinCategoryBridge[framName].expressions)
+  if found then
+    return key, "expressions"
+  end
+  return category, "components"
 end
 
 --- A function to standardize a object of categories
 local function standardizeSkinKeys(object)
-  local objectStandardized = { overlays = {} }
+  local objectStandardized = { overlays = {}, expressions = {} }
 
   local layerNamesNotNeeded = {}
   local overlays = {}
 
   for catFram, data in pairs(object or {}) do
-    local layerName = isOverlayKey(catFram)
-    if layerName then
-      overlays[layerName] = overlays[layerName] or {}
-      if catFram:find("_visibility") then
-        if data == 0 then
-          layerNamesNotNeeded[layerName] = true
+    if catFram ~= "expressions" and catFram ~= "overlays" then
+      local layerName = isOverlayKey(catFram)
+      if layerName then
+        overlays[layerName] = overlays[layerName] or {}
+        if catFram:find("_visibility") then
+          if data == 0 then
+            layerNamesNotNeeded[layerName] = true
+          end
+        elseif catFram:find("_tx_id") then
+          if layerName == "eyebrow" then
+            local id = data - 1
+            local sexe = "m"
+            if data > 15 then
+              data = data - 15
+              sexe = "f"
+            end
+            overlays[layerName].id = id
+            overlays[layerName].sexe = sexe
+          elseif layerName == "hair" then
+            if data == 1 then
+              overlays[layerName].albedo = "mp_u_faov_m_hair_000"
+            elseif data == 2 then
+              overlays[layerName].albedo = "mp_u_faov_m_hair_002"
+            elseif data == 3 then
+              overlays[layerName].albedo = "mp_u_faov_m_hair_009"
+            elseif data == 4 then
+              overlays[layerName].albedo = "mp_u_faov_m_hair_shared_000"
+            end
+          else
+            overlays[layerName].id = data - 1
+          end
+        elseif catFram:find("_opacity") then
+          overlays[layerName].opacity = data
+        elseif catFram:find("_palette_id") then
+          overlays[layerName].sheetGrid = data
+        elseif catFram:find("_color_primary") then
+          overlays[layerName].tint0 = data
+        elseif catFram:find("_color") then
+          overlays[layerName].tint0 = data
+        elseif catFram:find("_color_secondary") then
+          overlays[layerName].tint1 = data
+        elseif catFram:find("_color_tertiary") then
+          overlays[layerName].tint2 = data
         end
-      elseif catFram:find("_tx_id") then
-        if layerName == "eyebrow" then
-          local id = data - 1
-          local sexe = "m"
-          if data > 15 then
-            data = data - 15
-            sexe = "f"
-          end
-          overlays[layerName].id = id
-          overlays[layerName].sexe = sexe
-        elseif layerName == "hair" then
-          if data == 1 then
-            overlays[layerName].albedo = "mp_u_faov_m_hair_000"
-          elseif data == 2 then
-            overlays[layerName].albedo = "mp_u_faov_m_hair_002"
-          elseif data == 3 then
-            overlays[layerName].albedo = "mp_u_faov_m_hair_009"
-          elseif data == 4 then
-            overlays[layerName].albedo = "mp_u_faov_m_hair_shared_000"
-          end
+      else
+        local key, keyType = standardizeSkinKey(catFram)
+        if keyType == "expressions" then
+          objectStandardized.expressions[key] = data
         else
-          overlays[layerName].id = data - 1
+          objectStandardized[key] = data
         end
-      elseif catFram:find("_opacity") then
-        overlays[layerName].opacity = data
-      elseif catFram:find("_palette_id") then
-        overlays[layerName].sheetGrid = data
-      elseif catFram:find("_color_primary") then
-        overlays[layerName].tint0 = data
-      elseif catFram:find("_color") then
-        overlays[layerName].tint0 = data
-      elseif catFram:find("_color_secondary") then
-        overlays[layerName].tint1 = data
-      elseif catFram:find("_color_tertiary") then
-        overlays[layerName].tint2 = data
       end
-    else
-      objectStandardized[standardizeSkinKey(catFram)] = data
     end
   end
+  --Clear overlays table
   for layerName, _ in pairs(layerNamesNotNeeded) do
     overlays[layerName] = nil
   end
-  objectStandardized.overlays = table.merge(objectStandardized.overlays, overlays)
+  objectStandardized.overlays = table.merge(overlays, object.overlays)
+  objectStandardized.expressions = table.merge(objectStandardized.expressions, object.expressions)
 
   if objectStandardized.hair and type(objectStandardized.hair) ~= "table" then
     objectStandardized.hair = {
@@ -1215,6 +1241,8 @@ local function standardizeSkinKeys(object)
       hash = objectStandardized.beards_complete
     }
   end
+
+  TriggerEvent("print", objectStandardized)
 
   return objectStandardized
 end
