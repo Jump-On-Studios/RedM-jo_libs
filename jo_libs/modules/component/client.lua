@@ -177,6 +177,75 @@ jo.component.palettes = {
   "metaped_tint_skirt_worn",
 }
 
+jo.component.expressions = {
+  cheekbonesDepth = 13709,
+  cheekbonesHeight = 27147,
+  cheekbonesWidth = 43983,
+  chinDepth = 58147,
+  chinHeight = 15375,
+  chinWidth = 50098,
+  earlobes = 60720,
+  earsAngle = 46798,
+  earsDepth = 49261,
+  earsHeight = 10308,
+  earsWidth = 49231,
+  eyebrowDepth = 19153,
+  eyebrowHeight = 13059,
+  eyebrowWidth = 12281,
+  eyelidHeight = 35627,
+  eyelidLeft = 52902,
+  eyelidRight = 22421,
+  eyelidWidth = 7019,
+  eyesAngle = 53862,
+  eyesDepth = 60996,
+  eyesDistance = 42318,
+  eyesHeight = 56827,
+  faceWidth = 41396,
+  headWidth = 34006,
+  jawDepth = 7670,
+  jawHeight = 36106,
+  jawWidth = 60334,
+  jawY = 55182,
+  mouthDepth = 43625,
+  mouthWidth = 61541,
+  mouthX = 31427,
+  mouthY = 16653,
+  noseAngle = 13489,
+  noseCurvature = 61782,
+  noseHeight = 1013,
+  noseSize = 13425,
+  noseWidth = 28287,
+  nostrilsDistance = 22046,
+
+  upperLipHeight = 6656,
+  upperLipWidth = 37313,
+  upperLipDepth = 50037,
+  lowerLipHeight = 47949,
+  lowerLipWidth = 45232,
+  lowerLipDepth = 23830,
+  mouthConerLeftWidth = 57350,
+  mouthConerLeftDepth = 40950,
+  mouthConerLeftHeight = 46661,
+  mouthConerLeftLipsDistance = 22344,
+  mouthConerRightWidth = 60292,
+  mouthConerRightDepth = 49299,
+  mouthConerRightHeight = 55718,
+  mouthConerRightLipsDistance = 9423,
+
+  arms = 46032,
+  chest = 27779,
+  hip = 49787,
+  neckDepth = 60890,
+  neckWidth = 36277,
+  shoulderBlades = 18046,
+  shoulders = 50039,
+  shoulderThickness = 7010,
+  waist = 50460,
+
+  calves = 42067,
+  thighs = 64834,
+}
+
 -------------
 -- local functions
 -------------
@@ -484,6 +553,12 @@ end
 ---@param category string the component category
 function jo.component.remove(ped, category)
   return jo.component.apply(ped, category, 0)
+end
+
+function jo.component.removeAllClothes(ped)
+  for _, category in pairs(jo.component.pedClothes) do
+    jo.component.remove(ped, category)
+  end
 end
 
 -------------
