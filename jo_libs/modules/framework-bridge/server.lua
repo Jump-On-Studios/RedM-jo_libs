@@ -15,7 +15,7 @@ local mainResourceFramework = {
 -------------
 -- VARIABLES
 -------------
-local SkinCategoryBridge = {
+local skinCategoryBridge = {
   VORP = {
     components = {
       Hat = "hats",
@@ -65,8 +65,8 @@ local SkinCategoryBridge = {
       Eyes = "eyes",
       Legs = "bodyLower",
       Torso = "bodyUpper",
-      Waist = "",
-      Body = "",
+      Waist = false,
+      Body = false,
       Scale = "bodyScale"
     },
     expressions = {
@@ -148,8 +148,8 @@ local SkinCategoryBridge = {
       Eyes = "eyes",
       Legs = "bodyLower",
       Torso = "bodyUpper",
-      Waist = "",
-      Body = "",
+      Waist = false,
+      Body = false,
       Scale = "bodyScale"
     },
     expressions = {
@@ -220,54 +220,15 @@ local SkinCategoryBridge = {
     },
   },
   RedEM = {
-    beard = "beards_complete"
+    components = {
+      beard = "beards_complete"
+    }
   },
   RedEM2023 = {
-    beard = "beards_complete"
+    {
+      beard = "beards_complete"
+    }
   }
-}
-
-local listClothesCategory = {
-  "ponchos",
-  "cloaks",
-  "hair_accessories",
-  "dresses",
-  "gloves",
-  "coats",
-  "coats_closed",
-  "vests",
-  "suspenders",
-  "neckties",
-  "neckwear",
-  "shirts_full",
-  "spats",
-  "gunbelts",
-  "gauntlets",
-  "holsters_left",
-  "loadouts",
-  "belt_buckles",
-  "belts",
-  "skirts",
-  "pants",
-  "boots",
-  "boot_accessories",
-  "accessories",
-  "satchels",
-  "jewelry_rings_right",
-  "jewelry_rings_left",
-  "jewelry_bracelets",
-  "aprons",
-  "chaps",
-  "badges",
-  "gunbelt_accs",
-  "eyewear",
-  "armor",
-  "masks",
-  "masks_large",
-  "hats",
-  "hair",
-  "beards_complete",
-  "teeth"
 }
 
 -------------
@@ -1149,13 +1110,13 @@ end
 ---@param category string the category name
 local function standardizeSkinKey(category)
   local framName = jo.framework:get()
-  if not SkinCategoryBridge[framName] then return category end
+  if not skinCategoryBridge[framName] then return category end
 
-  local found, key = findKeyInList(SkinCategoryBridge[framName].components)
+  local found, key = findKeyInList(skinCategoryBridge[framName].components, category)
   if found then
     return key, "components"
   end
-  found, key = findKeyInList(SkinCategoryBridge[framName].expressions)
+  found, key = findKeyInList(skinCategoryBridge[framName].expressions, category)
   if found then
     return key, "expressions"
   end
@@ -1216,10 +1177,12 @@ local function standardizeSkinKeys(object)
         end
       else
         local key, keyType = standardizeSkinKey(catFram)
-        if keyType == "expressions" then
-          objectStandardized.expressions[key] = data
-        else
-          objectStandardized[key] = data
+        if key then
+          if keyType == "expressions" then
+            objectStandardized.expressions[key] = data
+          else
+            objectStandardized[key] = data
+          end
         end
       end
     end
@@ -1242,7 +1205,7 @@ local function standardizeSkinKeys(object)
     }
   end
 
-  TriggerEvent("print", objectStandardized)
+  TriggerEvent("print", "========>", objectStandardized)
 
   return objectStandardized
 end
@@ -1251,9 +1214,11 @@ FrameworkClass.standardizeSkinKeys = standardizeSkinKeys
 --- A function to revert the category name
 local function revertSkinKey(category)
   local framName = jo.framework:get()
-  for catFram, catStandard in pairs(SkinCategoryBridge[framName] or {}) do
-    if category == catStandard then
-      return catFram
+  for _, list in pairs(skinCategoryBridge[framName] or {}) do
+    for catFram, catStandard in pairs(list) do
+      if category == catStandard then
+        return catFram
+      end
     end
   end
   return category
@@ -1302,9 +1267,6 @@ end
 ---@param clothesList table
 local function cleanClothesTable(clothesList)
   local list = {}
-  -- for _,cat in pairs (listClothesCategory) do
-  --   list[cat] = 0
-  -- end
   for cat, hash in pairs(clothesList or {}) do
     list[cat] = formatComponentData(hash)
   end
