@@ -7,6 +7,9 @@ jo.require("nui")
 
 CreateThread(function()
   Wait(100)
+  if GetResourceMetadata(GetCurrentResourceName(), "ui_page") == "nui://jo_libs/nui/menu/index.html" then
+    return
+  end
   jo.nui.load("jo_menu", "nui://jo_libs/nui/menu/index.html")
 end)
 
