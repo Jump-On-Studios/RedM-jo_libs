@@ -5,14 +5,18 @@ jo.require("timeout")
 jo.require("dataview")
 
 -------------
--- Variables
+-- CACHE
 -------------
 jo.cache.component = {
   color = {},
   getEquiped = {}
 }
 
-jo.component.order = {
+-------------
+-- DATA
+-------------
+jo.component.data = {}
+jo.component.data.order = {
   "ponchos",
   "cloaks",
   "hair_accessories",
@@ -71,7 +75,9 @@ jo.component.order = {
   "horse_saddles",
   "horse_bridles",
 }
-jo.component.pedClothes = {
+jo.component.order = jo.component.data.order --deprecated name
+
+jo.component.data.pedClothes = {
   "ponchos",
   "cloaks",
   "hair_accessories",
@@ -110,18 +116,21 @@ jo.component.pedClothes = {
   "masks_large",
   "hats"
 }
-jo.component.categoryName = {
+jo.component.pedClothes = jo.component.data.pedClothes --deprecated name
+
+jo.component.data.categoryName = {
   [`heads`] = "heads",
   [`bodies_lower`] = "bodies_lower",
   [`bodies_upper`] = "bodies_upper",
   [`eyes`] = "eyes",
   [`neckerchiefs`] = "neckerchiefs"
 }
-for _, category in pairs(jo.component.order) do
-  jo.component.categoryName[joaat(category)] = category
+for _, category in pairs(jo.component.data.order) do
+  jo.component.data.categoryName[joaat(category)] = category
 end
+jo.component.categoryName = jo.component.data.categoryName --deprecated name
 
-jo.component.wearableStates = {
+jo.component.data.wearableStates = {
   shirts_full = {
     -- first digit for collar : 0 = closed/1 = opened
     -- second digit for sleeve : 0 = full/1 = rolled
@@ -151,8 +160,9 @@ jo.component.wearableStates = {
     [1] = "pomade"
   }
 }
+jo.component.wearableStates = jo.component.data.wearableStates --deprecated name
 
-jo.component.palettes = {
+jo.component.data.palettes = {
   "metaped_tint_animal",
   "metaped_tint_combined",
   "metaped_tint_combined_leather",
@@ -176,10 +186,82 @@ jo.component.palettes = {
   "metaped_tint_skirt_weathered",
   "metaped_tint_skirt_worn",
 }
+jo.component.palettes = jo.component.data.palettes --deprecated name
+
+jo.component.data.expressions = {
+  cheekbonesDepth = 13709,
+  cheekbonesHeight = 27147,
+  cheekbonesWidth = 43983,
+  chinDepth = 58147,
+  chinHeight = 15375,
+  chinWidth = 50098,
+  earlobes = 60720,
+  earsAngle = 46798,
+  earsDepth = 49261,
+  earsHeight = 10308,
+  earsWidth = 49231,
+  eyebrowDepth = 19153,
+  eyebrowHeight = 13059,
+  eyebrowWidth = 12281,
+  eyelidHeight = 35627,
+  eyelidLeft = 52902,
+  eyelidRight = 22421,
+  eyelidWidth = 7019,
+  eyesAngle = 53862,
+  eyesDepth = 60996,
+  eyesDistance = 42318,
+  eyesHeight = 56827,
+  faceWidth = 41396,
+  headWidth = 34006,
+  jawDepth = 7670,
+  jawHeight = 36106,
+  jawWidth = 60334,
+  jawY = 55182,
+  mouthDepth = 43625,
+  mouthWidth = 61541,
+  mouthX = 31427,
+  mouthY = 16653,
+  noseAngle = 13489,
+  noseCurvature = 61782,
+  noseHeight = 1013,
+  noseSize = 13425,
+  noseWidth = 28287,
+  nostrilsDistance = 22046,
+
+  upperLipHeight = 6656,
+  upperLipWidth = 37313,
+  upperLipDepth = 50037,
+  lowerLipHeight = 47949,
+  lowerLipWidth = 45232,
+  lowerLipDepth = 23830,
+  mouthConerLeftWidth = 57350,
+  mouthConerLeftDepth = 40950,
+  mouthConerLeftHeight = 46661,
+  mouthConerLeftLipsDistance = 22344,
+  mouthConerRightWidth = 60292,
+  mouthConerRightDepth = 49299,
+  mouthConerRightHeight = 55718,
+  mouthConerRightLipsDistance = 9423,
+
+  arms = 46032,
+  chest = 27779,
+  hip = 49787,
+  neckDepth = 60890,
+  neckWidth = 36277,
+  shoulderBlades = 18046,
+  shoulders = 50039,
+  shoulderThickness = 7010,
+  waist = 50460,
+
+  calves = 42067,
+  thighs = 64834,
+}
+jo.component.expressions = jo.component.data.expressions --deprecated name
 
 -------------
 -- local functions
 -------------
+local delays = {}
 local invokeNative = Citizen.InvokeNative
 local function SetTextureOutfitTints(ped, category, palette, tint0, tint1, tint2)
   if not palette then return end
@@ -193,24 +275,28 @@ local function UpdatePedVariation(ped) return invokeNative(0xCC8CA3E88256E58F, p
 local function IsPedReadyToRender(...) return invokeNative(0xA0BC8FAED8CFEB3C, ...) end
 local function IsThisModelAHorse(...) return invokeNative(0x772A1969F649E902, ...) == 1 end
 local function ApplyShopItemToPed(ped, hash, immediatly, isMp, p4) return invokeNative(0xD3A7B003ED343FD9, ped, GetHashFromString(hash), immediatly, isMp, p4) end
-local function RefreshPed(ped)
-  N_0xAAB86462966168CE(ped)
-  UpdatePedVariation(ped)
-  N_0x704C908E9C405136(ped)
-end
-jo.component.refreshPed = RefreshPed
-local function GetCategoryOfComponentAtIndex(ped, componentIndex)
-  local pedType = 0
-  if IsThisModelAHorse(GetEntityModel(ped)) then
-    pedType = 6
-  end
-  return invokeNative(0x9b90842304c938a7, ped, componentIndex, pedType, Citizen.ResultAsInteger())
-end
 local function GetMetaPedAssetTint(ped, index) return invokeNative(0xE7998FEC53A33BBE, ped, index, Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt()) end
 local function GetNumComponentsInPed(ped) return invokeNative(0x90403E8107B60E81, ped) end
 local function GetMetaPedType(ped) return invokeNative(0xEC9A1261BF0CE510, ped) end
 local function GetShopItemComponentCategory(...) return invokeNative(0x5FF9A878C3D115B8, ...) end
 local function IsMetaPedUsingComponent(...) return invokeNative(0xFB4891BD7578CDC1, ...) == 1 end
+local function UpdateShopItemWearableState(ped, hash, state) return invokeNative(0x66B957AAC2EAAEAB, ped, GetHashFromString(hash), GetHashFromString(state), 0, true, 1) end
+local function SetMetaPedTag(ped, drawable, albedo, normal, material, palette, tint0, tint1, tint2) return invokeNative(0xBC6DF00D7A4A6819, ped, GetHashFromString(drawable), GetHashFromString(albedo), GetHashFromString(normal), GetHashFromString(material), GetHashFromString(palette), tint0, tint1, tint2) end
+
+local function refreshPed(ped)
+  N_0xAAB86462966168CE(ped)
+  UpdatePedVariation(ped)
+  N_0x704C908E9C405136(ped)
+end
+jo.component.refreshPed = function(ped)
+  delays["refresh" .. ped]:execute()
+  refreshPed(ped)
+end
+local function GetCategoryOfComponentAtIndex(ped, componentIndex)
+  local pedType = IsThisModelAHorse(GetEntityModel(ped)) and 6 or 0
+  return invokeNative(0x9b90842304c938a7, ped, componentIndex, pedType, Citizen.ResultAsInteger())
+end
+
 local function GetShopItemComponentAtIndex(ped, index)
   local dataStruct = DataView.ArrayBuffer(10 * 8)
   local componentHash = GetShopPedComponentAtIndex(ped, index, true, dataStruct:Buffer(), dataStruct:Buffer())
@@ -219,36 +305,59 @@ local function GetShopItemComponentAtIndex(ped, index)
   end
   return componentHash
 end
-local function UpdateShopItemWearableState(ped, hash, state)
-  return invokeNative(0x66B957AAC2EAAEAB, ped, GetHashFromString(hash), GetHashFromString(state), 0, true, 1)
-end
-local function WaitRefreshPed(ped) while not IsPedReadyToRender(ped) do Wait(0) end end
-jo.component.waitPedLoaded = WaitRefreshPed
-local function SetMetaPedTag(ped, drawable, albedo, normal, material, palette, tint0, tint1, tint2)
-  return invokeNative(0xBC6DF00D7A4A6819, ped, GetHashFromString(drawable), GetHashFromString(albedo), GetHashFromString(normal), GetHashFromString(material), GetHashFromString(palette), tint0, tint1, tint2)
-end
 
----@return string categoryName
-local function getCategoryName(category)
-  if not category then return "" end
-  if type(category) == "string" then return category end
-  return jo.component.categoryName[category]
-end
+local function waitRefreshPed(ped) while not IsPedReadyToRender(ped) do Wait(0) end end
+jo.component.waitPedLoaded = waitRefreshPed
 
 local function isValidValue(value)
   return value and value ~= 0 and value ~= -1 and value ~= 1
 end
 
----@return table data formatted table for component data
+---@return any data formatted table for component data
 local function formatComponentData(_data)
   data = table.copy(_data)
   if type(data) ~= "table" then
     data = { hash = data }
   end
   if type(data.hash) == "table" then data = data.hash end --for VORP
+  if data.hash == 0 then
+    data.remove = true
+  end
   data.hash = isValidValue(data.hash) and data.hash or false
   data.drawable = isValidValue(data.drawable) and data.drawable or false
   data.palette = isValidValue(data.palette) and data.palette or false
+
+  if not data.hash and not data.drawable and not data.palette and not data.remove then
+    return false
+  end
+  return data
+end
+
+local function getBaseLayer(ped, hash)
+  local drawable, albedo, normal, material, palette, tint0, tint1, tint2 = GetShopItemBaseLayers(hash, GetMetaPedType(ped), jo.component.isMpComponent(ped, hash))
+  if drawable == 0 or drawable == 1 then drawable = nil end
+  if albedo == 0 then albedo = nil end
+  if normal == 0 then normal = nil end
+  if material == 0 then material = nil end
+  if palette == 0 then palette = nil end
+  return drawable, albedo, normal, material, palette, tint0, tint1, tint2
+end
+jo.component.getBaseLayer = getBaseLayer
+
+local function convertToMetaTag(ped, data)
+  --restrict to hats & masks
+  if not data.hash then return data end
+  if data.albedo then return data end
+  local drawable, albedo, normal, material, palette, tint0, tint1, tint2 = getBaseLayer(ped, data.hash)
+  data.drawable = data.drawable or drawable or data.hash or 0
+  data.albedo = data.albedo or albedo or 0
+  data.normal = data.normal or normal or 0
+  data.material = data.material or material or 0
+  data.palette = data.palette or palette or 0
+  data.tint0 = data.tint0 or tint0
+  data.tint1 = data.tint1 or tint1
+  data.tint2 = data.tint2 or tint2
+  data.hash = nil
   return data
 end
 
@@ -258,7 +367,7 @@ end
 
 ---@param ped integer the entity ID
 ---@param category integer the category hash
-local function ResetCachedColor(ped, category)
+local function resetCachedColor(ped, category)
   if not jo.cache.component.color[ped] then return end
   jo.cache.component.color[ped][category] = nil
   if category == `neckwear` then
@@ -277,7 +386,7 @@ local function addCachedComponent(ped, index, category, hash, drawable, albedo, 
   category = GetHashFromString(category)
   if not jo.cache.component.color[ped] then jo.cache.component.color[ped] = {} end
   jo.cache.component.color[ped][category] = {
-    category = getCategoryName(category),
+    category = jo.component.getCategoryNameFromHash(category),
     palette = palette,
     tint0 = tint0,
     tint1 = tint1,
@@ -314,8 +423,8 @@ local function putInCacheCurrentComponent(ped)
   return jo.cache.component.color[ped]
 end
 
-function ResetCachedPed(ped)
-  jo.timeout.delay("jo_libs:resetCachedPed", 25, function(ped)
+local function resetCachedPed(ped)
+  jo.timeout.delay("jo_libs:resetCachedPed" .. ped, 25, function(ped)
     jo.cache.component.color[ped] = nil
     jo.cache.component.getEquiped[ped] = nil
   end, ped)
@@ -326,7 +435,7 @@ end
 -------------
 local function reapplyComponentStats(ped)
   local hash = 0
-  for category, _ in pairs(jo.component.wearableStates) do
+  for category, _ in pairs(jo.component.data.wearableStates) do
     local isEquiped, index = jo.component.isCategoryEquiped(ped, category)
     local state = Entity(ped).state["wearableState:" .. category]
     if isEquiped and state and state ~= "base" then
@@ -334,7 +443,7 @@ local function reapplyComponentStats(ped)
       UpdateShopItemWearableState(ped, hash, state)
     end
   end
-  RefreshPed(ped)
+  refreshPed(ped)
 end
 
 local function reapplyComponentsColor(ped)
@@ -343,15 +452,15 @@ local function reapplyComponentsColor(ped)
   end
 end
 
-local function ReapplyCached(ped)
+local function reapplyCached(ped)
   if not jo.cache.component.color[ped] then return end
-  jo.timeout.delay("jo_libs:component:reapplyCachedColor", function() WaitRefreshPed(ped) end, function()
-    RefreshPed(ped)
-    WaitRefreshPed(ped)
+  delays["refresh" .. ped] = jo.timeout.delay("jo_libs:component:reapplyCachedColor" .. ped, function() waitRefreshPed(ped) end, function()
+    refreshPed(ped)
+    waitRefreshPed(ped)
     reapplyComponentStats(ped)
     reapplyComponentsColor(ped)
-    ResetCachedPed(ped)
-    RefreshPed(ped)
+    resetCachedPed(ped)
+    refreshPed(ped)
   end)
 end
 
@@ -383,33 +492,9 @@ function jo.component.isMpComponent(ped, hash)
   return true
 end
 
-local function getBaseLayer(ped, hash)
-  local drawable, albedo, normal, material, palette, tint0, tint1, tint2 = GetShopItemBaseLayers(hash, GetMetaPedType(ped), jo.component.isMpComponent(ped, hash))
-  if drawable == 0 or drawable == 1 then drawable = nil end
-  if albedo == 0 then albedo = nil end
-  if normal == 0 then normal = nil end
-  if material == 0 then material = nil end
-  if palette == 0 then palette = nil end
-  return drawable, albedo, normal, material, palette, tint0, tint1, tint2
-end
-jo.component.getBaseLayer = getBaseLayer
-
-local function convertToMetaTag(ped, data)
-  --restrict to hats & masks
-  if not data.hash then return data end
-  if data.albedo then return data end
-  local drawable, albedo, normal, material, palette, tint0, tint1, tint2 = getBaseLayer(ped, data.hash)
-  data.drawable = data.drawable or drawable or data.hash or 0
-  data.albedo = data.albedo or albedo or 0
-  data.normal = data.normal or normal or 0
-  data.material = data.material or material or 0
-  data.palette = data.palette or palette or 0
-  data.tint0 = data.tint0 or tint0
-  data.tint1 = data.tint1 or tint1
-  data.tint2 = data.tint2 or tint2
-  data.hash = nil
-  return data
-end
+-------------
+-- Component management
+-------------
 
 ---@param ped integer the entity
 ---@param category string the component category
@@ -420,13 +505,20 @@ function jo.component.apply(ped, category, data)
   local categoryHash = GetHashFromString(category)
   local isMp = true
 
-  if data.hash then
+  if not data then
+    return dprint("Wrong component data structure")
+  end
+
+  if data.hash and not data.remove then
     categoryHash, isMp = jo.component.getComponentCategory(ped, data.hash)
+    if not categoryHash then
+      return dprint("Wrong component hash")
+    end
   end
 
   putInCacheCurrentComponent(ped)
 
-  ResetCachedColor(ped, categoryHash)
+  resetCachedColor(ped, categoryHash)
 
   if data.hash or data.albedo then
     if data.hash and category ~= "horse_bridles" then
@@ -454,7 +546,7 @@ function jo.component.apply(ped, category, data)
       data = convertToMetaTag(ped, data)
     end
 
-    if data.hash then
+    if data.hash and data.hash ~= 0 then
       ApplyShopItemToPed(ped, data.hash, false, isMp, false)
     end
 
@@ -477,13 +569,19 @@ function jo.component.apply(ped, category, data)
   else
     RemoveTagFromMetaPed(ped, categoryHash, 0)
   end
-  ReapplyCached(ped)
+  reapplyCached(ped)
 end
 
 ---@param ped integer the entity
 ---@param category string the component category
 function jo.component.remove(ped, category)
   return jo.component.apply(ped, category, 0)
+end
+
+function jo.component.removeAllClothes(ped)
+  for _, category in pairs(jo.component.data.pedClothes) do
+    jo.component.remove(ped, category)
+  end
 end
 
 -------------
@@ -505,7 +603,7 @@ function jo.component.setWearableState(ped, category, hash, state)
   if category == "neckwear" and GetHashFromString(state) == `base` then
     jo.component.apply(ped, "beards_complete", jo.cache.component.color[ped][`beards_complete`])
   end
-  ReapplyCached(ped)
+  reapplyCached(ped)
 end
 
 function jo.component.getWearableState(ped, category)
@@ -517,9 +615,8 @@ end
 ---@param ped integer the entity
 ---@return boolean
 function jo.component.neckwearIsUp(ped)
-  return Entity(ped).state["wearableState:neckwear"] == jo.component.wearableStates.neckwear[1]
+  return Entity(ped).state["wearableState:neckwear"] == jo.component.data.wearableStates.neckwear[1]
 end
-
 jo.component.isNeckweaUp = jo.component.neckwearIsUp
 
 ---@param ped integer the entity
@@ -527,7 +624,6 @@ jo.component.isNeckweaUp = jo.component.neckwearIsUp
 function jo.component.sleeveIsRolled(ped)
   return jo.component.getWearableState(ped, "shirts_full"):find("rolled") ~= nil
 end
-
 jo.component.isSleeveRolled = jo.component.sleeveIsRolled
 
 ---@param ped integer the entity
@@ -535,83 +631,75 @@ jo.component.isSleeveRolled = jo.component.sleeveIsRolled
 function jo.component.collarIsOpened(ped)
   return jo.component.getWearableState(ped, "shirts_full"):find("open") and true or false
 end
-
 jo.component.isCollarOpened = jo.component.collarIsOpened
 
 ---@param ped integer the entity
 ---@param hash any the hash of the component
 function jo.component.sleeveUnroll(ped, hash)
   if jo.component.isCollarOpened(ped) then
-    jo.component.setWearableState(ped, "shirts_full", hash, jo.component.wearableStates.shirts_full[10])
+    jo.component.setWearableState(ped, "shirts_full", hash, jo.component.data.wearableStates.shirts_full[10])
   else
-    jo.component.setWearableState(ped, "shirts_full", hash, jo.component.wearableStates.shirts_full[00])
+    jo.component.setWearableState(ped, "shirts_full", hash, jo.component.data.wearableStates.shirts_full[00])
   end
 end
-
 jo.component.unrollSleeve = jo.component.sleeveUnroll
 
 ---@param ped integer the entity
 ---@param hash any the hash of the component
 function jo.component.sleeveRoll(ped, hash)
   if jo.component.isCollarOpened(ped) then
-    jo.component.setWearableState(ped, "shirts_full", hash, jo.component.wearableStates.shirts_full[11])
+    jo.component.setWearableState(ped, "shirts_full", hash, jo.component.data.wearableStates.shirts_full[11])
   else
-    jo.component.setWearableState(ped, "shirts_full", hash, jo.component.wearableStates.shirts_full[01])
+    jo.component.setWearableState(ped, "shirts_full", hash, jo.component.data.wearableStates.shirts_full[01])
   end
 end
-
 jo.component.rollSleeve = jo.component.sleeveRoll
 
 ---@param ped integer the entity
 ---@param hash any the hash of the component
 function jo.component.collarOpen(ped, hash)
   if jo.component.isSleeveRolled(ped) then
-    jo.component.setWearableState(ped, "shirts_full", hash, jo.component.wearableStates.shirts_full[11])
+    jo.component.setWearableState(ped, "shirts_full", hash, jo.component.data.wearableStates.shirts_full[11])
   else
-    jo.component.setWearableState(ped, "shirts_full", hash, jo.component.wearableStates.shirts_full[10])
+    jo.component.setWearableState(ped, "shirts_full", hash, jo.component.data.wearableStates.shirts_full[10])
   end
 end
-
 jo.component.openCollar = jo.component.collarOpen
 
 ---@param ped integer the entity
 ---@param hash any the hash of the component
 function jo.component.collarClose(ped, hash)
   if jo.component.isSleeveRolled(ped) then
-    jo.component.setWearableState(ped, "shirts_full", hash, jo.component.wearableStates.shirts_full[01])
+    jo.component.setWearableState(ped, "shirts_full", hash, jo.component.data.wearableStates.shirts_full[01])
   else
-    jo.component.setWearableState(ped, "shirts_full", hash, jo.component.wearableStates.shirts_full[00])
+    jo.component.setWearableState(ped, "shirts_full", hash, jo.component.data.wearableStates.shirts_full[00])
   end
 end
-
 jo.component.closeCollar = jo.component.collarClose
 
 ---@param ped integer the entity
 ---@return boolean
 function jo.component.bootsAreUnderPant(ped)
-  return Entity(ped).state["wearableState:boots"] == jo.component.wearableStates.boots[1]
+  return Entity(ped).state["wearableState:boots"] == jo.component.data.wearableStates.boots[1]
 end
-
 jo.component.isBootsUnderPant = jo.component.bootsAreUnderPant
 
 ---@param ped integer the entity
 ---@return boolean
 function jo.component.vestIsUnderPant(ped)
-  return Entity(ped).state["wearableState:vests"] == jo.component.wearableStates.vests[1]
+  return Entity(ped).state["wearableState:vests"] == jo.component.data.wearableStates.vests[1]
 end
-
 jo.component.isVestUnderPant = jo.component.vestIsUnderPant
 
 ---@param ped integer the entity
 ---@return boolean
 function jo.component.loadoutIsOnRight(ped)
-  return Entity(ped).state["wearableState:loadouts"] == jo.component.wearableStates.loadouts[1]
+  return Entity(ped).state["wearableState:loadouts"] == jo.component.data.wearableStates.loadouts[1]
 end
-
 jo.component.isLoadoutOnRight = jo.component.loadoutIsOnRight
 
 function jo.component.hairIsPomade(ped)
-  return Entity(ped).state["wearableState:hair"] == jo.component.wearableStates.hair[1]
+  return Entity(ped).state["wearableState:hair"] == jo.component.data.wearableStates.hair[1]
 end
 
 -------------
@@ -631,7 +719,7 @@ function jo.component.getCategoriesEquiped(ped)
     local category = GetCategoryOfComponentAtIndex(ped, index)
     jo.cache.component.getEquiped[ped][category] = {
       index = index,
-      category = getCategoryName(category),
+      category = jo.component.getCategoryNameFromHash(category),
     }
     if category == `neckwear` then
       jo.cache.component.getEquiped[ped][`neckerchiefs`] = jo.cache.component.getEquiped[ped][category]
@@ -643,7 +731,7 @@ function jo.component.getCategoriesEquiped(ped)
   end
   --clear cached value
   local component = jo.cache.component.getEquiped[ped]
-  ResetCachedPed(ped)
+  resetCachedPed(ped)
   return component
 end
 
@@ -675,6 +763,12 @@ function jo.component.getComponentEquiped(ped, category)
   end
 end
 
+function jo.component.getComponentsEquiped(ped)
+  local component = putInCacheCurrentComponent(ped) or {}
+  resetCachedPed(ped)
+  return component
+end
+
 function jo.component.getCategoryTint(ped, category, inTable)
   if inTable == nil then inTable = false end
   local categoryHash = GetHashFromString(category)
@@ -696,20 +790,30 @@ function jo.component.getCategoryTint(ped, category, inTable)
   return GetMetaPedAssetTint(ped, index)
 end
 
-function jo.component.getComponentsEquiped(ped)
-  local component = putInCacheCurrentComponent(ped) or {}
-  ResetCachedPed(ped)
-  return component
-end
+
+
+-------------
+-- Convert Hash
+-------------
 
 function jo.component.getPaletteNameFromHash(hash)
-  for _, palette in pairs(jo.component.palettes) do
+  for _, palette in pairs(jo.component.data.palettes) do
     if joaat(palette) == hash then
       return palette
     end
   end
   return "unknown"
 end
+
+---@return string categoryName
+function jo.component.getCategoryNameFromHash(category)
+  if not category then return "" end
+  return jo.component.data.categoryName[category] or "unknown"
+end
+
+-------------
+-- Deprecated old names
+-------------
 
 -- Add shortcut with old name
 for _, shortcut in pairs({ "clothes", "comp" }) do
