@@ -313,16 +313,23 @@ local function isValidValue(value)
   return value and value ~= 0 and value ~= -1 and value ~= 1
 end
 
----@return table data formatted table for component data
+---@return any data formatted table for component data
 local function formatComponentData(_data)
   data = table.copy(_data)
   if type(data) ~= "table" then
     data = { hash = data }
   end
   if type(data.hash) == "table" then data = data.hash end --for VORP
+  if data.hash == 0 then
+    data.remove = true
+  end
   data.hash = isValidValue(data.hash) and data.hash or false
   data.drawable = isValidValue(data.drawable) and data.drawable or false
   data.palette = isValidValue(data.palette) and data.palette or false
+
+  if not data.hash and not data.drawable and not data.palette and not data.remove then
+    return false
+  end
   return data
 end
 
@@ -423,12 +430,6 @@ local function resetCachedPed(ped)
   end, ped)
 end
 
-CreateThread(function()
-  jo.component.apply(PlayerPedId(), "", 740714047)
-  Wait(5000)
-  jo.component.apply(PlayerPedId(), "hair", { model = 1, variation = 10 })
-end)
-
 -------------
 -- Cache management
 -------------
@@ -504,11 +505,11 @@ function jo.component.apply(ped, category, data)
   local categoryHash = GetHashFromString(category)
   local isMp = true
 
-  if data.hash == false and data.drawable == false and data.palette == false then
-    return dprint("Wrong component value")
+  if not data then
+    return dprint("Wrong component data structure")
   end
 
-  if data.hash then
+  if data.hash and not data.remove then
     categoryHash, isMp = jo.component.getComponentCategory(ped, data.hash)
     if not categoryHash then
       return dprint("Wrong component hash")
@@ -545,7 +546,7 @@ function jo.component.apply(ped, category, data)
       data = convertToMetaTag(ped, data)
     end
 
-    if data.hash then
+    if data.hash and data.hash ~= 0 then
       ApplyShopItemToPed(ped, data.hash, false, isMp, false)
     end
 
