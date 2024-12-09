@@ -423,6 +423,12 @@ local function resetCachedPed(ped)
   end, ped)
 end
 
+CreateThread(function()
+  jo.component.apply(PlayerPedId(), "", 740714047)
+  Wait(5000)
+  jo.component.apply(PlayerPedId(), "hair", { model = 1, variation = 10 })
+end)
+
 -------------
 -- Cache management
 -------------
@@ -497,6 +503,10 @@ function jo.component.apply(ped, category, data)
 
   local categoryHash = GetHashFromString(category)
   local isMp = true
+
+  if data.hash == false and data.drawable == false and data.palette == false then
+    return dprint("Wrong component value")
+  end
 
   if data.hash then
     categoryHash, isMp = jo.component.getComponentCategory(ped, data.hash)
