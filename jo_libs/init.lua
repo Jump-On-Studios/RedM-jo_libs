@@ -10,6 +10,7 @@ local LoadResourceFile = LoadResourceFile
 local context = IsDuplicityVersion() and "server" or "client"
 local moduleInLoading = {}
 local moduleLocal = {}
+local globalModuleLoaded = {}
 
 local alias = {
   framework = "framework-bridge",
@@ -17,8 +18,8 @@ local alias = {
   notif = "notification",
   pedTexture = "ped-texture",
   gameEvents = "game-events",
-  clothes = "component"
 }
+
 local function getAlias(module)
   if module == "meCoords" or module == "mePlayerId" or module == "meServerId" then return "me" end
   if alias[module] then return module end
@@ -81,14 +82,14 @@ local function loadModule(self, name, needLocal)
   local dir = ("modules/%s"):format(folder)
   local file = ""
 
+  moduleInLoading[folder] = true
   moduleInLoading[name] = true
   if needLocal then
+    moduleLocal[folder] = true
     moduleLocal[name] = true
   end
 
   loadGlobalModule(name)
-
-
 
   self[name] = noFunction
 
@@ -96,17 +97,19 @@ local function loadModule(self, name, needLocal)
   for _, fileName in ipairs({ "shared", "context" }) do
     --convert the name if it's context
     fileName = fileName == "context" and context or fileName
+    local link = ("%s/%s.lua"):format(dir, fileName)
     --load scoped files
     if needLocal or doesScopedFilesRequired(name) then
-      local tempFile = LoadResourceFile(jo_libs, ("%s/%s.lua"):format(dir, fileName))
+      local tempFile = LoadResourceFile("jo_libs", link)
       if tempFile then
         file = file .. tempFile
       end
     end
     --load global files inside jo_libs
-    if resourceName == "jo_libs" then
-      fileName = "g_" .. fileName
-      local tempFile = LoadResourceFile(jo_libs, ("%s/%s.lua"):format(dir, fileName))
+    local globalLink = ("%s/%s.lua"):format(dir, "g_" .. fileName)
+    if resourceName == "jo_libs" and not globalModuleLoaded[globalLink] then
+      globalModuleLoaded[globalLink] = true
+      local tempFile = LoadResourceFile("jo_libs", globalLink)
       if tempFile then
         file = file .. tempFile
       end
@@ -125,6 +128,7 @@ local function loadModule(self, name, needLocal)
   end
 
   moduleInLoading[name] = nil
+  moduleInLoading[folder] = nil
 
   return self[name]
 end
