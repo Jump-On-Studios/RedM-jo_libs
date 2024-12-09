@@ -1205,8 +1205,6 @@ local function standardizeSkinKeys(object)
     }
   end
 
-  TriggerEvent("print", "========>", objectStandardized)
-
   return objectStandardized
 end
 FrameworkClass.standardizeSkinKeys = standardizeSkinKeys

@@ -5,6 +5,7 @@ jo.require("ped-texture")
 jo.require("waiter")
 
 local function waitReady(ped)
+  Wait(100)
   local isReady = jo.waiter.exec(function() return IsPedReadyToRender(ped) end)
   if not isReady then return eprint("This ped is not loaded:", ped) end
 end
@@ -12,18 +13,18 @@ end
 local function applyDefaultBodyParts(ped)
   if IsPedMale(ped) then
     EquipMetaPedOutfitPreset(ped, 4, false)
-    jo.clothes.apply(ped, "bodies_upper", `CLOTHING_ITEM_M_BODIES_UPPER_001_V_001`)
-    jo.clothes.apply(ped, "bodies_lower", `CLOTHING_ITEM_M_BODIES_LOWER_001_V_001`)
-    jo.clothes.apply(ped, "heads", `CLOTHING_ITEM_M_HEAD_001_V_001`)
-    jo.clothes.apply(ped, "eyes", `CLOTHING_ITEM_M_EYES_001_TINT_001`)
-    jo.clothes.apply(ped, "teeth", `CLOTHING_ITEM_M_TEETH_000`)
+    jo.component.apply(ped, "bodies_upper", `CLOTHING_ITEM_M_BODIES_UPPER_001_V_001`)
+    jo.component.apply(ped, "bodies_lower", `CLOTHING_ITEM_M_BODIES_LOWER_001_V_001`)
+    jo.component.apply(ped, "heads", `CLOTHING_ITEM_M_HEAD_001_V_001`)
+    jo.component.apply(ped, "eyes", `CLOTHING_ITEM_M_EYES_001_TINT_001`)
+    jo.component.apply(ped, "teeth", `CLOTHING_ITEM_M_TEETH_000`)
   else
     EquipMetaPedOutfitPreset(ped, 7, false)
-    jo.clothes.apply(ped, "bodies_upper", `CLOTHING_ITEM_F_BODIES_UPPER_001_V_001`)
-    jo.clothes.apply(ped, "bodies_lower", `CLOTHING_ITEM_F_BODIES_LOWER_001_V_001`)
-    jo.clothes.apply(ped, "heads", `CLOTHING_ITEM_F_HEAD_001_V_001`)
-    jo.clothes.apply(ped, "eyes", `CLOTHING_ITEM_F_EYES_001_TINT_001`)
-    jo.clothes.apply(ped, "teeth", `CLOTHING_ITEM_F_TEETH_000`)
+    jo.component.apply(ped, "bodies_upper", `CLOTHING_ITEM_F_BODIES_UPPER_001_V_001`)
+    jo.component.apply(ped, "bodies_lower", `CLOTHING_ITEM_F_BODIES_LOWER_001_V_001`)
+    jo.component.apply(ped, "heads", `CLOTHING_ITEM_F_HEAD_001_V_001`)
+    jo.component.apply(ped, "eyes", `CLOTHING_ITEM_F_EYES_001_TINT_001`)
+    jo.component.apply(ped, "teeth", `CLOTHING_ITEM_F_TEETH_000`)
   end
 end
 
@@ -49,6 +50,7 @@ local function applyPedTextures(ped, overlays)
 end
 
 local function applySkin(ped, skin)
+  dprint("applySkin", ped, json.encode(skin))
   if not ped then return end
   if not skin then return end
 
@@ -69,20 +71,26 @@ local function applySkin(ped, skin)
   dprint("fix issue on body")
   applyDefaultBodyParts(ped)
 
+  jo.component.refreshPed(ped)
+  waitReady(ped)
+
   dprint("start apply default body components")
-  jo.clothes.apply(ped, "heads", skin.headHash)
-  jo.clothes.apply(ped, "body_upper", skin.bodyUpper)
-  jo.clothes.apply(ped, "body_lower", skin.bodyLower)
+  jo.component.apply(ped, "heads", skin.headHash)
+  jo.component.apply(ped, "body_upper", skin.bodyUpper)
+  jo.component.apply(ped, "body_lower", skin.bodyLower)
   dprint("apply outfit")
   if skin.bodyBuild then
     EquipMetaPedOutfit(ped, skin.bodyBuild)
   end
 
-  jo.clothes.apply(ped, "eyes", skin.eyeColor)
-  jo.clothes.apply(ped, "teeth", skin.teeth)
-  jo.clothes.apply(ped, "hair", skin.hair)
+  jo.component.refreshPed(ped)
+  waitReady(ped)
+
+  jo.component.apply(ped, "eyes", skin.eyeColor)
+  jo.component.apply(ped, "teeth", skin.teeth)
+  jo.component.apply(ped, "hair", skin.hair)
   if skin.model == "mp_male" then
-    jo.clothes.apply(ped, "beards_complete", skin.beards_complete)
+    jo.component.apply(ped, "beards_complete", skin.beards_complete)
   end
 
   dprint("apply expression")
@@ -114,6 +122,9 @@ local function applyClothes(ped, clothes)
     jo.component.apply(ped, category, data)
   end
 end
+
+Config = Config or {}
+Config.debug = true
 
 RegisterNetEvent("jo_libs:client:applySkinAndClothes", function(ped, skin, clothes)
   ped = ped or PlayerPedId()
