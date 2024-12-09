@@ -86,7 +86,7 @@ local function applySkin(ped, skin)
   jo.component.refreshPed(ped)
   waitReady(ped)
 
-  jo.component.apply(ped, "eyes", skin.eyeColor)
+  jo.component.apply(ped, "eyes", skin.eyes)
   jo.component.apply(ped, "teeth", skin.teeth)
   jo.component.apply(ped, "hair", skin.hair)
   if skin.model == "mp_male" then
@@ -122,9 +122,6 @@ local function applyClothes(ped, clothes)
     jo.component.apply(ped, category, data)
   end
 end
-
-Config = Config or {}
-Config.debug = true
 
 RegisterNetEvent("jo_libs:client:applySkinAndClothes", function(ped, skin, clothes)
   ped = ped or PlayerPedId()
