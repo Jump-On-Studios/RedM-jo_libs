@@ -222,17 +222,11 @@ local skinCategoryBridge = {
   RedEM = {
     components = {
       beard = "beards_complete"
-    },
-    expressions = {
-
     }
   },
   RedEM2023 = {
     {
       beard = "beards_complete"
-    },
-    expressions = {
-      
     }
   }
 }
@@ -1259,7 +1253,6 @@ local function revertSkinKeys(object)
   end
   return objectStandardized
 end
-FrameworkClass.revertSkinKeys = revertSkinKeys
 
 local function revertClothesKeys(object)
   local objectStandardized = {}
@@ -1268,7 +1261,6 @@ local function revertClothesKeys(object)
   end
   return objectStandardized
 end
-FrameworkClass.revertClothesKeys = revertClothesKeys
 
 ---@param clothesList table
 local function cleanClothesTable(clothesList)
@@ -1377,7 +1369,7 @@ function FrameworkClass:updateUserClothes(source, _clothes, value)
   end
   local clothes = revertClothesKeys(_clothes)
   if OWFramework.updateUserClothes then
-    return OWFramework.updateUserClothes(source, _clothes, value)
+    return OWFramework.updateUserClothes(source, category, value)
   end
   if self:is("VORP") then
     local newClothes = {}
