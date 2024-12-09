@@ -500,6 +500,9 @@ function jo.component.apply(ped, category, data)
 
   if data.hash then
     categoryHash, isMp = jo.component.getComponentCategory(ped, data.hash)
+    if not categoryHash then
+      return dprint("Wrong component hash")
+    end
   end
 
   putInCacheCurrentComponent(ped)
