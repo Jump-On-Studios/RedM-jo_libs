@@ -261,6 +261,7 @@ jo.component.expressions = jo.component.data.expressions --deprecated name
 -------------
 -- local functions
 -------------
+local delays = {}
 local invokeNative = Citizen.InvokeNative
 local function SetTextureOutfitTints(ped, category, palette, tint0, tint1, tint2)
   if not palette then return end
@@ -287,7 +288,10 @@ local function refreshPed(ped)
   UpdatePedVariation(ped)
   N_0x704C908E9C405136(ped)
 end
-jo.component.refreshPed = refreshPed
+jo.component.refreshPed = function(ped)
+  delays["refresh" .. ped]:execute()
+  refreshPed(ped)
+end
 local function GetCategoryOfComponentAtIndex(ped, componentIndex)
   local pedType = IsThisModelAHorse(GetEntityModel(ped)) and 6 or 0
   return invokeNative(0x9b90842304c938a7, ped, componentIndex, pedType, Citizen.ResultAsInteger())
@@ -443,7 +447,7 @@ end
 
 local function reapplyCached(ped)
   if not jo.cache.component.color[ped] then return end
-  jo.timeout.delay("jo_libs:component:reapplyCachedColor", function() waitRefreshPed(ped) end, function()
+  delays["refresh" .. ped] = jo.timeout.delay("jo_libs:component:reapplyCachedColor" .. ped, function() waitRefreshPed(ped) end, function()
     refreshPed(ped)
     waitRefreshPed(ped)
     reapplyComponentStats(ped)

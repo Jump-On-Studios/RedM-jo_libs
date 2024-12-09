@@ -131,6 +131,8 @@ RegisterNetEvent("jo_libs:client:applySkinAndClothes", function(ped, skin, cloth
     applySkin(ped, skin)
     applyClothes(ped, clothes)
 
+    jo.component.refreshPed(ped)
+
     jo.hook.doActions("jo_libs:applySkinAndClothes:after", ped, skin, clothes)
   end)
 end)
