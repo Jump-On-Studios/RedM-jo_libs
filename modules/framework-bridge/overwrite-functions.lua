@@ -129,7 +129,8 @@ end
 
 function OWFramework.getUserSkin(source)
     local result = {
-        overlays = {}
+        overlays = {},
+        expressions = {}
     }
 
     local awaiter = promise.new()
