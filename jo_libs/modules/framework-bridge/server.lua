@@ -138,19 +138,16 @@ local skinCategoryBridge = {
   },
   RSG = {
     components = {
-      Hair = "hair",
-      Beard = "beards_complete",
-      Teeth = "teeth",
-      sex = "model",
+      beard = "beards_complete",
       HeadType = "headHash",  --To be confirm
       BodyType = "bodyBuild", --To be confirm
       LegsType = "bodyLower", --To be investig
-      Eyes = "eyes",
+      eyes_color = "eyes",
       Legs = "bodyLower",
       Torso = "bodyUpper",
       Waist = false,
       Body = false,
-      Scale = "bodyScale"
+      height = "bodyScale"
     },
     expressions = {
       --Expressions
@@ -559,7 +556,6 @@ function FrameworkClass:init()
     self.core = self.core
     return
   elseif self:is("RSG") then
-    bprint("RSG detected")
     self.core = exports["rsg-core"]:GetCoreObject()
     self.coreVersion = GetResourceMetadata("rsg-core", "version", 0) or 1
     if ("2.0.0"):convertVersion() <= self.coreVersion:convertVersion() then
@@ -1205,6 +1201,12 @@ local function standardizeSkinKeys(object)
     }
   end
 
+  if jo.framework:is("RSG") then
+    if object.sex then
+      objectStandardized.model = object.sex == 2 and "mp_female" or "mp_male"
+    end
+  end
+
   return objectStandardized
 end
 FrameworkClass.standardizeSkinKeys = standardizeSkinKeys
@@ -1250,6 +1252,11 @@ local function revertSkinKeys(object)
   local objectStandardized = {}
   for category, data in pairs(object) do
     objectStandardized[revertSkinKey(category)] = table.copy(data)
+  end
+  if jo.framework:is("RSG") then
+    if object.model then
+      objectStandardized.sex = object.model == "mp_female" and 2 or 1
+    end
   end
   return objectStandardized
 end
