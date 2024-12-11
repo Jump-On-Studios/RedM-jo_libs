@@ -65,8 +65,8 @@ local skinCategoryBridge = {
       Eyes = "eyes",
       Legs = "bodyLower",
       Torso = "bodyUpper",
-      Waist = false,
-      Body = false,
+      -- Waist = false,
+      -- Body = false,
       Scale = "bodyScale"
     },
     expressions = {
@@ -1095,6 +1095,11 @@ local function findKeyInList(list, key)
   return found, cat
 end
 
+local function findValueInList(list, strandardValue)
+  local value, key = table.find(list, function(category) return category:lower() == strandardValue:lower() end)
+  return value, key
+end
+
 --- A function to standardize the category name
 ---@param category string the category name
 local function standardizeSkinKey(category)
@@ -1106,6 +1111,22 @@ local function standardizeSkinKey(category)
     return key, "components"
   end
   found, key = findKeyInList(skinCategoryBridge[framName].expressions, category)
+  if found then
+    return key, "expressions"
+  end
+  return category, "components"
+end
+
+--- A function to revert the category name
+local function revertSkinKey(category)
+  local framName = jo.framework:get()
+  if not skinCategoryBridge[framName] then return category end
+
+  local found, key = findValueInList(skinCategoryBridge[framName].components, category)
+  if found then
+    return key, "components"
+  end
+  found, key = findValueInList(skinCategoryBridge[framName].expressions, category)
   if found then
     return key, "expressions"
   end
@@ -1201,24 +1222,16 @@ local function standardizeSkinKeys(object)
     if object.height then
       objectStandardized.bodyScale = object.height / 100
     end
+    for _, expression in pairs(objectStandardized.expressions) do
+      if expression > 1 or expression < -1 then
+        expression = expression / 100
+      end
+    end
   end
 
   return objectStandardized
 end
 FrameworkClass.standardizeSkinKeys = standardizeSkinKeys
-
---- A function to revert the category name
-local function revertSkinKey(category)
-  local framName = jo.framework:get()
-  for _, list in pairs(skinCategoryBridge[framName] or {}) do
-    for catFram, catStandard in pairs(list) do
-      if category == catStandard then
-        return catFram
-      end
-    end
-  end
-  return category
-end
 
 ---@param data any the clothes data
 ---@return table
@@ -1245,17 +1258,35 @@ end
 
 --- A function to revert a object of categories
 local function revertSkinKeys(object)
+  local framName = jo.framework:get()
   local objectStandardized = {}
   for category, data in pairs(object) do
-    objectStandardized[revertSkinKey(category)] = table.copy(data)
+    if category == "expressions" then
+      for category2, data2 in pairs(data) do
+        local strandardCat, framCat = findValueInList(skinCategoryBridge[framName].expressions, category2)
+        if jo.framework:is("RSG") then
+          data2 = data2 * 100
+        end
+        if strandardCat then
+          objectStandardized[framCat] = data2
+        else
+          objectStandardized[category2] = data2
+        end
+      end
+    else
+      local key = revertSkinKey(category)
+      objectStandardized[key] = table.copy(data)
+    end
   end
   if jo.framework:is("RSG") then
     if object.model then
       objectStandardized.sex = object.model == "mp_female" and 2 or 1
+      objectStandardized.model = nil
     end
 
     if object.bodyScale then
       objectStandardized.height = object.bodyScale * 100
+      objectStandardized.bodyScale = nil
     end
   end
   return objectStandardized
