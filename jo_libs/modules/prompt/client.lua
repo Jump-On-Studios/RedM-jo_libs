@@ -1,5 +1,6 @@
 local promptGroups = {}
 local lastKey = 0
+local promptHidden = {}
 
 jo.prompt = {}
 
@@ -43,7 +44,19 @@ end
 ---@param value boolean
 function jo.prompt.setVisible(group, key, value)
   if not jo.prompt.isExist(group, key) then return end
+  if not value then
+    promptHidden[group .. key] = true
+  else
+    promptHidden[group .. key] = nil
+  end
   UiPromptSetVisible(promptGroups[group].prompts[key], value)
+end
+
+function jo.prompt.isVisible(group, key)
+  if promptHidden[group .. key] then
+    return false
+  end
+  return true
 end
 
 ---@param group string Name of the group
@@ -68,6 +81,7 @@ function jo.prompt.isCompleted(group, key, fireMultipleTimes)
     end
   end
   if not jo.prompt.isEnabled(group, key) then return false end
+  if not jo.prompt.isVisible(group, key) then return false end
   if UiPromptHasHoldMode(promptGroups[group].prompts[key]) then
     if PromptHasHoldModeCompleted(promptGroups[group].prompts[key]) then
       lastKey = promptGroups[group].prompts[key]
@@ -166,6 +180,7 @@ function jo.prompt.create(group, str, key, holdTime, page)
     PromptSetGroup(promptGroups[group].prompts[key], promptGroups[group].group, page)
   end
   PromptRegisterEnd(promptGroups[group].prompts[key])
+  jo.prompt.setVisible(group, key, true)
   return promptGroups[group].prompts[key]
 end
 
