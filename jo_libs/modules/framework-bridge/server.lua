@@ -140,7 +140,6 @@ local skinCategoryBridge = {
     components = {
       beard = "beards_complete",
       eyes_color = "eyes",
-      height = "bodyScale",
       skin_tone = "skinTone"
     },
     expressions = {
@@ -1199,6 +1198,9 @@ local function standardizeSkinKeys(object)
     if object.sex then
       objectStandardized.model = object.sex == 2 and "mp_female" or "mp_male"
     end
+    if object.height then
+      objectStandardized.bodyScale = object.height / 100
+    end
   end
 
   return objectStandardized
@@ -1250,6 +1252,10 @@ local function revertSkinKeys(object)
   if jo.framework:is("RSG") then
     if object.model then
       objectStandardized.sex = object.model == "mp_female" and 2 or 1
+    end
+
+    if object.bodyScale then
+      objectStandardized.height = object.bodyScale * 100
     end
   end
   return objectStandardized
