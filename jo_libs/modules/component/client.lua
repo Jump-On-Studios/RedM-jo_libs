@@ -290,7 +290,9 @@ local function refreshPed(ped)
 end
 jo.component.refreshPed = function(ped)
   ped = ped or PlayerPedId()
-  delays["refresh" .. ped]:execute()
+  if delays["refresh" .. ped] then
+    delays["refresh" .. ped]:execute()
+  end
   refreshPed(ped)
 end
 local function GetCategoryOfComponentAtIndex(ped, componentIndex)
