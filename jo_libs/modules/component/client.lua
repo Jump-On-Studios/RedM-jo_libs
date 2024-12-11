@@ -289,6 +289,7 @@ local function refreshPed(ped)
   N_0x704C908E9C405136(ped)
 end
 jo.component.refreshPed = function(ped)
+  ped = ped or PlayerPedId()
   delays["refresh" .. ped]:execute()
   refreshPed(ped)
 end

@@ -58,14 +58,15 @@ local function applySkin(ped, skin)
     local modelHash = GetHashFromString(skin.model)
     if GetEntityModel(ped) ~= modelHash then
       if (ped ~= PlayerPedId()) then
-        return eprint("You can't swap the model of existing ped")
+        eprint("You can't swap the model of existing ped. Current model:", GetEntityModel(ped), "Request model:", skin.model, modelHash)
+      else
+        jo.utils.loadGameData(modelHash, true)
+        dprint("model loaded", skin.model)
+        SetPlayerModel(PlayerId(), modelHash, true)
+        jo.forceUpdateMe()
+        ped = PlayerPedId()
+        SetModelAsNoLongerNeeded(modelHash)
       end
-      jo.utils.loadGameData(modelHash, true)
-      dprint("model loaded", skin.model)
-      SetPlayerModel(PlayerId(), modelHash, true)
-      jo.forceUpdateMe()
-      ped = PlayerPedId()
-      SetModelAsNoLongerNeeded(modelHash)
     end
   end
   dprint("fix issue on body")
