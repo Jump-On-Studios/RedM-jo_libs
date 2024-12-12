@@ -139,7 +139,7 @@ local skinCategoryBridge = {
   RSG = {
     components = {
       beard = "beards_complete",
-      eyes_color = "eyesColor",
+      eyes_color = "eyesIndex",
       teeth = "teethIndex"
     },
     expressions = {

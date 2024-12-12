@@ -658,10 +658,10 @@ function jo.component.applySkin(ped, skin)
   local headHash = skin.headHash or jo.component.getHeadFromSkinTone(ped, skin.headIndex, skin.skinTone)
   jo.component.apply(ped, "heads", headHash)
 
-  local bodies_upper = skin.bodyUpper or jo.component.getBodiesUpperFromSkinTone(ped, skin.bodiesIndex, skin.skinTone)
+  local bodies_upper = skin.bodyUpperHash or jo.component.getBodiesUpperFromSkinTone(ped, skin.bodiesIndex, skin.skinTone)
   jo.component.apply(ped, "body_upper", bodies_upper)
 
-  local bodies_lower = skin.bodyLower or jo.component.getBodiesLowerFromSkinTone(ped, skin.bodiesIndex, skin.skinTone)
+  local bodies_lower = skin.bodyLowerHash or jo.component.getBodiesLowerFromSkinTone(ped, skin.bodiesIndex, skin.skinTone)
   jo.component.apply(ped, "body_lower", bodies_lower)
 
   dprint("apply outfit")
@@ -672,10 +672,10 @@ function jo.component.applySkin(ped, skin)
   jo.component.refreshPed(ped)
   waitReadyPed(ped)
 
-  local eyes = skin.eyes or jo.component.getEyesFromColor(ped, skin.eyesColor)
+  local eyes = skin.eyesHash or jo.component.getEyesFromIndex(ped, skin.eyesIndex)
   jo.component.apply(ped, "eyes", eyes)
 
-  local teeth = skin.teeth or jo.component.getTeethFromIndex(ped, skin.teethIndex)
+  local teeth = skin.teethHash or jo.component.getTeethFromIndex(ped, skin.teethIndex)
   jo.component.apply(ped, "teeth", teeth)
 
   jo.component.apply(ped, "hair", skin.hair)
@@ -945,31 +945,56 @@ end
 
 function jo.component.getHeadFromSkinTone(ped, headIndex, skinTone)
   local ped = ped or PlayerPedId()
-  local sex = IsPedMale(ped) and "M" or "F"
+  local sex = "M"
+  if type(ped) == "string" then
+    sex = "mp_male" and "M" or "F"
+  else
+    sex = IsPedMale(ped) and "M" or "F"
+  end
   return ("CLOTHING_ITEM_%s_HEAD_%03d_V_%03d"):format(sex, headIndex or 1, skinTone or 1)
 end
 
 function jo.component.getBodiesLowerFromSkinTone(ped, bodiesIndex, skinTone)
   local ped = ped or PlayerPedId()
-  local sex = IsPedMale(ped) and "M" or "F"
+  local sex = "M"
+  if type(ped) == "string" then
+    sex = "mp_male" and "M" or "F"
+  else
+    sex = IsPedMale(ped) and "M" or "F"
+  end
   return ("CLOTHING_ITEM_%s_BODIES_LOWER_%03d_V_%03d"):format(sex, bodiesIndex or 1, skinTone or 1)
 end
 
 function jo.component.getBodiesUpperFromSkinTone(ped, bodiesIndex, skinTone)
   local ped = ped or PlayerPedId()
-  local sex = IsPedMale(ped) and "M" or "F"
+  local sex = "M"
+  if type(ped) == "string" then
+    sex = "mp_male" and "M" or "F"
+  else
+    sex = IsPedMale(ped) and "M" or "F"
+  end
   return ("CLOTHING_ITEM_%s_BODIES_UPPER_%03d_V_%03d"):format(sex, bodiesIndex or 1, skinTone or 1)
 end
 
-function jo.component.getEyesFromColor(ped, color)
+function jo.component.getEyesFromIndex(ped, index)
   local ped = ped or PlayerPedId()
-  local sex = IsPedMale(ped) and "M" or "F"
-  return ("CLOTHING_ITEM_%s_EYES_001_TINT_%03d"):format(sex, color or 1)
+  local sex = "M"
+  if type(ped) == "string" then
+    sex = "mp_male" and "M" or "F"
+  else
+    sex = IsPedMale(ped) and "M" or "F"
+  end
+  return ("CLOTHING_ITEM_%s_EYES_001_TINT_%03d"):format(sex, index or 1)
 end
 
 function jo.component.getTeethFromIndex(ped, index)
   local ped = ped or PlayerPedId()
-  local sex = IsPedMale(ped) and "M" or "F"
+  local sex = "M"
+  if type(ped) == "string" then
+    sex = "mp_male" and "M" or "F"
+  else
+    sex = IsPedMale(ped) and "M" or "F"
+  end
   return ("CLOTHING_ITEM_%s_TEETH_%03d"):format(sex, index or 1)
 end
 -------------
