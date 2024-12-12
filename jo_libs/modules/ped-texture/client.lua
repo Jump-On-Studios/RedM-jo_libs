@@ -5,6 +5,7 @@ jo.require("table")
 jo.require("timeout")
 
 local pedsTextures = {}
+local delays = {}
 
 local function AddTextureLayer(...) return Citizen.InvokeNative(0x86BB5FF45F193A02, ...) end
 local function ApplyTextureOnPed(...) return Citizen.InvokeNative(0x0B46E25761519058, ...) end
@@ -402,7 +403,7 @@ local function applyLayer(textureId, name, layer)
 end
 
 local function updateAllPedTexture(ped, category)
-  jo.timeout.delay("updatePedTexture", 200, function()
+  delays["updatePedTexture" .. ped] = jo.timeout.delay("updatePedTexture" .. ped, 200, function()
     if pedsTextures[ped][category].textureId ~= nil then
       ClearPedTexture(pedsTextures[ped][category].textureId)
     end
@@ -494,6 +495,9 @@ function jo.pedTexture.refreshAll(ped)
     for layername, layer in pairs(data.layers) do
       jo.pedTexture.apply(ped, layername, layer)
     end
+  end
+  if delays["updatePedTexture" .. ped] then
+    delays["updatePedTexture" .. ped]:execute()
   end
 end
 
