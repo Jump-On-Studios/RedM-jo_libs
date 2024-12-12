@@ -838,6 +838,12 @@ function jo.component.getEyesFromColor(ped, color)
   return ("CLOTHING_ITEM_%s_EYES_001_TINT_%03d"):format(sex, color or 1)
 end
 
+function jo.component.getTeethFromIndex(ped, index)
+  local ped = ped or PlayerPedId()
+  local sex = IsPedMale(ped) and "M" or "F"
+  return ("CLOTHING_ITEM_%s_TEETH_%03d"):format(sex, index or 1)
+end
+
 -------------
 -- Deprecated old names
 -------------
