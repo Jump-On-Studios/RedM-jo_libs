@@ -3,6 +3,8 @@ jo.component = {}
 jo.require("table")
 jo.require("timeout")
 jo.require("dataview")
+jo.require("waiter")
+jo.require("utils")
 
 -------------
 -- CACHE
@@ -309,8 +311,12 @@ local function GetShopItemComponentAtIndex(ped, index)
   return componentHash
 end
 
-local function waitRefreshPed(ped) while not IsPedReadyToRender(ped) do Wait(0) end end
-jo.component.waitPedLoaded = waitRefreshPed
+local function waitReadyPed(ped)
+  Wait(30)
+  local isReady = jo.waiter.exec(function() return IsPedReadyToRender(ped) end)
+  if not isReady then return eprint("This ped is not loaded:", ped) end
+end
+jo.component.waitPedLoaded = waitReadyPed
 
 local function isValidValue(value)
   return value and value ~= 0 and value ~= -1 and value ~= 1
@@ -362,6 +368,24 @@ local function convertToMetaTag(ped, data)
   data.tint2 = data.tint2 or tint2
   data.hash = nil
   return data
+end
+
+local function applyDefaultBodyParts(ped)
+  if IsPedMale(ped) then
+    EquipMetaPedOutfitPreset(ped, 4, false)
+    jo.component.apply(ped, "bodies_upper", `CLOTHING_ITEM_M_BODIES_UPPER_001_V_001`)
+    jo.component.apply(ped, "bodies_lower", `CLOTHING_ITEM_M_BODIES_LOWER_001_V_001`)
+    jo.component.apply(ped, "heads", `CLOTHING_ITEM_M_HEAD_002_V_001`)
+    jo.component.apply(ped, "eyes", `CLOTHING_ITEM_M_EYES_001_TINT_001`)
+    jo.component.apply(ped, "teeth", `CLOTHING_ITEM_M_TEETH_000`)
+  else
+    EquipMetaPedOutfitPreset(ped, 7, false)
+    jo.component.apply(ped, "bodies_upper", `CLOTHING_ITEM_F_BODIES_UPPER_001_V_001`)
+    jo.component.apply(ped, "bodies_lower", `CLOTHING_ITEM_F_BODIES_LOWER_001_V_001`)
+    jo.component.apply(ped, "heads", `CLOTHING_ITEM_F_HEAD_002_V_001`)
+    jo.component.apply(ped, "eyes", `CLOTHING_ITEM_F_EYES_001_TINT_001`)
+    jo.component.apply(ped, "teeth", `CLOTHING_ITEM_F_TEETH_000`)
+  end
 end
 
 -------------
@@ -457,9 +481,9 @@ end
 
 local function reapplyCached(ped)
   if not jo.cache.component.color[ped] then return end
-  delays["refresh" .. ped] = jo.timeout.delay("jo_libs:component:reapplyCachedColor" .. ped, function() waitRefreshPed(ped) end, function()
+  delays["refresh" .. ped] = jo.timeout.delay("jo_libs:component:reapplyCachedColor" .. ped, function() waitReadyPed(ped) end, function()
     refreshPed(ped)
-    waitRefreshPed(ped)
+    waitReadyPed(ped)
     reapplyComponentStats(ped)
     reapplyComponentsColor(ped)
     resetCachedPed(ped)
@@ -585,6 +609,111 @@ function jo.component.removeAllClothes(ped)
   for _, category in pairs(jo.component.data.pedClothes) do
     jo.component.remove(ped, category)
   end
+end
+
+
+function jo.component.applyComponents(ped, components)
+  if not ped then return end
+  if not DoesEntityExist(ped) then return end
+  if not components then return end
+
+  jo.component.removeAllClothes(ped)
+
+  for category, data in pairs(components) do
+    jo.component.apply(ped, category, data)
+  end
+end
+
+function jo.component.applySkin(ped, skin)
+  dprint("applySkin", ped, json.encode(skin))
+  if not ped then return end
+  if not DoesEntityExist(ped) then return end
+  if not skin then return end
+
+  jo.require("ped-texture")
+
+  if skin.model then
+    local modelHash = GetHashFromString(skin.model)
+    if GetEntityModel(ped) ~= modelHash then
+      if (ped ~= PlayerPedId()) then
+        eprint("You can't swap the model of existing ped. Current model:", GetEntityModel(ped), "Request model:", skin.model, modelHash)
+      else
+        jo.utils.loadGameData(modelHash, true)
+        dprint("model loaded", skin.model)
+        SetPlayerModel(PlayerId(), modelHash, true)
+        Wait(100)
+        ped = PlayerPedId()
+        SetModelAsNoLongerNeeded(modelHash)
+      end
+    end
+  end
+  dprint("fix issue on body")
+  applyDefaultBodyParts(ped)
+
+  jo.component.refreshPed(ped)
+  waitReadyPed(ped)
+
+  dprint("start apply default body components")
+
+  local headHash = skin.headHash or jo.component.getHeadFromSkinTone(ped, skin.headIndex, skin.skinTone)
+  jo.component.apply(ped, "heads", headHash)
+
+  local bodies_upper = skin.bodyUpperHash or jo.component.getBodiesUpperFromSkinTone(ped, skin.bodiesIndex, skin.skinTone)
+  jo.component.apply(ped, "body_upper", bodies_upper)
+
+  local bodies_lower = skin.bodyLowerHash or jo.component.getBodiesLowerFromSkinTone(ped, skin.bodiesIndex, skin.skinTone)
+  jo.component.apply(ped, "body_lower", bodies_lower)
+
+  dprint("apply outfit")
+  if skin.bodyBuild then
+    EquipMetaPedOutfit(ped, skin.bodyBuild)
+  end
+
+  jo.component.refreshPed(ped)
+  waitReadyPed(ped)
+
+  local eyes = skin.eyesHash or jo.component.getEyesFromIndex(ped, skin.eyesIndex)
+  jo.component.apply(ped, "eyes", eyes)
+
+  local teeth = skin.teethHash or jo.component.getTeethFromIndex(ped, skin.teethIndex)
+  jo.component.apply(ped, "teeth", teeth)
+
+  jo.component.apply(ped, "hair", skin.hair)
+  if skin.model == "mp_male" then
+    jo.component.apply(ped, "beards_complete", skin.beards_complete)
+  end
+
+  dprint("apply expression")
+  for expression, value in pairs(skin.expressions) do
+    SetCharExpression(ped, jo.component.data.expressions[expression], (value or 0.0) * 1.0)
+  end
+
+  jo.component.refreshPed(ped)
+  dprint("wait refresh")
+  waitReadyPed(ped)
+
+  for category, overlay in pairs(skin.overlays or {}) do
+    if type(overlay) == "table" then
+      local default = {
+        id = 0,
+        opacity = 0.0,
+        category = category
+      }
+      if category == "hair" or category == "beard" then
+        default.palette = "metaped_tint_hair"
+        default.tint0 = 135
+      end
+      overlay = table.merge(default, overlay)
+    end
+  end
+  jo.pedTexture.overwriteCategory(ped, "heads", skin.overlays, true)
+
+  Wait(100)
+
+  SetPedScale(ped, skin.bodyScale)
+  dprint("done create ped")
+
+  waitReadyPed(ped)
 end
 
 -------------
@@ -816,34 +945,58 @@ end
 
 function jo.component.getHeadFromSkinTone(ped, headIndex, skinTone)
   local ped = ped or PlayerPedId()
-  local sex = IsPedMale(ped) and "M" or "F"
+  local sex = "M"
+  if type(ped) == "string" then
+    sex = "mp_male" and "M" or "F"
+  else
+    sex = IsPedMale(ped) and "M" or "F"
+  end
   return ("CLOTHING_ITEM_%s_HEAD_%03d_V_%03d"):format(sex, headIndex or 1, skinTone or 1)
 end
 
 function jo.component.getBodiesLowerFromSkinTone(ped, bodiesIndex, skinTone)
   local ped = ped or PlayerPedId()
-  local sex = IsPedMale(ped) and "M" or "F"
+  local sex = "M"
+  if type(ped) == "string" then
+    sex = "mp_male" and "M" or "F"
+  else
+    sex = IsPedMale(ped) and "M" or "F"
+  end
   return ("CLOTHING_ITEM_%s_BODIES_LOWER_%03d_V_%03d"):format(sex, bodiesIndex or 1, skinTone or 1)
 end
 
 function jo.component.getBodiesUpperFromSkinTone(ped, bodiesIndex, skinTone)
   local ped = ped or PlayerPedId()
-  local sex = IsPedMale(ped) and "M" or "F"
+  local sex = "M"
+  if type(ped) == "string" then
+    sex = "mp_male" and "M" or "F"
+  else
+    sex = IsPedMale(ped) and "M" or "F"
+  end
   return ("CLOTHING_ITEM_%s_BODIES_UPPER_%03d_V_%03d"):format(sex, bodiesIndex or 1, skinTone or 1)
 end
 
-function jo.component.getEyesFromColor(ped, color)
+function jo.component.getEyesFromIndex(ped, index)
   local ped = ped or PlayerPedId()
-  local sex = IsPedMale(ped) and "M" or "F"
-  return ("CLOTHING_ITEM_%s_EYES_001_TINT_%03d"):format(sex, color or 1)
+  local sex = "M"
+  if type(ped) == "string" then
+    sex = "mp_male" and "M" or "F"
+  else
+    sex = IsPedMale(ped) and "M" or "F"
+  end
+  return ("CLOTHING_ITEM_%s_EYES_001_TINT_%03d"):format(sex, index or 1)
 end
 
 function jo.component.getTeethFromIndex(ped, index)
   local ped = ped or PlayerPedId()
-  local sex = IsPedMale(ped) and "M" or "F"
+  local sex = "M"
+  if type(ped) == "string" then
+    sex = "mp_male" and "M" or "F"
+  else
+    sex = IsPedMale(ped) and "M" or "F"
+  end
   return ("CLOTHING_ITEM_%s_TEETH_%03d"):format(sex, index or 1)
 end
-
 -------------
 -- Deprecated old names
 -------------
