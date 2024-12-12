@@ -826,6 +826,12 @@ function jo.component.getBodiesLowerFromSkinTone(ped, bodiesIndex, skinTone)
   return ("CLOTHING_ITEM_%s_BODIES_LOWER_%03d_V_%03d"):format(sex, bodiesIndex or 1, skinTone or 1)
 end
 
+function jo.component.getBodiesUpperFromSkinTone(ped, bodiesIndex, skinTone)
+  local ped = ped or PlayerPedId()
+  local sex = IsPedMale(ped) and "M" or "F"
+  return ("CLOTHING_ITEM_%s_BODIES_UPPER_%03d_V_%03d"):format(sex, bodiesIndex or 1, skinTone or 1)
+end
+
 -------------
 -- Deprecated old names
 -------------
