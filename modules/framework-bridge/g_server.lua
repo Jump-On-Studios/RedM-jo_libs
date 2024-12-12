@@ -3,8 +3,8 @@ jo.require("framework-bridge")
 RegisterNetEvent("jo_libs:server:applySkinAndClothes", function(ped, skin, clothes)
   local source = source
   ped = ped
-  skin = jo.framework.standardizeSkinKeys(UnJson(skin))
-  clothes = jo.framework.standardizeClothesKeys(UnJson(clothes))
+  skin = jo.framework.standardizeSkin(UnJson(skin))
+  clothes = jo.framework.standardizeClothes(UnJson(clothes))
 
   if clothes.teeth then
     skin.teeth = clothes.teeth.hash

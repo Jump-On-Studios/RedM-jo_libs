@@ -289,7 +289,10 @@ local function refreshPed(ped)
   N_0x704C908E9C405136(ped)
 end
 jo.component.refreshPed = function(ped)
-  delays["refresh" .. ped]:execute()
+  ped = ped or PlayerPedId()
+  if delays["refresh" .. ped] then
+    delays["refresh" .. ped]:execute()
+  end
   refreshPed(ped)
 end
 local function GetCategoryOfComponentAtIndex(ped, componentIndex)
@@ -809,6 +812,36 @@ end
 function jo.component.getCategoryNameFromHash(category)
   if not category then return "" end
   return jo.component.data.categoryName[category] or "unknown"
+end
+
+function jo.component.getHeadFromSkinTone(ped, headIndex, skinTone)
+  local ped = ped or PlayerPedId()
+  local sex = IsPedMale(ped) and "M" or "F"
+  return ("CLOTHING_ITEM_%s_HEAD_%03d_V_%03d"):format(sex, headIndex or 1, skinTone or 1)
+end
+
+function jo.component.getBodiesLowerFromSkinTone(ped, bodiesIndex, skinTone)
+  local ped = ped or PlayerPedId()
+  local sex = IsPedMale(ped) and "M" or "F"
+  return ("CLOTHING_ITEM_%s_BODIES_LOWER_%03d_V_%03d"):format(sex, bodiesIndex or 1, skinTone or 1)
+end
+
+function jo.component.getBodiesUpperFromSkinTone(ped, bodiesIndex, skinTone)
+  local ped = ped or PlayerPedId()
+  local sex = IsPedMale(ped) and "M" or "F"
+  return ("CLOTHING_ITEM_%s_BODIES_UPPER_%03d_V_%03d"):format(sex, bodiesIndex or 1, skinTone or 1)
+end
+
+function jo.component.getEyesFromColor(ped, color)
+  local ped = ped or PlayerPedId()
+  local sex = IsPedMale(ped) and "M" or "F"
+  return ("CLOTHING_ITEM_%s_EYES_001_TINT_%03d"):format(sex, color or 1)
+end
+
+function jo.component.getTeethFromIndex(ped, index)
+  local ped = ped or PlayerPedId()
+  local sex = IsPedMale(ped) and "M" or "F"
+  return ("CLOTHING_ITEM_%s_TEETH_%03d"):format(sex, index or 1)
 end
 
 -------------

@@ -15,14 +15,14 @@ local function applyDefaultBodyParts(ped)
     EquipMetaPedOutfitPreset(ped, 4, false)
     jo.component.apply(ped, "bodies_upper", `CLOTHING_ITEM_M_BODIES_UPPER_001_V_001`)
     jo.component.apply(ped, "bodies_lower", `CLOTHING_ITEM_M_BODIES_LOWER_001_V_001`)
-    jo.component.apply(ped, "heads", `CLOTHING_ITEM_M_HEAD_001_V_001`)
+    jo.component.apply(ped, "heads", `CLOTHING_ITEM_M_HEAD_002_V_001`)
     jo.component.apply(ped, "eyes", `CLOTHING_ITEM_M_EYES_001_TINT_001`)
     jo.component.apply(ped, "teeth", `CLOTHING_ITEM_M_TEETH_000`)
   else
     EquipMetaPedOutfitPreset(ped, 7, false)
     jo.component.apply(ped, "bodies_upper", `CLOTHING_ITEM_F_BODIES_UPPER_001_V_001`)
     jo.component.apply(ped, "bodies_lower", `CLOTHING_ITEM_F_BODIES_LOWER_001_V_001`)
-    jo.component.apply(ped, "heads", `CLOTHING_ITEM_F_HEAD_001_V_001`)
+    jo.component.apply(ped, "heads", `CLOTHING_ITEM_F_HEAD_002_V_001`)
     jo.component.apply(ped, "eyes", `CLOTHING_ITEM_F_EYES_001_TINT_001`)
     jo.component.apply(ped, "teeth", `CLOTHING_ITEM_F_TEETH_000`)
   end
@@ -52,20 +52,23 @@ end
 local function applySkin(ped, skin)
   dprint("applySkin", ped, json.encode(skin))
   if not ped then return end
+  if not DoesEntityExist(ped) then return end
   if not skin then return end
 
   if skin.model then
     local modelHash = GetHashFromString(skin.model)
     if GetEntityModel(ped) ~= modelHash then
       if (ped ~= PlayerPedId()) then
-        return eprint("You can't swap the model of existing ped")
+        eprint("You can't swap the model of existing ped. Current model:", GetEntityModel(ped), "Request model:", skin.model, modelHash)
+      else
+        jo.utils.loadGameData(modelHash, true)
+        dprint("model loaded", skin.model)
+        SetPlayerModel(PlayerId(), modelHash, true)
+        Wait(100)
+        jo.forceUpdateMe()
+        ped = PlayerPedId()
+        SetModelAsNoLongerNeeded(modelHash)
       end
-      jo.utils.loadGameData(modelHash, true)
-      dprint("model loaded", skin.model)
-      SetPlayerModel(PlayerId(), modelHash, true)
-      jo.forceUpdateMe()
-      ped = PlayerPedId()
-      SetModelAsNoLongerNeeded(modelHash)
     end
   end
   dprint("fix issue on body")
@@ -75,9 +78,16 @@ local function applySkin(ped, skin)
   waitReady(ped)
 
   dprint("start apply default body components")
-  jo.component.apply(ped, "heads", skin.headHash)
-  jo.component.apply(ped, "body_upper", skin.bodyUpper)
-  jo.component.apply(ped, "body_lower", skin.bodyLower)
+
+  local headHash = skin.headHash or jo.component.getHeadFromSkinTone(ped, skin.headIndex, skin.skinTone)
+  jo.component.apply(ped, "heads", headHash)
+
+  local bodies_upper = skin.bodyUpper or jo.component.getBodiesUpperFromSkinTone(ped, skin.bodiesIndex, skin.skinTone)
+  jo.component.apply(ped, "body_upper", bodies_upper)
+
+  local bodies_lower = skin.bodyLower or jo.component.getBodiesLowerFromSkinTone(ped, skin.bodiesIndex, skin.skinTone)
+  jo.component.apply(ped, "body_lower", bodies_lower)
+
   dprint("apply outfit")
   if skin.bodyBuild then
     EquipMetaPedOutfit(ped, skin.bodyBuild)
@@ -86,8 +96,12 @@ local function applySkin(ped, skin)
   jo.component.refreshPed(ped)
   waitReady(ped)
 
-  jo.component.apply(ped, "eyes", skin.eyes)
-  jo.component.apply(ped, "teeth", skin.teeth)
+  local eyes = skin.eyes or jo.component.getEyesFromColor(ped, skin.eyesColor)
+  jo.component.apply(ped, "eyes", eyes)
+
+  local teeth = skin.teeth or jo.component.getTeethFromIndex(ped, skin.teethIndex)
+  jo.component.apply(ped, "teeth", teeth)
+
   jo.component.apply(ped, "hair", skin.hair)
   if skin.model == "mp_male" then
     jo.component.apply(ped, "beards_complete", skin.beards_complete)
@@ -114,6 +128,7 @@ end
 
 local function applyClothes(ped, clothes)
   if not ped then return end
+  if not DoesEntityExist(ped) then return end
   if not clothes then return end
 
   jo.component.removeAllClothes(ped)
