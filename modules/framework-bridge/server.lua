@@ -139,7 +139,7 @@ local skinCategoryBridge = {
   RSG = {
     components = {
       beard = "beards_complete",
-      eyes_color = "eyesColor",
+      eyes_color = "eyesIndex",
       teeth = "teethIndex"
     },
     expressions = {
@@ -1310,7 +1310,7 @@ local function revertRSGSkin(standard)
     standard.skinTone = nil
   end
   if standard.headIndex then
-    a, standard.head = table.find(skinCategoryBridge.RSG.convertedValues.head[standard.model], function(value, key) return value == standard.headIndex end)
+    _, standard.head = table.find(skinCategoryBridge.RSG.convertedValues.head[standard.model], function(value, key) return value == standard.headIndex end)
     standard.head = math.max(1, (standard.head or standard.headIndex or 0) * 6)
     standard.headIndex = nil
   end
@@ -1464,7 +1464,7 @@ local function revertSkin(object)
   return reverted
 end
 
-local function revertClothesKeys(object)
+local function revertClothes(object)
   local reverted = {}
   for category, data in pairs(object) do
     reverted[revertSkinKey(category)] = table.copy(formatComponentData(data) or { hash = 0 })
@@ -1578,9 +1578,9 @@ function FrameworkClass:updateUserClothes(source, _clothes, value)
   if value then
     _clothes = { [_clothes] = formatComponentData(value) }
   end
-  local clothes = revertClothesKeys(_clothes)
+  local clothes = revertClothes(_clothes)
   if OWFramework.updateUserClothes then
-    return OWFramework.updateUserClothes(source, category, value)
+    return OWFramework.updateUserClothes(source, _clothes, value)
   end
   if self:is("VORP") then
     local newClothes = {}
@@ -1756,7 +1756,7 @@ function FrameworkClass:createUser(source, data, spawnCoordinate, isDead)
   data.firstname = data.firstname or ""
   data.lastname = data.lastname or ""
   data.skin = revertSkin(data.skin)
-  data.comps = revertClothesKeys(data.comps)
+  data.comps = revertClothes(data.comps)
   if OWFramework.createUser then
     return OWFramework.createUser(source, data)
   end
@@ -1783,6 +1783,16 @@ function FrameworkClass:createUser(source, data, spawnCoordinate, isDead)
   elseif self:is("QBR") then
     return
   elseif self:is("RSG") then
+    local convertData = {
+      source = source,
+      charinfo = {
+        firstname = data.firstname or "",
+        lastname = data.lastname,
+        gender = data.skin.sex == 1 and "0" or "1"
+      }
+    }
+    self.core.Player.CheckPlayerData(source, convertData)
+    jo.triggerEvent.server(source, "rsg-appearance:server:SaveSkin", data.skin, data.comps)
     return
   elseif self:is("RPX") then
     return
