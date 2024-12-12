@@ -4,7 +4,7 @@ end
 
 local resourceName = GetCurrentResourceName()
 local jo_libs = "jo_libs"
-local modules = { "table", "print", "file" }
+local modules = { "table", "print", "file", "trigger-event" }
 local function noFunction() end
 local LoadResourceFile = LoadResourceFile
 local context = IsDuplicityVersion() and "server" or "client"
@@ -18,6 +18,7 @@ local alias = {
   notif = "notification",
   pedTexture = "ped-texture",
   gameEvents = "game-events",
+  triggerEvent = "trigger-event"
 }
 
 local function getAlias(module)
