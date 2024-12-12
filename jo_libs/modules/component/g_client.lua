@@ -52,6 +52,7 @@ end
 local function applySkin(ped, skin)
   dprint("applySkin", ped, json.encode(skin))
   if not ped then return end
+  if not DoesEntityExist(ped) then return end
   if not skin then return end
 
   if skin.model then
@@ -77,9 +78,16 @@ local function applySkin(ped, skin)
   waitReady(ped)
 
   dprint("start apply default body components")
-  jo.component.apply(ped, "heads", skin.headHash)
-  jo.component.apply(ped, "body_upper", skin.bodyUpper)
-  jo.component.apply(ped, "body_lower", skin.bodyLower)
+
+  local headHash = skin.headHash or jo.component.getHeadFromSkinTone(ped, skin.headIndex, skin.skinTone)
+  jo.component.apply(ped, "heads", headHash)
+
+  local bodies_upper = skin.bodyUpper or jo.component.getBodiesUpperFromSkinTone(ped, skin.bodiesIndex, skin.skinTone)
+  jo.component.apply(ped, "body_upper", bodies_upper)
+
+  local bodies_lower = skin.bodyLower or jo.component.getBodiesLowerFromSkinTone(ped, skin.bodiesIndex, skin.skinTone)
+  jo.component.apply(ped, "body_lower", bodies_lower)
+
   dprint("apply outfit")
   if skin.bodyBuild then
     EquipMetaPedOutfit(ped, skin.bodyBuild)
@@ -88,8 +96,12 @@ local function applySkin(ped, skin)
   jo.component.refreshPed(ped)
   waitReady(ped)
 
-  jo.component.apply(ped, "eyes", skin.eyes)
-  jo.component.apply(ped, "teeth", skin.teeth)
+  local eyes = skin.eyes or jo.component.getEyesFromColor(ped, skin.eyesColor)
+  jo.component.apply(ped, "eyes", eyes)
+
+  local teeth = skin.teeth or jo.component.getTeethFromIndex(ped, skin.teethIndex)
+  jo.component.apply(ped, "teeth", teeth)
+
   jo.component.apply(ped, "hair", skin.hair)
   if skin.model == "mp_male" then
     jo.component.apply(ped, "beards_complete", skin.beards_complete)
@@ -116,6 +128,7 @@ end
 
 local function applyClothes(ped, clothes)
   if not ped then return end
+  if not DoesEntityExist(ped) then return end
   if not clothes then return end
 
   jo.component.removeAllClothes(ped)
