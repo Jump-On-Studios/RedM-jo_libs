@@ -52,6 +52,7 @@ end
 local function applySkin(ped, skin)
   dprint("applySkin", ped, json.encode(skin))
   if not ped then return end
+  if not DoesEntityExist(ped) then return end
   if not skin then return end
 
   if skin.model then
@@ -127,6 +128,7 @@ end
 
 local function applyClothes(ped, clothes)
   if not ped then return end
+  if not DoesEntityExist(ped) then return end
   if not clothes then return end
 
   jo.component.removeAllClothes(ped)

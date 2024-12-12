@@ -1166,7 +1166,7 @@ local function revertSkinKey(category)
   return category, "components"
 end
 
-local function standardizeRSGSkinValues(standard)
+local function standardizeRSGSkin(standard)
   if standard.sex then
     standard.model = standard.sex == 2 and "mp_female" or "mp_male"
     standard.sex = nil
@@ -1195,8 +1195,40 @@ local function standardizeRSGSkinValues(standard)
   end
 end
 
+local function revertRSGSkin(standard)
+  if standard.bodyScale then
+    standard.height = math.floor(standard.bodyScale * 100)
+    standard.bodyScale = nil
+  end
+  for key, _ in pairs(skinCategoryBridge.RSG.expressions) do
+    if standard[key] then
+      if standard[key] > -1 and standard[key] < 1 then
+        standard[key] = math.floor(standard[key] * 100)
+      end
+    end
+  end
+  if standard.skinTone then
+    _, standard.skin_tone = table.find(skinCategoryBridge.RSG.convertedValues.skin_tone, function(value, key) return value == standard.skinTone end)
+    standard.skinTone = nil
+  end
+  if standard.headIndex then
+    a, standard.head = table.find(skinCategoryBridge.RSG.convertedValues.head[standard.model], function(value, key) return value == standard.headIndex end)
+    standard.head = math.max(1, (standard.head or standard.headIndex or 0) * 6)
+    standard.headIndex = nil
+  end
+  if standard.bodiesIndex then
+    _, standard.body_size = table.find(skinCategoryBridge.RSG.convertedValues.bodies[standard.model], function(value, key) return value == standard.bodiesIndex end)
+    standard.body_size = standard.body_size or standard.bodiesIndex
+    standard.bodiesIndex = nil
+  end
+  if standard.model then
+    standard.sex = standard.model == "mp_female" and 2 or 1
+    standard.model = nil
+  end
+end
+
 --- A function to standardize a object of categories
-local function standardizeSkinKeys(object)
+local function standardizeSkin(object)
   local standard = { overlays = {}, expressions = {} }
 
   local layerNamesNotNeeded = {}
@@ -1278,12 +1310,13 @@ local function standardizeSkinKeys(object)
   end
 
   if jo.framework:is("RSG") then
-    standardizeRSGSkinValues(standard)
+    standardizeRSGSkin(standard)
   end
 
   return standard
 end
-FrameworkClass.standardizeSkinKeys = standardizeSkinKeys
+FrameworkClass.standardizeSkin = standardizeSkin
+FrameworkClass.standardizeSkinKeys = standardizeSkin
 
 ---@param data any the clothes data
 ---@return table
@@ -1309,47 +1342,36 @@ local function formatComponentData(data)
 end
 
 --- A function to revert a object of categories
-local function revertSkinKeys(object)
+local function revertSkin(object)
   local framName = jo.framework:get()
-  local standard = {}
+  local reverted = {}
   for category, data in pairs(object) do
     if category == "expressions" then
       for category2, data2 in pairs(data) do
         local strandardCat, framCat = findValueInList(skinCategoryBridge[framName].expressions, category2)
-        if jo.framework:is("RSG") then
-          data2 = data2 * 100
-        end
         if strandardCat then
-          standard[framCat] = data2
+          reverted[framCat] = data2
         else
-          standard[category2] = data2
+          reverted[category2] = data2
         end
       end
     else
       local key = revertSkinKey(category)
-      standard[key] = table.copy(data)
+      reverted[key] = table.copy(data)
     end
   end
   if jo.framework:is("RSG") then
-    if object.model then
-      standard.sex = object.model == "mp_female" and 2 or 1
-      standard.model = nil
-    end
-
-    if object.bodyScale then
-      standard.height = object.bodyScale * 100
-      standard.bodyScale = nil
-    end
+    revertRSGSkin(reverted)
   end
-  return standard
+  return reverted
 end
 
 local function revertClothesKeys(object)
-  local standard = {}
+  local reverted = {}
   for category, data in pairs(object) do
-    standard[revertSkinKey(category)] = table.copy(formatComponentData(data) or { hash = 0 })
+    reverted[revertSkinKey(category)] = table.copy(formatComponentData(data) or { hash = 0 })
   end
-  return standard
+  return reverted
 end
 
 ---@param clothesList table
@@ -1392,7 +1414,7 @@ local function convertClothesTableToObject(object)
   end
 end
 
-local function standardizeClothesKeys(object)
+local function standardizeClothes(object)
   local standard = {}
 
   object = convertClothesTableToObject(object)
@@ -1405,7 +1427,8 @@ local function standardizeClothesKeys(object)
 
   return standard
 end
-FrameworkClass.standardizeClothesKeys = standardizeClothesKeys
+FrameworkClass.standardizeClothes = standardizeClothes
+FrameworkClass.standardizeClothesKeys = standardizeClothes
 
 function FrameworkClass:getUserClothes(source)
   local clothes = {}
@@ -1445,7 +1468,7 @@ function FrameworkClass:getUserClothes(source)
   if not clothes then return {} end
   clothes = UnJson(clothes)
 
-  local clothesStandardized = standardizeClothesKeys(clothes)
+  local clothesStandardized = standardizeClothes(clothes)
 
   return clothesStandardized
 end
@@ -1554,7 +1577,7 @@ function FrameworkClass:getUserSkin(source)
 
   skin = UnJson(skin)
 
-  local skinStandardized = standardizeSkinKeys(skin)
+  local skinStandardized = standardizeSkin(skin)
 
   if not skinStandardized.teeth then
     local clothes = self:getUserClothes(source)
@@ -1582,7 +1605,7 @@ function FrameworkClass:updateUserSkin(...)
     _skin = args[2]
     overwrite = args[math.max(3, #args)] or overwrite
   end
-  local skin = revertSkinKeys(_skin)
+  local skin = revertSkin(_skin)
   if OWFramework.updateUserSkin then
     return OWFramework.updateUserSkin(source, skin)
   end
@@ -1634,7 +1657,7 @@ function FrameworkClass:createUser(source, data, spawnCoordinate, isDead)
   data = data or {}
   data.firstname = data.firstname or ""
   data.lastname = data.lastname or ""
-  data.skin = revertSkinKeys(data.skin)
+  data.skin = revertSkin(data.skin)
   data.comps = revertClothesKeys(data.comps)
   if OWFramework.createUser then
     return OWFramework.createUser(source, data)
