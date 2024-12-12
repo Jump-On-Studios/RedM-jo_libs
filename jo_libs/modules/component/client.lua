@@ -819,6 +819,13 @@ function jo.component.getHeadFromSkinTone(ped, headIndex, skinTone)
   local sex = IsPedMale(ped) and "M" or "F"
   return ("CLOTHING_ITEM_%s_HEAD_%03d_V_%03d"):format(sex, headIndex or 1, skinTone or 1)
 end
+
+function jo.component.getBodiesLowerFromSkinTone(ped, bodiesIndex, skinTone)
+  local ped = ped or PlayerPedId()
+  local sex = IsPedMale(ped) and "M" or "F"
+  return ("CLOTHING_ITEM_%s_BODIES_LOWER_%03d_V_%03d"):format(sex, bodiesIndex or 1, skinTone or 1)
+end
+
 -------------
 -- Deprecated old names
 -------------
