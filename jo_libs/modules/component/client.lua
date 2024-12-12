@@ -814,6 +814,11 @@ function jo.component.getCategoryNameFromHash(category)
   return jo.component.data.categoryName[category] or "unknown"
 end
 
+function jo.component.getHeadFromSkinTone(ped, headIndex, skinTone)
+  local ped = ped or PlayerPedId()
+  local sex = IsPedMale(ped) and "M" or "F"
+  return ("CLOTHING_ITEM_%s_HEAD_%03d_V_%03d"):format(sex, headIndex or 1, skinTone or 1)
+end
 -------------
 -- Deprecated old names
 -------------
