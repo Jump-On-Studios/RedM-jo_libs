@@ -665,8 +665,8 @@ function jo.component.applySkin(ped, skin)
   jo.component.apply(ped, "body_lower", bodies_lower)
 
   dprint("apply outfit")
-  if skin.bodyBuild then
-    EquipMetaPedOutfit(ped, skin.bodyBuild)
+  if skin.bodyType then
+    EquipMetaPedOutfit(ped, skin.bodyType)
   end
 
   jo.component.refreshPed(ped)
