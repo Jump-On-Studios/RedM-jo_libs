@@ -62,6 +62,7 @@ local MenuItem = {
   statistics = {},
   disabled = false,
   textRight = false,
+  bufferOnChange = true,
   onActive = function() end,
   onClick = function() end,
   onChange = function() end,
@@ -427,6 +428,14 @@ end
 
 RegisterNUICallback("updatePreview", function(data, cb)
   cb("ok")
+
+  if not menus[data.menu] then return end
+  if not menus[data.menu].items[data.item.index] then return end
+
+  local item = menus[data.menu].items[data.item.index]
+  if not item.bufferOnChange or table.find(data.item.sliders, function(slider) return slider.type == "grid" end) then
+    return menuNUIChange(data)
+  end
   jo.timeout.delay("menuNUIChange", 100, function()
     menuNUIChange(data)
   end)
