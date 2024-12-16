@@ -18,143 +18,141 @@ local mainResourceFramework = {
 local skinCategoryBridge = {
   VORP = {
     components = {
-      Hat = "hats",
-      Mask = "masks",
-      Shirt = "shirts_full",
-      Suspender = "suspenders",
-      Vest = "vests",
-      Coat = "coats",
-      Poncho = "ponchos",
-      Cloak = "cloaks",
-      Glove = "gloves",
-      RingRh = "jewelry_rings_right",
-      RingLh = "jewelry_rings_left",
-      Bracelet = "jewelry_bracelets",
-      Gunbelt = "gunbelts",
-      Belt = "belts",
-      Buckle = "belt_buckles",
-      Holster = "holsters_left",
-      Pant = "pants",
-      Chap = "chaps",
-      Spurs = "boot_accessories",
-      CoatClosed = "coats_closed",
       --Ties = "neckties",
-      NeckTies = "neckties",
-      Skirt = "skirts",
-      Boots = "boots",
-      EyeWear = "eyewear",
-      NeckWear = "neckwear",
-      Spats = "spats",
-      GunbeltAccs = "gunbelt_accs",
-      Gauntlets = "gauntlets",
-      Loadouts = "loadouts",
       Accessories = "accessories",
-      Satchels = "satchels",
-      dresses = "dresses",
-      Dress = "dresses",
       armor = "armor",
       Badge = "badges",
-      bow = "hair_accessories",
-      Hair = "hair",
       Beard = "beards_complete",
-      Teeth = "teeth",
-      sex = "model",
-      HeadType = "headHash",  --To be confirm
-      BodyType = "bodyType",  --To be confirm
-      LegsType = "bodyLower", --To be investig
+      Belt = "belts",
+      BodyType = "bodyType", --To be confirm
+      Boots = "boots",
+      bow = "hair_accessories",
+      Bracelet = "jewelry_bracelets",
+      Buckle = "belt_buckles",
+      Chap = "chaps",
+      Cloak = "cloaks",
+      Coat = "coats",
+      CoatClosed = "coats_closed",
+      Dress = "dresses",
+      dresses = "dresses",
       Eyes = "eyes",
+      EyeWear = "eyewear",
+      Gauntlets = "gauntlets",
+      Glove = "gloves",
+      Gunbelt = "gunbelts",
+      GunbeltAccs = "gunbelt_accs",
+      Hair = "hair",
+      Hat = "hats",
+      HeadType = "headHash", --To be confirm
+      Holster = "holsters_left",
       Legs = "bodyLower",
+      LegsType = "bodyLower", --To be investig
+      Loadouts = "loadouts",
+      Mask = "masks",
+      NeckTies = "neckties",
+      NeckWear = "neckwear",
+      Pant = "pants",
+      Poncho = "ponchos",
+      RingLh = "jewelry_rings_left",
+      RingRh = "jewelry_rings_right",
+      Satchels = "satchels",
+      Scale = "bodyScale",
+      sex = "model",
+      Shirt = "shirts_full",
+      Skirt = "skirts",
+      Spats = "spats",
+      Spurs = "boot_accessories",
+      Suspender = "suspenders",
+      Teeth = "teeth",
       Torso = "bodyUpper",
-      -- Waist = false,
-      -- Body = false,
-      Scale = "bodyScale"
+      Vest = "vests",
     },
     expressions = {
       --Expressions
-      HeadSize = "headWidth",
-      FaceW = "faceWidth",
-      FaceD = "eyebrowWidth",
-      FaceS = "eyebrowHeight",
-      NeckW = "neckWidth",
-      NeckD = "neckDepth",
+      ArmsS = "arms",
+      CalvesS = "calves",
+      CheekBonesD = "cheekbonesDepth",
+      CheekBonesH = "cheekbonesHeight",
+      CheekBonesW = "cheekbonesWidth",
+      ChestS = "chest",
+      ChinD = "chinDepth",
+      ChinH = "chinHeight",
+      ChinW = "chinWidth",
+      EarsA = "earsAngle",
+      EarsD = "earlobes",
+      EarsH = "earsHeight",
+      EarsW = "earsWidth",
+      EyeAng = "eyesAngle",
+      EyeBrowD = "eyebrowDepth",
       EyeBrowH = "eyebrowHeight",
       EyeBrowW = "eyebrowWidth",
-      EyeBrowD = "eyebrowDepth",
       EyeD = "eyesDepth",
-      EyeAng = "eyesAngle",
       EyeDis = "eyesDistance",
       EyeH = "eyesHeight",
       EyeLidH = "eyelidHeight",
-      EyeLidW = "eyelidWidth",
       EyeLidL = "eyelidLeft",
       EyeLidR = "eyelidRight",
-      EarsW = "earsWidth",
-      EarsA = "earsAngle",
-      EarsH = "earsHeight",
-      EarsD = "earlobes",
-      CheekBonesH = "cheekbonesHeight",
-      CheekBonesW = "cheekbonesWidth",
-      CheekBonesD = "cheekbonesDepth",
+      EyeLidW = "eyelidWidth",
+      FaceD = "eyebrowWidth",
+      FaceS = "eyebrowHeight",
+      FaceW = "faceWidth",
+      HeadSize = "headWidth",
+      HipsS = "hip",
+      JawD = "jawDepth",
       JawH = "jawHeight",
       JawW = "jawWidth",
-      JawD = "jawDepth",
-      ChinH = "chinHeight",
-      ChinW = "chinWidth",
-      ChinD = "chinDepth",
-      NoseW = "noseWidth",
-      NoseS = "noseSize",
-      NoseH = "noseHeight",
+      LegsS = "thighs",
+      LLiphD = "lowerLipDepth",
+      LLiphH = "lowerLipHeight",
+      LLiphW = "lowerLipWidth",
+      MouthCLD = "mouthConerLeftDepth",
+      MouthCLH = "mouthConerLeftHeight",
+      MouthCLLD = "mouthConerLeftLipsDistance",
+      MouthCLW = "mouthConerLeftWidth",
+      MouthCRD = "mouthConerRightDepth",
+      MouthCRH = "mouthConerRightHeight",
+      MouthCRLD = "mouthConerRightLipsDistance",
+      MouthCRW = "mouthConerRightWidth",
+      MouthD = "mouthDepth",
+      MouthW = "mouthWidth",
+      MouthX = "mouthX",
+      MouthY = "mouthY",
+      NeckD = "neckDepth",
+      NeckW = "neckWidth",
       NoseAng = "noseAngle",
       NoseC = "noseCurvature",
       NoseDis = "nostrilsDistance",
-      MouthW = "mouthWidth",
-      MouthD = "mouthDepth",
-      MouthX = "mouthX",
-      MouthY = "mouthY",
-      ULiphH = "upperLipHeight",
-      ULiphW = "upperLipWidth",
-      ULiphD = "upperLipDepth",
-      LLiphH = "lowerLipHeight",
-      LLiphW = "lowerLipWidth",
-      LLiphD = "lowerLipDepth",
-      MouthCLW = "mouthConerLeftWidth",
-      MouthCRW = "mouthConerRightWidth",
-      MouthCLD = "mouthConerLeftDepth",
-      MouthCRD = "mouthConerRightDepth",
-      MouthCLH = "mouthConerLeftHeight",
-      MouthCRH = "mouthConerRightHeight",
-      MouthCLLD = "mouthConerLeftLipsDistance",
-      MouthCRLD = "mouthConerRightLipsDistance",
-      ArmsS = "arms",
+      NoseH = "noseHeight",
+      NoseS = "noseSize",
+      NoseW = "noseWidth",
+      ShouldersM = "shoulderBlades",
       ShouldersS = "shoulders",
       ShouldersT = "shoulderThickness",
-      ShouldersM = "shoulderBlades",
-      ChestS = "chest",
+      ULiphD = "upperLipDepth",
+      ULiphH = "upperLipHeight",
+      ULiphW = "upperLipWidth",
       WaistW = "waist",
-      HipsS = "hip",
-      LegsS = "thighs",
-      CalvesS = "calves",
     },
     overlays = {
-      beardstabble_ = "beard",
-      hair_ = "hair",
-      scars_ = "scar",
-      spots_ = "spots",
-      disc_ = "disc",
-      complex_ = "complex",
-      acne_ = "acne",
-      ageing_ = "ageing",
-      freckles_ = "freckles",
-      moles_ = "moles",
-      shadows_ = "eyeshadow",
-      eyebrows_ = "eyebrow",
-      eyeliner_ = "eyeliner",
-      eyeliners_ = "eyeliner",
-      blush_ = "blush",
-      lipsticks_ = "lipstick",
-      grime_ = "grime",
+      acne = "acne",
+      ageing = "ageing",
+      beardstabble = "beard",
+      blush = "blush",
+      complex = "complex",
+      disc = "disc",
+      eyebrows = "eyebrow",
+      eyeliner = "eyeliner",
+      eyeliners = "eyeliner",
       foundation_ = "foundation",
-      paintedmasks_ = "masks",
+      freckles = "freckles",
+      grime = "grime",
+      hair = "hair",
+      lipsticks = "lipstick",
+      moles = "moles",
+      paintedmasks = "masks",
+      scars = "scar",
+      shadows = "eyeshadow",
+      spots = "spots",
     },
   },
   RSG = {
@@ -165,89 +163,89 @@ local skinCategoryBridge = {
     },
     expressions = {
       --Expressions
-      head_width = "headWidth",
-      face_width = "faceWidth",
-      face_depth = "eyebrowWidth",
-      forehead_size = "eyebrowHeight",
-      neck_width = "neckWidth",
-      neck_depth = "neckDepth",
-      eyebrow_height = "eyebrowHeight",
-      eyebrow_width = "eyebrowWidth",
-      eyebrow_depth = "eyebrowDepth",
-      eyes_depth = "eyesDepth",
-      eyes_angle = "eyesAngle",
-      eyes_distance = "eyesDistance",
-      eyes_height = "eyesHeight",
-      eyelid_height = "eyelidHeight",
-      eyelid_width = "eyelidWidth",
-      eyelid_left = "eyelidLeft",
-      eyelid_right = "eyelidRight",
-      ears_width = "earsWidth",
-      ears_angle = "earsAngle",
-      ears_height = "earsHeight",
-      ears_size = "earlobes",
+      arms_size = "arms",
+      back_muscle = "shoulderBlades",
+      back_shoulder_thickness = "shoulderThickness",
+      calves_size = "calves",
+      cheekbones_depth = "cheekbonesDepth",
       cheekbones_height = "cheekbonesHeight",
       cheekbones_width = "cheekbonesWidth",
-      cheekbones_depth = "cheekbonesDepth",
-      jaw_height = "jawHeight",
-      jaw_width = "jawWidth",
-      jaw_depthawD = "jawDepth",
+      chest_size = "chest",
+      chin_depth = "chinDepth",
       chin_height = "chinHeight",
       chin_width = "chinWidth",
-      chin_depth = "chinDepth",
-      nose_width = "noseWidth",
-      nose_size = "noseSize",
-      nose_height = "noseHeight",
-      nose_angle = "noseAngle",
-      nose_curvature = "noseCurvature",
-      nostrils_distance = "nostrilsDistance",
-      mouth_width = "mouthWidth",
-      mouth_depth = "mouthDepth",
-      mouth_y_pos = "mouthX",
-      mouth_x_pos = "mouthY",
-      upper_lip_height = "upperLipHeight",
-      upper_lip_width = "upperLipWidth",
-      upper_lip_depth = "upperLipDepth",
+      earlobe_size = "earlobes",
+      ears_angle = "earsAngle",
+      ears_height = "earsHeight",
+      ears_width = "earsWidth",
+      eyebrow_depth = "eyebrowDepth",
+      eyebrow_height = "eyebrowHeight",
+      eyebrow_width = "eyebrowWidth",
+      eyelid_height = "eyelidHeight",
+      eyelid_left = "eyelidLeft",
+      eyelid_right = "eyelidRight",
+      eyelid_width = "eyelidWidth",
+      eyes_angle = "eyesAngle",
+      eyes_depth = "eyesDepth",
+      eyes_distance = "eyesDistance",
+      eyes_height = "eyesHeight",
+      face_depth = "eyebrowWidth",
+      face_width = "faceWidth",
+      forehead_size = "eyebrowHeight",
+      head_width = "headWidth",
+      hips_size = "hip",
+      jaw_depth = "jawDepth",
+      jaw_height = "jawHeight",
+      jaw_width = "jawWidth",
+      lower_lip_depth = "lowerLipDepth",
       lower_lip_height = "lowerLipHeight",
       lower_lip_width = "lowerLipWidth",
-      lower_lip_depth = "lowerLipDepth",
-      mouth_corner_left_width = "mouthConerLeftWidth",
-      mouth_corner_right_width = "mouthConerRightWidth",
       mouth_corner_left_depth = "mouthConerLeftDepth",
-      mouth_corner_right_depth = "mouthConerRightDepth",
       mouth_corner_left_height = "mouthConerLeftHeight",
-      mouth_corner_right_height = "mouthConerRightHeight",
       mouth_corner_left_lips_distance = "mouthConerLeftLipsDistance",
+      mouth_corner_left_width = "mouthConerLeftWidth",
+      mouth_corner_right_depth = "mouthConerRightDepth",
+      mouth_corner_right_height = "mouthConerRightHeight",
       mouth_corner_right_lips_distance = "mouthConerRightLipsDistance",
-      arms_size = "arms",
-      uppr_shoulder_size = "shoulders",
-      back_shoulder_thickness = "shoulderThickness",
-      back_muscle = "shoulderBlades",
-      chest_size = "chest",
-      waist_width = "waist",
-      hips_size = "hip",
+      mouth_corner_right_width = "mouthConerRightWidth",
+      mouth_depth = "mouthDepth",
+      mouth_width = "mouthWidth",
+      mouth_x_pos = "mouthY",
+      mouth_y_pos = "mouthX",
+      neck_depth = "neckDepth",
+      neck_width = "neckWidth",
+      nose_angle = "noseAngle",
+      nose_curvature = "noseCurvature",
+      nose_height = "noseHeight",
+      nose_size = "noseSize",
+      nose_width = "noseWidth",
+      nostrils_distance = "nostrilsDistance",
       tight_size = "thighs",
-      calves_size = "calves",
+      upper_lip_depth = "upperLipDepth",
+      upper_lip_height = "upperLipHeight",
+      upper_lip_width = "upperLipWidth",
+      uppr_shoulder_size = "shoulders",
+      waist_width = "waist",
     },
     overlays = {
-      beardstabble_ = "beard",
-      hair_ = "hair",
-      scars_ = "scar",
-      spots_ = "spots",
-      disc_ = "disc",
-      complex_ = "complex",
-      acne_ = "acne",
-      ageing_ = "ageing",
-      freckles_ = "freckles",
-      moles_ = "moles",
-      shadows_ = "eyeshadow",
-      eyebrows_ = "eyebrow",
-      eyeliners_ = "eyeliner",
-      blush_ = "blush",
-      lipsticks_ = "lipstick",
-      grime_ = "grime",
-      foundation_ = "foundation",
-      paintedmasks_ = "masks",
+      acne = "acne",
+      ageing = "ageing",
+      beardstabble = "beard",
+      blush = "blush",
+      complex = "complex",
+      disc = "disc",
+      eyebrows = "eyebrow",
+      eyeliners = "eyeliner",
+      foundation = "foundation",
+      freckles = "freckles",
+      grime = "grime",
+      hair = "hair",
+      lipsticks = "lipstick",
+      moles = "moles",
+      paintedmasks = "masks",
+      scars = "scar",
+      shadows = "eyeshadow",
+      spots = "spots",
     },
     convertedValues = {
       skin_tone = {
@@ -1141,8 +1139,12 @@ end
 
 ---@param key string
 local function isOverlayKey(key)
+  if key == "eyebrow_height" then return false end
   for search, layerName in pairs(skinCategoryBridge[jo.framework:get()].overlays) do
     if key:find(search) then
+      if key == search then
+        return false
+      end
       return layerName
     end
   end
@@ -1150,12 +1152,14 @@ local function isOverlayKey(key)
 end
 
 local function findKeyInList(list, key)
+  list = list or {}
   if list[key] then return true, list[key] end
   local found, cat = table.find(list, function(cat, framCat) return framCat:lower() == key:lower() end)
   return found, cat
 end
 
 local function findValueInList(list, strandardValue)
+  list = list or {}
   local value, key = table.find(list, function(category) return category:lower() == strandardValue:lower() end)
   return value, key
 end
@@ -1244,6 +1248,70 @@ local function standardizeOverlays(object)
   return overlays
 end
 
+local function revertOverlays(reverted)
+  local rights = {
+    VORP = {},
+    RSG = {
+      opacity = "_op",
+      id = "_t",
+      sheetGrid = "_id",
+      tint0 = "_c1",
+      tint1 = "_c2",
+      tint3 = "_c3",
+      albedo = "_id"
+    }
+  }
+
+  for prefix, layerName in pairs(skinCategoryBridge[jo.framework:get()].overlays) do
+    if reverted.overlays[layerName] then
+      if reverted.overlays[layerName][1] then
+      else
+        for key, value in pairs(reverted.overlays[layerName]) do
+          local suffix = rights[jo.framework:get()]?[key]
+          if suffix then
+            if layerName == "eyebrow" and key == "id" then
+              value = value + 1
+              if reverted.overlays.eyebrow.sexe == "f" then
+                reverted[prefix .. suffix] = value + 15
+              else
+                reverted[prefix .. suffix] = value
+              end
+              reverted.overlays.eyebrow.id = nil
+              reverted.overlays.eyebrow.sexe = nil
+            elseif layerName == "hair" and key == "albedo" then
+              if value == "mp_u_faov_m_hair_000" then
+                reverted[prefix .. suffix] = 1
+              elseif value == "mp_u_faov_m_hair_002" then
+                reverted[prefix .. suffix] = 2
+              elseif value == "mp_u_faov_m_hair_009" then
+                reverted[prefix .. suffix] = 3
+              elseif value == "mp_u_faov_m_hair_shared_000" then
+                reverted[prefix .. suffix] = 4
+              end
+              reverted.overlays[layerName][key] = nil
+            elseif key == "id" then
+              reverted[prefix .. suffix] = value + 1
+              reverted.overlays[layerName][key] = nil
+            elseif key == "opacity" then
+              reverted[prefix .. suffix] = value * 100
+              reverted.overlays[layerName][key] = nil
+            else
+              reverted[prefix .. suffix] = value
+              reverted.overlays[layerName][key] = nil
+            end
+          end
+        end
+      end
+      if table.count(reverted.overlays[layerName]) == 0 then
+        reverted.overlays[layerName] = nil
+      end
+    end
+  end
+  if table.count(reverted.overlays) == 0 then
+    reverted.overlays = nil
+  end
+end
+
 local function clearOverlaysTable(overlays)
   for layerName, overlay in pairs(overlays) do
     if overlay[1] then
@@ -1317,6 +1385,7 @@ end
 
 --- A function to standardize a object of categories
 local function standardizeSkin(object)
+  object = table.copy(object)
   local standard = { overlays = {}, expressions = {} }
 
   for catFram, data in pairs(object or {}) do
@@ -1334,6 +1403,7 @@ local function standardizeSkin(object)
       end
     end
   end
+
   --Clear overlays table
   standard.overlays = table.merge(standardizeOverlays(object), object.overlays)
   standard.expressions = table.merge(standard.expressions, object.expressions)
@@ -1385,6 +1455,7 @@ end
 
 --- A function to revert a object of categories
 local function revertSkin(object)
+  object = table.copy(object)
   local framName = jo.framework:get()
   local reverted = {}
   for category, data in pairs(object) do
@@ -1392,21 +1463,28 @@ local function revertSkin(object)
       for category2, data2 in pairs(data) do
         local strandardCat, framCat = findValueInList(skinCategoryBridge[framName].expressions, category2)
         if strandardCat then
-          reverted[framCat] = data2
+          if data2 ~= 0 then
+            reverted[framCat] = data2
+          end
         else
           reverted[category2] = data2
         end
       end
+    elseif category == "overlays" then
+      reverted[category] = table.copy(data)
+      revertOverlays(reverted)
     else
       local key = revertSkinKey(category)
       reverted[key] = table.copy(data)
     end
   end
+
   if jo.framework:is("RSG") then
     revertRSGSkin(reverted)
   end
   return reverted
 end
+FrameworkClass.revertSkin = revertSkin
 
 local function revertClothes(object)
   local reverted = {}
@@ -1415,6 +1493,7 @@ local function revertClothes(object)
   end
   return reverted
 end
+FrameworkClass.revertClothes = revertClothes
 
 ---@param clothesList table
 local function cleanClothesTable(clothesList)
