@@ -134,7 +134,28 @@ local skinCategoryBridge = {
       HipsS = "hip",
       LegsS = "thighs",
       CalvesS = "calves",
-    }
+    },
+    overlays = {
+      beardstabble_ = "beard",
+      hair_ = "hair",
+      scars_ = "scar",
+      spots_ = "spots",
+      disc_ = "disc",
+      complex_ = "complex",
+      acne_ = "acne",
+      ageing_ = "ageing",
+      freckles_ = "freckles",
+      moles_ = "moles",
+      shadows_ = "eyeshadow",
+      eyebrows_ = "eyebrow",
+      eyeliner_ = "eyeliner",
+      eyeliners_ = "eyeliner",
+      blush_ = "blush",
+      lipsticks_ = "lipstick",
+      grime_ = "grime",
+      foundation_ = "foundation",
+      paintedmasks_ = "masks",
+    },
   },
   RSG = {
     components = {
@@ -207,6 +228,26 @@ local skinCategoryBridge = {
       hips_size = "hip",
       tight_size = "thighs",
       calves_size = "calves",
+    },
+    overlays = {
+      beardstabble_ = "beard",
+      hair_ = "hair",
+      scars_ = "scar",
+      spots_ = "spots",
+      disc_ = "disc",
+      complex_ = "complex",
+      acne_ = "acne",
+      ageing_ = "ageing",
+      freckles_ = "freckles",
+      moles_ = "moles",
+      shadows_ = "eyeshadow",
+      eyebrows_ = "eyebrow",
+      eyeliners_ = "eyeliner",
+      blush_ = "blush",
+      lipsticks_ = "lipstick",
+      grime_ = "grime",
+      foundation_ = "foundation",
+      paintedmasks_ = "masks",
     },
     convertedValues = {
       skin_tone = {
@@ -343,7 +384,27 @@ local skinCategoryBridge = {
         [5] = 5,
         [6] = 6
       },
-    }
+    },
+    overlays = {
+      beardstabble_ = "beard",
+      hair_ = "hair",
+      scars_ = "scar",
+      spots_ = "spots",
+      disc_ = "disc",
+      complex_ = "complex",
+      acne_ = "acne",
+      ageing_ = "ageing",
+      freckles_ = "freckles",
+      moles_ = "moles",
+      shadows_ = "eyeshadow",
+      eyebrows_ = "eyebrow",
+      eyeliners_ = "eyeliner",
+      blush_ = "blush",
+      lipsticks_ = "lipstick",
+      grime_ = "grime",
+      foundation_ = "foundation",
+      paintedmasks_ = "masks",
+    },
   },
   RedEM2023 = {
     {
@@ -1189,30 +1250,16 @@ end
 -- SKIN & CLOTHES
 -------------
 
+local function convertToPercent(value)
+  if value > 1 or value < -1 then
+    return value / 100
+  end
+  return value
+end
+
 ---@param key string
 local function isOverlayKey(key)
-  local converter = {
-    beardstabble_ = "beard",
-    hair_ = "hair",
-    scars_ = "scar",
-    spots_ = "spots",
-    disc_ = "disc",
-    complex_ = "complex",
-    acne_ = "acne",
-    ageing_ = "ageing",
-    freckles_ = "freckles",
-    moles_ = "moles",
-    shadows_ = "eyeshadow",
-    eyebrows_ = "eyebrow",
-    eyeliner_ = "eyeliner",
-    blush_ = "blush",
-    lipsticks_ = "lipstick",
-    grime_ = "grime",
-    foundation_ = "foundation",
-    paintedmasks_ = "masks",
-  }
-
-  for search, layerName in pairs(converter) do
+  for search, layerName in pairs(skinCategoryBridge[jo.framework:get()].overlays) do
     if key:find(search) then
       return layerName
     end
@@ -1264,19 +1311,80 @@ local function revertSkinKey(category)
   return category, "components"
 end
 
+local function standardizeOverlays(object)
+  local overlays = {}
+
+  for catFram, data in pairs(object or {}) do
+    if catFram ~= "expressions" and catFram ~= "overlays" then
+      local layerName = isOverlayKey(catFram)
+      if layerName then
+        overlays[layerName] = overlays[layerName] or {}
+        if catFram:find("_visibility") then
+          overlays[layerName].opacity = 0
+        elseif catFram:find("_tx_id") or catFram:sub(-2) == "_t" then
+          if layerName == "eyebrow" then
+            local id = data - 1
+            local sexe = "m"
+            if data > 15 then
+              data = data - 15
+              sexe = "f"
+            end
+            overlays[layerName].id = id
+            overlays[layerName].sexe = sexe
+          elseif layerName == "hair" then
+            if data == 1 then
+              overlays[layerName].albedo = "mp_u_faov_m_hair_000"
+            elseif data == 2 then
+              overlays[layerName].albedo = "mp_u_faov_m_hair_002"
+            elseif data == 3 then
+              overlays[layerName].albedo = "mp_u_faov_m_hair_009"
+            elseif data == 4 then
+              overlays[layerName].albedo = "mp_u_faov_m_hair_shared_000"
+            end
+          else
+            overlays[layerName].id = data - 1
+          end
+        elseif catFram:find("_opacity") or catFram:sub(-3) == "_op" then
+          overlays[layerName].opacity = convertToPercent(data)
+        elseif catFram:find("_palette_id") or catFram:sub(-3) == "_id" then
+          overlays[layerName].sheetGrid = data
+        elseif catFram:find("_color_primary") or catFram:sub(-3) == "_c1" or catFram:find("_color") then
+          overlays[layerName].tint0 = data
+        elseif catFram:find("_color_secondary") or catFram:sub(-3) == "_c2" then
+          overlays[layerName].tint1 = data
+        elseif catFram:find("_color_tertiary") or catFram:sub(-3) == "_c3" then
+          overlays[layerName].tint2 = data
+        end
+      end
+    end
+  end
+
+  return overlays
+end
+
+local function clearOverlaysTable(overlays)
+  for layerName, overlay in pairs(overlays) do
+    if overlay[1] then
+      overlay = clearOverlaysTable(overlay)
+    else
+      if overlay.opacity == 0 then
+        overlays[layerName] = nil
+      end
+    end
+  end
+end
+
 local function standardizeRSGSkin(standard)
   if standard.sex then
     standard.model = standard.sex == 2 and "mp_female" or "mp_male"
     standard.sex = nil
   end
   if standard.height then
-    standard.bodyScale = standard.height / 100
+    standard.bodyScale = convertToPercent(standard.height)
     standard.height = nil
   end
   for key, expression in pairs(standard.expressions) do
-    if expression > 1 or expression < -1 then
-      standard.expressions[key] = expression / 100
-    end
+    standard.expressions[key] = convertToPercent(expression)
   end
   if standard.skin_tone then
     standard.skinTone = skinCategoryBridge.RSG.convertedValues.skin_tone[standard.skin_tone] or standard.skin_tone
@@ -1329,55 +1437,9 @@ end
 local function standardizeSkin(object)
   local standard = { overlays = {}, expressions = {} }
 
-  local layerNamesNotNeeded = {}
-  local overlays = {}
-
   for catFram, data in pairs(object or {}) do
     if catFram ~= "expressions" and catFram ~= "overlays" then
-      local layerName = isOverlayKey(catFram)
-      if layerName then
-        overlays[layerName] = overlays[layerName] or {}
-        if catFram:find("_visibility") then
-          if data == 0 then
-            layerNamesNotNeeded[layerName] = true
-          end
-        elseif catFram:find("_tx_id") then
-          if layerName == "eyebrow" then
-            local id = data - 1
-            local sexe = "m"
-            if data > 15 then
-              data = data - 15
-              sexe = "f"
-            end
-            overlays[layerName].id = id
-            overlays[layerName].sexe = sexe
-          elseif layerName == "hair" then
-            if data == 1 then
-              overlays[layerName].albedo = "mp_u_faov_m_hair_000"
-            elseif data == 2 then
-              overlays[layerName].albedo = "mp_u_faov_m_hair_002"
-            elseif data == 3 then
-              overlays[layerName].albedo = "mp_u_faov_m_hair_009"
-            elseif data == 4 then
-              overlays[layerName].albedo = "mp_u_faov_m_hair_shared_000"
-            end
-          else
-            overlays[layerName].id = data - 1
-          end
-        elseif catFram:find("_opacity") then
-          overlays[layerName].opacity = data
-        elseif catFram:find("_palette_id") then
-          overlays[layerName].sheetGrid = data
-        elseif catFram:find("_color_primary") then
-          overlays[layerName].tint0 = data
-        elseif catFram:find("_color") then
-          overlays[layerName].tint0 = data
-        elseif catFram:find("_color_secondary") then
-          overlays[layerName].tint1 = data
-        elseif catFram:find("_color_tertiary") then
-          overlays[layerName].tint2 = data
-        end
-      else
+      if not isOverlayKey(catFram) then
         local key, keyType = standardizeSkinKey(catFram)
         if key then
           if keyType == "expressions" then
@@ -1385,16 +1447,16 @@ local function standardizeSkin(object)
           else
             standard[key] = data
           end
+          object[catFram] = nil
         end
       end
     end
   end
   --Clear overlays table
-  for layerName, _ in pairs(layerNamesNotNeeded) do
-    overlays[layerName] = nil
-  end
-  standard.overlays = table.merge(overlays, object.overlays)
+  standard.overlays = table.merge(standardizeOverlays(object), object.overlays)
   standard.expressions = table.merge(standard.expressions, object.expressions)
+
+  clearOverlaysTable(standard.overlays)
 
   if standard.hair and type(standard.hair) ~= "table" then
     standard.hair = {
