@@ -1139,7 +1139,7 @@ end
 
 ---@param key string
 local function isOverlayKey(key)
-  if key == "eyebrow_height" then return false end
+  if skinCategoryBridge[jo.framework:get()].overlays[key] then return false end
   for search, layerName in pairs(skinCategoryBridge[jo.framework:get()].overlays) do
     if key:find(search) then
       if key == search then
