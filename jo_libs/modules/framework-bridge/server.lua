@@ -1293,7 +1293,10 @@ local function revertOverlays(reverted)
               reverted[prefix .. suffix] = value + 1
               reverted.overlays[layerName][key] = nil
             elseif key == "opacity" then
-              reverted[prefix .. suffix] = value * 100
+              reverted[prefix .. suffix] = value
+              if jo.framework:is("RSG") then
+                reverted[prefix .. suffix] = reverted[prefix .. suffix] * 100
+              end
               reverted.overlays[layerName][key] = nil
             else
               reverted[prefix .. suffix] = value
