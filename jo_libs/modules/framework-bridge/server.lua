@@ -66,6 +66,7 @@ local skinCategoryBridge = {
       Teeth = "teeth",
       Torso = "bodyUpperHash",
       Vest = "vests",
+      WaistW = "bodyWeight"
     },
     expressions = {
       --Expressions
@@ -131,7 +132,6 @@ local skinCategoryBridge = {
       ULiphD = "upperLipDepth",
       ULiphH = "upperLipHeight",
       ULiphW = "upperLipWidth",
-      WaistW = "waist",
     },
     overlays = {
       acne = "acne",
@@ -1131,6 +1131,8 @@ end
 -------------
 
 local function convertToPercent(value)
+  value = tonumber(value)
+  if not value then return 0 end
   if value > 1 or value < -1 then
     return value / 100
   end
