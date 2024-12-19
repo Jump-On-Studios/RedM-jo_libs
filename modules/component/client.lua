@@ -668,6 +668,9 @@ function jo.component.applySkin(ped, skin)
   if skin.bodyType then
     EquipMetaPedOutfit(ped, skin.bodyType)
   end
+  if skin.bodyWeight then
+    EquipMetaPedOutfit(ped, skin.bodyWeight)
+  end
 
   jo.component.refreshPed(ped)
   waitReadyPed(ped)

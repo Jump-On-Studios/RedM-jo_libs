@@ -251,8 +251,8 @@ function jo.menu.show(show, keepInput, hideRadar, hideNuiCursor, animation)
         SendNUIMessage({ event = "updateShow", show = show, cancelAnimation = not animation })
       end)
     else
-      SetNuiFocus(true, hideNuiCursor and not keepInput)
-      SetNuiFocusKeepInput(not hideNuiCursor and keepInput)
+      SetNuiFocus(true, true)
+      SetNuiFocusKeepInput(keepInput)
       SendNUIMessage({ event = "updateShow", show = show, cancelAnimation = not animation })
       loopMenu()
     end

@@ -97,7 +97,7 @@ function jo.versionChecker.checkUpdate()
     print("^3 Description of " .. resultData.version .. ":^0")
     print(resultData.body)
     print("")
-    print("^3└─────────────── shop.jumpon-studios.com ───────────────┘^0")
+    print("^3└───────────────── jumpon-studios.com ──────────────┘^0")
   end)
 
   Citizen.Await(waiter)
