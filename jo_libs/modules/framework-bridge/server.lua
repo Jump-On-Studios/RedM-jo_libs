@@ -66,7 +66,7 @@ local skinCategoryBridge = {
       Teeth = "teeth",
       Torso = "bodyUpperHash",
       Vest = "vests",
-      WaistW = "bodyWeight"
+      Waist = "bodyWeight"
     },
     expressions = {
       --Expressions
@@ -132,6 +132,7 @@ local skinCategoryBridge = {
       ULiphD = "upperLipDepth",
       ULiphH = "upperLipHeight",
       ULiphW = "upperLipWidth",
+      WaistW = "waist",
     },
     overlays = {
       acne = "acne",
