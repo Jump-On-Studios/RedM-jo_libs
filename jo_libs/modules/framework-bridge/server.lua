@@ -18,14 +18,11 @@ local mainResourceFramework = {
 local skinCategoryBridge = {
   VORP = {
     components = {
-      --Ties = "neckties",
       Accessories = "accessories",
       armor = "armor",
       Badge = "badges",
       Beard = "beards_complete",
       Belt = "belts",
-      Body = "bodyType",
-      BodyType = "bodyUpperHash", --To be confirm
       Boots = "boots",
       bow = "hair_accessories",
       Bracelet = "jewelry_bracelets",
@@ -35,8 +32,6 @@ local skinCategoryBridge = {
       Coat = "coats",
       CoatClosed = "coats_closed",
       Dress = "dresses",
-      dresses = "dresses",
-      Eyes = "eyesHash",
       EyeWear = "eyewear",
       Gauntlets = "gauntlets",
       Glove = "gloves",
@@ -44,9 +39,7 @@ local skinCategoryBridge = {
       GunbeltAccs = "gunbelt_accs",
       Hair = "hair",
       Hat = "hats",
-      HeadType = "headHash",
       Holster = "holsters_left",
-      LegsType = "bodyLowerHash",
       Loadouts = "loadouts",
       Mask = "masks",
       NeckTies = "neckties",
@@ -56,83 +49,13 @@ local skinCategoryBridge = {
       RingLh = "jewelry_rings_left",
       RingRh = "jewelry_rings_right",
       Satchels = "satchels",
-      Scale = "bodyScale",
-      sex = "model",
       Shirt = "shirts_full",
       Skirt = "skirts",
       Spats = "spats",
       Spurs = "boot_accessories",
       Suspender = "suspenders",
       Teeth = "teeth",
-      Torso = "bodyUpperHash",
       Vest = "vests",
-      Waist = "bodyWeight"
-    },
-    expressions = {
-      --Expressions
-      ArmsS = "arms",
-      CalvesS = "calves",
-      CheekBonesD = "cheekbonesDepth",
-      CheekBonesH = "cheekbonesHeight",
-      CheekBonesW = "cheekbonesWidth",
-      ChestS = "chest",
-      ChinD = "chinDepth",
-      ChinH = "chinHeight",
-      ChinW = "chinWidth",
-      EarsA = "earsAngle",
-      EarsD = "earlobes",
-      EarsH = "earsHeight",
-      EarsW = "earsWidth",
-      EyeAng = "eyesAngle",
-      EyeBrowD = "eyebrowDepth",
-      EyeBrowH = "eyebrowHeight",
-      EyeBrowW = "eyebrowWidth",
-      EyeD = "eyesDepth",
-      EyeDis = "eyesDistance",
-      EyeH = "eyesHeight",
-      EyeLidH = "eyelidHeight",
-      EyeLidL = "eyelidLeft",
-      EyeLidR = "eyelidRight",
-      EyeLidW = "eyelidWidth",
-      FaceD = "eyebrowWidth",
-      FaceS = "eyebrowHeight",
-      FaceW = "faceWidth",
-      HeadSize = "headWidth",
-      HipsS = "hip",
-      JawD = "jawDepth",
-      JawH = "jawHeight",
-      JawW = "jawWidth",
-      LegsS = "thighs",
-      LLiphD = "lowerLipDepth",
-      LLiphH = "lowerLipHeight",
-      LLiphW = "lowerLipWidth",
-      MouthCLD = "mouthConerLeftDepth",
-      MouthCLH = "mouthConerLeftHeight",
-      MouthCLLD = "mouthConerLeftLipsDistance",
-      MouthCLW = "mouthConerLeftWidth",
-      MouthCRD = "mouthConerRightDepth",
-      MouthCRH = "mouthConerRightHeight",
-      MouthCRLD = "mouthConerRightLipsDistance",
-      MouthCRW = "mouthConerRightWidth",
-      MouthD = "mouthDepth",
-      MouthW = "mouthWidth",
-      MouthX = "mouthX",
-      MouthY = "mouthY",
-      NeckD = "neckDepth",
-      NeckW = "neckWidth",
-      NoseAng = "noseAngle",
-      NoseC = "noseCurvature",
-      NoseDis = "nostrilsDistance",
-      NoseH = "noseHeight",
-      NoseS = "noseSize",
-      NoseW = "noseWidth",
-      ShouldersM = "shoulderBlades",
-      ShouldersS = "shoulders",
-      ShouldersT = "shoulderThickness",
-      ULiphD = "upperLipDepth",
-      ULiphH = "upperLipHeight",
-      ULiphW = "upperLipWidth",
-      WaistW = "waist",
     },
     overlays = {
       acne = "acne",
@@ -156,142 +79,6 @@ local skinCategoryBridge = {
       spots = "spots",
     },
   },
-  RSG = {
-    components = {
-      beard = "beards_complete",
-      eyes_color = "eyesIndex",
-      teeth = "teethIndex"
-    },
-    expressions = {
-      --Expressions
-      arms_size = "arms",
-      back_muscle = "shoulderBlades",
-      back_shoulder_thickness = "shoulderThickness",
-      calves_size = "calves",
-      cheekbones_depth = "cheekbonesDepth",
-      cheekbones_height = "cheekbonesHeight",
-      cheekbones_width = "cheekbonesWidth",
-      chest_size = "chest",
-      chin_depth = "chinDepth",
-      chin_height = "chinHeight",
-      chin_width = "chinWidth",
-      earlobe_size = "earlobes",
-      ears_angle = "earsAngle",
-      ears_height = "earsHeight",
-      ears_width = "earsWidth",
-      eyebrow_depth = "eyebrowDepth",
-      eyebrow_height = "eyebrowHeight",
-      eyebrow_width = "eyebrowWidth",
-      eyelid_height = "eyelidHeight",
-      eyelid_left = "eyelidLeft",
-      eyelid_right = "eyelidRight",
-      eyelid_width = "eyelidWidth",
-      eyes_angle = "eyesAngle",
-      eyes_depth = "eyesDepth",
-      eyes_distance = "eyesDistance",
-      eyes_height = "eyesHeight",
-      face_depth = "eyebrowWidth",
-      face_width = "faceWidth",
-      forehead_size = "eyebrowHeight",
-      head_width = "headWidth",
-      hips_size = "hip",
-      jaw_depth = "jawDepth",
-      jaw_height = "jawHeight",
-      jaw_width = "jawWidth",
-      lower_lip_depth = "lowerLipDepth",
-      lower_lip_height = "lowerLipHeight",
-      lower_lip_width = "lowerLipWidth",
-      mouth_corner_left_depth = "mouthConerLeftDepth",
-      mouth_corner_left_height = "mouthConerLeftHeight",
-      mouth_corner_left_lips_distance = "mouthConerLeftLipsDistance",
-      mouth_corner_left_width = "mouthConerLeftWidth",
-      mouth_corner_right_depth = "mouthConerRightDepth",
-      mouth_corner_right_height = "mouthConerRightHeight",
-      mouth_corner_right_lips_distance = "mouthConerRightLipsDistance",
-      mouth_corner_right_width = "mouthConerRightWidth",
-      mouth_depth = "mouthDepth",
-      mouth_width = "mouthWidth",
-      mouth_x_pos = "mouthY",
-      mouth_y_pos = "mouthX",
-      neck_depth = "neckDepth",
-      neck_width = "neckWidth",
-      nose_angle = "noseAngle",
-      nose_curvature = "noseCurvature",
-      nose_height = "noseHeight",
-      nose_size = "noseSize",
-      nose_width = "noseWidth",
-      nostrils_distance = "nostrilsDistance",
-      tight_size = "thighs",
-      upper_lip_depth = "upperLipDepth",
-      upper_lip_height = "upperLipHeight",
-      upper_lip_width = "upperLipWidth",
-      uppr_shoulder_size = "shoulders",
-      waist_width = "waist",
-    },
-    overlays = {
-      acne = "acne",
-      ageing = "ageing",
-      beardstabble = "beard",
-      blush = "blush",
-      complex = "complex",
-      disc = "disc",
-      eyebrows = "eyebrow",
-      eyeliners = "eyeliner",
-      foundation = "foundation",
-      freckles = "freckles",
-      grime = "grime",
-      hair = "hair",
-      lipsticks = "lipstick",
-      moles = "moles",
-      paintedmasks = "masks",
-      scars = "scar",
-      shadows = "eyeshadow",
-      spots = "spots",
-    },
-    convertedValues = {
-      skin_tone = {
-        [1] = 1,
-        [2] = 4,
-        [3] = 3,
-        [4] = 5,
-        [5] = 2,
-        [6] = 6
-      },
-      head = {
-        mp_male = {
-          [16] = 18,
-          [17] = 21,
-          [18] = 22,
-          [19] = 25,
-          [20] = 28
-        },
-        mp_female = {
-          [17] = 20,
-          [18] = 22,
-          [19] = 27,
-          [20] = 28
-        }
-      },
-      bodies = {
-        [1] = 2,
-        [2] = 1,
-        [3] = 3,
-        [4] = 4,
-        [5] = 5,
-        [6] = 6
-      },
-    }
-  },
-  RedEM = {
-    components = {
-      beard = "beards_complete"
-    }
-  },
-  RedEM2023 = {
-    {
-      beard = "beards_complete"
-    }
-  }
 }
 
 -------------
@@ -1367,7 +1154,183 @@ local function standardizeSkin(object)
   object = table.copy(object)
   local standard = {}
 
-  if jo.framework:is("RSG") then
+  if jo.framework:is("VORP") then
+    standard.model = object.sex
+    standard.headHash = object.HeadType
+    standard.bodyUpperHash = object.BodyType ~= 0 and object.BodyType or object.Torso
+    standard.bodyLoverHash = object.LegsType ~= 0 and object.LegsType or object.Legs
+    standard.eyesHash = object.Eyes
+    standard.teethHash = object.Teeth
+    standard.hair = object.Hair
+    standard.beards_complete = object.Beard
+    standard.bodyType = object.Body
+    standard.bodyWeight = object.Waist
+    standard.bodyScale = object.Scale
+
+    standard.expressions = {
+      arms = object.ArmsS,
+      calves = object.CalvesS,
+      cheekbonesDepth = object.CheekBonesD,
+      cheekbonesHeight = object.CheekBonesH,
+      cheekbonesWidth = object.CheekBonesW,
+      chest = object.ChestS,
+      chinDepth = object.ChinD,
+      chinHeight = object.ChinH,
+      chinWidth = object.ChinW,
+      earlobes = object.EarsD,
+      earsAngle = object.EarsA,
+      earsDepth = object.earsDepth,
+      earsHeight = object.EarsH,
+      earsWidth = object.EarsW,
+      eyebrowDepth = object.EyeBrowD,
+      eyebrowHeight = object.EyeBrowH,
+      eyebrowWidth = object.EyeBrowW,
+      eyelidHeight = object.EyeLidH,
+      eyelidLeft = object.EyeLidL,
+      eyelidRight = object.EyeLidR,
+      eyelidWidth = object.EyeLidW,
+      eyesAngle = object.EyeAng,
+      eyesDepth = object.EyeD,
+      eyesDistance = object.EyeDis,
+      eyesHeight = object.EyeH,
+      faceWidth = object.FaceW,
+      headWidth = object.HeadSize,
+      hip = object.HipsS,
+      jawDepth = object.JawD,
+      jawHeight = object.JawH,
+      jawWidth = object.JawW,
+      jawY = object.jawY,
+      lowerLipDepth = object.LLiphD,
+      lowerLipHeight = object.LLiphH,
+      lowerLipWidth = object.LLiphW,
+      mouthConerLeftDepth = object.MouthCLD,
+      mouthConerLeftHeight = object.MouthCLH,
+      mouthConerLeftLipsDistance = object.MouthCLLD,
+      mouthConerLeftWidth = object.MouthCLW,
+      mouthConerRightDepth = object.MouthCRD,
+      mouthConerRightHeight = object.MouthCRH,
+      mouthConerRightLipsDistance = object.MouthCRLD,
+      mouthConerRightWidth = object.MouthCRW,
+      mouthDepth = object.MouthD,
+      mouthWidth = object.MouthW,
+      mouthX = object.MouthX,
+      mouthY = object.MouthY,
+      neckDepth = object.NeckD,
+      neckWidth = object.NeckW,
+      noseAngle = object.NoseAng,
+      noseCurvature = object.NoseC,
+      noseHeight = object.NoseH,
+      noseSize = object.NoseS,
+      noseWidth = object.NoseW,
+      nostrilsDistance = object.NoseDis,
+      shoulderBlades = object.ShouldersM,
+      shoulders = object.ShouldersS,
+      shoulderThickness = object.ShouldersT,
+      thighs = object.LegsS,
+      upperLipDepth = object.ULiphD,
+      upperLipHeight = object.ULiphH,
+      upperLipWidth = object.ULiphW,
+      waist = object.WaistW,
+    }
+
+    local function needOverlay(value)
+      if not value then return nil end
+      if value == 0 then return nil end
+      return true
+    end
+
+    standard.overlays = {
+      ageing = needOverlay(object.ageing_visibility) and {
+        id = object.ageing_tx_id - 1,
+        opacity = convertToPercent(object.ageing_opacity)
+      },
+      beard = needOverlay(object.beardstabble_visibility) and {
+        id = 1,
+        tint0 = object.beardstabble_color_primary,
+        opacity = convertToPercent(object.beardstabble_opacity)
+      },
+      blush = needOverlay(object.blush_visibility) and {
+        id = object.blush_tx_id - 1,
+        tint0 = object.blush_palette_color_primary,
+        opacity = convertToPercent(object.blush_opacity)
+      },
+      eyebrow = needOverlay(object.eyebrows_visibility) and (function()
+        local id = object.eyebrows_tx_id - 1
+        local sexe = "m"
+        if id > 15 then
+          id = id - 15
+          sexe = "f"
+        end
+        return {
+          id = id,
+          sexe = sexe,
+          tint0 = object.eyebrows_color,
+          opacity = convertToPercent(object.eyebrows_opacity)
+        }
+      end)(),
+      eyeliner = needOverlay(object.eyeliner_visibility) and {
+        id = object.eyeliner_tx_id - 1,
+        sheetGrid = object.eyeliner_palette_id - 1,
+        tint0 = object.eyeliner_color_primary,
+        opacity = convertToPercent(object.eyeliner_opacity)
+      },
+      eyeshadow = needOverlay(object.shadows_visibility) and {
+        id = 1,
+        sheetGrid = object.shadows_palette_id - 1,
+        tint0 = object.shadows_palette_color_primary,
+        tint1 = object.shadows_palette_color_secondary,
+        tint2 = object.shadows_palette_color_tertiary,
+        opacity = convertToPercent(object.shadows_opacity)
+      },
+      freckles = needOverlay(object.freckles_visibility) and {
+        id = object.freckles_tx_id - 1,
+        opacity = convertToPercent(object.freckles_opacity)
+      },
+      lipstick = needOverlay(object.lipsticks_visibility) and {
+        id = 1,
+        sheetGrid = object.lipsticks_palette_id - 1,
+        tint0 = object.lipsticks_palette_color_primary,
+        tint1 = object.lipsticks_palette_color_secondary,
+        tint2 = object.lipsticks_palette_color_tertiary,
+        opacity = convertToPercent(object.lipsticks_opacity)
+      },
+      moles = needOverlay(object.moles_visibility) and {
+        id = object.moles_tx_id - 1,
+        opacity = convertToPercent(object.moles_opacity)
+      },
+      scar = needOverlay(object.scars_visibility) and {
+        id = object.scars_tx_id - 1,
+        opacity = convertToPercent(object.scars_opacity)
+      },
+      spots = needOverlay(object.spots_visibility) and {
+        id = object.spots_tx_id - 1,
+        opacity = convertToPercent(object.spots_opacity)
+      },
+      acne = needOverlay(object.acne_visibility) and {
+        id = object.acne_tx_id - 1,
+        opacity = convertToPercent(object.acne_opacity)
+      },
+      grime = needOverlay(object.grime_visibility) and {
+        id = object.grime_tx_id - 1,
+        opacity = convertToPercent(object.grime_opacity)
+      },
+      hair = needOverlay(object.hair_visibility) and {
+        id = object.hair_tx_id - 1,
+        tint0 = object.hair_color_primary,
+        opacity = convertToPercent(object.hair_opacity)
+      },
+      complex = needOverlay(object.complex_visibility) and {
+        id = object.complex_tx_id - 1,
+        opacity = convertToPercent(object.complex_opacity)
+      },
+      disc = needOverlay(object.disc_visibility) and {
+        id = object.disc_tx_id - 1,
+        opacity = convertToPercent(object.disc_opacity)
+      },
+      -- foundation = {},
+      -- masks = {},
+    }
+  elseif jo.framework:is("RSG") then
     local skin_tone = { 1, 4, 3, 5, 2, 6 }
     local heads = {
       mp_male = { [16] = 18, [17] = 21, [18] = 22, [19] = 25, [20] = 28 },
@@ -1376,9 +1339,7 @@ local function standardizeSkin(object)
     local bodies = { 2, 1, 3, 4, 5, 6 }
 
     standard.model = object.sex == 2 and "mp_female" or "mp_male"
-    standard.beards_complete = object.beard
     standard.bodiesIndex = bodies[object.body_size] or object.body_size
-    standard.bodyScale = convertToPercent(object.height)
     standard.eyesIndex = object.eye_color
     standard.headIndex = heads[standard.model][math.ceil(object.head / 6)] or math.ceil(object.head / 6)
     standard.skinTone = skin_tone[object.skin_tone]
@@ -1387,6 +1348,7 @@ local function standardizeSkin(object)
     if standard.model == "mp_male" then
       standard.beards_complete = object.beard
     end
+    standard.bodyScale = convertToPercent(object.height)
 
     standard.expressions = {
       arms = object.arms_size,
@@ -1420,7 +1382,7 @@ local function standardizeSkin(object)
       jawDepth = object.jaw_depth,
       jawHeight = object.jaw_height,
       jawWidth = object.jaw_width,
-      jawY = 0,
+      jawY = object.jawY,
       lowerLipDepth = object.lower_lip_depth,
       lowerLipHeight = object.lower_lip_height,
       lowerLipWidth = object.lower_lip_width,
@@ -1453,10 +1415,6 @@ local function standardizeSkin(object)
       upperLipWidth = object.upper_lip_width,
       waist = object.waist_width,
     }
-
-    for key, expression in pairs(standard.expressions) do
-      standard.expressions[key] = convertToPercent(expression)
-    end
 
     standard.overlays = {
       ageing = object.ageing_t and {
@@ -1538,6 +1496,14 @@ local function standardizeSkin(object)
   --Clear overlays table
   standard.overlays = table.merge(standard.overlays, object.overlays)
   standard.expressions = table.merge(standard.expressions, object.expressions)
+
+  for key, expression in pairs(standard.expressions) do
+    if expression == 0 then
+      standard.expressions[key] = nil
+    else
+      standard.expressions[key] = convertToPercent(expression)
+    end
+  end
 
   clearOverlaysTable(standard.overlays)
 
