@@ -157,5 +157,13 @@ table.isEgal = function(table1, table2, strict, canMissInTable1, canMissInTable2
   return true
 end
 
+---@param t table the table to get the value
+---@param key any the key to get the value
+---@return any value the value of the key
+table.extract = function(t, key)
+  local value = type(t[key]) == "table" and table.copy(t[key]) or t[key]
+  t[key] = nil
+  return value
+end
 
 jo.table = {}

@@ -1330,33 +1330,6 @@ local function clearOverlaysTable(overlays)
   end
 end
 
-local function standardizeRSGSkin(standard)
-  if standard.sex then
-    standard.model = standard.sex == 2 and "mp_female" or "mp_male"
-    standard.sex = nil
-  end
-  if standard.height then
-    standard.bodyScale = convertToPercent(standard.height)
-    standard.height = nil
-  end
-  for key, expression in pairs(standard.expressions) do
-    standard.expressions[key] = convertToPercent(expression)
-  end
-  if standard.skin_tone then
-    standard.skinTone = skinCategoryBridge.RSG.convertedValues.skin_tone[standard.skin_tone] or standard.skin_tone
-    standard.skin_tone = nil
-  end
-  if standard.head then
-    local head = math.ceil(standard.head / 6)
-    standard.headIndex = skinCategoryBridge.RSG.convertedValues.head[standard.model][head] or head
-    standard.head = nil
-  end
-  if standard.body_size then
-    standard.bodiesIndex = skinCategoryBridge.RSG.convertedValues.bodies[standard.body_size] or standard.body_size
-    standard.body_size = nil
-  end
-end
-
 local function revertRSGSkin(standard)
   if standard.bodyScale then
     standard.height = math.floor(standard.bodyScale * 100)
@@ -1392,26 +1365,178 @@ end
 --- A function to standardize a object of categories
 local function standardizeSkin(object)
   object = table.copy(object)
-  local standard = { overlays = {}, expressions = {} }
+  local standard = {}
 
-  for catFram, data in pairs(object or {}) do
-    if catFram ~= "expressions" and catFram ~= "overlays" then
-      if not isOverlayKey(catFram) then
-        local key, keyType = standardizeSkinKey(catFram)
-        if key then
-          if keyType == "expressions" then
-            standard.expressions[key] = data
-          else
-            standard[key] = data
-          end
-          object[catFram] = nil
-        end
-      end
+  if jo.framework:is("RSG") then
+    local skin_tone = { 1, 4, 3, 5, 2, 6 }
+    local heads = {
+      mp_male = { [16] = 18, [17] = 21, [18] = 22, [19] = 25, [20] = 28 },
+      mp_female = { [17] = 20, [18] = 22, [19] = 27, [20] = 28 }
+    }
+    local bodies = { 2, 1, 3, 4, 5, 6 }
+
+    standard.model = object.sex == 2 and "mp_female" or "mp_male"
+    standard.beards_complete = object.beard
+    standard.bodiesIndex = bodies[object.body_size] or object.body_size
+    standard.bodyScale = convertToPercent(object.height)
+    standard.eyesIndex = object.eye_color
+    standard.headIndex = heads[standard.model][math.ceil(object.head / 6)] or math.ceil(object.head / 6)
+    standard.skinTone = skin_tone[object.skin_tone]
+    standard.teethIndex = object.teethIndex
+    standard.hair = object.hair
+    if standard.model == "mp_male" then
+      standard.beards_complete = object.beard
     end
+
+    standard.expressions = {
+      arms = object.arms_size,
+      calves = object.calves_size,
+      cheekbonesDepth = object.cheekbones_depth,
+      cheekbonesHeight = object.cheekbones_height,
+      cheekbonesWidth = object.cheekbones_width,
+      chest = object.chest_size,
+      chinDepth = object.chin_depth,
+      chinHeight = object.chin_height,
+      chinWidth = object.chin_width,
+      earlobes = object.earlobe_size,
+      earsAngle = object.ears_angle,
+      earsDepth = object.eyebrow_depth,
+      earsHeight = object.ears_height,
+      earsWidth = object.ears_width,
+      eyebrowDepth = object.face_depth,
+      eyebrowHeight = object.eyebrow_height,
+      eyebrowWidth = object.eyebrow_width,
+      eyelidHeight = object.eyelid_height,
+      eyelidLeft = object.eyelid_left,
+      eyelidRight = object.eyelid_right,
+      eyelidWidth = object.eyelid_width,
+      eyesAngle = object.eyes_angle,
+      eyesDepth = object.eyes_depth,
+      eyesDistance = object.eyes_distance,
+      eyesHeight = object.eyes_height,
+      faceWidth = object.face_width,
+      headWidth = object.head_width,
+      hip = object.hips_size,
+      jawDepth = object.jaw_depth,
+      jawHeight = object.jaw_height,
+      jawWidth = object.jaw_width,
+      jawY = 0,
+      lowerLipDepth = object.lower_lip_depth,
+      lowerLipHeight = object.lower_lip_height,
+      lowerLipWidth = object.lower_lip_width,
+      mouthConerLeftDepth = object.mouth_corner_left_depth,
+      mouthConerLeftHeight = object.mouth_corner_left_height,
+      mouthConerLeftLipsDistance = object.mouth_corner_left_lips_distance,
+      mouthConerLeftWidth = object.mouth_corner_left_width,
+      mouthConerRightDepth = object.mouth_corner_right_depth,
+      mouthConerRightHeight = object.mouth_corner_right_height,
+      mouthConerRightLipsDistance = object.mouth_corner_right_lips_distance,
+      mouthConerRightWidth = object.mouth_corner_right_width,
+      mouthDepth = object.mouth_depth,
+      mouthWidth = object.mouth_width,
+      mouthX = object.mouth_x_pos,
+      mouthY = object.mouth_y_pos,
+      neckDepth = object.neck_depth,
+      neckWidth = object.neck_width,
+      noseAngle = object.nose_angle,
+      noseCurvature = object.nose_curvature,
+      noseHeight = object.nose_height,
+      noseSize = object.nose_size,
+      noseWidth = object.nose_width,
+      nostrilsDistance = object.nostrils_distance,
+      shoulderBlades = object.back_muscle,
+      shoulders = object.uppr_shoulder_size,
+      shoulderThickness = object.back_shoulder_thickness,
+      thighs = object.tight_size,
+      upperLipDepth = object.upper_lip_depth,
+      upperLipHeight = object.upper_lip_height,
+      upperLipWidth = object.upper_lip_width,
+      waist = object.waist_width,
+    }
+
+    for key, expression in pairs(standard.expressions) do
+      standard.expressions[key] = convertToPercent(expression)
+    end
+
+    standard.overlays = {
+      ageing = object.ageing_t and {
+        id = object.ageing_t - 1,
+        opacity = convertToPercent(object.ageing_op)
+      },
+      beard = object.beardstabble_t and {
+        id = object.beardstabble_t,
+        opacity = convertToPercent(object.beardstabble_op)
+      },
+      blush = object.blush_t and {
+        id = object.blush_t - 1,
+        palette = object.blush_id,
+        tint0 = object.blush_c1,
+        opacity = convertToPercent(object.blush_op)
+      },
+      eyebrow = object.eyebrow_t and (function()
+        local id = object.eyebrow_t - 1
+        local sexe = "m"
+        if id > 15 then
+          id = id - 15
+          sexe = "f"
+        end
+        return {
+          id = id,
+          sexe = sexe,
+          palette = object.eyebrow_id,
+          tint0 = object.eyebrow_c1,
+          opacity = convertToPercent(object.eyebrow_op)
+        }
+      end)(),
+      eyeliner = object.eyeliner_t and {
+        id = 1,
+        sheetGrid = object.eyeliner_t - 1,
+        palette = object.eyeliner_id,
+        tint0 = object.eyeliner_c1,
+        opacity = convertToPercent(object.eyeliner_op)
+      },
+      eyeshadow = object.shadows_t and {
+        id = 1,
+        sheetGrid = object.shadows_t - 1,
+        palette = object.shadows_id,
+        tint0 = object.shadows_c1,
+        opacity = convertToPercent(object.shadows_op)
+      },
+      freckles = object.freckles_t and {
+        id = object.freckles_t - 1,
+        opacity = convertToPercent(object.freckles_op)
+      },
+      lipstick = object.lipstick_t and {
+        id = 1,
+        sheetGrid = object.lipstick_t - 1,
+        palette = object.lipstick_id,
+        tint0 = object.lipstick_c1,
+        opacity = convertToPercent(object.lipstick_op)
+      },
+      moles = object.moles_t and {
+        id = object.moles_t - 1,
+        opacity = convertToPercent(object.moles_op)
+      },
+      scar = object.scars_t and {
+        id = object.scars_t - 1,
+        opacity = convertToPercent(object.scars_op)
+      },
+      spots = object.spots_t and {
+        id = object.spots_t - 1,
+        opacity = convertToPercent(object.spots_op)
+      },
+      -- acne = {},
+      -- foundation = {},
+      -- grime = {},
+      -- hair = {},
+      -- masks = {},
+      -- complex = {},
+      -- disc = {},
+    }
   end
 
   --Clear overlays table
-  standard.overlays = table.merge(standardizeOverlays(object), object.overlays)
+  standard.overlays = table.merge(standard.overlays, object.overlays)
   standard.expressions = table.merge(standard.expressions, object.expressions)
 
   clearOverlaysTable(standard.overlays)
@@ -1425,10 +1550,6 @@ local function standardizeSkin(object)
     standard.beards_complete = {
       hash = standard.beards_complete
     }
-  end
-
-  if jo.framework:is("RSG") then
-    standardizeRSGSkin(standard)
   end
 
   return standard
