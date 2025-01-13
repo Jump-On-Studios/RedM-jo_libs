@@ -1561,7 +1561,7 @@ local function standardizeSkin(object)
     -- standard.overlays.disc = {},
   end
 
-  if Config?.debug then
+  if Config and Config.debug then
     if table.count(object) > 0 then
       eprint("Skin keys not converted to standard")
       TriggerEvent("print", object)
@@ -1868,7 +1868,7 @@ local function revertSkin(standard)
       standard.expressions = nil
     end
 
-    if Config?.debug then
+    if config and Config.debug then
       if table.count(standard) > 0 then
         eprint("Skin keys not reverted")
         TriggerEvent("print", standard)
@@ -2085,7 +2085,7 @@ local function revertSkin(standard)
       standard.expressions = nil
     end
 
-    if Config?.debug then
+    if config and Config.debug then
       if table.count(standard) > 0 then
         eprint("Skin keys not reverted")
         TriggerEvent("print", standard)
