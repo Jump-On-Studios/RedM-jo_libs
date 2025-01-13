@@ -927,20 +927,6 @@ local function convertToPercent(value)
   return value
 end
 
----@param key string
-local function isOverlayKey(key)
-  if skinCategoryBridge[jo.framework:get()].overlays[key] then return false end
-  for search, layerName in pairs(skinCategoryBridge[jo.framework:get()].overlays) do
-    if key:find(search) then
-      if key == search then
-        return false
-      end
-      return layerName
-    end
-  end
-  return false
-end
-
 local function findKeyInList(list, key)
   list = list or {}
   if list[key] then return true, list[key] end
@@ -1109,7 +1095,7 @@ local function standardizeSkin(object)
     standard.bodyUpperHash = object.BodyType ~= 0 and object.BodyType or object.Torso
     object.BodyType = nil
     object.Torso = nil
-    standard.bodyLoverHash = object.LegsType ~= 0 and object.LegsType or object.Legs
+    standard.bodyLowerHash = object.LegsType ~= 0 and object.LegsType or object.Legs
     object.LegsType = nil
     object.Legs = nil
     standard.eyesHash = table.extract(object, "Eyes")
@@ -1562,7 +1548,14 @@ local function standardizeSkin(object)
     }
   end
 
-  TriggerEvent("print", "clé restante =>", object)
+  if Config?.debug then
+    if table.count(object) > 0 then
+      eprint("Skin keys not converted to standard")
+      TriggerEvent("print", object)
+    else
+      gprint("All skin keys standardized")
+    end
+  end
 
   standard = table.merge(standard, object)
 
@@ -1626,83 +1619,85 @@ local function revertSkin(standard)
   local reverted = {}
 
   if jo.framework:is("VORP") then
-    reverted.sex = standard.model
-    reverted.HeadType = standard.headHash
-    reverted.Torse = standard.bodyUpperHash
+    reverted.sex = table.extract(standard, "model")
+    reverted.HeadType = table.extract(standard, "headHash")
+    reverted.Torso = standard.bodyUpperHash
     reverted.BodyType = standard.bodyUpperHash
-    reverted.Legs = standard.bodyLoverHash
-    reverted.LegsType = standard.bodyLoverHash
-    reverted.Eyes = standard.eyesHash
-    reverted.Teeth = standard.teethHash
-    reverted.Hair = standard.hair
-    reverted.Beard = standard.beards_complete
-    reverted.Body = standard.bodyType
-    reverted.Waist = standard.bodyWeight
-    reverted.Scale = standard.bodyScale
+    standard.bodyUpperHash = nil
+    reverted.Legs = standard.bodyLowerHash
+    reverted.LegsType = standard.bodyLowerHash
+    standard.bodyLowerHash = nil
+    reverted.Eyes = table.extract(standard, "eyesHash")
+    reverted.Teeth = table.extract(standard, "teethHash")
+    reverted.Hair = table.extract(standard, "hair")
+    reverted.Beard = table.extract(standard, "beards_complete")
+    reverted.Body = table.extract(standard, "bodyType")
+    reverted.Waist = table.extract(standard, "bodyWeight")
+    reverted.Scale = table.extract(standard, "bodyScale")
 
-    reverted.ArmsS = standard.expressions.arms
-    reverted.CalvesS = standard.expressions.calves
-    reverted.CheekBonesD = standard.expressions.cheekbonesDepth
-    reverted.CheekBonesH = standard.expressions.cheekbonesHeight
-    reverted.CheekBonesW = standard.expressions.cheekbonesWidth
-    reverted.ChestS = standard.expressions.chest
-    reverted.ChinD = standard.expressions.chinDepth
-    reverted.ChinH = standard.expressions.chinHeight
-    reverted.ChinW = standard.expressions.chinWidth
-    reverted.EarsD = standard.expressions.earlobes
-    reverted.EarsA = standard.expressions.earsAngle
-    reverted.earsDepth = standard.expressions.earsDepth
-    reverted.EarsH = standard.expressions.earsHeight
-    reverted.EarsW = standard.expressions.earsWidth
-    reverted.EyeBrowD = standard.expressions.eyebrowDepth
-    reverted.EyeBrowH = standard.expressions.eyebrowHeight
-    reverted.EyeBrowW = standard.expressions.eyebrowWidth
-    reverted.EyeLidH = standard.expressions.eyelidHeight
-    reverted.EyeLidL = standard.expressions.eyelidLeft
-    reverted.EyeLidR = standard.expressions.eyelidRight
-    reverted.EyeLidW = standard.expressions.eyelidWidth
-    reverted.EyeAng = standard.expressions.eyesAngle
-    reverted.EyeD = standard.expressions.eyesDepth
-    reverted.EyeDis = standard.expressions.eyesDistance
-    reverted.EyeH = standard.expressions.eyesHeight
-    reverted.FaceW = standard.expressions.faceWidth
-    reverted.HeadSize = standard.expressions.headWidth
-    reverted.HipsS = standard.expressions.hip
-    reverted.JawD = standard.expressions.jawDepth
-    reverted.JawH = standard.expressions.jawHeight
-    reverted.JawW = standard.expressions.jawWidth
-    reverted.jawY = standard.expressions.jawY
-    reverted.LLiphD = standard.expressions.lowerLipDepth
-    reverted.LLiphH = standard.expressions.lowerLipHeight
-    reverted.LLiphW = standard.expressions.lowerLipWidth
-    reverted.MouthCLD = standard.expressions.mouthConerLeftDepth
-    reverted.MouthCLH = standard.expressions.mouthConerLeftHeight
-    reverted.MouthCLLD = standard.expressions.mouthConerLeftLipsDistance
-    reverted.MouthCLW = standard.expressions.mouthConerLeftWidth
-    reverted.MouthCRD = standard.expressions.mouthConerRightDepth
-    reverted.MouthCRH = standard.expressions.mouthConerRightHeight
-    reverted.MouthCRLD = standard.expressions.mouthConerRightLipsDistance
-    reverted.MouthCRW = standard.expressions.mouthConerRightWidth
-    reverted.MouthD = standard.expressions.mouthDepth
-    reverted.MouthW = standard.expressions.mouthWidth
-    reverted.MouthX = standard.expressions.mouthX
-    reverted.MouthY = standard.expressions.mouthY
-    reverted.NeckD = standard.expressions.neckDepth
-    reverted.NeckW = standard.expressions.neckWidth
-    reverted.NoseAng = standard.expressions.noseAngle
-    reverted.NoseC = standard.expressions.noseCurvature
-    reverted.NoseH = standard.expressions.noseHeight
-    reverted.NoseS = standard.expressions.noseSize
-    reverted.NoseW = standard.expressions.noseWidth
-    reverted.NoseDis = standard.expressions.nostrilsDistance
-    reverted.ShouldersM = standard.expressions.shoulderBlades
-    reverted.ShouldersS = standard.expressions.shoulders
-    reverted.ShouldersT = standard.expressions.shoulderThickness
-    reverted.LegsS = standard.expressions.thighs
-    reverted.ULiphD = standard.expressions.upperLipDepth
-    reverted.ULiphH = standard.expressions.upperLipHeight
-    reverted.ULiphW = standard.expressions.upperLipWidth
-    reverted.WaistW = standard.expressions.waist
+    reverted.ArmsS = table.extract(standard.expressions, "arms")
+    reverted.CalvesS = table.extract(standard.expressions, "calves")
+    reverted.CheekBonesD = table.extract(standard.expressions, "cheekbonesDepth")
+    reverted.CheekBonesH = table.extract(standard.expressions, "cheekbonesHeight")
+    reverted.CheekBonesW = table.extract(standard.expressions, "cheekbonesWidth")
+    reverted.ChestS = table.extract(standard.expressions, "chest")
+    reverted.ChinD = table.extract(standard.expressions, "chinDepth")
+    reverted.ChinH = table.extract(standard.expressions, "chinHeight")
+    reverted.ChinW = table.extract(standard.expressions, "chinWidth")
+    reverted.EarsD = table.extract(standard.expressions, "earlobes")
+    reverted.EarsA = table.extract(standard.expressions, "earsAngle")
+    reverted.earsDepth = table.extract(standard.expressions, "earsDepth")
+    reverted.EarsH = table.extract(standard.expressions, "earsHeight")
+    reverted.EarsW = table.extract(standard.expressions, "earsWidth")
+    reverted.EyeBrowD = table.extract(standard.expressions, "eyebrowDepth")
+    reverted.EyeBrowH = table.extract(standard.expressions, "eyebrowHeight")
+    reverted.EyeBrowW = table.extract(standard.expressions, "eyebrowWidth")
+    reverted.EyeLidH = table.extract(standard.expressions, "eyelidHeight")
+    reverted.EyeLidL = table.extract(standard.expressions, "eyelidLeft")
+    reverted.EyeLidR = table.extract(standard.expressions, "eyelidRight")
+    reverted.EyeLidW = table.extract(standard.expressions, "eyelidWidth")
+    reverted.EyeAng = table.extract(standard.expressions, "eyesAngle")
+    reverted.EyeD = table.extract(standard.expressions, "eyesDepth")
+    reverted.EyeDis = table.extract(standard.expressions, "eyesDistance")
+    reverted.EyeH = table.extract(standard.expressions, "eyesHeight")
+    reverted.FaceW = table.extract(standard.expressions, "faceWidth")
+    reverted.HeadSize = table.extract(standard.expressions, "headWidth")
+    reverted.HipsS = table.extract(standard.expressions, "hip")
+    reverted.JawD = table.extract(standard.expressions, "jawDepth")
+    reverted.JawH = table.extract(standard.expressions, "jawHeight")
+    reverted.JawW = table.extract(standard.expressions, "jawWidth")
+    reverted.jawY = table.extract(standard.expressions, "jawY")
+    reverted.LLiphD = table.extract(standard.expressions, "lowerLipDepth")
+    reverted.LLiphH = table.extract(standard.expressions, "lowerLipHeight")
+    reverted.LLiphW = table.extract(standard.expressions, "lowerLipWidth")
+    reverted.MouthCLD = table.extract(standard.expressions, "mouthConerLeftDepth")
+    reverted.MouthCLH = table.extract(standard.expressions, "mouthConerLeftHeight")
+    reverted.MouthCLLD = table.extract(standard.expressions, "mouthConerLeftLipsDistance")
+    reverted.MouthCLW = table.extract(standard.expressions, "mouthConerLeftWidth")
+    reverted.MouthCRD = table.extract(standard.expressions, "mouthConerRightDepth")
+    reverted.MouthCRH = table.extract(standard.expressions, "mouthConerRightHeight")
+    reverted.MouthCRLD = table.extract(standard.expressions, "mouthConerRightLipsDistance")
+    reverted.MouthCRW = table.extract(standard.expressions, "mouthConerRightWidth")
+    reverted.MouthD = table.extract(standard.expressions, "mouthDepth")
+    reverted.MouthW = table.extract(standard.expressions, "mouthWidth")
+    reverted.MouthX = table.extract(standard.expressions, "mouthX")
+    reverted.MouthY = table.extract(standard.expressions, "mouthY")
+    reverted.NeckD = table.extract(standard.expressions, "neckDepth")
+    reverted.NeckW = table.extract(standard.expressions, "neckWidth")
+    reverted.NoseAng = table.extract(standard.expressions, "noseAngle")
+    reverted.NoseC = table.extract(standard.expressions, "noseCurvature")
+    reverted.NoseH = table.extract(standard.expressions, "noseHeight")
+    reverted.NoseS = table.extract(standard.expressions, "noseSize")
+    reverted.NoseW = table.extract(standard.expressions, "noseWidth")
+    reverted.NoseDis = table.extract(standard.expressions, "nostrilsDistance")
+    reverted.ShouldersM = table.extract(standard.expressions, "shoulderBlades")
+    reverted.ShouldersS = table.extract(standard.expressions, "shoulders")
+    reverted.ShouldersT = table.extract(standard.expressions, "shoulderThickness")
+    reverted.LegsS = table.extract(standard.expressions, "thighs")
+    reverted.ULiphD = table.extract(standard.expressions, "upperLipDepth")
+    reverted.ULiphH = table.extract(standard.expressions, "upperLipHeight")
+    reverted.ULiphW = table.extract(standard.expressions, "upperLipWidth")
+    reverted.WaistW = table.extract(standard.expressions, "waist")
 
     if standard.overlays.ageing then
       reverted.ageing_visibility = 1
@@ -1845,6 +1840,28 @@ local function revertSkin(standard)
       reverted.disc_opacity = standard.overlays.disc.opacity
       standard.overlays.disc.id = nil
       standard.overlays.disc.opacity = nil
+    end
+
+    for key, data in pairs(standard.overlays) do
+      if table.count(data) == 0 then
+        standard.overlays[key] = nil
+      end
+    end
+
+    if table.count(standard.overlays) == 0 then
+      standard.overlays = nil
+    end
+    if table.count(standard.expressions) == 0 then
+      standard.expressions = nil
+    end
+
+    if Config?.debug then
+      if table.count(standard) > 0 then
+        eprint("Skin keys not reverted")
+        TriggerEvent("print", standard)
+      else
+        gprint("All skin keys reverted")
+      end
     end
 
     reverted.overlays = table.copy(standard.overlays)
