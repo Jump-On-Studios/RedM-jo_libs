@@ -47,7 +47,7 @@ end
 ---@param _table table
 ---@return boolean
 table.isEmpty = function(_table)
-  for _, _ in pairs(_table or {}) do
+  for _ in pairs(_table or {}) do
     return false
   end
   return true
@@ -57,7 +57,7 @@ end
 ---@return integer
 table.count = function(_table)
   local counter = 0
-  for _, _ in pairs(_table or {}) do
+  for _ in pairs(_table or {}) do
     counter += 1
   end
   return counter
