@@ -688,10 +688,10 @@ function jo.component.applySkin(ped, skin)
 
   dprint("apply expression")
   for expression, value in pairs(skin.expressions) do
-    local percent = value or 0.0
+    local percent = (value or 0.0) * 1.0
     percent = math.min(1.0, percent)
     percent = math.max(-1.0, percent)
-    SetCharExpression(ped, jo.component.data.expressions[expression], percent * 1.0)
+    SetCharExpression(ped, jo.component.data.expressions[expression], percent)
   end
 
   jo.component.refreshPed(ped)

@@ -293,22 +293,22 @@ jo.pedTexture.variations = {
 jo.pedTexture.categories = {
   acne = "heads",
   ageing = "heads",
+  beard = "heads",
   blush = "heads",
   complex = "heads",
   disc = "heads",
   eyebrow = "heads",
-  eyeshadow = "heads",
   eyeliner = "heads",
+  eyeshadow = "heads",
   foundation = "heads",
   freckles = "heads",
   grime = "heads",
+  hair = "heads",
   lipstick = "heads",
+  masks = "heads",
   moles = "heads",
   scar = "heads",
   spots = "heads",
-  masks = "heads",
-  hair = "heads",
-  beard = "heads"
 }
 
 jo.pedTexture.ordersToApply = {
