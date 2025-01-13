@@ -3,10 +3,6 @@ RegisterNetEvent(GetCurrentResourceName()..":client:openInventory", function(nam
   TriggerEvent("inventory:client:SetCurrentStash", name)
 end)
 
-AddEventHandler("vorp_stables:setClosedInv", function()
-  TriggerServerEvent(GetCurrentResourceName()..":server:closeInventory")
-end)
-
 jo.file.load('framework-bridge.overwrite-functions')
 
 if not table.merge then
