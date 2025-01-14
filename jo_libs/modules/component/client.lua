@@ -733,7 +733,7 @@ end
 function jo.component.setWearableState(ped, category, hash, state)
   Entity(ped).state:set("wearableState:" .. category, state)
   putInCacheCurrentComponent(ped)
-  local data = formatComponentData(hash)
+  local data = formatComponentData(hash) or {}
   if not data.hash then
     data.hash = jo.component.getComponentEquiped(jo.me, category)
   end
