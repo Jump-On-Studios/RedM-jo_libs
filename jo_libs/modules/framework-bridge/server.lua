@@ -1185,13 +1185,11 @@ local function standardizeSkin(object)
         id = id,
         sexe = sexe,
         tint0 = object.eyebrows_color,
-        sheetGrid = object.eyebrows_palette_id - 1,
         opacity = convertToPercent(object.eyebrows_opacity)
       }
     end)()
     object.eyebrows_tx_id = nil
     object.eyebrows_color = nil
-    object.eyebrows_palette_id = nil
     object.eyebrows_opacity = nil
     object.eyebrows_visibility = nil
 
