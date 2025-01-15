@@ -121,8 +121,13 @@ end
 function OWFramework.updateUserClothes(source, clothesOrCategory, value)
     local character = Core.GetCharacterFromPlayerId(source)
     if character then
-        local dadosTraje = json.encode(clothesOrCategory)
-
+        local dadosTraje = json.encode(clothesOrCategory) --FIXME: 
+        --[[
+        PERSONAGEM FEMININO > ACESSORIOS DE CABELO
+        Quando você troca de roupa esta funcionando! 
+        Porem quando você troca o acessorio no cabelereiro ele não puxa a roupa que você esta usando no momento
+        e salva apenas a hash do cabelo, fazendo o personagem ficar pelado ao dar loadskin ou rivive.
+        ]]--
         MySQL.Async.execute("UPDATE characters_outfit SET `clothes`=@encode WHERE `ownerId`=@characterId;", { encode = dadosTraje, characterId = character.id})
     end
 end
