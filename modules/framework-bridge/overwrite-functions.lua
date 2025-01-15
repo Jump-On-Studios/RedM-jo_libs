@@ -8,7 +8,7 @@ OWFramework.User = {}
 local Core
 
 function OWFramework.get()
-    return "RedEM"
+    return "RSG"
 end
 
 function OWFramework.initFramework(self)
@@ -121,9 +121,11 @@ end
 function OWFramework.updateUserClothes(source, clothesOrCategory, value)
     local character = Core.GetCharacterFromPlayerId(source)
     if character then
-        local dadosTraje = json.encode(clothesOrCategory)
-
-        MySQL.Async.execute("UPDATE characters_outfit SET `clothes`=@encode WHERE `ownerId`=@characterId;", { encode = dadosTraje, characterId = character.id})
+        MySQL.scalar("SELECT clothes from characters_outfit WHERE `ownerId`=@characterId", { characterId = character.id }, function(oldClothes)
+            local decoded = UnJson(oldClothes)
+            table.merge(decoded, clothesOrCategory)
+            MySQL.Async.execute("UPDATE characters_outfit SET `clothes`=@encode WHERE `ownerId`=@characterId;", { encode = json.encode(decoded), characterId = character.id})
+        end)
     end
 end
 
