@@ -18,14 +18,11 @@ local mainResourceFramework = {
 local skinCategoryBridge = {
   VORP = {
     components = {
-      --Ties = "neckties",
       Accessories = "accessories",
       armor = "armor",
       Badge = "badges",
       Beard = "beards_complete",
       Belt = "belts",
-      Body = "bodyType",
-      BodyType = "bodyUpperHash", --To be confirm
       Boots = "boots",
       bow = "hair_accessories",
       Bracelet = "jewelry_bracelets",
@@ -35,8 +32,6 @@ local skinCategoryBridge = {
       Coat = "coats",
       CoatClosed = "coats_closed",
       Dress = "dresses",
-      dresses = "dresses",
-      Eyes = "eyesHash",
       EyeWear = "eyewear",
       Gauntlets = "gauntlets",
       Glove = "gloves",
@@ -44,9 +39,7 @@ local skinCategoryBridge = {
       GunbeltAccs = "gunbelt_accs",
       Hair = "hair",
       Hat = "hats",
-      HeadType = "headHash",
       Holster = "holsters_left",
-      LegsType = "bodyLowerHash",
       Loadouts = "loadouts",
       Mask = "masks",
       NeckTies = "neckties",
@@ -56,83 +49,13 @@ local skinCategoryBridge = {
       RingLh = "jewelry_rings_left",
       RingRh = "jewelry_rings_right",
       Satchels = "satchels",
-      Scale = "bodyScale",
-      sex = "model",
       Shirt = "shirts_full",
       Skirt = "skirts",
       Spats = "spats",
       Spurs = "boot_accessories",
       Suspender = "suspenders",
       Teeth = "teeth",
-      Torso = "bodyUpperHash",
       Vest = "vests",
-      Waist = "bodyWeight"
-    },
-    expressions = {
-      --Expressions
-      ArmsS = "arms",
-      CalvesS = "calves",
-      CheekBonesD = "cheekbonesDepth",
-      CheekBonesH = "cheekbonesHeight",
-      CheekBonesW = "cheekbonesWidth",
-      ChestS = "chest",
-      ChinD = "chinDepth",
-      ChinH = "chinHeight",
-      ChinW = "chinWidth",
-      EarsA = "earsAngle",
-      EarsD = "earlobes",
-      EarsH = "earsHeight",
-      EarsW = "earsWidth",
-      EyeAng = "eyesAngle",
-      EyeBrowD = "eyebrowDepth",
-      EyeBrowH = "eyebrowHeight",
-      EyeBrowW = "eyebrowWidth",
-      EyeD = "eyesDepth",
-      EyeDis = "eyesDistance",
-      EyeH = "eyesHeight",
-      EyeLidH = "eyelidHeight",
-      EyeLidL = "eyelidLeft",
-      EyeLidR = "eyelidRight",
-      EyeLidW = "eyelidWidth",
-      FaceD = "eyebrowWidth",
-      FaceS = "eyebrowHeight",
-      FaceW = "faceWidth",
-      HeadSize = "headWidth",
-      HipsS = "hip",
-      JawD = "jawDepth",
-      JawH = "jawHeight",
-      JawW = "jawWidth",
-      LegsS = "thighs",
-      LLiphD = "lowerLipDepth",
-      LLiphH = "lowerLipHeight",
-      LLiphW = "lowerLipWidth",
-      MouthCLD = "mouthConerLeftDepth",
-      MouthCLH = "mouthConerLeftHeight",
-      MouthCLLD = "mouthConerLeftLipsDistance",
-      MouthCLW = "mouthConerLeftWidth",
-      MouthCRD = "mouthConerRightDepth",
-      MouthCRH = "mouthConerRightHeight",
-      MouthCRLD = "mouthConerRightLipsDistance",
-      MouthCRW = "mouthConerRightWidth",
-      MouthD = "mouthDepth",
-      MouthW = "mouthWidth",
-      MouthX = "mouthX",
-      MouthY = "mouthY",
-      NeckD = "neckDepth",
-      NeckW = "neckWidth",
-      NoseAng = "noseAngle",
-      NoseC = "noseCurvature",
-      NoseDis = "nostrilsDistance",
-      NoseH = "noseHeight",
-      NoseS = "noseSize",
-      NoseW = "noseWidth",
-      ShouldersM = "shoulderBlades",
-      ShouldersS = "shoulders",
-      ShouldersT = "shoulderThickness",
-      ULiphD = "upperLipDepth",
-      ULiphH = "upperLipHeight",
-      ULiphW = "upperLipWidth",
-      WaistW = "waist",
     },
     overlays = {
       acne = "acne",
@@ -155,132 +78,6 @@ local skinCategoryBridge = {
       shadows = "eyeshadow",
       spots = "spots",
     },
-  },
-  RSG = {
-    components = {
-      beard = "beards_complete",
-      eyes_color = "eyesIndex",
-      teeth = "teethIndex"
-    },
-    expressions = {
-      --Expressions
-      arms_size = "arms",
-      back_muscle = "shoulderBlades",
-      back_shoulder_thickness = "shoulderThickness",
-      calves_size = "calves",
-      cheekbones_depth = "cheekbonesDepth",
-      cheekbones_height = "cheekbonesHeight",
-      cheekbones_width = "cheekbonesWidth",
-      chest_size = "chest",
-      chin_depth = "chinDepth",
-      chin_height = "chinHeight",
-      chin_width = "chinWidth",
-      earlobe_size = "earlobes",
-      ears_angle = "earsAngle",
-      ears_height = "earsHeight",
-      ears_width = "earsWidth",
-      eyebrow_depth = "eyebrowDepth",
-      eyebrow_height = "eyebrowHeight",
-      eyebrow_width = "eyebrowWidth",
-      eyelid_height = "eyelidHeight",
-      eyelid_left = "eyelidLeft",
-      eyelid_right = "eyelidRight",
-      eyelid_width = "eyelidWidth",
-      eyes_angle = "eyesAngle",
-      eyes_depth = "eyesDepth",
-      eyes_distance = "eyesDistance",
-      eyes_height = "eyesHeight",
-      face_depth = "eyebrowWidth",
-      face_width = "faceWidth",
-      forehead_size = "eyebrowHeight",
-      head_width = "headWidth",
-      hips_size = "hip",
-      jaw_depth = "jawDepth",
-      jaw_height = "jawHeight",
-      jaw_width = "jawWidth",
-      lower_lip_depth = "lowerLipDepth",
-      lower_lip_height = "lowerLipHeight",
-      lower_lip_width = "lowerLipWidth",
-      mouth_corner_left_depth = "mouthConerLeftDepth",
-      mouth_corner_left_height = "mouthConerLeftHeight",
-      mouth_corner_left_lips_distance = "mouthConerLeftLipsDistance",
-      mouth_corner_left_width = "mouthConerLeftWidth",
-      mouth_corner_right_depth = "mouthConerRightDepth",
-      mouth_corner_right_height = "mouthConerRightHeight",
-      mouth_corner_right_lips_distance = "mouthConerRightLipsDistance",
-      mouth_corner_right_width = "mouthConerRightWidth",
-      mouth_depth = "mouthDepth",
-      mouth_width = "mouthWidth",
-      mouth_x_pos = "mouthY",
-      mouth_y_pos = "mouthX",
-      neck_depth = "neckDepth",
-      neck_width = "neckWidth",
-      nose_angle = "noseAngle",
-      nose_curvature = "noseCurvature",
-      nose_height = "noseHeight",
-      nose_size = "noseSize",
-      nose_width = "noseWidth",
-      nostrils_distance = "nostrilsDistance",
-      tight_size = "thighs",
-      upper_lip_depth = "upperLipDepth",
-      upper_lip_height = "upperLipHeight",
-      upper_lip_width = "upperLipWidth",
-      uppr_shoulder_size = "shoulders",
-      waist_width = "waist",
-    },
-    overlays = {
-      acne = "acne",
-      ageing = "ageing",
-      beardstabble = "beard",
-      blush = "blush",
-      complex = "complex",
-      disc = "disc",
-      eyebrows = "eyebrow",
-      eyeliners = "eyeliner",
-      foundation = "foundation",
-      freckles = "freckles",
-      grime = "grime",
-      hair = "hair",
-      lipsticks = "lipstick",
-      moles = "moles",
-      paintedmasks = "masks",
-      scars = "scar",
-      shadows = "eyeshadow",
-      spots = "spots",
-    },
-    convertedValues = {
-      skin_tone = {
-        [1] = 1,
-        [2] = 4,
-        [3] = 3,
-        [4] = 5,
-        [5] = 2,
-        [6] = 6
-      },
-      head = {
-        mp_male = {
-          [16] = 18,
-          [17] = 21,
-          [18] = 22,
-          [19] = 25,
-          [20] = 28
-        },
-        mp_female = {
-          [17] = 20,
-          [18] = 22,
-          [19] = 27,
-          [20] = 28
-        }
-      },
-      bodies = {
-        [1] = 2,
-        [2] = 1,
-        [3] = 3,
-        [4] = 4,
-        [5] = 5,
-        [6] = 6
-      },
-    }
   },
   RedEM = {
     components = {
@@ -405,11 +202,6 @@ local skinCategoryBridge = {
       paintedmasks_ = "masks",
     },
   },
-  RedEM2023 = {
-    {
-      beard = "beards_complete"
-    }
-  }
 }
 
 -------------
@@ -1258,20 +1050,6 @@ local function convertToPercent(value)
   return value
 end
 
----@param key string
-local function isOverlayKey(key)
-  if skinCategoryBridge[jo.framework:get()].overlays[key] then return false end
-  for search, layerName in pairs(skinCategoryBridge[jo.framework:get()].overlays) do
-    if key:find(search) then
-      if key == search then
-        return false
-      end
-      return layerName
-    end
-  end
-  return false
-end
-
 local function findKeyInList(list, key)
   list = list or {}
   if list[key] then return true, list[key] end
@@ -1318,124 +1096,6 @@ local function revertSkinKey(category)
   return category, "components"
 end
 
-local function standardizeOverlays(object)
-  local overlays = {}
-
-  for catFram, data in pairs(object or {}) do
-    if catFram ~= "expressions" and catFram ~= "overlays" then
-      local layerName = isOverlayKey(catFram)
-      if layerName then
-        overlays[layerName] = overlays[layerName] or {}
-        if catFram:find("_visibility") then
-          overlays[layerName].opacity = 0
-        elseif catFram:find("_tx_id") or catFram:sub(-2) == "_t" then
-          if layerName == "eyebrow" then
-            local id = data - 1
-            local sexe = "m"
-            if data > 15 then
-              data = data - 15
-              sexe = "f"
-            end
-            overlays[layerName].id = id
-            overlays[layerName].sexe = sexe
-          elseif layerName == "hair" then
-            if data == 1 then
-              overlays[layerName].albedo = "mp_u_faov_m_hair_000"
-            elseif data == 2 then
-              overlays[layerName].albedo = "mp_u_faov_m_hair_002"
-            elseif data == 3 then
-              overlays[layerName].albedo = "mp_u_faov_m_hair_009"
-            elseif data == 4 then
-              overlays[layerName].albedo = "mp_u_faov_m_hair_shared_000"
-            end
-          else
-            overlays[layerName].id = data - 1
-          end
-        elseif catFram:find("_opacity") or catFram:sub(-3) == "_op" then
-          overlays[layerName].opacity = convertToPercent(data)
-        elseif catFram:find("_palette_id") or catFram:sub(-3) == "_id" then
-          overlays[layerName].sheetGrid = data
-        elseif catFram:find("_color_primary") or catFram:sub(-3) == "_c1" or catFram:find("_color") then
-          overlays[layerName].tint0 = data
-        elseif catFram:find("_color_secondary") or catFram:sub(-3) == "_c2" then
-          overlays[layerName].tint1 = data
-        elseif catFram:find("_color_tertiary") or catFram:sub(-3) == "_c3" then
-          overlays[layerName].tint2 = data
-        end
-      end
-    end
-  end
-
-  return overlays
-end
-
-local function revertOverlays(reverted)
-  local rights = {
-    VORP = {},
-    RSG = {
-      opacity = "_op",
-      id = "_t",
-      sheetGrid = "_id",
-      tint0 = "_c1",
-      tint1 = "_c2",
-      tint3 = "_c3",
-      albedo = "_id"
-    }
-  }
-
-  for prefix, layerName in pairs(skinCategoryBridge[jo.framework:get()].overlays) do
-    if reverted.overlays[layerName] then
-      if reverted.overlays[layerName][1] then
-      else
-        for key, value in pairs(reverted.overlays[layerName]) do
-          local suffix = rights[jo.framework:get()]?[key]
-          if suffix then
-            if layerName == "eyebrow" and key == "id" then
-              value = value + 1
-              if reverted.overlays.eyebrow.sexe == "f" then
-                reverted[prefix .. suffix] = value + 15
-              else
-                reverted[prefix .. suffix] = value
-              end
-              reverted.overlays.eyebrow.id = nil
-              reverted.overlays.eyebrow.sexe = nil
-            elseif layerName == "hair" and key == "albedo" then
-              if value == "mp_u_faov_m_hair_000" then
-                reverted[prefix .. suffix] = 1
-              elseif value == "mp_u_faov_m_hair_002" then
-                reverted[prefix .. suffix] = 2
-              elseif value == "mp_u_faov_m_hair_009" then
-                reverted[prefix .. suffix] = 3
-              elseif value == "mp_u_faov_m_hair_shared_000" then
-                reverted[prefix .. suffix] = 4
-              end
-              reverted.overlays[layerName][key] = nil
-            elseif key == "id" then
-              reverted[prefix .. suffix] = value + 1
-              reverted.overlays[layerName][key] = nil
-            elseif key == "opacity" then
-              reverted[prefix .. suffix] = value
-              if jo.framework:is("RSG") then
-                reverted[prefix .. suffix] = reverted[prefix .. suffix] * 100
-              end
-              reverted.overlays[layerName][key] = nil
-            else
-              reverted[prefix .. suffix] = value
-              reverted.overlays[layerName][key] = nil
-            end
-          end
-        end
-      end
-      if table.count(reverted.overlays[layerName]) == 0 then
-        reverted.overlays[layerName] = nil
-      end
-    end
-  end
-  if table.count(reverted.overlays) == 0 then
-    reverted.overlays = nil
-  end
-end
-
 local function clearOverlaysTable(overlays)
   for layerName, overlay in pairs(overlays) do
     if overlay[1] then
@@ -1448,91 +1108,541 @@ local function clearOverlaysTable(overlays)
   end
 end
 
-local function standardizeRSGSkin(standard)
-  if standard.sex then
-    standard.model = standard.sex == 2 and "mp_female" or "mp_male"
-    standard.sex = nil
-  end
-  if standard.height then
-    standard.bodyScale = convertToPercent(standard.height)
-    standard.height = nil
-  end
-  for key, expression in pairs(standard.expressions) do
-    standard.expressions[key] = convertToPercent(expression)
-  end
-  if standard.skin_tone then
-    standard.skinTone = skinCategoryBridge.RSG.convertedValues.skin_tone[standard.skin_tone] or standard.skin_tone
-    standard.skin_tone = nil
-  end
-  if standard.head then
-    local head = math.ceil(standard.head / 6)
-    standard.headIndex = skinCategoryBridge.RSG.convertedValues.head[standard.model][head] or head
-    standard.head = nil
-  end
-  if standard.body_size then
-    standard.bodiesIndex = skinCategoryBridge.RSG.convertedValues.bodies[standard.body_size] or standard.body_size
-    standard.body_size = nil
-  end
-end
-
-local function revertRSGSkin(standard)
-  if standard.bodyScale then
-    standard.height = math.floor(standard.bodyScale * 100)
-    standard.bodyScale = nil
-  end
-  for key, _ in pairs(skinCategoryBridge.RSG.expressions) do
-    if standard[key] then
-      if standard[key] > -1 and standard[key] < 1 then
-        standard[key] = math.floor(standard[key] * 100)
-      end
-    end
-  end
-  if standard.skinTone then
-    _, standard.skin_tone = table.find(skinCategoryBridge.RSG.convertedValues.skin_tone, function(value, key) return value == standard.skinTone end)
-    standard.skinTone = nil
-  end
-  if standard.headIndex then
-    _, standard.head = table.find(skinCategoryBridge.RSG.convertedValues.head[standard.model], function(value, key) return value == standard.headIndex end)
-    standard.head = math.max(1, (standard.head or standard.headIndex or 0) * 6)
-    standard.headIndex = nil
-  end
-  if standard.bodiesIndex then
-    _, standard.body_size = table.find(skinCategoryBridge.RSG.convertedValues.bodies[standard.model], function(value, key) return value == standard.bodiesIndex end)
-    standard.body_size = standard.body_size or standard.bodiesIndex
-    standard.bodiesIndex = nil
-  end
-  if standard.model then
-    standard.sex = standard.model == "mp_female" and 2 or 1
-    standard.model = nil
-  end
-end
-
 --- A function to standardize a object of categories
 local function standardizeSkin(object)
   object = table.copy(object)
-  local standard = { overlays = {}, expressions = {} }
+  local standard = {}
 
-  for catFram, data in pairs(object or {}) do
-    if catFram ~= "expressions" and catFram ~= "overlays" then
-      if not isOverlayKey(catFram) then
-        local key, keyType = standardizeSkinKey(catFram)
-        if key then
-          if keyType == "expressions" then
-            standard.expressions[key] = data
-          else
-            standard[key] = data
-          end
-          object[catFram] = nil
-        end
+  local function decrease(value)
+    return (value or 1) - 1
+  end
+
+  if jo.framework:is("VORP") then
+    standard.model = table.extract(object, "sex")
+    standard.headHash = table.extract(object, "HeadType")
+    standard.bodyUpperHash = object.BodyType ~= 0 and object.BodyType or object.Torso
+    object.BodyType = nil
+    object.Torso = nil
+    standard.bodyLowerHash = object.LegsType ~= 0 and object.LegsType or object.Legs
+    object.LegsType = nil
+    object.Legs = nil
+    standard.eyesHash = table.extract(object, "Eyes")
+    standard.teethHash = table.extract(object, "Teeth")
+    standard.hair = table.extract(object, "Hair")
+    standard.beards_complete = table.extract(object, "Beard")
+    standard.bodyType = table.extract(object, "Body")
+    standard.bodyWeight = table.extract(object, "Waist")
+    standard.bodyScale = table.extract(object, "Scale")
+
+    standard.expressions = {
+      arms = table.extract(object, "ArmsS"),
+      calves = table.extract(object, "CalvesS"),
+      cheekbonesDepth = table.extract(object, "CheekBonesD"),
+      cheekbonesHeight = table.extract(object, "CheekBonesH"),
+      cheekbonesWidth = table.extract(object, "CheekBonesW"),
+      chest = table.extract(object, "ChestS"),
+      chinDepth = table.extract(object, "ChinD"),
+      chinHeight = table.extract(object, "ChinH"),
+      chinWidth = table.extract(object, "ChinW"),
+      earlobes = table.extract(object, "EarsD"),
+      earsAngle = table.extract(object, "EarsA"),
+      earsDepth = table.extract(object, "earsDepth"),
+      earsHeight = table.extract(object, "EarsH"),
+      earsWidth = table.extract(object, "EarsW"),
+      eyebrowDepth = table.extract(object, "EyeBrowD"),
+      eyebrowHeight = table.extract(object, "EyeBrowH"),
+      eyebrowWidth = table.extract(object, "EyeBrowW"),
+      eyelidHeight = table.extract(object, "EyeLidH"),
+      eyelidLeft = table.extract(object, "EyeLidL"),
+      eyelidRight = table.extract(object, "EyeLidR"),
+      eyelidWidth = table.extract(object, "EyeLidW"),
+      eyesAngle = table.extract(object, "EyeAng"),
+      eyesDepth = table.extract(object, "EyeD"),
+      eyesDistance = table.extract(object, "EyeDis"),
+      eyesHeight = table.extract(object, "EyeH"),
+      faceWidth = table.extract(object, "FaceW"),
+      headWidth = table.extract(object, "HeadSize"),
+      hip = table.extract(object, "HipsS"),
+      jawDepth = table.extract(object, "JawD"),
+      jawHeight = table.extract(object, "JawH"),
+      jawWidth = table.extract(object, "JawW"),
+      jawY = table.extract(object, "jawY"),
+      lowerLipDepth = table.extract(object, "LLiphD"),
+      lowerLipHeight = table.extract(object, "LLiphH"),
+      lowerLipWidth = table.extract(object, "LLiphW"),
+      mouthConerLeftDepth = table.extract(object, "MouthCLD"),
+      mouthConerLeftHeight = table.extract(object, "MouthCLH"),
+      mouthConerLeftLipsDistance = table.extract(object, "MouthCLLD"),
+      mouthConerLeftWidth = table.extract(object, "MouthCLW"),
+      mouthConerRightDepth = table.extract(object, "MouthCRD"),
+      mouthConerRightHeight = table.extract(object, "MouthCRH"),
+      mouthConerRightLipsDistance = table.extract(object, "MouthCRLD"),
+      mouthConerRightWidth = table.extract(object, "MouthCRW"),
+      mouthDepth = table.extract(object, "MouthD"),
+      mouthWidth = table.extract(object, "MouthW"),
+      mouthX = table.extract(object, "MouthX"),
+      mouthY = table.extract(object, "MouthY"),
+      neckDepth = table.extract(object, "NeckD"),
+      neckWidth = table.extract(object, "NeckW"),
+      noseAngle = table.extract(object, "NoseAng"),
+      noseCurvature = table.extract(object, "NoseC"),
+      noseHeight = table.extract(object, "NoseH"),
+      noseSize = table.extract(object, "NoseS"),
+      noseWidth = table.extract(object, "NoseW"),
+      nostrilsDistance = table.extract(object, "NoseDis"),
+      shoulderBlades = table.extract(object, "ShouldersM"),
+      shoulders = table.extract(object, "ShouldersS"),
+      shoulderThickness = table.extract(object, "ShouldersT"),
+      thighs = table.extract(object, "LegsS"),
+      upperLipDepth = table.extract(object, "ULiphD"),
+      upperLipHeight = table.extract(object, "ULiphH"),
+      upperLipWidth = table.extract(object, "ULiphW"),
+      waist = table.extract(object, "WaistW"),
+    }
+
+    local function needOverlay(value)
+      if not value then return nil end
+      if value == 0 then return nil end
+      return true
+    end
+
+    standard.overlays = {}
+    standard.overlays.ageing = needOverlay(object.ageing_visibility) and {
+      id = decrease(object.ageing_tx_id),
+      opacity = convertToPercent(object.ageing_opacity)
+    }
+    object.ageing_tx_id = nil
+    object.ageing_opacity = nil
+    object.ageing_visibility = nil
+
+    standard.overlays.beard = needOverlay(object.beardstabble_visibility) and {
+      id = 1,
+      tint0 = object.beardstabble_color_primary,
+      opacity = convertToPercent(object.beardstabble_opacity)
+    }
+    object.beardstabble_color_primary = nil
+    object.beardstabble_opacity = nil
+    object.beardstabble_visibility = nil
+
+    standard.overlays.blush = needOverlay(object.blush_visibility) and {
+      id = decrease(object.blush_tx_id),
+      tint0 = object.blush_palette_color_primary,
+      opacity = convertToPercent(object.blush_opacity)
+    }
+    object.blush_tx_id = nil
+    object.blush_palette_color_primary = nil
+    object.blush_opacity = nil
+    object.blush_visibility = nil
+
+    standard.overlays.eyebrow = needOverlay(object.eyebrows_visibility) and (function()
+      local id = decrease(object.eyebrows_tx_id)
+      local sexe = "m"
+      if id > 15 then
+        id = id - 15
+        sexe = "f"
       end
+      return {
+        id = id,
+        sexe = sexe,
+        tint0 = object.eyebrows_color,
+        opacity = convertToPercent(object.eyebrows_opacity)
+      }
+    end)()
+    object.eyebrows_tx_id = nil
+    object.eyebrows_color = nil
+    object.eyebrows_opacity = nil
+    object.eyebrows_visibility = nil
+
+    standard.overlays.eyeliner = needOverlay(object.eyeliner_visibility) and {
+      id = decrease(object.eyeliner_tx_id),
+      sheetGrid = decrease(object.eyeliner_palette_id),
+      tint0 = object.eyeliner_color_primary,
+      opacity = convertToPercent(object.eyeliner_opacity)
+    }
+    object.eyeliner_tx_id = nil
+    object.eyeliner_palette_id = nil
+    object.eyeliner_color_primary = nil
+    object.eyeliner_opacity = nil
+    object.eyeliner_visibility = nil
+
+    standard.overlays.eyeshadow = needOverlay(object.shadows_visibility) and {
+      id = 1,
+      sheetGrid = decrease(object.shadows_palette_id),
+      tint0 = object.shadows_palette_color_primary,
+      tint1 = object.shadows_palette_color_secondary,
+      tint2 = object.shadows_palette_color_tertiary,
+      opacity = convertToPercent(object.shadows_opacity)
+    }
+    object.shadows_palette_id = nil
+    object.shadows_palette_color_primary = nil
+    object.shadows_palette_color_secondary = nil
+    object.shadows_palette_color_tertiary = nil
+    object.shadows_opacity = nil
+    object.shadows_visibility = nil
+
+    standard.overlays.freckles = needOverlay(object.freckles_visibility) and {
+      id = decrease(object.freckles_tx_id),
+      opacity = convertToPercent(object.freckles_opacity)
+    }
+    object.freckles_tx_id = nil
+    object.freckles_opacity = nil
+    object.freckles_visibility = nil
+
+    standard.overlays.lipstick = needOverlay(object.lipsticks_visibility) and {
+      id = 1,
+      sheetGrid = decrease(object.lipsticks_palette_id),
+      tint0 = object.lipsticks_palette_color_primary,
+      tint1 = object.lipsticks_palette_color_secondary,
+      tint2 = object.lipsticks_palette_color_tertiary,
+      opacity = convertToPercent(object.lipsticks_opacity)
+    }
+    object.lipsticks_palette_id = nil
+    object.lipsticks_palette_color_primary = nil
+    object.lipsticks_palette_color_secondary = nil
+    object.lipsticks_palette_color_tertiary = nil
+    object.lipsticks_opacity = nil
+    object.lipsticks_visibility = nil
+
+    standard.overlays.moles = needOverlay(object.moles_visibility) and {
+      id = decrease(object.moles_tx_id),
+      opacity = convertToPercent(object.moles_opacity)
+    }
+    object.moles_tx_id = nil
+    object.moles_opacity = nil
+    object.moles_visibility = nil
+
+    standard.overlays.scar = needOverlay(object.scars_visibility) and {
+      id = decrease(object.scars_tx_id),
+      opacity = convertToPercent(object.scars_opacity)
+    }
+    object.scars_tx_id = nil
+    object.scars_opacity = nil
+    object.scars_visibility = nil
+
+    standard.overlays.spots = needOverlay(object.spots_visibility) and {
+      id = decrease(object.spots_tx_id),
+      opacity = convertToPercent(object.spots_opacity)
+    }
+    object.spots_tx_id = nil
+    object.spots_opacity = nil
+    object.spots_visibility = nil
+
+    standard.overlays.acne = needOverlay(object.acne_visibility) and {
+      id = decrease(object.acne_tx_id),
+      opacity = convertToPercent(object.acne_opacity)
+    }
+    object.acne_tx_id = nil
+    object.acne_opacity = nil
+    object.acne_visibility = nil
+
+    standard.overlays.grime = needOverlay(object.grime_visibility) and {
+      id = decrease(object.grime_tx_id),
+      opacity = convertToPercent(object.grime_opacity)
+    }
+    object.grime_tx_id = nil
+    object.grime_opacity = nil
+    object.grime_visibility = nil
+
+    standard.overlays.hair = needOverlay(object.hair_visibility) and {
+      id = decrease(object.hair_tx_id),
+      tint0 = object.hair_color_primary,
+      opacity = convertToPercent(object.hair_opacity)
+    }
+    object.hair_tx_id = nil
+    object.hair_color_primary = nil
+    object.hair_opacity = nil
+    object.hair_visibility = nil
+
+    standard.overlays.complex = needOverlay(object.complex_visibility) and {
+      id = decrease(object.complex_tx_id),
+      opacity = convertToPercent(object.complex_opacity)
+    }
+    object.complex_tx_id = nil
+    object.complex_opacity = nil
+    object.complex_visibility = nil
+
+    standard.overlays.disc = needOverlay(object.disc_visibility) and {
+      id = decrease(object.disc_tx_id),
+      opacity = convertToPercent(object.disc_opacity)
+    }
+    object.disc_tx_id = nil
+    object.disc_opacity = nil
+    object.disc_visibility = nil
+
+    standard.overlays.foundation = needOverlay(object.foundation_visibility) and {
+      id = decrease(object.foundation_tx_id),
+      tint0 = object.foundation_palette_color_primary,
+      tint1 = object.foundation_palette_color_secondary,
+      tint2 = object.foundation_palette_color_tertiary,
+      sheetGrid = decrease(object.foundation_palette_id),
+      opacity = convertToPercent(object.foundation_opacity)
+    }
+    object.foundation_tx_id = nil
+    object.foundation_palette_color_primary = nil
+    object.foundation_palette_color_secondary = nil
+    object.foundation_palette_color_tertiary = nil
+    object.foundation_palette_id = nil
+    object.foundation_opacity = nil
+    object.foundation_visibility = nil
+
+    standard.overlays.masks = needOverlay(object.paintedmasks_visibility) and {
+      id = decrease(object.paintedmasks_tx_id),
+      tint0 = object.paintedmasks_palette_color_primary,
+      tint1 = object.paintedmasks_palette_color_secondary,
+      tint2 = object.paintedmasks_palette_color_tertiary,
+      sheetGrid = decrease(object.paintedmasks_palette_id),
+      opacity = convertToPercent(object.paintedmasks_opacity)
+    }
+    object.paintedmasks_tx_id = nil
+    object.paintedmasks_palette_color_primary = nil
+    object.paintedmasks_palette_color_secondary = nil
+    object.paintedmasks_palette_color_tertiary = nil
+    object.paintedmasks_palette_id = nil
+    object.paintedmasks_opacity = nil
+    object.paintedmasks_visibility = nil
+
+    --Clear unneccessary keys
+    table.extract(object, "FaceD")              --Same hash than EyeBrowW
+    table.extract(object, "FaceS")              --Same hash than EyeBrowH
+    table.extract(object, "albedo")             --Useless
+    table.extract(object, "beardstabble_tx_id") --Unused by VORP
+    table.extract(object, "blush_palette_id")   --Unused by VORP
+    table.extract(object, "shadows_tx_id")      --Unused by VORP
+    table.extract(object, "lipsticks_tx_id")    --Unused by VORP
+  elseif jo.framework:is("RSG") then
+    local skin_tone = { 1, 4, 3, 5, 2, 6 }
+    local heads = {
+      mp_male = { [16] = 18, [17] = 21, [18] = 22, [19] = 25, [20] = 28 },
+      mp_female = { [17] = 20, [18] = 22, [19] = 27, [20] = 28 }
+    }
+    local bodies = { 2, 1, 3, 4, 5, 6 }
+
+    standard.model = table.extract(object, "sex") == 2 and "mp_female" or "mp_male"
+    standard.bodiesIndex = bodies[object.body_size] or object.body_size
+    object.body_size = nil
+    standard.eyesIndex = table.extract(object, "eyes_color")
+    standard.headIndex = heads[standard.model][math.ceil(object.head / 6)] or math.ceil(object.head / 6)
+    object.head = nil
+    standard.skinTone = skin_tone[table.extract(object, "skin_tone")]
+    standard.teethIndex = table.extract(object, "teeth")
+    standard.hair = table.extract(object, "hair")
+    if standard.model == "mp_male" then
+      standard.beards_complete = table.extract(object, "beard")
+    end
+    standard.bodyScale = convertToPercent(table.extract(object, "height"))
+    standard.bodyWeight = table.extract(object, "body_waist")
+
+    standard.expressions = {
+      arms = table.extract(object, "arms_size"),
+      calves = table.extract(object, "calves_size"),
+      cheekbonesDepth = table.extract(object, "cheekbones_depth"),
+      cheekbonesHeight = table.extract(object, "cheekbones_height"),
+      cheekbonesWidth = table.extract(object, "cheekbones_width"),
+      chest = table.extract(object, "chest_size"),
+      chinDepth = table.extract(object, "chin_depth"),
+      chinHeight = table.extract(object, "chin_height"),
+      chinWidth = table.extract(object, "chin_width"),
+      earlobes = table.extract(object, "earlobe_size"),
+      earsAngle = table.extract(object, "ears_angle"),
+      earsDepth = table.extract(object, "eyebrow_depth"),
+      earsHeight = table.extract(object, "ears_height"),
+      earsWidth = table.extract(object, "ears_width"),
+      eyebrowDepth = table.extract(object, "face_depth"),
+      eyebrowHeight = table.extract(object, "eyebrow_height"),
+      eyebrowWidth = table.extract(object, "eyebrow_width"),
+      eyelidHeight = table.extract(object, "eyelid_height"),
+      eyelidLeft = table.extract(object, "eyelid_left"),
+      eyelidRight = table.extract(object, "eyelid_right"),
+      eyelidWidth = table.extract(object, "eyelid_width"),
+      eyesAngle = table.extract(object, "eyes_angle"),
+      eyesDepth = table.extract(object, "eyes_depth"),
+      eyesDistance = table.extract(object, "eyes_distance"),
+      eyesHeight = table.extract(object, "eyes_height"),
+      faceWidth = table.extract(object, "face_width"),
+      headWidth = table.extract(object, "head_width"),
+      hip = table.extract(object, "hips_size"),
+      jawDepth = table.extract(object, "jaw_depth"),
+      jawHeight = table.extract(object, "jaw_height"),
+      jawWidth = table.extract(object, "jaw_width"),
+      jawY = table.extract(object, "jawY"),
+      lowerLipDepth = table.extract(object, "lower_lip_depth"),
+      lowerLipHeight = table.extract(object, "lower_lip_height"),
+      lowerLipWidth = table.extract(object, "lower_lip_width"),
+      mouthConerLeftDepth = table.extract(object, "mouth_corner_left_depth"),
+      mouthConerLeftHeight = table.extract(object, "mouth_corner_left_height"),
+      mouthConerLeftLipsDistance = table.extract(object, "mouth_corner_left_lips_distance"),
+      mouthConerLeftWidth = table.extract(object, "mouth_corner_left_width"),
+      mouthConerRightDepth = table.extract(object, "mouth_corner_right_depth"),
+      mouthConerRightHeight = table.extract(object, "mouth_corner_right_height"),
+      mouthConerRightLipsDistance = table.extract(object, "mouth_corner_right_lips_distance"),
+      mouthConerRightWidth = table.extract(object, "mouth_corner_right_width"),
+      mouthDepth = table.extract(object, "mouth_depth"),
+      mouthWidth = table.extract(object, "mouth_width"),
+      mouthX = table.extract(object, "mouth_x_pos"),
+      mouthY = table.extract(object, "mouth_y_pos"),
+      neckDepth = table.extract(object, "neck_depth"),
+      neckWidth = table.extract(object, "neck_width"),
+      noseAngle = table.extract(object, "nose_angle"),
+      noseCurvature = table.extract(object, "nose_curvature"),
+      noseHeight = table.extract(object, "nose_height"),
+      noseSize = table.extract(object, "nose_size"),
+      noseWidth = table.extract(object, "nose_width"),
+      nostrilsDistance = table.extract(object, "nostrils_distance"),
+      shoulderBlades = table.extract(object, "back_muscle"),
+      shoulders = table.extract(object, "uppr_shoulder_size"),
+      shoulderThickness = table.extract(object, "back_shoulder_thickness"),
+      thighs = table.extract(object, "tight_size"),
+      upperLipDepth = table.extract(object, "upper_lip_depth"),
+      upperLipHeight = table.extract(object, "upper_lip_height"),
+      upperLipWidth = table.extract(object, "upper_lip_width"),
+      waist = table.extract(object, "waist_width"),
+    }
+
+    standard.overlays = {}
+    standard.overlays.ageing = object.ageing_t and {
+      id = decrease(object.ageing_t),
+      opacity = convertToPercent(object.ageing_op)
+    }
+    object.ageing_t = nil
+    object.ageing_op = nil
+
+    standard.overlays.beard = object.beardstabble_t and {
+      id = object.beardstabble_t,
+      opacity = convertToPercent(object.beardstabble_op)
+    }
+    object.beardstabble_t = nil
+    object.beardstabble_op = nil
+
+    standard.overlays.blush = object.blush_t and {
+      id = decrease(object.blush_t),
+      palette = object.blush_id,
+      tint0 = object.blush_c1,
+      opacity = convertToPercent(object.blush_op)
+    }
+    object.blush_t = nil
+    object.blush_id = nil
+    object.blush_c1 = nil
+    object.blush_op = nil
+
+    standard.overlays.eyebrow = object.eyebrows_t and (function()
+      local id = decrease(object.eyebrows_t)
+      local sexe = "m"
+      if id > 15 then
+        id = id - 15
+        sexe = "f"
+      end
+      return {
+        id = id,
+        sexe = sexe,
+        palette = object.eyebrows_id,
+        tint0 = object.eyebrows_c1,
+        opacity = convertToPercent(object.eyebrows_op)
+      }
+    end)()
+    object.eyebrows_t = nil
+    object.eyebrows_id = nil
+    object.eyebrows_c1 = nil
+    object.eyebrows_op = nil
+
+    standard.overlays.eyeliner = object.eyeliners_t and {
+      id = 1,
+      sheetGrid = decrease(object.eyeliners_t),
+      palette = object.eyeliners_id,
+      tint0 = object.eyeliners_c1,
+      opacity = convertToPercent(object.eyeliners_op)
+    }
+    object.eyeliners_t = nil
+    object.eyeliners_id = nil
+    object.eyeliners_c1 = nil
+    object.eyeliners_op = nil
+
+    standard.overlays.eyeshadow = object.shadows_t and {
+      id = 1,
+      sheetGrid = decrease(object.shadows_t),
+      palette = object.shadows_id,
+      tint0 = object.shadows_c1,
+      opacity = convertToPercent(object.shadows_op)
+    }
+    object.shadows_t = nil
+    object.shadows_id = nil
+    object.shadows_c1 = nil
+    object.shadows_op = nil
+
+    standard.overlays.freckles = object.freckles_t and {
+      id = decrease(object.freckles_t),
+      opacity = convertToPercent(object.freckles_op)
+    }
+    object.freckles_t = nil
+    object.freckles_op = nil
+
+    standard.overlays.lipstick = object.lipsticks_t and {
+      id = 1,
+      sheetGrid = decrease(object.lipsticks_t),
+      palette = object.lipsticks_id,
+      tint0 = object.lipsticks_c1,
+      tint1 = object.lipsticks_c2,
+      opacity = convertToPercent(object.lipsticks_op)
+    }
+    object.lipsticks_t = nil
+    object.lipsticks_id = nil
+    object.lipsticks_c1 = nil
+    object.lipsticks_c2 = nil
+    object.lipsticks_op = nil
+
+    standard.overlays.moles = object.moles_t and {
+      id = decrease(object.moles_t),
+      opacity = convertToPercent(object.moles_op)
+    }
+    object.moles_t = nil
+    object.moles_op = nil
+
+    standard.overlays.scar = object.scars_t and {
+      id = decrease(object.scars_t),
+      opacity = convertToPercent(object.scars_op)
+    }
+    object.scars_t = nil
+    object.scars_op = nil
+
+    standard.overlays.spots = object.spots_t and {
+      id = decrease(object.spots_t),
+      opacity = convertToPercent(object.spots_op)
+    }
+    object.spots_t = nil
+    object.spots_op = nil
+
+    -- standard.overlays.acne = {},
+    -- standard.overlays.foundation = {},
+    -- standard.overlays.grime = {},
+    -- standard.overlays.hair = {},
+    -- standard.overlays.masks = {},
+    -- standard.overlays.complex = {},
+    -- standard.overlays.disc = {},
+  end
+
+  if Config and Config.debug then
+    if table.count(object) > 0 then
+      eprint("Skin keys not converted to standard")
+      TriggerEvent("print", object)
+    else
+      gprint("All skin keys standardized")
     end
   end
 
+  standard = table.merge(standard, object)
+
   --Clear overlays table
-  standard.overlays = table.merge(standardizeOverlays(object), object.overlays)
+  standard.overlays = table.merge(standard.overlays, object.overlays)
   standard.expressions = table.merge(standard.expressions, object.expressions)
 
-  clearOverlaysTable(standard.overlays)
+  for key, expression in pairs(standard.expressions) do
+    if expression == 0 then
+      standard.expressions[key] = nil
+    else
+      standard.expressions[key] = convertToPercent(expression)
+    end
+  end
+
+  --clearOverlaysTable(standard.overlays)
 
   if standard.hair and type(standard.hair) ~= "table" then
     standard.hair = {
@@ -1543,10 +1653,6 @@ local function standardizeSkin(object)
     standard.beards_complete = {
       hash = standard.beards_complete
     }
-  end
-
-  if jo.framework:is("RSG") then
-    standardizeRSGSkin(standard)
   end
 
   return standard
@@ -1578,34 +1684,479 @@ local function formatComponentData(data)
 end
 
 --- A function to revert a object of categories
-local function revertSkin(object)
-  object = table.copy(object)
-  local framName = jo.framework:get()
+local function revertSkin(standard)
+  standard = table.copy(standard)
+
   local reverted = {}
-  for category, data in pairs(object) do
-    if category == "expressions" then
-      for category2, data2 in pairs(data) do
-        local strandardCat, framCat = findValueInList(skinCategoryBridge[framName].expressions, category2)
-        if strandardCat then
-          if data2 ~= 0 then
-            reverted[framCat] = data2
-          end
-        else
-          reverted[category2] = data2
-        end
+
+  local function increase(value)
+    return (value or 0) + 1
+  end
+
+  if jo.framework:is("VORP") then
+    reverted.sex = table.extract(standard, "model")
+    reverted.HeadType = table.extract(standard, "headHash")
+    reverted.Torso = standard.bodyUpperHash
+    reverted.BodyType = standard.bodyUpperHash
+    standard.bodyUpperHash = nil
+    reverted.Legs = standard.bodyLowerHash
+    reverted.LegsType = standard.bodyLowerHash
+    standard.bodyLowerHash = nil
+    reverted.Eyes = table.extract(standard, "eyesHash")
+    reverted.Teeth = table.extract(standard, "teethHash")
+    reverted.Hair = table.extract(standard, "hair")
+    reverted.Beard = table.extract(standard, "beards_complete")
+    reverted.Body = table.extract(standard, "bodyType")
+    reverted.Waist = table.extract(standard, "bodyWeight")
+    reverted.Scale = table.extract(standard, "bodyScale")
+
+    reverted.ArmsS = table.extract(standard.expressions, "arms")
+    reverted.CalvesS = table.extract(standard.expressions, "calves")
+    reverted.CheekBonesD = table.extract(standard.expressions, "cheekbonesDepth")
+    reverted.CheekBonesH = table.extract(standard.expressions, "cheekbonesHeight")
+    reverted.CheekBonesW = table.extract(standard.expressions, "cheekbonesWidth")
+    reverted.ChestS = table.extract(standard.expressions, "chest")
+    reverted.ChinD = table.extract(standard.expressions, "chinDepth")
+    reverted.ChinH = table.extract(standard.expressions, "chinHeight")
+    reverted.ChinW = table.extract(standard.expressions, "chinWidth")
+    reverted.EarsD = table.extract(standard.expressions, "earlobes")
+    reverted.EarsA = table.extract(standard.expressions, "earsAngle")
+    reverted.earsDepth = table.extract(standard.expressions, "earsDepth")
+    reverted.EarsH = table.extract(standard.expressions, "earsHeight")
+    reverted.EarsW = table.extract(standard.expressions, "earsWidth")
+    reverted.EyeBrowD = table.extract(standard.expressions, "eyebrowDepth")
+    reverted.EyeBrowH = table.extract(standard.expressions, "eyebrowHeight")
+    reverted.EyeBrowW = table.extract(standard.expressions, "eyebrowWidth")
+    reverted.EyeLidH = table.extract(standard.expressions, "eyelidHeight")
+    reverted.EyeLidL = table.extract(standard.expressions, "eyelidLeft")
+    reverted.EyeLidR = table.extract(standard.expressions, "eyelidRight")
+    reverted.EyeLidW = table.extract(standard.expressions, "eyelidWidth")
+    reverted.EyeAng = table.extract(standard.expressions, "eyesAngle")
+    reverted.EyeD = table.extract(standard.expressions, "eyesDepth")
+    reverted.EyeDis = table.extract(standard.expressions, "eyesDistance")
+    reverted.EyeH = table.extract(standard.expressions, "eyesHeight")
+    reverted.FaceW = table.extract(standard.expressions, "faceWidth")
+    reverted.HeadSize = table.extract(standard.expressions, "headWidth")
+    reverted.HipsS = table.extract(standard.expressions, "hip")
+    reverted.JawD = table.extract(standard.expressions, "jawDepth")
+    reverted.JawH = table.extract(standard.expressions, "jawHeight")
+    reverted.JawW = table.extract(standard.expressions, "jawWidth")
+    reverted.jawY = table.extract(standard.expressions, "jawY")
+    reverted.LLiphD = table.extract(standard.expressions, "lowerLipDepth")
+    reverted.LLiphH = table.extract(standard.expressions, "lowerLipHeight")
+    reverted.LLiphW = table.extract(standard.expressions, "lowerLipWidth")
+    reverted.MouthCLD = table.extract(standard.expressions, "mouthConerLeftDepth")
+    reverted.MouthCLH = table.extract(standard.expressions, "mouthConerLeftHeight")
+    reverted.MouthCLLD = table.extract(standard.expressions, "mouthConerLeftLipsDistance")
+    reverted.MouthCLW = table.extract(standard.expressions, "mouthConerLeftWidth")
+    reverted.MouthCRD = table.extract(standard.expressions, "mouthConerRightDepth")
+    reverted.MouthCRH = table.extract(standard.expressions, "mouthConerRightHeight")
+    reverted.MouthCRLD = table.extract(standard.expressions, "mouthConerRightLipsDistance")
+    reverted.MouthCRW = table.extract(standard.expressions, "mouthConerRightWidth")
+    reverted.MouthD = table.extract(standard.expressions, "mouthDepth")
+    reverted.MouthW = table.extract(standard.expressions, "mouthWidth")
+    reverted.MouthX = table.extract(standard.expressions, "mouthX")
+    reverted.MouthY = table.extract(standard.expressions, "mouthY")
+    reverted.NeckD = table.extract(standard.expressions, "neckDepth")
+    reverted.NeckW = table.extract(standard.expressions, "neckWidth")
+    reverted.NoseAng = table.extract(standard.expressions, "noseAngle")
+    reverted.NoseC = table.extract(standard.expressions, "noseCurvature")
+    reverted.NoseH = table.extract(standard.expressions, "noseHeight")
+    reverted.NoseS = table.extract(standard.expressions, "noseSize")
+    reverted.NoseW = table.extract(standard.expressions, "noseWidth")
+    reverted.NoseDis = table.extract(standard.expressions, "nostrilsDistance")
+    reverted.ShouldersM = table.extract(standard.expressions, "shoulderBlades")
+    reverted.ShouldersS = table.extract(standard.expressions, "shoulders")
+    reverted.ShouldersT = table.extract(standard.expressions, "shoulderThickness")
+    reverted.LegsS = table.extract(standard.expressions, "thighs")
+    reverted.ULiphD = table.extract(standard.expressions, "upperLipDepth")
+    reverted.ULiphH = table.extract(standard.expressions, "upperLipHeight")
+    reverted.ULiphW = table.extract(standard.expressions, "upperLipWidth")
+    reverted.WaistW = table.extract(standard.expressions, "waist")
+
+    if standard.overlays.ageing then
+      reverted.ageing_visibility = 1
+      reverted.ageing_tx_id = increase(standard.overlays.ageing.id)
+      reverted.ageing_opacity = standard.overlays.ageing.opacity
+      standard.overlays.ageing.id = nil
+      standard.overlays.ageing.opacity = nil
+    end
+    if standard.overlays.beard then
+      reverted.beardstabble_visibility = 1
+      reverted.beardstabble_color_primary = standard.overlays.beard.tint0
+      reverted.beardstabble_opacity = standard.overlays.beard.opacity
+      standard.overlays.beard.tint0 = nil
+      standard.overlays.beard.opacity = nil
+    end
+    if standard.overlays.blush then
+      reverted.blush_visibility = 1
+      reverted.blush_tx_id = increase(standard.overlays.blush.id)
+      reverted.blush_palette_color_primary = standard.overlays.blush.tint0
+      reverted.blush_opacity = standard.overlays.blush.opacity
+      standard.overlays.blush.id = nil
+      standard.overlays.blush.tint0 = nil
+      standard.overlays.blush.opacity = nil
+    end
+    if standard.overlays.eyebrow then
+      reverted.eyebrows_visibility = 1
+      reverted.eyebrows_tx_id = increase(standard.overlays.eyebrow.id)
+      if standard.overlays.sexe == "f" then
+        reverted.eyebrows_tx_id = reverted.eyebrows_tx_id + 15
       end
-    elseif category == "overlays" then
-      reverted[category] = table.copy(data)
-      revertOverlays(reverted)
-    else
-      local key = revertSkinKey(category)
-      reverted[key] = table.copy(data)
+      reverted.eyebrows_color = standard.overlays.eyebrow.tint0
+      reverted.eyebrows_opacity = standard.overlays.eyebrow.opacity
+      standard.overlays.eyebrow.id = nil
+      standard.overlays.eyebrow.sexe = nil
+      standard.overlays.eyebrow.tint0 = nil
+      standard.overlays.eyebrow.opacity = nil
+    end
+    if standard.overlays.eyeliner then
+      reverted.eyeliner_visibility = 1
+      reverted.eyeliner_tx_id = increase(standard.overlays.eyeliner.id)
+      reverted.eyeliner_palette_id = increase(standard.overlays.eyeliner.sheetGrid)
+      reverted.eyeliner_color_primary = standard.overlays.eyeliner.tint0
+      reverted.eyeliner_opacity = standard.overlays.eyeliner.opacity
+      standard.overlays.eyeliner.id = nil
+      standard.overlays.eyeliner.sheetGrid = nil
+      standard.overlays.eyeliner.tint0 = nil
+      standard.overlays.eyeliner.opacity = nil
+    end
+    if standard.overlays.eyeshadow then
+      reverted.shadows_visibility = 1
+      reverted.shadows_tx_id = increase(standard.overlays.eyeshadow.id)
+      reverted.shadows_palette_id = increase(standard.overlays.eyeshadow.sheetGrid)
+      reverted.shadows_palette_color_primary = standard.overlays.eyeshadow.tint0
+      reverted.shadows_palette_color_secondary = standard.overlays.eyeshadow.tint1
+      reverted.shadows_palette_color_tertiary = standard.overlays.eyeshadow.tint2
+      reverted.shadows_opacity = standard.overlays.eyeshadow.opacity
+      standard.overlays.eyeshadow.id = nil
+      standard.overlays.eyeshadow.sheetGrid = nil
+      standard.overlays.eyeshadow.tint0 = nil
+      standard.overlays.eyeshadow.tint1 = nil
+      standard.overlays.eyeshadow.tint2 = nil
+      standard.overlays.eyeshadow.opacity = nil
+    end
+    if standard.overlays.freckles then
+      reverted.freckles_visibility = 1
+      reverted.freckles_tx_id = increase(standard.overlays.freckles.id)
+      reverted.freckles_opacity = standard.overlays.freckles.opacity
+      standard.overlays.freckles.id = nil
+      standard.overlays.freckles.opacity = nil
+    end
+    if standard.overlays.lipstick then
+      reverted.lipsticks_visibility = 1
+      reverted.lipsticks_tx_id = increase(standard.overlays.lipstick.id)
+      reverted.lipsticks_palette_id = increase(standard.overlays.lipstick.sheetGrid)
+      reverted.lipsticks_palette_color_primary = standard.overlays.lipstick.tint0
+      reverted.lipsticks_palette_color_secondary = standard.overlays.lipstick.tint1
+      reverted.lipsticks_palette_color_tertiary = standard.overlays.lipstick.tint2
+      reverted.lipsticks_opacity = standard.overlays.lipstick.opacity
+      standard.overlays.lipstick.id = nil
+      standard.overlays.lipstick.sheetGrid = nil
+      standard.overlays.lipstick.tint0 = nil
+      standard.overlays.lipstick.tint1 = nil
+      standard.overlays.lipstick.tint2 = nil
+      standard.overlays.lipstick.opacity = nil
+    end
+    if standard.overlays.moles then
+      reverted.moles_visibility = 1
+      reverted.moles_tx_id = increase(standard.overlays.moles.id)
+      reverted.moles_opacity = standard.overlays.moles.opacity
+      standard.overlays.moles.id = nil
+      standard.overlays.moles.opacity = nil
+    end
+    if standard.overlays.scar then
+      reverted.scars_visibility = 1
+      reverted.scars_tx_id = increase(standard.overlays.scar.id)
+      reverted.scars_opacity = standard.overlays.scar.opacity
+      standard.overlays.scar.id = nil
+      standard.overlays.scar.opacity = nil
+    end
+    if standard.overlays.spots then
+      reverted.spots_visibility = 1
+      reverted.spots_tx_id = increase(standard.overlays.spots.id)
+      reverted.spots_opacity = standard.overlays.spots.opacity
+      standard.overlays.spots.id = nil
+      standard.overlays.spots.opacity = nil
+    end
+    if standard.overlays.acne then
+      reverted.acne_visibility = 1
+      reverted.acne_tx_id = increase(standard.overlays.acne.id)
+      reverted.acne_opacity = standard.overlays.acne.opacity
+      standard.overlays.acne.id = nil
+      standard.overlays.acne.opacity = nil
+    end
+    if standard.overlays.grime then
+      reverted.grime_visibility = 1
+      reverted.grime_tx_id = increase(standard.overlays.grime.id)
+      reverted.grime_opacity = standard.overlays.grime.opacity
+      standard.overlays.grime.id = nil
+      standard.overlays.grime.opacity = nil
+    end
+    if standard.overlays.hair then
+      reverted.hair_visibility = 1
+      reverted.hair_tx_id = increase(standard.overlays.hair.id)
+      reverted.hair_color_primary = standard.overlays.hair.tint0
+      reverted.hair_opacity = standard.overlays.hair.opacity
+      standard.overlays.hair.id = nil
+      standard.overlays.hair.tint0 = nil
+      standard.overlays.hair.opacity = nil
+    end
+    if standard.overlays.complex then
+      reverted.complex_visibility = 1
+      reverted.complex_tx_id = increase(standard.overlays.complex.id)
+      reverted.complex_opacity = standard.overlays.complex.opacity
+      standard.overlays.complex.id = nil
+      standard.overlays.complex.opacity = nil
+    end
+    if standard.overlays.disc then
+      reverted.disc_visibility = 1
+      reverted.disc_tx_id = increase(standard.overlays.disc.id)
+      reverted.disc_opacity = standard.overlays.disc.opacity
+      standard.overlays.disc.id = nil
+      standard.overlays.disc.opacity = nil
+    end
+
+    for key, data in pairs(standard.overlays) do
+      if table.count(data) == 0 then
+        standard.overlays[key] = nil
+      end
+    end
+
+    if table.count(standard.overlays) == 0 then
+      standard.overlays = nil
+    end
+    if table.count(standard.expressions) == 0 then
+      standard.expressions = nil
+    end
+
+    if config and Config.debug then
+      if table.count(standard) > 0 then
+        eprint("Skin keys not reverted")
+        TriggerEvent("print", standard)
+      else
+        gprint("All skin keys reverted")
+      end
+    end
+
+    reverted.overlays = table.copy(standard.overlays)
+  elseif jo.framework:is("RSG") then
+    local function revertPercent(value)
+      if not value then return nil end
+      return math.ceil((value) * 100)
+    end
+
+    local skin_tone = { 1, 4, 3, 5, 2, 6 }
+    local heads = {
+      mp_male = { [16] = 18, [17] = 21, [18] = 22, [19] = 25, [20] = 28 },
+      mp_female = { [17] = 20, [18] = 22, [19] = 27, [20] = 28 }
+    }
+    local bodies = { 2, 1, 3, 4, 5, 6 }
+
+    reverted.sex = standard.model == "mp_female" and 2 or 1
+    _, reverted.body_size = table.find(bodies, function(value) return value == standard.bodiesIndex end)
+    standard.bodiesIndex = nil
+    reverted.eyes_color = table.extract(standard, "eyesIndex")
+    _, reverted.head = table.find(heads[standard.model], function(value) return value == standard.headIndex end)
+    reverted.head = (reverted.head or standard.headIndex) * 6
+    standard.headIndex = nil
+    _, reverted.skin_tone = table.find(skin_tone, function(value, i) return value == standard.skinTone end)
+    standard.skinTone = nil
+    reverted.teeth = table.extract(standard, "teethIndex")
+    reverted.hair = table.extract(standard, "hair")
+    if standard.model == "mp_male" then
+      reverted.beard = table.extract(standard, "beards_complete")
+    end
+    reverted.height = revertPercent(table.extract(standard, "bodyScale"))
+    reverted.body_waist = table.extract(standard, "bodyWeight")
+    standard.model = nil
+
+    reverted.arms_size = revertPercent(table.extract(standard.expressions, "arms"))
+    reverted.calves_size = revertPercent(table.extract(standard.expressions, "calves"))
+    reverted.cheekbones_depth = revertPercent(table.extract(standard.expressions, "cheekbonesDepth"))
+    reverted.cheekbones_height = revertPercent(table.extract(standard.expressions, "cheekbonesHeight"))
+    reverted.cheekbones_width = revertPercent(table.extract(standard.expressions, "cheekbonesWidth"))
+    reverted.chest_size = revertPercent(table.extract(standard.expressions, "chest"))
+    reverted.chin_depth = revertPercent(table.extract(standard.expressions, "chinDepth"))
+    reverted.chin_height = revertPercent(table.extract(standard.expressions, "chinHeight"))
+    reverted.chin_width = revertPercent(table.extract(standard.expressions, "chinWidth"))
+    reverted.earlobe_size = revertPercent(table.extract(standard.expressions, "earlobes"))
+    reverted.ears_angle = revertPercent(table.extract(standard.expressions, "earsAngle"))
+    reverted.eyebrow_depth = revertPercent(table.extract(standard.expressions, "earsDepth"))
+    reverted.ears_height = revertPercent(table.extract(standard.expressions, "earsHeight"))
+    reverted.ears_width = revertPercent(table.extract(standard.expressions, "earsWidth"))
+    reverted.face_depth = revertPercent(table.extract(standard.expressions, "eyebrowDepth"))
+    reverted.eyebrow_height = revertPercent(table.extract(standard.expressions, "eyebrowHeight"))
+    reverted.eyebrow_width = revertPercent(table.extract(standard.expressions, "eyebrowWidth"))
+    reverted.eyelid_height = revertPercent(table.extract(standard.expressions, "eyelidHeight"))
+    reverted.eyelid_left = revertPercent(table.extract(standard.expressions, "eyelidLeft"))
+    reverted.eyelid_right = revertPercent(table.extract(standard.expressions, "eyelidRight"))
+    reverted.eyelid_width = revertPercent(table.extract(standard.expressions, "eyelidWidth"))
+    reverted.eyes_angle = revertPercent(table.extract(standard.expressions, "eyesAngle"))
+    reverted.eyes_depth = revertPercent(table.extract(standard.expressions, "eyesDepth"))
+    reverted.eyes_distance = revertPercent(table.extract(standard.expressions, "eyesDistance"))
+    reverted.eyes_height = revertPercent(table.extract(standard.expressions, "eyesHeight"))
+    reverted.face_width = revertPercent(table.extract(standard.expressions, "faceWidth"))
+    reverted.head_width = revertPercent(table.extract(standard.expressions, "headWidth"))
+    reverted.hips_size = revertPercent(table.extract(standard.expressions, "hip"))
+    reverted.jaw_depth = revertPercent(table.extract(standard.expressions, "jawDepth"))
+    reverted.jaw_height = revertPercent(table.extract(standard.expressions, "jawHeight"))
+    reverted.jaw_width = revertPercent(table.extract(standard.expressions, "jawWidth"))
+    reverted.jawY = revertPercent(table.extract(standard.expressions, "jawY"))
+    reverted.lower_lip_depth = revertPercent(table.extract(standard.expressions, "lowerLipDepth"))
+    reverted.lower_lip_height = revertPercent(table.extract(standard.expressions, "lowerLipHeight"))
+    reverted.lower_lip_width = revertPercent(table.extract(standard.expressions, "lowerLipWidth"))
+    reverted.mouth_corner_left_depth = revertPercent(table.extract(standard.expressions, "mouthConerLeftDepth"))
+    reverted.mouth_corner_left_height = revertPercent(table.extract(standard.expressions, "mouthConerLeftHeight"))
+    reverted.mouth_corner_left_lips_distance = revertPercent(table.extract(standard.expressions, "mouthConerLeftLipsDistance"))
+    reverted.mouth_corner_left_width = revertPercent(table.extract(standard.expressions, "mouthConerLeftWidth"))
+    reverted.mouth_corner_right_depth = revertPercent(table.extract(standard.expressions, "mouthConerRightDepth"))
+    reverted.mouth_corner_right_height = revertPercent(table.extract(standard.expressions, "mouthConerRightHeight"))
+    reverted.mouth_corner_right_lips_distance = revertPercent(table.extract(standard.expressions, "mouthConerRightLipsDistance"))
+    reverted.mouth_corner_right_width = revertPercent(table.extract(standard.expressions, "mouthConerRightWidth"))
+    reverted.mouth_depth = revertPercent(table.extract(standard.expressions, "mouthDepth"))
+    reverted.mouth_width = revertPercent(table.extract(standard.expressions, "mouthWidth"))
+    reverted.mouth_x_pos = revertPercent(table.extract(standard.expressions, "mouthX"))
+    reverted.mouth_y_pos = revertPercent(table.extract(standard.expressions, "mouthY"))
+    reverted.neck_depth = revertPercent(table.extract(standard.expressions, "neckDepth"))
+    reverted.neck_width = revertPercent(table.extract(standard.expressions, "neckWidth"))
+    reverted.nose_angle = revertPercent(table.extract(standard.expressions, "noseAngle"))
+    reverted.nose_curvature = revertPercent(table.extract(standard.expressions, "noseCurvature"))
+    reverted.nose_height = revertPercent(table.extract(standard.expressions, "noseHeight"))
+    reverted.nose_size = revertPercent(table.extract(standard.expressions, "noseSize"))
+    reverted.nose_width = revertPercent(table.extract(standard.expressions, "noseWidth"))
+    reverted.nostrils_distance = revertPercent(table.extract(standard.expressions, "nostrilsDistance"))
+    reverted.back_muscle = revertPercent(table.extract(standard.expressions, "shoulderBlades"))
+    reverted.uppr_shoulder_size = revertPercent(table.extract(standard.expressions, "shoulders"))
+    reverted.back_shoulder_thickness = revertPercent(table.extract(standard.expressions, "shoulderThickness"))
+    reverted.tight_size = revertPercent(table.extract(standard.expressions, "thighs"))
+    reverted.upper_lip_depth = revertPercent(table.extract(standard.expressions, "upperLipDepth"))
+    reverted.upper_lip_height = revertPercent(table.extract(standard.expressions, "upperLipHeight"))
+    reverted.upper_lip_width = revertPercent(table.extract(standard.expressions, "upperLipWidth"))
+    reverted.waist_width = revertPercent(table.extract(standard.expressions, "waist"))
+
+    if standard.overlays.ageing then
+      reverted.ageing_t = increase(standard.overlays.ageing.id)
+      reverted.ageing_op = revertPercent(standard.overlays.ageing.opacity)
+      standard.overlays.ageing.id = nil
+      standard.overlays.ageing.opacity = nil
+    end
+    if standard.overlays.beard then
+      reverted.beardstabble_t = standard.overlays.beard.id
+      reverted.beardstabble_op = revertPercent(standard.overlays.beard.opacity)
+      standard.overlays.beard.id = nil
+      standard.overlays.beard.opacity = nil
+    end
+    if standard.overlays.blush then
+      reverted.blush_t = increase(standard.overlays.blush.id)
+      reverted.blush_id = standard.overlays.blush.palette
+      reverted.blush_c1 = standard.overlays.blush.tint0
+      reverted.blush_op = revertPercent(standard.overlays.blush.opacity)
+      standard.overlays.blush.id = nil
+      standard.overlays.blush.palette = nil
+      standard.overlays.blush.tint0 = nil
+      standard.overlays.blush.opacity = nil
+    end
+    if standard.overlays.eyebrow then
+      reverted.eyebrows_t = increase(standard.overlays.eyebrow.id)
+      if standard.overlays.eyebrow.sexe == "f" then
+        reverted.eyebrows_t = reverted.eyebrows_t + 15
+      end
+      reverted.eyebrows_id = standard.overlays.eyebrow.palette
+      reverted.eyebrows_c1 = standard.overlays.eyebrow.tint0
+      reverted.eyebrows_op = revertPercent(standard.overlays.eyebrow.opacity)
+      standard.overlays.eyebrow.id = nil
+      standard.overlays.eyebrow.palette = nil
+      standard.overlays.eyebrow.tint0 = nil
+      standard.overlays.eyebrow.opacity = nil
+      standard.overlays.eyebrow.sexe = nil
+    end
+    if standard.overlays.eyeliner then
+      reverted.eyeliners_t = increase(standard.overlays.eyeliner.sheetGrid)
+      reverted.eyeliners_id = standard.overlays.eyeliner.palette
+      reverted.eyeliners_c1 = standard.overlays.eyeliner.tint0
+      reverted.eyeliners_op = revertPercent(standard.overlays.eyeliner.opacity)
+      standard.overlays.eyeliner.sheetGrid = nil
+      standard.overlays.eyeliner.palette = nil
+      standard.overlays.eyeliner.tint0 = nil
+      standard.overlays.eyeliner.opacity = nil
+    end
+    if standard.overlays.eyeshadow then
+      reverted.shadows_t = increase(standard.overlays.eyeshadow.sheetGrid)
+      reverted.shadows_id = standard.overlays.eyeshadow.palette
+      reverted.shadows_c1 = standard.overlays.eyeshadow.tint0
+      reverted.shadows_c2 = standard.overlays.eyeshadow.tint1
+      reverted.shadows_c3 = standard.overlays.eyeshadow.tint2
+      reverted.shadows_op = revertPercent(standard.overlays.eyeshadow.opacity)
+      standard.overlays.eyeshadow.sheetGrid = nil
+      standard.overlays.eyeshadow.palette = nil
+      standard.overlays.eyeshadow.tint0 = nil
+      standard.overlays.eyeshadow.tint1 = nil
+      standard.overlays.eyeshadow.tint2 = nil
+      standard.overlays.eyeshadow.opacity = nil
+    end
+    if standard.overlays.freckles then
+      reverted.freckles_t = increase(standard.overlays.freckles.id)
+      reverted.freckles_op = revertPercent(standard.overlays.freckles.opacity)
+      standard.overlays.freckles.id = nil
+      standard.overlays.freckles.opacity = nil
+    end
+    if standard.overlays.lipstick then
+      reverted.lipsticks_t = increase(standard.overlays.lipstick.sheetGrid)
+      reverted.lipsticks_id = standard.overlays.lipstick.palette
+      reverted.lipsticks_c1 = standard.overlays.lipstick.tint0
+      reverted.lipsticks_c2 = standard.overlays.lipstick.tint1
+      reverted.lipsticks_c3 = standard.overlays.lipstick.tint2
+      reverted.lipsticks_op = revertPercent(standard.overlays.lipstick.opacity)
+      standard.overlays.lipstick.sheetGrid = nil
+      standard.overlays.lipstick.palette = nil
+      standard.overlays.lipstick.tint0 = nil
+      standard.overlays.lipstick.tint1 = nil
+      standard.overlays.lipstick.tint2 = nil
+      standard.overlays.lipstick.opacity = nil
+    end
+    if standard.overlays.moles then
+      reverted.moles_t = increase(standard.overlays.moles.id)
+      reverted.moles_op = revertPercent(standard.overlays.moles.opacity)
+      standard.overlays.moles.id = nil
+      standard.overlays.moles.opacity = nil
+    end
+    if standard.overlays.scar then
+      reverted.scars_t = increase(standard.overlays.scar.id)
+      reverted.scars_op = revertPercent(standard.overlays.scar.opacity)
+      standard.overlays.scar.id = nil
+      standard.overlays.scar.opacity = nil
+    end
+    if standard.overlays.spots then
+      reverted.spots_t = increase(standard.overlays.spots.id)
+      reverted.spots_op = revertPercent(standard.overlays.spots.opacity)
+      standard.overlays.spots.id = nil
+      standard.overlays.spots.opacity = nil
+    end
+
+
+    for key, data in pairs(standard.overlays) do
+      if table.count(data) == 0 then
+        standard.overlays[key] = nil
+      end
+    end
+    if table.count(standard.overlays) == 0 then
+      standard.overlays = nil
+    end
+    if table.count(standard.expressions) == 0 then
+      standard.expressions = nil
+    end
+
+    if config and Config.debug then
+      if table.count(standard) > 0 then
+        eprint("Skin keys not reverted")
+        TriggerEvent("print", standard)
+      else
+        gprint("All skin keys reverted")
+      end
     end
   end
 
-  if jo.framework:is("RSG") then
-    revertRSGSkin(reverted)
-  end
   return reverted
 end
 FrameworkClass.revertSkin = revertSkin
