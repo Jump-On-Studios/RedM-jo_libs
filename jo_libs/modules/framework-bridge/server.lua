@@ -973,73 +973,6 @@ local function revertSkinKey(category)
   return category, "components"
 end
 
-local function revertOverlays(reverted)
-  local rights = {
-    VORP = {},
-    RSG = {
-      opacity = "_op",
-      id = "_t",
-      sheetGrid = "_id",
-      tint0 = "_c1",
-      tint1 = "_c2",
-      tint3 = "_c3",
-      albedo = "_id"
-    }
-  }
-
-  for prefix, layerName in pairs(skinCategoryBridge[jo.framework:get()].overlays) do
-    if reverted.overlays[layerName] then
-      if reverted.overlays[layerName][1] then
-      else
-        for key, value in pairs(reverted.overlays[layerName]) do
-          local suffix = rights[jo.framework:get()]?[key]
-          if suffix then
-            if layerName == "eyebrow" and key == "id" then
-              value = value + 1
-              if reverted.overlays.eyebrow.sexe == "f" then
-                reverted[prefix .. suffix] = value + 15
-              else
-                reverted[prefix .. suffix] = value
-              end
-              reverted.overlays.eyebrow.id = nil
-              reverted.overlays.eyebrow.sexe = nil
-            elseif layerName == "hair" and key == "albedo" then
-              if value == "mp_u_faov_m_hair_000" then
-                reverted[prefix .. suffix] = 1
-              elseif value == "mp_u_faov_m_hair_002" then
-                reverted[prefix .. suffix] = 2
-              elseif value == "mp_u_faov_m_hair_009" then
-                reverted[prefix .. suffix] = 3
-              elseif value == "mp_u_faov_m_hair_shared_000" then
-                reverted[prefix .. suffix] = 4
-              end
-              reverted.overlays[layerName][key] = nil
-            elseif key == "id" then
-              reverted[prefix .. suffix] = value + 1
-              reverted.overlays[layerName][key] = nil
-            elseif key == "opacity" then
-              reverted[prefix .. suffix] = value
-              if jo.framework:is("RSG") then
-                reverted[prefix .. suffix] = reverted[prefix .. suffix] * 100
-              end
-              reverted.overlays[layerName][key] = nil
-            else
-              reverted[prefix .. suffix] = value
-              reverted.overlays[layerName][key] = nil
-            end
-          end
-        end
-      end
-      if table.count(reverted.overlays[layerName]) == 0 then
-        reverted.overlays[layerName] = nil
-      end
-    end
-  end
-  if table.count(reverted.overlays) == 0 then
-    reverted.overlays = nil
-  end
-end
-
 local function clearOverlaysTable(overlays)
   for layerName, overlay in pairs(overlays) do
     if overlay[1] then
@@ -1056,6 +989,10 @@ end
 local function standardizeSkin(object)
   object = table.copy(object)
   local standard = {}
+
+  local function decrease(value)
+    return (value or 1) - 1
+  end
 
   if jo.framework:is("VORP") then
     standard.model = table.extract(object, "sex")
@@ -1148,7 +1085,7 @@ local function standardizeSkin(object)
 
     standard.overlays = {}
     standard.overlays.ageing = needOverlay(object.ageing_visibility) and {
-      id = object.ageing_tx_id - 1,
+      id = decrease(object.ageing_tx_id),
       opacity = convertToPercent(object.ageing_opacity)
     }
     object.ageing_tx_id = nil
@@ -1165,7 +1102,7 @@ local function standardizeSkin(object)
     object.beardstabble_visibility = nil
 
     standard.overlays.blush = needOverlay(object.blush_visibility) and {
-      id = object.blush_tx_id - 1,
+      id = decrease(object.blush_tx_id),
       tint0 = object.blush_palette_color_primary,
       opacity = convertToPercent(object.blush_opacity)
     }
@@ -1175,7 +1112,7 @@ local function standardizeSkin(object)
     object.blush_visibility = nil
 
     standard.overlays.eyebrow = needOverlay(object.eyebrows_visibility) and (function()
-      local id = object.eyebrows_tx_id - 1
+      local id = decrease(object.eyebrows_tx_id)
       local sexe = "m"
       if id > 15 then
         id = id - 15
@@ -1194,8 +1131,8 @@ local function standardizeSkin(object)
     object.eyebrows_visibility = nil
 
     standard.overlays.eyeliner = needOverlay(object.eyeliner_visibility) and {
-      id = object.eyeliner_tx_id - 1,
-      sheetGrid = object.eyeliner_palette_id - 1,
+      id = decrease(object.eyeliner_tx_id),
+      sheetGrid = decrease(object.eyeliner_palette_id),
       tint0 = object.eyeliner_color_primary,
       opacity = convertToPercent(object.eyeliner_opacity)
     }
@@ -1207,7 +1144,7 @@ local function standardizeSkin(object)
 
     standard.overlays.eyeshadow = needOverlay(object.shadows_visibility) and {
       id = 1,
-      sheetGrid = object.shadows_palette_id - 1,
+      sheetGrid = decrease(object.shadows_palette_id),
       tint0 = object.shadows_palette_color_primary,
       tint1 = object.shadows_palette_color_secondary,
       tint2 = object.shadows_palette_color_tertiary,
@@ -1221,7 +1158,7 @@ local function standardizeSkin(object)
     object.shadows_visibility = nil
 
     standard.overlays.freckles = needOverlay(object.freckles_visibility) and {
-      id = object.freckles_tx_id - 1,
+      id = decrease(object.freckles_tx_id),
       opacity = convertToPercent(object.freckles_opacity)
     }
     object.freckles_tx_id = nil
@@ -1230,7 +1167,7 @@ local function standardizeSkin(object)
 
     standard.overlays.lipstick = needOverlay(object.lipsticks_visibility) and {
       id = 1,
-      sheetGrid = object.lipsticks_palette_id - 1,
+      sheetGrid = decrease(object.lipsticks_palette_id),
       tint0 = object.lipsticks_palette_color_primary,
       tint1 = object.lipsticks_palette_color_secondary,
       tint2 = object.lipsticks_palette_color_tertiary,
@@ -1244,7 +1181,7 @@ local function standardizeSkin(object)
     object.lipsticks_visibility = nil
 
     standard.overlays.moles = needOverlay(object.moles_visibility) and {
-      id = object.moles_tx_id - 1,
+      id = decrease(object.moles_tx_id),
       opacity = convertToPercent(object.moles_opacity)
     }
     object.moles_tx_id = nil
@@ -1252,7 +1189,7 @@ local function standardizeSkin(object)
     object.moles_visibility = nil
 
     standard.overlays.scar = needOverlay(object.scars_visibility) and {
-      id = object.scars_tx_id - 1,
+      id = decrease(object.scars_tx_id),
       opacity = convertToPercent(object.scars_opacity)
     }
     object.scars_tx_id = nil
@@ -1260,7 +1197,7 @@ local function standardizeSkin(object)
     object.scars_visibility = nil
 
     standard.overlays.spots = needOverlay(object.spots_visibility) and {
-      id = object.spots_tx_id - 1,
+      id = decrease(object.spots_tx_id),
       opacity = convertToPercent(object.spots_opacity)
     }
     object.spots_tx_id = nil
@@ -1268,7 +1205,7 @@ local function standardizeSkin(object)
     object.spots_visibility = nil
 
     standard.overlays.acne = needOverlay(object.acne_visibility) and {
-      id = object.acne_tx_id - 1,
+      id = decrease(object.acne_tx_id),
       opacity = convertToPercent(object.acne_opacity)
     }
     object.acne_tx_id = nil
@@ -1276,7 +1213,7 @@ local function standardizeSkin(object)
     object.acne_visibility = nil
 
     standard.overlays.grime = needOverlay(object.grime_visibility) and {
-      id = object.grime_tx_id - 1,
+      id = decrease(object.grime_tx_id),
       opacity = convertToPercent(object.grime_opacity)
     }
     object.grime_tx_id = nil
@@ -1284,7 +1221,7 @@ local function standardizeSkin(object)
     object.grime_visibility = nil
 
     standard.overlays.hair = needOverlay(object.hair_visibility) and {
-      id = object.hair_tx_id - 1,
+      id = decrease(object.hair_tx_id),
       tint0 = object.hair_color_primary,
       opacity = convertToPercent(object.hair_opacity)
     }
@@ -1294,7 +1231,7 @@ local function standardizeSkin(object)
     object.hair_visibility = nil
 
     standard.overlays.complex = needOverlay(object.complex_visibility) and {
-      id = object.complex_tx_id - 1,
+      id = decrease(object.complex_tx_id),
       opacity = convertToPercent(object.complex_opacity)
     }
     object.complex_tx_id = nil
@@ -1302,7 +1239,7 @@ local function standardizeSkin(object)
     object.complex_visibility = nil
 
     standard.overlays.disc = needOverlay(object.disc_visibility) and {
-      id = object.disc_tx_id - 1,
+      id = decrease(object.disc_tx_id),
       opacity = convertToPercent(object.disc_opacity)
     }
     object.disc_tx_id = nil
@@ -1310,11 +1247,11 @@ local function standardizeSkin(object)
     object.disc_visibility = nil
 
     standard.overlays.foundation = needOverlay(object.foundation_visibility) and {
-      id = object.foundation_tx_id - 1,
+      id = decrease(object.foundation_tx_id),
       tint0 = object.foundation_palette_color_primary,
       tint1 = object.foundation_palette_color_secondary,
       tint2 = object.foundation_palette_color_tertiary,
-      sheetGrid = object.foundation_palette_id - 1,
+      sheetGrid = decrease(object.foundation_palette_id),
       opacity = convertToPercent(object.foundation_opacity)
     }
     object.foundation_tx_id = nil
@@ -1326,11 +1263,11 @@ local function standardizeSkin(object)
     object.foundation_visibility = nil
 
     standard.overlays.masks = needOverlay(object.paintedmasks_visibility) and {
-      id = object.paintedmasks_tx_id - 1,
+      id = decrease(object.paintedmasks_tx_id),
       tint0 = object.paintedmasks_palette_color_primary,
       tint1 = object.paintedmasks_palette_color_secondary,
       tint2 = object.paintedmasks_palette_color_tertiary,
-      sheetGrid = object.paintedmasks_palette_id - 1,
+      sheetGrid = decrease(object.paintedmasks_palette_id),
       opacity = convertToPercent(object.paintedmasks_opacity)
     }
     object.paintedmasks_tx_id = nil
@@ -1440,7 +1377,7 @@ local function standardizeSkin(object)
 
     standard.overlays = {}
     standard.overlays.ageing = object.ageing_t and {
-      id = object.ageing_t - 1,
+      id = decrease(object.ageing_t),
       opacity = convertToPercent(object.ageing_op)
     }
     object.ageing_t = nil
@@ -1454,7 +1391,7 @@ local function standardizeSkin(object)
     object.beardstabble_op = nil
 
     standard.overlays.blush = object.blush_t and {
-      id = object.blush_t - 1,
+      id = decrease(object.blush_t),
       palette = object.blush_id,
       tint0 = object.blush_c1,
       opacity = convertToPercent(object.blush_op)
@@ -1465,7 +1402,7 @@ local function standardizeSkin(object)
     object.blush_op = nil
 
     standard.overlays.eyebrow = object.eyebrows_t and (function()
-      local id = object.eyebrows_t - 1
+      local id = decrease(object.eyebrows_t)
       local sexe = "m"
       if id > 15 then
         id = id - 15
@@ -1486,7 +1423,7 @@ local function standardizeSkin(object)
 
     standard.overlays.eyeliner = object.eyeliners_t and {
       id = 1,
-      sheetGrid = object.eyeliners_t - 1,
+      sheetGrid = decrease(object.eyeliners_t),
       palette = object.eyeliners_id,
       tint0 = object.eyeliners_c1,
       opacity = convertToPercent(object.eyeliners_op)
@@ -1498,7 +1435,7 @@ local function standardizeSkin(object)
 
     standard.overlays.eyeshadow = object.shadows_t and {
       id = 1,
-      sheetGrid = object.shadows_t - 1,
+      sheetGrid = decrease(object.shadows_t),
       palette = object.shadows_id,
       tint0 = object.shadows_c1,
       opacity = convertToPercent(object.shadows_op)
@@ -1509,7 +1446,7 @@ local function standardizeSkin(object)
     object.shadows_op = nil
 
     standard.overlays.freckles = object.freckles_t and {
-      id = object.freckles_t - 1,
+      id = decrease(object.freckles_t),
       opacity = convertToPercent(object.freckles_op)
     }
     object.freckles_t = nil
@@ -1517,7 +1454,7 @@ local function standardizeSkin(object)
 
     standard.overlays.lipstick = object.lipsticks_t and {
       id = 1,
-      sheetGrid = object.lipsticks_t - 1,
+      sheetGrid = decrease(object.lipsticks_t),
       palette = object.lipsticks_id,
       tint0 = object.lipsticks_c1,
       tint1 = object.lipsticks_c2,
@@ -1530,21 +1467,21 @@ local function standardizeSkin(object)
     object.lipsticks_op = nil
 
     standard.overlays.moles = object.moles_t and {
-      id = object.moles_t - 1,
+      id = decrease(object.moles_t),
       opacity = convertToPercent(object.moles_op)
     }
     object.moles_t = nil
     object.moles_op = nil
 
     standard.overlays.scar = object.scars_t and {
-      id = object.scars_t - 1,
+      id = decrease(object.scars_t),
       opacity = convertToPercent(object.scars_op)
     }
     object.scars_t = nil
     object.scars_op = nil
 
     standard.overlays.spots = object.spots_t and {
-      id = object.spots_t - 1,
+      id = decrease(object.spots_t),
       opacity = convertToPercent(object.spots_op)
     }
     object.spots_t = nil
@@ -1629,6 +1566,10 @@ local function revertSkin(standard)
 
   local reverted = {}
 
+  local function increase(value)
+    return (value or 0) + 1
+  end
+
   if jo.framework:is("VORP") then
     reverted.sex = table.extract(standard, "model")
     reverted.HeadType = table.extract(standard, "headHash")
@@ -1712,7 +1653,7 @@ local function revertSkin(standard)
 
     if standard.overlays.ageing then
       reverted.ageing_visibility = 1
-      reverted.ageing_tx_id = standard.overlays.ageing.id + 1
+      reverted.ageing_tx_id = increase(standard.overlays.ageing.id)
       reverted.ageing_opacity = standard.overlays.ageing.opacity
       standard.overlays.ageing.id = nil
       standard.overlays.ageing.opacity = nil
@@ -1726,7 +1667,7 @@ local function revertSkin(standard)
     end
     if standard.overlays.blush then
       reverted.blush_visibility = 1
-      reverted.blush_tx_id = standard.overlays.blush.id + 1
+      reverted.blush_tx_id = increase(standard.overlays.blush.id)
       reverted.blush_palette_color_primary = standard.overlays.blush.tint0
       reverted.blush_opacity = standard.overlays.blush.opacity
       standard.overlays.blush.id = nil
@@ -1735,7 +1676,7 @@ local function revertSkin(standard)
     end
     if standard.overlays.eyebrow then
       reverted.eyebrows_visibility = 1
-      reverted.eyebrows_tx_id = standard.overlays.eyebrow.id + 1
+      reverted.eyebrows_tx_id = increase(standard.overlays.eyebrow.id)
       if standard.overlays.sexe == "f" then
         reverted.eyebrows_tx_id = reverted.eyebrows_tx_id + 15
       end
@@ -1748,8 +1689,8 @@ local function revertSkin(standard)
     end
     if standard.overlays.eyeliner then
       reverted.eyeliner_visibility = 1
-      reverted.eyeliner_tx_id = standard.overlays.eyeliner.id + 1
-      reverted.eyeliner_palette_id = standard.overlays.eyeliner.sheetGrid + 1
+      reverted.eyeliner_tx_id = increase(standard.overlays.eyeliner.id)
+      reverted.eyeliner_palette_id = increase(standard.overlays.eyeliner.sheetGrid)
       reverted.eyeliner_color_primary = standard.overlays.eyeliner.tint0
       reverted.eyeliner_opacity = standard.overlays.eyeliner.opacity
       standard.overlays.eyeliner.id = nil
@@ -1759,8 +1700,8 @@ local function revertSkin(standard)
     end
     if standard.overlays.eyeshadow then
       reverted.shadows_visibility = 1
-      reverted.shadows_tx_id = standard.overlays.eyeshadow.id + 1
-      reverted.shadows_palette_id = standard.overlays.eyeshadow.sheetGrid + 1
+      reverted.shadows_tx_id = increase(standard.overlays.eyeshadow.id)
+      reverted.shadows_palette_id = increase(standard.overlays.eyeshadow.sheetGrid)
       reverted.shadows_palette_color_primary = standard.overlays.eyeshadow.tint0
       reverted.shadows_palette_color_secondary = standard.overlays.eyeshadow.tint1
       reverted.shadows_palette_color_tertiary = standard.overlays.eyeshadow.tint2
@@ -1774,15 +1715,15 @@ local function revertSkin(standard)
     end
     if standard.overlays.freckles then
       reverted.freckles_visibility = 1
-      reverted.freckles_tx_id = standard.overlays.freckles.id + 1
+      reverted.freckles_tx_id = increase(standard.overlays.freckles.id)
       reverted.freckles_opacity = standard.overlays.freckles.opacity
       standard.overlays.freckles.id = nil
       standard.overlays.freckles.opacity = nil
     end
     if standard.overlays.lipstick then
       reverted.lipsticks_visibility = 1
-      reverted.lipsticks_tx_id = standard.overlays.lipstick.id + 1
-      reverted.lipsticks_palette_id = standard.overlays.lipstick.sheetGrid + 1
+      reverted.lipsticks_tx_id = increase(standard.overlays.lipstick.id)
+      reverted.lipsticks_palette_id = increase(standard.overlays.lipstick.sheetGrid)
       reverted.lipsticks_palette_color_primary = standard.overlays.lipstick.tint0
       reverted.lipsticks_palette_color_secondary = standard.overlays.lipstick.tint1
       reverted.lipsticks_palette_color_tertiary = standard.overlays.lipstick.tint2
@@ -1796,42 +1737,42 @@ local function revertSkin(standard)
     end
     if standard.overlays.moles then
       reverted.moles_visibility = 1
-      reverted.moles_tx_id = standard.overlays.moles.id + 1
+      reverted.moles_tx_id = increase(standard.overlays.moles.id)
       reverted.moles_opacity = standard.overlays.moles.opacity
       standard.overlays.moles.id = nil
       standard.overlays.moles.opacity = nil
     end
     if standard.overlays.scar then
       reverted.scars_visibility = 1
-      reverted.scars_tx_id = standard.overlays.scar.id + 1
+      reverted.scars_tx_id = increase(standard.overlays.scar.id)
       reverted.scars_opacity = standard.overlays.scar.opacity
       standard.overlays.scar.id = nil
       standard.overlays.scar.opacity = nil
     end
     if standard.overlays.spots then
       reverted.spots_visibility = 1
-      reverted.spots_tx_id = standard.overlays.spots.id + 1
+      reverted.spots_tx_id = increase(standard.overlays.spots.id)
       reverted.spots_opacity = standard.overlays.spots.opacity
       standard.overlays.spots.id = nil
       standard.overlays.spots.opacity = nil
     end
     if standard.overlays.acne then
       reverted.acne_visibility = 1
-      reverted.acne_tx_id = standard.overlays.acne.id + 1
+      reverted.acne_tx_id = increase(standard.overlays.acne.id)
       reverted.acne_opacity = standard.overlays.acne.opacity
       standard.overlays.acne.id = nil
       standard.overlays.acne.opacity = nil
     end
     if standard.overlays.grime then
       reverted.grime_visibility = 1
-      reverted.grime_tx_id = standard.overlays.grime.id + 1
+      reverted.grime_tx_id = increase(standard.overlays.grime.id)
       reverted.grime_opacity = standard.overlays.grime.opacity
       standard.overlays.grime.id = nil
       standard.overlays.grime.opacity = nil
     end
     if standard.overlays.hair then
       reverted.hair_visibility = 1
-      reverted.hair_tx_id = standard.overlays.hair.id + 1
+      reverted.hair_tx_id = increase(standard.overlays.hair.id)
       reverted.hair_color_primary = standard.overlays.hair.tint0
       reverted.hair_opacity = standard.overlays.hair.opacity
       standard.overlays.hair.id = nil
@@ -1840,14 +1781,14 @@ local function revertSkin(standard)
     end
     if standard.overlays.complex then
       reverted.complex_visibility = 1
-      reverted.complex_tx_id = standard.overlays.complex.id + 1
+      reverted.complex_tx_id = increase(standard.overlays.complex.id)
       reverted.complex_opacity = standard.overlays.complex.opacity
       standard.overlays.complex.id = nil
       standard.overlays.complex.opacity = nil
     end
     if standard.overlays.disc then
       reverted.disc_visibility = 1
-      reverted.disc_tx_id = standard.overlays.disc.id + 1
+      reverted.disc_tx_id = increase(standard.overlays.disc.id)
       reverted.disc_opacity = standard.overlays.disc.opacity
       standard.overlays.disc.id = nil
       standard.overlays.disc.opacity = nil
@@ -1879,7 +1820,7 @@ local function revertSkin(standard)
   elseif jo.framework:is("RSG") then
     local function revertPercent(value)
       if not value then return nil end
-      return math.floor((value) * 100)
+      return math.ceil((value) * 100)
     end
 
     local skin_tone = { 1, 4, 3, 5, 2, 6 }
@@ -1972,7 +1913,7 @@ local function revertSkin(standard)
     reverted.waist_width = revertPercent(table.extract(standard.expressions, "waist"))
 
     if standard.overlays.ageing then
-      reverted.ageing_t = standard.overlays.ageing.id + 1
+      reverted.ageing_t = increase(standard.overlays.ageing.id)
       reverted.ageing_op = revertPercent(standard.overlays.ageing.opacity)
       standard.overlays.ageing.id = nil
       standard.overlays.ageing.opacity = nil
@@ -1984,7 +1925,7 @@ local function revertSkin(standard)
       standard.overlays.beard.opacity = nil
     end
     if standard.overlays.blush then
-      reverted.blush_t = standard.overlays.blush.id + 1
+      reverted.blush_t = increase(standard.overlays.blush.id)
       reverted.blush_id = standard.overlays.blush.palette
       reverted.blush_c1 = standard.overlays.blush.tint0
       reverted.blush_op = revertPercent(standard.overlays.blush.opacity)
@@ -1994,7 +1935,7 @@ local function revertSkin(standard)
       standard.overlays.blush.opacity = nil
     end
     if standard.overlays.eyebrow then
-      reverted.eyebrows_t = standard.overlays.eyebrow.id + 1
+      reverted.eyebrows_t = increase(standard.overlays.eyebrow.id)
       if standard.overlays.eyebrow.sexe == "f" then
         reverted.eyebrows_t = reverted.eyebrows_t + 15
       end
@@ -2008,7 +1949,7 @@ local function revertSkin(standard)
       standard.overlays.eyebrow.sexe = nil
     end
     if standard.overlays.eyeliner then
-      reverted.eyeliners_t = standard.overlays.eyeliner.sheetGrid + 1
+      reverted.eyeliners_t = increase(standard.overlays.eyeliner.sheetGrid)
       reverted.eyeliners_id = standard.overlays.eyeliner.palette
       reverted.eyeliners_c1 = standard.overlays.eyeliner.tint0
       reverted.eyeliners_op = revertPercent(standard.overlays.eyeliner.opacity)
@@ -2018,7 +1959,7 @@ local function revertSkin(standard)
       standard.overlays.eyeliner.opacity = nil
     end
     if standard.overlays.eyeshadow then
-      reverted.shadows_t = standard.overlays.eyeshadow.sheetGrid + 1
+      reverted.shadows_t = increase(standard.overlays.eyeshadow.sheetGrid)
       reverted.shadows_id = standard.overlays.eyeshadow.palette
       reverted.shadows_c1 = standard.overlays.eyeshadow.tint0
       reverted.shadows_c2 = standard.overlays.eyeshadow.tint1
@@ -2032,13 +1973,13 @@ local function revertSkin(standard)
       standard.overlays.eyeshadow.opacity = nil
     end
     if standard.overlays.freckles then
-      reverted.freckles_t = standard.overlays.freckles.id + 1
+      reverted.freckles_t = increase(standard.overlays.freckles.id)
       reverted.freckles_op = revertPercent(standard.overlays.freckles.opacity)
       standard.overlays.freckles.id = nil
       standard.overlays.freckles.opacity = nil
     end
     if standard.overlays.lipstick then
-      reverted.lipsticks_t = standard.overlays.lipstick.sheetGrid + 1
+      reverted.lipsticks_t = increase(standard.overlays.lipstick.sheetGrid)
       reverted.lipsticks_id = standard.overlays.lipstick.palette
       reverted.lipsticks_c1 = standard.overlays.lipstick.tint0
       reverted.lipsticks_c2 = standard.overlays.lipstick.tint1
@@ -2052,19 +1993,19 @@ local function revertSkin(standard)
       standard.overlays.lipstick.opacity = nil
     end
     if standard.overlays.moles then
-      reverted.moles_t = standard.overlays.moles.id + 1
+      reverted.moles_t = increase(standard.overlays.moles.id)
       reverted.moles_op = revertPercent(standard.overlays.moles.opacity)
       standard.overlays.moles.id = nil
       standard.overlays.moles.opacity = nil
     end
     if standard.overlays.scar then
-      reverted.scars_t = standard.overlays.scar.id + 1
+      reverted.scars_t = increase(standard.overlays.scar.id)
       reverted.scars_op = revertPercent(standard.overlays.scar.opacity)
       standard.overlays.scar.id = nil
       standard.overlays.scar.opacity = nil
     end
     if standard.overlays.spots then
-      reverted.spots_t = standard.overlays.spots.id + 1
+      reverted.spots_t = increase(standard.overlays.spots.id)
       reverted.spots_op = revertPercent(standard.overlays.spots.opacity)
       standard.overlays.spots.id = nil
       standard.overlays.spots.opacity = nil
