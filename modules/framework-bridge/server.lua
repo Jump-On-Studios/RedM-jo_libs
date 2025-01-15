@@ -571,7 +571,7 @@ end
 function User:addMoney(amount, moneyType)
   moneyType = moneyType or 0
   if OWFramework.User.addMoney then
-    return OWFramework.User.addMoney(self.source, amount, moneyType)
+    return OWFramework.User.addMoney(self, amount, moneyType)
   end
   if jo.framework:is("VORP") then
     self.data.addCurrency(moneyType, amount)
