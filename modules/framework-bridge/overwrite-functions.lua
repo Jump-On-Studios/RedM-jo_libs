@@ -143,14 +143,8 @@ function OWFramework.getUserSkin(source)
             characterId = character.id
         }, function(skins)
             if skins[1] ~= nil then
-                local skinStandardized = jo.framework.standardizeSkinKeys(json.decode(skins[1].skin))
-                
-                if not skinStandardized.teeth then
-                    local clothes = jo.framework:getUserClothes(source)
-                    if clothes.teeth then
-                        skinStandardized.teeth = clothes.teeth
-                    end
-                end
+                local skinStandardized = json.decode(skins[1].skin)
+              
                 result = skinStandardized
             end
             awaiter:resolve(result)
@@ -173,13 +167,12 @@ end
 function OWFramework.updateUserSkin(source, skin, overwrite)
     local character = Core.GetCharacterFromPlayerId(source)
 
-    
     MySQL.scalar("SELECT skin from characters_appearance WHERE `characterId`=@characterId", { characterId = character.id }, function(oldSkin)
-        local decoded = jo.framework.standardizeSkinKeys(UnJson(oldSkin))
+        local decoded = UnJson(oldSkin)
         if overwrite then
           decoded = skin
         else
-          table.merge(decoded, jo.framework.standardizeSkinKeys(skin))
+          table.merge(decoded, skin)
         end
 
         MySQL.Async.execute("UPDATE characters_appearance SET skin = @skin WHERE `characterId`=@characterId", { characterId = character.id, skin = json.encode(decoded) })
