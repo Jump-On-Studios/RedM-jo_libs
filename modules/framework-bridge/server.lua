@@ -1617,6 +1617,210 @@ local function standardizeSkin(object)
     -- standard.overlays.masks = {},
     -- standard.overlays.complex = {},
     -- standard.overlays.disc = {},
+  elseif jo.framework:is("RedEM") then
+    local skin_tone = { 1, 4, 3, 5, 2, 6 }
+    local bodies = { 2, 1, 3, 4, 5, 6 }
+
+    standard.model = table.extract(object, "sex") == 2 and "mp_female" or "mp_male"
+    standard.bodiesIndex = bodies[object.body_size] or object.body_size
+    object.body_size = nil
+    standard.eyesIndex = table.extract(object, "eyes_color")
+    standard.headIndex = math.ceil(object.head / 6)
+    object.head = nil
+    standard.skinTone = skin_tone[table.extract(object, "skin_tone")]
+    standard.teethIndex = table.extract(object, "teeth")
+    standard.hair = table.extract(object, "hair")
+    if standard.model == "mp_male" then
+      standard.beards_complete = table.extract(object, "beard")
+    end
+    standard.bodyScale = convertToPercent(table.extract(object, "height"))
+    standard.bodyWeight = table.extract(object, "body_waist")
+
+    standard.expressions = {
+      arms = table.extract(object, "arms_size"),
+      calves = table.extract(object, "calves_size"),
+      cheekbonesDepth = table.extract(object, "cheekbones_depth"),
+      cheekbonesHeight = table.extract(object, "cheekbones_height"),
+      cheekbonesWidth = table.extract(object, "cheekbones_width"),
+      chest = table.extract(object, "chest_size"),
+      chinDepth = table.extract(object, "chin_depth"),
+      chinHeight = table.extract(object, "chin_height"),
+      chinWidth = table.extract(object, "chin_width"),
+      earlobes = table.extract(object, "earlobe_size"),
+      earsAngle = table.extract(object, "ears_angle"),
+      earsDepth = table.extract(object, "eyebrow_depth"),
+      earsHeight = table.extract(object, "ears_height"),
+      earsWidth = table.extract(object, "ears_width"),
+      eyebrowDepth = table.extract(object, "face_depth"),
+      eyebrowHeight = table.extract(object, "eyebrow_height"),
+      eyebrowWidth = table.extract(object, "eyebrow_width"),
+      eyelidHeight = table.extract(object, "eyelid_height"),
+      eyelidLeft = table.extract(object, "eyelid_left"),
+      eyelidRight = table.extract(object, "eyelid_right"),
+      eyelidWidth = table.extract(object, "eyelid_width"),
+      eyesAngle = table.extract(object, "eyes_angle"),
+      eyesDepth = table.extract(object, "eyes_depth"),
+      eyesDistance = table.extract(object, "eyes_distance"),
+      eyesHeight = table.extract(object, "eyes_height"),
+      faceWidth = table.extract(object, "face_width"),
+      headWidth = table.extract(object, "head_width"),
+      hip = table.extract(object, "hips_size"),
+      jawDepth = table.extract(object, "jaw_depth"),
+      jawHeight = table.extract(object, "jaw_height"),
+      jawWidth = table.extract(object, "jaw_width"),
+      jawY = table.extract(object, "jawY"),
+      lowerLipDepth = table.extract(object, "lower_lip_depth"),
+      lowerLipHeight = table.extract(object, "lower_lip_height"),
+      lowerLipWidth = table.extract(object, "lower_lip_width"),
+      mouthConerLeftDepth = table.extract(object, "mouth_corner_left_depth"),
+      mouthConerLeftHeight = table.extract(object, "mouth_corner_left_height"),
+      mouthConerLeftLipsDistance = table.extract(object, "mouth_corner_left_lips_distance"),
+      mouthConerLeftWidth = table.extract(object, "mouth_corner_left_width"),
+      mouthConerRightDepth = table.extract(object, "mouth_corner_right_depth"),
+      mouthConerRightHeight = table.extract(object, "mouth_corner_right_height"),
+      mouthConerRightLipsDistance = table.extract(object, "mouth_corner_right_lips_distance"),
+      mouthConerRightWidth = table.extract(object, "mouth_corner_right_width"),
+      mouthDepth = table.extract(object, "mouth_depth"),
+      mouthWidth = table.extract(object, "mouth_width"),
+      mouthX = table.extract(object, "mouth_x_pos"),
+      mouthY = table.extract(object, "mouth_y_pos"),
+      neckDepth = table.extract(object, "neck_depth"),
+      neckWidth = table.extract(object, "neck_width"),
+      noseAngle = table.extract(object, "nose_angle"),
+      noseCurvature = table.extract(object, "nose_curvature"),
+      noseHeight = table.extract(object, "nose_height"),
+      noseSize = table.extract(object, "nose_size"),
+      noseWidth = table.extract(object, "nose_width"),
+      nostrilsDistance = table.extract(object, "nostrils_distance"),
+      shoulderBlades = table.extract(object, "back_muscle"),
+      shoulders = table.extract(object, "uppr_shoulder_size"),
+      shoulderThickness = table.extract(object, "back_shoulder_thickness"),
+      thighs = table.extract(object, "tight_size"),
+      upperLipDepth = table.extract(object, "upper_lip_depth"),
+      upperLipHeight = table.extract(object, "upper_lip_height"),
+      upperLipWidth = table.extract(object, "upper_lip_width"),
+      waist = table.extract(object, "waist_width"),
+    }
+
+    standard.overlays = {}
+    standard.overlays.ageing = object.ageing_t and {
+      id = decrease(object.ageing_t),
+      opacity = convertToPercent(object.ageing_op)
+    }
+    object.ageing_t = nil
+    object.ageing_op = nil
+
+    standard.overlays.beard = object.beardstabble_t and {
+      id = object.beardstabble_t,
+      opacity = convertToPercent(object.beardstabble_op)
+    }
+    object.beardstabble_t = nil
+    object.beardstabble_op = nil
+
+    standard.overlays.blush = object.blush_t and {
+      id = decrease(object.blush_t),
+      palette = object.blush_id,
+      tint0 = object.blush_c1,
+      opacity = convertToPercent(object.blush_op)
+    }
+    object.blush_t = nil
+    object.blush_id = nil
+    object.blush_c1 = nil
+    object.blush_op = nil
+
+    standard.overlays.eyebrow = object.eyebrows_t and (function()
+      local id = decrease(object.eyebrows_t)
+      local sexe = "m"
+      if id > 15 then
+        id = id - 15
+        sexe = "f"
+      end
+      return {
+        id = id,
+        sexe = sexe,
+        palette = object.eyebrows_id,
+        tint0 = object.eyebrows_c1,
+        opacity = convertToPercent(object.eyebrows_op)
+      }
+    end)()
+    object.eyebrows_t = nil
+    object.eyebrows_id = nil
+    object.eyebrows_c1 = nil
+    object.eyebrows_op = nil
+
+    standard.overlays.eyeliner = object.eyeliners_t and {
+      id = 1,
+      sheetGrid = decrease(object.eyeliners_t),
+      palette = object.eyeliners_id,
+      tint0 = object.eyeliners_c1,
+      opacity = convertToPercent(object.eyeliners_op)
+    }
+    object.eyeliners_t = nil
+    object.eyeliners_id = nil
+    object.eyeliners_c1 = nil
+    object.eyeliners_op = nil
+
+    standard.overlays.eyeshadow = object.shadows_t and {
+      id = 1,
+      sheetGrid = decrease(object.shadows_t),
+      palette = object.shadows_id,
+      tint0 = object.shadows_c1,
+      opacity = convertToPercent(object.shadows_op)
+    }
+    object.shadows_t = nil
+    object.shadows_id = nil
+    object.shadows_c1 = nil
+    object.shadows_op = nil
+
+    standard.overlays.freckles = object.freckles_t and {
+      id = decrease(object.freckles_t),
+      opacity = convertToPercent(object.freckles_op)
+    }
+    object.freckles_t = nil
+    object.freckles_op = nil
+
+    standard.overlays.lipstick = object.lipsticks_t and {
+      id = 1,
+      sheetGrid = decrease(object.lipsticks_t),
+      palette = object.lipsticks_id,
+      tint0 = object.lipsticks_c1,
+      tint1 = object.lipsticks_c2,
+      opacity = convertToPercent(object.lipsticks_op)
+    }
+    object.lipsticks_t = nil
+    object.lipsticks_id = nil
+    object.lipsticks_c1 = nil
+    object.lipsticks_c2 = nil
+    object.lipsticks_op = nil
+
+    standard.overlays.moles = object.moles_t and {
+      id = decrease(object.moles_t),
+      opacity = convertToPercent(object.moles_op)
+    }
+    object.moles_t = nil
+    object.moles_op = nil
+
+    standard.overlays.scar = object.scars_t and {
+      id = decrease(object.scars_t),
+      opacity = convertToPercent(object.scars_op)
+    }
+    object.scars_t = nil
+    object.scars_op = nil
+
+    standard.overlays.spots = object.spots_t and {
+      id = decrease(object.spots_t),
+      opacity = convertToPercent(object.spots_op)
+    }
+    object.spots_t = nil
+    object.spots_op = nil
+
+    -- standard.overlays.acne = {},
+    -- standard.overlays.foundation = {},
+    -- standard.overlays.grime = {},
+    -- standard.overlays.hair = {},
+    -- standard.overlays.masks = {},
+    -- standard.overlays.complex = {},
+    -- standard.overlays.disc = {},
   end
 
   if Config and Config.debug then

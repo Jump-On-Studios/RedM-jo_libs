@@ -6,8 +6,6 @@ RegisterNetEvent("jo_libs:server:applySkinAndClothes", function(ped, skin, cloth
   skin = jo.framework.standardizeSkin(UnJson(skin))
   clothes = jo.framework.standardizeClothes(UnJson(clothes))
 
-  print(json.encode(skin, { indent = true }))
-
   if clothes.teeth then
     skin.teeth = clothes.teeth.hash
     clothes.teeth = nil

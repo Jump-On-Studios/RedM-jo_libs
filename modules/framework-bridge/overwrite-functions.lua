@@ -8,7 +8,7 @@ OWFramework.User = {}
 local Core
 
 function OWFramework.get()
-    return "RSG"
+    return "RedEM"
 end
 
 function OWFramework.initFramework(self)
