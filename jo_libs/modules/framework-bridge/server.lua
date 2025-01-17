@@ -365,15 +365,15 @@ function User:getMoney(moneyType)
       return self.data.money
     elseif moneyType == 1 then
       if not OWFramework.User.getSecondMoney then
-        jo.notif.print(self.source, "Gold in not supported by your Framework")
-        jo.notif.print(self.source, "Please check jo_libs docs to add OWFramework.User.getSecondMoney()")
+        oprint("Gold in not supported by your Framework")
+        oprint("Please check jo_libs docs to add OWFramework.User.getSecondMoney()")
         return 0
       end
       return OWFramework.User.getSecondMoney(source)
     elseif moneyType == 2 then
       if not OWFramework.User.getThirdMoney then
-        jo.notif.print(self.source, "Gold in not supported by your Framework")
-        jo.notif.print(self.source, "Please check jo_libs docs to add OWFramework.User.getThirdMoney()")
+        oprint("Gold in not supported by your Framework")
+        oprint("Please check jo_libs docs to add OWFramework.User.getThirdMoney()")
         return 0
       end
       return OWFramework.User.getThirdMoney(source)
@@ -385,8 +385,8 @@ function User:getMoney(moneyType)
       return self.data.getGold()
     elseif moneyType == 2 then
       if not OWFramework.User.getThirdMoney then
-        jo.notif.print(self.source, "Gold in not supported by your Framework")
-        jo.notif.print(self.source, "Please check jo_libs docs to add OWFramework.User.getThirdMoney()")
+        oprint("Gold in not supported by your Framework")
+        oprint("Please check jo_libs docs to add OWFramework.User.getThirdMoney()")
         return 0
       end
       return OWFramework.User.getThirdMoney(source)
@@ -396,15 +396,15 @@ function User:getMoney(moneyType)
       return self.data.Functions.GetMoney("cash")
     elseif moneyType == 1 then
       if not OWFramework.User.getSecondMoney then
-        jo.notif.print(self.source, "Gold in not supported by your Framework")
-        jo.notif.print(self.source, "Please check jo_libs docs to add OWFramework.User.getSecondMoney()")
+        oprint("Gold in not supported by your Framework")
+        oprint("Please check jo_libs docs to add OWFramework.User.getSecondMoney()")
         return 0
       end
       return OWFramework.User.getSecondMoney(source)
     elseif moneyType == 2 then
       if not OWFramework.User.getThirdMoney then
-        jo.notif.print(self.source, "Gold in not supported by your Framework")
-        jo.notif.print(self.source, "Please check jo_libs docs to add OWFramework.User.getThirdMoney()")
+        oprint("Gold in not supported by your Framework")
+        oprint("Please check jo_libs docs to add OWFramework.User.getThirdMoney()")
         return 0
       end
       return OWFramework.User.getThirdMoney(source)
@@ -443,16 +443,16 @@ function User:removeMoney(amount, moneyType)
       self.data.RemoveMoney(amount)
     elseif moneyType == 1 then
       if not OWFramework.User.removeSecondMoney then
-        jo.notif.print(self.source, "The Gold was not removed - Gold in not supported by your Framework")
-        jo.notif.print(self.source, "Please check jo_libs docs to add OWFramework.User.removeSecondMoney()")
-        return 
+        oprint("The Gold was not removed - Gold in not supported by your Framework")
+        oprint("Please check jo_libs docs to add OWFramework.User.removeSecondMoney()")
+        return
       end
       OWFramework.User.removeSecondMoney(self.source, amount)
     elseif moneyType == 2 then
       if not OWFramework.User.removeThirdMoney then
-        jo.notif.print(self.source, "The Gold was not removed - Gold in not supported by your Framework")
-        jo.notif.print(self.source, "Please check jo_libs docs to add OWFramework.User.removeThirdMoney()")
-        return 
+        oprint("The Gold was not removed - Gold in not supported by your Framework")
+        oprint("Please check jo_libs docs to add OWFramework.User.removeThirdMoney()")
+        return
       end
       OWFramework.User.removeThirdMoney(self.source, amount)
     end
@@ -463,9 +463,9 @@ function User:removeMoney(amount, moneyType)
       self.data.removeGold(amount)
     elseif moneyType == 2 then
       if not OWFramework.User.removeThirdMoney then
-        jo.notif.print(self.source, "The Gold was not removed - Gold in not supported by your Framework")
-        jo.notif.print(self.source, "Please check jo_libs docs to add OWFramework.User.removeThirdMoney()")
-        return 
+        oprint("The Gold was not removed - Gold in not supported by your Framework")
+        oprint("Please check jo_libs docs to add OWFramework.User.removeThirdMoney()")
+        return
       end
       OWFramework.User.removeThirdMoney(self.source, amount)
     end
@@ -474,16 +474,16 @@ function User:removeMoney(amount, moneyType)
       self.data.Functions.RemoveMoney("cash", amount)
     elseif moneyType == 1 then
       if not OWFramework.User.removeSecondMoney then
-        jo.notif.print(self.source, "The Gold was not removed - Gold in not supported by your Framework")
-        jo.notif.print(self.source, "Please check jo_libs docs to add OWFramework.User.removeSecondMoney()")
-        return 
+        oprint("The Gold was not removed - Gold in not supported by your Framework")
+        oprint("Please check jo_libs docs to add OWFramework.User.removeSecondMoney()")
+        return
       end
       OWFramework.User.removeSecondMoney(self.source, amount)
     elseif moneyType == 2 then
       if not OWFramework.User.removeThirdMoney then
-        jo.notif.print(self.source, "The Gold was not removed - Gold in not supported by your Framework")
-        jo.notif.print(self.source, "Please check jo_libs docs to add OWFramework.User.removeThirdMoney()")
-        return 
+        oprint("The Gold was not removed - Gold in not supported by your Framework")
+        oprint("Please check jo_libs docs to add OWFramework.User.removeThirdMoney()")
+        return
       end
       OWFramework.User.removeThirdMoney(self.source, amount)
     end
@@ -492,16 +492,16 @@ function User:removeMoney(amount, moneyType)
       self.data.RemoveMoney("cash", amount)
     elseif moneyType == 1 then
       if not OWFramework.User.removeSecondMoney then
-        jo.notif.print(self.source, "The Gold was not removed - Gold in not supported by your Framework")
-        jo.notif.print(self.source, "Please check jo_libs docs to add OWFramework.User.removeSecondMoney()")
-        return 
+        oprint("The Gold was not removed - Gold in not supported by your Framework")
+        oprint("Please check jo_libs docs to add OWFramework.User.removeSecondMoney()")
+        return
       end
       OWFramework.User.removeSecondMoney(self.source, amount)
     elseif moneyType == 2 then
       if not OWFramework.User.removeThirdMoney then
-        jo.notif.print(self.source, "The Gold was not removed - Gold in not supported by your Framework")
-        jo.notif.print(self.source, "Please check jo_libs docs to add OWFramework.User.removeThirdMoney()")
-        return 
+        oprint("The Gold was not removed - Gold in not supported by your Framework")
+        oprint("Please check jo_libs docs to add OWFramework.User.removeThirdMoney()")
+        return
       end
       OWFramework.User.removeThirdMoney(self.source, amount)
     end
@@ -522,15 +522,15 @@ function User:addMoney(amount, moneyType)
       self.data.AddMoney(amount)
     elseif moneyType == 1 then
       if not OWFramework.User.addSecondMoney then
-        jo.notif.print(self.source, "Gold in not supported by your Framework")
-        jo.notif.print(self.source, "Please check jo_libs docs to add OWFramework.User.addSecondMoney()")
+        oprint("Gold in not supported by your Framework")
+        oprint("Please check jo_libs docs to add OWFramework.User.addSecondMoney()")
         return
       end
       OWFramework.User.addSecondMoney(self.source, amount)
     elseif moneyType == 2 then
       if not OWFramework.User.addThirdMoney then
-        jo.notif.print(self.source, "Gold in not supported by your Framework")
-        jo.notif.print(self.source, "Please check jo_libs docs to add OWFramework.User.addThirdMoney()")
+        oprint("Gold in not supported by your Framework")
+        oprint("Please check jo_libs docs to add OWFramework.User.addThirdMoney()")
         return
       end
       OWFramework.User.addThirdMoney(self.source, amount)
@@ -548,15 +548,15 @@ function User:addMoney(amount, moneyType)
       self.data.Functions.AddMoney("cash", amount)
     elseif moneyType == 1 then
       if not OWFramework.User.addSecondMoney then
-        jo.notif.print(self.source, "Gold in not supported by your Framework")
-        jo.notif.print(self.source, "Please check jo_libs docs to add OWFramework.User.addSecondMoney()")
+        oprint("Gold in not supported by your Framework")
+        oprint("Please check jo_libs docs to add OWFramework.User.addSecondMoney()")
         return
       end
       OWFramework.User.addSecondMoney(self.source, amount)
     elseif moneyType == 2 then
       if not OWFramework.User.addThirdMoney then
-        jo.notif.print(self.source, "Gold in not supported by your Framework")
-        jo.notif.print(self.source, "Please check jo_libs docs to add OWFramework.User.addThirdMoney()")
+        oprint("Gold in not supported by your Framework")
+        oprint("Please check jo_libs docs to add OWFramework.User.addThirdMoney()")
         return
       end
       OWFramework.User.addThirdMoney(self.source, amount)
