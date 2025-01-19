@@ -1689,7 +1689,7 @@ local function standardizeSkin(object)
     standard.bodiesIndex = bodies[object.body_size] or object.body_size
     object.body_size = nil
     standard.eyesIndex = table.extract(object, "eyes_color")
-    standard.headIndex = math.ceil((object.head or 6) / 6)
+    standard.headIndex = heads[standard.model][math.ceil(object.head / 6)] or math.ceil(object.head / 6)
     object.head = nil
     standard.skinTone = skin_tone[table.extract(object, "skin_tone")]
     standard.teethIndex = table.extract(object, "teeth")
@@ -2761,7 +2761,7 @@ function FrameworkClass:updateUserClothes(source, _clothes, value)
   end
   local clothes = revertClothes(_clothes)
   if OWFramework.updateUserClothes then
-    return OWFramework.updateUserClothes(source, _clothes, value)
+    return OWFramework.updateUserClothes(source, category, value)
   end
   if self:is("VORP") then
     local newClothes = {}
@@ -2884,7 +2884,7 @@ function FrameworkClass:updateUserSkin(...)
     _skin = args[2]
     overwrite = args[math.max(3, #args)] or overwrite
   end
-  local skin = _skin
+  local skin = revertSkin(_skin)
   if OWFramework.updateUserSkin then
     return OWFramework.updateUserSkin(source, skin)
   end
