@@ -2884,7 +2884,7 @@ function FrameworkClass:updateUserSkin(...)
     _skin = args[2]
     overwrite = args[math.max(3, #args)] or overwrite
   end
-  local skin = revertSkin(_skin)
+  local skin = _skin -- revertSkin(_skin)
   if OWFramework.updateUserSkin then
     return OWFramework.updateUserSkin(source, skin)
   end
