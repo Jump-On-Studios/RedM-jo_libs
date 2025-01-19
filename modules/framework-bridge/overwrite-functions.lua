@@ -164,16 +164,12 @@ function OWFramework.giveItem(source, item, amount, metadata)
     return false
 end
 
-function OWFramework.updateUserSkin(source, skin, overwrite)
+function OWFramework.updateUserSkin(source, skin)
     local character = Core.GetCharacterFromPlayerId(source)
 
     MySQL.scalar("SELECT skin from characters_appearance WHERE `characterId`=@characterId", { characterId = character.id }, function(oldSkin)
         local decoded = UnJson(oldSkin)
-        if overwrite then
-          decoded = skin
-        else
-          table.merge(decoded, skin)
-        end
+        table.merge(decoded, skin)
 
         MySQL.Async.execute("UPDATE characters_appearance SET skin = @skin WHERE `characterId`=@characterId", { characterId = character.id, skin = json.encode(decoded) })
     end)
