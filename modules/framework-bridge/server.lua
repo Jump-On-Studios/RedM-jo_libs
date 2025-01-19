@@ -274,8 +274,18 @@ function User:getMoney(moneyType)
     if moneyType == 0 then
       return self.data.money
     elseif moneyType == 1 then
+      if not OWFramework.User.getSecondMoney then
+        oprint("Gold in not supported by your Framework")
+        oprint("Please check jo_libs docs to add OWFramework.User.getSecondMoney()")
+        return 0
+      end
       return OWFramework.User.getSecondMoney(source)
     elseif moneyType == 2 then
+      if not OWFramework.User.getThirdMoney then
+        oprint("Gold in not supported by your Framework")
+        oprint("Please check jo_libs docs to add OWFramework.User.getThirdMoney()")
+        return 0
+      end
       return OWFramework.User.getThirdMoney(source)
     end
   elseif jo.framework:is("RedEM") then
@@ -284,14 +294,29 @@ function User:getMoney(moneyType)
     elseif moneyType == 1 then
       return self.data.getGold()
     elseif moneyType == 2 then
+      if not OWFramework.User.getThirdMoney then
+        oprint("Gold in not supported by your Framework")
+        oprint("Please check jo_libs docs to add OWFramework.User.getThirdMoney()")
+        return 0
+      end
       return OWFramework.User.getThirdMoney(source)
     end
   elseif jo.framework:is("QBR") or jo.framework:is("RSG") or jo.framework:is("QR") then
     if moneyType == 0 then
       return self.data.Functions.GetMoney("cash")
     elseif moneyType == 1 then
+      if not OWFramework.User.getSecondMoney then
+        oprint("Gold in not supported by your Framework")
+        oprint("Please check jo_libs docs to add OWFramework.User.getSecondMoney()")
+        return 0
+      end
       return OWFramework.User.getSecondMoney(source)
     elseif moneyType == 2 then
+      if not OWFramework.User.getThirdMoney then
+        oprint("Gold in not supported by your Framework")
+        oprint("Please check jo_libs docs to add OWFramework.User.getThirdMoney()")
+        return 0
+      end
       return OWFramework.User.getThirdMoney(source)
     end
   end
@@ -327,8 +352,18 @@ function User:removeMoney(amount, moneyType)
     if moneyType == 0 then
       self.data.RemoveMoney(amount)
     elseif moneyType == 1 then
+      if not OWFramework.User.removeSecondMoney then
+        oprint("The Gold was not removed - Gold in not supported by your Framework")
+        oprint("Please check jo_libs docs to add OWFramework.User.removeSecondMoney()")
+        return
+      end
       OWFramework.User.removeSecondMoney(self.source, amount)
     elseif moneyType == 2 then
+      if not OWFramework.User.removeThirdMoney then
+        oprint("The Gold was not removed - Gold in not supported by your Framework")
+        oprint("Please check jo_libs docs to add OWFramework.User.removeThirdMoney()")
+        return
+      end
       OWFramework.User.removeThirdMoney(self.source, amount)
     end
   elseif jo.framework:is("RedEM") then
@@ -337,22 +372,47 @@ function User:removeMoney(amount, moneyType)
     elseif moneyType == 1 then
       self.data.removeGold(amount)
     elseif moneyType == 2 then
+      if not OWFramework.User.removeThirdMoney then
+        oprint("The Gold was not removed - Gold in not supported by your Framework")
+        oprint("Please check jo_libs docs to add OWFramework.User.removeThirdMoney()")
+        return
+      end
       OWFramework.User.removeThirdMoney(self.source, amount)
     end
   elseif jo.framework:is("QBR") or jo.framework:is("RSG") or jo.framework:is("QR") then
     if moneyType == 0 then
       self.data.Functions.RemoveMoney("cash", amount)
     elseif moneyType == 1 then
+      if not OWFramework.User.removeSecondMoney then
+        oprint("The Gold was not removed - Gold in not supported by your Framework")
+        oprint("Please check jo_libs docs to add OWFramework.User.removeSecondMoney()")
+        return
+      end
       OWFramework.User.removeSecondMoney(self.source, amount)
     elseif moneyType == 2 then
+      if not OWFramework.User.removeThirdMoney then
+        oprint("The Gold was not removed - Gold in not supported by your Framework")
+        oprint("Please check jo_libs docs to add OWFramework.User.removeThirdMoney()")
+        return
+      end
       OWFramework.User.removeThirdMoney(self.source, amount)
     end
   elseif jo.framework:is("RPX") then
     if moneyType == 0 then
       self.data.RemoveMoney("cash", amount)
     elseif moneyType == 1 then
+      if not OWFramework.User.removeSecondMoney then
+        oprint("The Gold was not removed - Gold in not supported by your Framework")
+        oprint("Please check jo_libs docs to add OWFramework.User.removeSecondMoney()")
+        return
+      end
       OWFramework.User.removeSecondMoney(self.source, amount)
     elseif moneyType == 2 then
+      if not OWFramework.User.removeThirdMoney then
+        oprint("The Gold was not removed - Gold in not supported by your Framework")
+        oprint("Please check jo_libs docs to add OWFramework.User.removeThirdMoney()")
+        return
+      end
       OWFramework.User.removeThirdMoney(self.source, amount)
     end
   end
@@ -363,7 +423,7 @@ end
 function User:addMoney(amount, moneyType)
   moneyType = moneyType or 0
   if OWFramework.User.addMoney then
-    return OWFramework.User.addMoney(self, amount, moneyType)
+    return OWFramework.User.addMoney(self.source, amount, moneyType)
   end
   if jo.framework:is("VORP") then
     self.data.addCurrency(moneyType, amount)
@@ -372,15 +432,15 @@ function User:addMoney(amount, moneyType)
       self.data.AddMoney(amount)
     elseif moneyType == 1 then
       if not OWFramework.User.addSecondMoney then
-        jo.notif.print(self.source, "Gold in not supported by your Framework")
-        jo.notif.print(self.source, "Please check jo_libs docs to add OWFramework.User.addSecondMoney()")
+        oprint("Gold in not supported by your Framework")
+        oprint("Please check jo_libs docs to add OWFramework.User.addSecondMoney()")
         return
       end
       OWFramework.User.addSecondMoney(self.source, amount)
     elseif moneyType == 2 then
-      if not OWFramework.User.addSecondMoney then
-        jo.notif.print(self.source, "Gold in not supported by your Framework")
-        jo.notif.print(self.source, "Please check jo_libs docs to add OWFramework.User.addSecondMoney()")
+      if not OWFramework.User.addThirdMoney then
+        oprint("Gold in not supported by your Framework")
+        oprint("Please check jo_libs docs to add OWFramework.User.addThirdMoney()")
         return
       end
       OWFramework.User.addThirdMoney(self.source, amount)
@@ -398,15 +458,15 @@ function User:addMoney(amount, moneyType)
       self.data.Functions.AddMoney("cash", amount)
     elseif moneyType == 1 then
       if not OWFramework.User.addSecondMoney then
-        jo.notif.print(self.source, "Gold in not supported by your Framework")
-        jo.notif.print(self.source, "Please check jo_libs docs to add OWFramework.User.addSecondMoney()")
+        oprint("Gold in not supported by your Framework")
+        oprint("Please check jo_libs docs to add OWFramework.User.addSecondMoney()")
         return
       end
       OWFramework.User.addSecondMoney(self.source, amount)
     elseif moneyType == 2 then
-      if not OWFramework.User.addSecondMoney then
-        jo.notif.print(self.source, "Gold in not supported by your Framework")
-        jo.notif.print(self.source, "Please check jo_libs docs to add OWFramework.User.addSecondMoney()")
+      if not OWFramework.User.addThirdMoney then
+        oprint("Gold in not supported by your Framework")
+        oprint("Please check jo_libs docs to add OWFramework.User.addThirdMoney()")
         return
       end
       OWFramework.User.addThirdMoney(self.source, amount)
@@ -1619,13 +1679,17 @@ local function standardizeSkin(object)
     -- standard.overlays.disc = {},
   elseif jo.framework:is("RedEM") then
     local skin_tone = { 1, 4, 3, 5, 2, 6 }
+    local heads = {
+      mp_male = { [16] = 18, [17] = 21, [18] = 22, [19] = 25, [20] = 28 },
+      mp_female = { [17] = 20, [18] = 22, [19] = 27, [20] = 28 }
+    }
     local bodies = { 2, 1, 3, 4, 5, 6 }
 
     standard.model = table.extract(object, "sex") == 2 and "mp_female" or "mp_male"
     standard.bodiesIndex = bodies[object.body_size] or object.body_size
     object.body_size = nil
     standard.eyesIndex = table.extract(object, "eyes_color")
-    standard.headIndex = math.ceil((object.head or 1) / 6)
+    standard.headIndex = heads[standard.model][math.ceil(object.head / 6)] or math.ceil(object.head / 6)
     object.head = nil
     standard.skinTone = skin_tone[table.extract(object, "skin_tone")]
     standard.teethIndex = table.extract(object, "teeth")
@@ -1761,13 +1825,12 @@ local function standardizeSkin(object)
     object.eyeliners_op = nil
 
     standard.overlays.eyeshadow = object.shadows_t and {
-      id = object.shadows_c1,
+      id = 1,
       sheetGrid = decrease(object.shadows_t),
       palette = object.shadows_id,
       tint0 = object.shadows_c1,
       opacity = convertToPercent(object.shadows_op)
     }
-
     object.shadows_t = nil
     object.shadows_id = nil
     object.shadows_c1 = nil
@@ -1847,7 +1910,7 @@ local function standardizeSkin(object)
     end
   end
 
-  --clearOverlaysTable(standard.overlays)
+  clearOverlaysTable(standard.overlays)
 
   if standard.hair and type(standard.hair) ~= "table" then
     standard.hair = {
@@ -2367,12 +2430,18 @@ local function revertSkin(standard)
     end
 
     local skin_tone = { 1, 4, 3, 5, 2, 6 }
+    local heads = {
+      mp_male = { [16] = 18, [17] = 21, [18] = 22, [19] = 25, [20] = 28 },
+      mp_female = { [17] = 20, [18] = 22, [19] = 27, [20] = 28 }
+    }
     local bodies = { 2, 1, 3, 4, 5, 6 }
 
     reverted.sex = standard.model == "mp_female" and 2 or 1
     _, reverted.body_size = table.find(bodies, function(value) return value == standard.bodiesIndex end)
     standard.bodiesIndex = nil
-    reverted.head = standard.head / 6
+    reverted.eyes_color = table.extract(standard, "eyesIndex")
+    _, reverted.head = table.find(heads[standard.model], function(value) return value == standard.headIndex end)
+    reverted.head = (reverted.head or standard.headIndex) * 6
     standard.headIndex = nil
     _, reverted.skin_tone = table.find(skin_tone, function(value, i) return value == standard.skinTone end)
     standard.skinTone = nil
