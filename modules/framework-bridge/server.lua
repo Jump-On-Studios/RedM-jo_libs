@@ -1690,7 +1690,7 @@ local function standardizeSkin(object)
     standard.bodiesIndex = bodies[object.body_size] or object.body_size
     object.body_size = nil
     standard.eyesIndex = table.extract(object, "eyes_color")
-    standard.headIndex = math.ceil(object.head / 6)
+    standard.headIndex = math.ceil((object.head or 6) / 6)
     object.head = nil
     standard.skinTone = skin_tone[table.extract(object, "skin_tone")]
     standard.teethIndex = table.extract(object, "teeth")
