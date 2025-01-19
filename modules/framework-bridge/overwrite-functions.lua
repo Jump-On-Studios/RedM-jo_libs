@@ -109,7 +109,7 @@ function OWFramework.getUserClothes(source)
         });
 
         if clothes then
-            waiter:resolve(jo.framework.standardizeClothes(clothes))
+            waiter:resolve(clothes)
         else
             waiter:resolve({})
         end
