@@ -50,7 +50,7 @@ function OWFramework.User.getJob(source)
 end
 
 function OWFramework.createInventory(id,label,definition)
-    
+    print(id, label, definition)
 end
 
 function OWFramework.canUseItem(source,item,amount,meta,remove)
@@ -85,9 +85,9 @@ function OWFramework.User.getMoney(source, moneyType)
     return resultTypes[moneyType]
 end
 
-function OWFramework.User.addMoney(self, amount, moneyType)
-    local character = Core.GetCharacterFromPlayerId(self.source)
-    local user = Core.GetUserFromPlayerId(self.source)
+function OWFramework.User.addMoney(source, amount, moneyType)
+    local character = Core.GetCharacterFromPlayerId(source)
+    local user = Core.GetUserFromPlayerId(source)
     if moneyType == 0 and (character.addMoney(amount)) or (moneyType == 1 and user.addGold(amount)) or 0 then end
 end
 
