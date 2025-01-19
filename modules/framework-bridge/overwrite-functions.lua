@@ -109,7 +109,7 @@ function OWFramework.getUserClothes(source)
         });
 
         if clothes then
-            waiter:resolve(clothes)
+            waiter:resolve(jo.framework.standardizeClothes(clothes))
         else
             waiter:resolve({})
         end
@@ -143,7 +143,7 @@ function OWFramework.getUserSkin(source)
             characterId = character.id
         }, function(skins)
             if skins[1] ~= nil then
-                local skinStandardized = json.decode(skins[1].skin)
+                local skinStandardized = jo.framework.standardizeSkin(json.decode(skins[1].skin))
               
                 result = skinStandardized
             end
