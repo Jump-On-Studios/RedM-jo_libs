@@ -1684,17 +1684,13 @@ local function standardizeSkin(object)
       return true
     end
     local skin_tone = { 1, 4, 3, 5, 2, 6 }
-    local heads = {
-      mp_male = { [16] = 18, [17] = 21, [18] = 22, [19] = 25, [20] = 28 },
-      mp_female = { [17] = 20, [18] = 22, [19] = 27, [20] = 28 }
-    }
     local bodies = { 2, 1, 3, 4, 5, 6 }
 
     standard.model = table.extract(object, "sex") == 2 and "mp_female" or "mp_male"
     standard.bodiesIndex = bodies[object.body_size] or object.body_size
     object.body_size = nil
     standard.eyesIndex = table.extract(object, "eyes_color")
-    standard.headIndex = heads[standard.model][math.ceil(object.head / 6)] or math.ceil(object.head / 6)
+    standard.headIndex = math.ceil(object.head / 6)
     object.head = nil
     standard.skinTone = skin_tone[table.extract(object, "skin_tone")]
     standard.teethIndex = table.extract(object, "teeth")
