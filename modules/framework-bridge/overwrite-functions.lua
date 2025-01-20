@@ -177,6 +177,7 @@ end
 
 -- subistitui o jo.meServerId pelo id do personagem
 jo.hook.registerFilter('jo_me_forceUpdateMe', function(args)
+    print(json.encode(args, { indent = true }))
     args[4] = LocalPlayer.state.id
     return args
 end, 10)
