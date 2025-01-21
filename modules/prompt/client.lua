@@ -14,12 +14,14 @@ local function UiPromptGetProgress(...) return Citizen.InvokeNative(0x8180129180
 ---@param group string Name of the group
 ---@param title string Title of the prompt
 function jo.prompt.displayGroup(group, title)
+  if not group then return end
   if not jo.prompt.isGroupExist(group) then return end
   local promptName = CreateVarString(10, "LITERAL_STRING", title)
   PromptSetActiveGroupThisFrame(promptGroups[group].group, promptName, promptGroups[group].nbrPage, 0)
 end
 
 function jo.prompt.isActive(group, key, page)
+  if not group or not key then return false end
   page = page or jo.prompt.getPage(group)
   if not jo.prompt.isExist(group, key, page) then return false end
   return UiPromptIsActive(promptGroups[group].prompts[page][key])
@@ -28,6 +30,7 @@ end
 ---@param group string Name of the group
 ---@param key string Input
 function jo.prompt.isEnabled(group, key, page)
+  if not group or not key then return false end
   page = page or jo.prompt.getPage(group)
   if not jo.prompt.isActive(group, key, page) then return false end
   return UiPromptIsEnabled(promptGroups[group].prompts[page][key])
@@ -37,6 +40,7 @@ end
 ---@param key string Input
 ---@param value boolean
 function jo.prompt.setEnabled(group, key, value, page)
+  if not group or not key then return false end
   page = page or jo.prompt.getPage(group)
   if not jo.prompt.isExist(group, key, page) then return end
   UiPromptSetEnabled(promptGroups[group].prompts[page][key], value)
@@ -46,6 +50,7 @@ end
 ---@param key string Input
 ---@param value boolean
 function jo.prompt.setVisible(group, key, value, page)
+  if not group or not key then return false end
   page = page or jo.prompt.getPage(group)
   if not jo.prompt.isExist(group, key, page) then return end
   if not value then
@@ -57,6 +62,7 @@ function jo.prompt.setVisible(group, key, value, page)
 end
 
 function jo.prompt.isVisible(group, key, page)
+  if not group or not key then return false end
   page = page or jo.prompt.getPage(group)
   if not jo.prompt.isExist(group, key, page) then return false end
   if promptHidden[group .. page .. key] then
@@ -69,6 +75,7 @@ end
 ---@param key string Input
 ---@param label string Label of the prompt
 function jo.prompt.editKeyLabel(group, key, label, page)
+  if not group or not key then return false end
   page = page or jo.prompt.getPage(group)
   if not jo.prompt.isExist(group, key, page) then return end
   local str = CreateVarString(10, "LITERAL_STRING", label)
@@ -80,6 +87,7 @@ end
 ---@param fireMultipleTimes? boolean (optional) fire true until another prompt is completed
 ---@return boolean
 function jo.prompt.isCompleted(group, key, fireMultipleTimes, page)
+  if not group or not key then return false end
   if fireMultipleTimes == nil then fireMultipleTimes = false end
   if not jo.prompt.isGroupExist(group) then return false end
   page = page or jo.prompt.getPage(group)
@@ -125,6 +133,7 @@ end
 
 ---@param key string Input
 function jo.prompt.waitRelease(key)
+  if not key then return false end
   while IsDisabledControlPressed(0, joaat(key)) or IsControlPressed(0, joaat(key)) do
     Wait(0)
   end
@@ -134,6 +143,7 @@ end
 ---@param key string Input
 ---@return boolean
 function jo.prompt.doesLastCompletedIs(group, key, page)
+  if not group or not key then return false end
   page = page or jo.prompt.getPage(group)
   if not jo.prompt.isExist(group, key, page) then return false end
   return lastKey == promptGroups[group].prompts[page][key]
@@ -145,6 +155,7 @@ end
 ---@param holdTime? integer (optional) time to complete
 ---@param page? integer (optional) page of the prompt
 function jo.prompt.create(group, str, key, holdTime, page)
+  if not group or not key then return false end
   --Check if group exist
   page = page or 0
   holdTime = holdTime or 0
@@ -233,6 +244,7 @@ end
 ---@param group string the name of the group
 ---@param key string the input of the key
 function jo.prompt.isExist(group, key, page)
+  if not group or not key then return false end
   if not jo.prompt.isGroupExist(group) then return false end
   page = page or jo.prompt.getPage(group)
   return promptGroups[group].prompts[page][key] and true or false
@@ -243,6 +255,7 @@ jo.prompt.isPromptExist = jo.prompt.isExist
 ---@param group string the name of the group
 ---@param key string the input of the key
 function jo.prompt.getProgress(group, key, page)
+  if not group or not key then return 0 end
   page = page or jo.prompt.getPage(group)
   if not jo.prompt.isExist(group, key, page) then return 0 end
   return UiPromptGetProgress(promptGroups[group].prompts[page][key])
@@ -268,6 +281,7 @@ end
 ---@param key string the input of the key
 ---@return any promptId The prompt ID
 function jo.prompt.get(group, key, page)
+  if not group or not key then return false end
   page = page or jo.prompt.getPage(group)
   if not jo.prompt.isExist(group, key, page) then return false end
   return promptGroups[group].prompts[page][key]
