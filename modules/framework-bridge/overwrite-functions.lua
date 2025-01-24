@@ -57,8 +57,10 @@ function OWFramework.canUseItem(source,item,amount,meta,remove)
 	local character = Core.GetCharacterFromPlayerId(source)
 	local itemData = exports.inventory:GetItem(source, item, nil, false)
 	if itemData and itemData.count >= amount then
-		if remove then
+		if type(remove) ~= "table" then
 			character.removeInventoryItem(item, amount)
+        else
+            Core.RemoveDurabilityItem(source, item, remove)
 		end
 		return true
 	end
