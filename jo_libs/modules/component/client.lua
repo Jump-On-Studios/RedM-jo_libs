@@ -314,7 +314,10 @@ end
 local function waitReadyPed(ped)
   Wait(30)
   local isReady = jo.waiter.exec(function() return IsPedReadyToRender(ped) end)
-  if not isReady then return eprint("This ped is not loaded:", ped) end
+  if not isReady then
+    if Config and Config.debug then eprint("This ped is not loaded:", ped) end
+    return
+  end
 end
 jo.component.waitPedLoaded = waitReadyPed
 
