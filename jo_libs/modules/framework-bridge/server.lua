@@ -1358,8 +1358,9 @@ local function standardizeSkin(object)
     standard.bodiesIndex = bodies[object.body_size] or object.body_size
     object.body_size = nil
     standard.eyesIndex = table.extract(object, "eyes_color")
-    standard.headIndex = heads[standard.model][math.ceil(object.head / 6)] or math.ceil(object.head / 6)
+    local head = object.head or 1
     object.head = nil
+    standard.headIndex = heads[standard.model][math.ceil(head / 6)] or math.ceil(head / 6)
     standard.skinTone = skin_tone[table.extract(object, "skin_tone")]
     standard.teethIndex = table.extract(object, "teeth")
     standard.hair = table.extract(object, "hair")
@@ -1559,7 +1560,9 @@ local function standardizeSkin(object)
   if Config and Config.debug then
     if table.count(object) > 0 then
       eprint("Skin keys not converted to standard")
-      TriggerEvent("print", object)
+      for key, value in pairs(object) do
+        print(key, type(value) == "table" and json.encode(value) or value)
+      end
     else
       gprint("All skin keys standardized")
     end
@@ -1870,7 +1873,9 @@ local function revertSkin(standard)
     if config and Config.debug then
       if table.count(standard) > 0 then
         eprint("Skin keys not reverted")
-        TriggerEvent("print", standard)
+        for key, value in pairs(standard) do
+          print(key, type(value) == "table" and json.encode(value) or value)
+        end
       else
         gprint("All skin keys reverted")
       end
