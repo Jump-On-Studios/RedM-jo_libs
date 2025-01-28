@@ -1035,7 +1035,7 @@ end
 
 local function clearOverlaysTable(overlays)
   for layerName, overlay in pairs(overlays) do
-    if overlay[1] then
+    if table.type(ov) then
       overlay = clearOverlaysTable(overlay)
     else
       if overlay.opacity == 0 then
@@ -2122,8 +2122,11 @@ local function cleanClothesTable(clothesList)
 end
 
 local function convertClothesTableToObject(object)
-  --convert the data from ctrl_clothshop
-  if object[1] then
+  if table.type(object) == "hash" then
+    return object
+  end
+  if table.type(object) == "array" then
+    --convert the data from ctrl_clothshop
     local clothes = {}
     for _, value in pairs(object) do
       local cloth = value
@@ -2147,9 +2150,8 @@ local function convertClothesTableToObject(object)
       end
     end
     return clothes
-  else
-    return object
   end
+  return {}
 end
 
 local function standardizeClothes(object)
