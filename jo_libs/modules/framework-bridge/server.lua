@@ -1054,6 +1054,11 @@ local function standardizeSkin(object)
     return (value or 1) - 1
   end
 
+  if jo.debug then
+    oprint("Standardizing skin")
+    print(json.encode(object))
+  end
+
   if jo.framework:is("VORP") then
     standard.model = table.extract(object, "sex")
     standard.headHash = table.extract(object, "HeadType")
@@ -1153,7 +1158,7 @@ local function standardizeSkin(object)
     object.ageing_visibility = nil
 
     standard.overlays.beard = needOverlay(object.beardstabble_visibility) and {
-      id = 1,
+      id = 0,
       tint0 = object.beardstabble_color_primary,
       opacity = convertToPercent(object.beardstabble_opacity)
     }
@@ -1203,7 +1208,7 @@ local function standardizeSkin(object)
     object.eyeliner_visibility = nil
 
     standard.overlays.eyeshadow = needOverlay(object.shadows_visibility) and {
-      id = 1,
+      id = 0,
       sheetGrid = decrease(object.shadows_palette_id),
       tint0 = object.shadows_palette_color_primary,
       tint1 = object.shadows_palette_color_secondary,
@@ -1226,7 +1231,7 @@ local function standardizeSkin(object)
     object.freckles_visibility = nil
 
     standard.overlays.lipstick = needOverlay(object.lipsticks_visibility) and {
-      id = 1,
+      id = 0,
       sheetGrid = decrease(object.lipsticks_palette_id),
       tint0 = object.lipsticks_palette_color_primary,
       tint1 = object.lipsticks_palette_color_secondary,
@@ -1483,7 +1488,7 @@ local function standardizeSkin(object)
     object.eyebrows_op = nil
 
     standard.overlays.eyeliner = object.eyeliners_t and {
-      id = 1,
+      id = 0,
       sheetGrid = decrease(object.eyeliners_t),
       palette = object.eyeliners_id,
       tint0 = object.eyeliners_c1,
@@ -1495,7 +1500,7 @@ local function standardizeSkin(object)
     object.eyeliners_op = nil
 
     standard.overlays.eyeshadow = object.shadows_t and {
-      id = 1,
+      id = 0,
       sheetGrid = decrease(object.shadows_t),
       palette = object.shadows_id,
       tint0 = object.shadows_c1,
@@ -1514,7 +1519,7 @@ local function standardizeSkin(object)
     object.freckles_op = nil
 
     standard.overlays.lipstick = object.lipsticks_t and {
-      id = 1,
+      id = 0,
       sheetGrid = decrease(object.lipsticks_t),
       palette = object.lipsticks_id,
       tint0 = object.lipsticks_c1,
@@ -1557,7 +1562,7 @@ local function standardizeSkin(object)
     -- standard.overlays.disc = {},
   end
 
-  if Config and Config.debug then
+  if jo.debug then
     if table.count(object) > 0 then
       eprint("Skin keys not converted to standard")
       for key, value in pairs(object) do
@@ -1593,6 +1598,11 @@ local function standardizeSkin(object)
     standard.beards_complete = {
       hash = standard.beards_complete
     }
+  end
+
+  if jo.debug then
+    oprint("Standardized skin")
+    print(json.encode(standard))
   end
 
   return standard
