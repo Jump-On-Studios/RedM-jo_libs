@@ -1035,7 +1035,7 @@ end
 
 local function clearOverlaysTable(overlays)
   for layerName, overlay in pairs(overlays) do
-    if table.type(overlays) then
+    if table.type(overlay) == "array" then
       overlay = clearOverlaysTable(overlay)
     else
       if overlay.opacity == 0 then
@@ -2092,7 +2092,9 @@ local function revertSkin(standard)
     if config and Config.debug then
       if table.count(standard) > 0 then
         eprint("Skin keys not reverted")
-        TriggerEvent("print", standard)
+        for key, value in pairs(standard) do
+          print(key, type(value) == "table" and json.encode(value) or value)
+        end
       else
         gprint("All skin keys reverted")
       end
