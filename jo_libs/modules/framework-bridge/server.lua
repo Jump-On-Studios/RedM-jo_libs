@@ -1035,7 +1035,7 @@ end
 
 local function clearOverlaysTable(overlays)
   for layerName, overlay in pairs(overlays) do
-    if table.type(ov) then
+    if table.type(overlays) then
       overlay = clearOverlaysTable(overlay)
     else
       if overlay.opacity == 0 then
