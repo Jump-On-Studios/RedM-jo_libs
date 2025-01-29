@@ -1,7 +1,5 @@
 jo.require("file")
 
-print("loaded")
-
 local context = IsDuplicityVersion() and "server" or "client"
 
 RegisterCommand("jo_unit_test", function(source, args)

@@ -15,8 +15,8 @@ ClothesJSON = "[]"
 
 function TESTS.skin()
   local prints = {
-    skinBase = true,
-    skinConverted = true,
+    skinBase = false,
+    skinConverted = false,
     skinReverted = false,
     skinMatch = true
   }
@@ -29,22 +29,23 @@ function TESTS.skin()
   -------------
   --Read skin data
   local originalSkin = json.decode(SkinJSON)
-  if prints.skinBase then print("==== FROM ====", originalSkin) end
+  if prints.skinBase then
+    gprint("==== FROM ====")
+    print(json.encode(originalSkin, { indent = true }))
+  end
 
   --Convert to standard
-  if prints.skinConverted then print("==== CONVERTED =====") end
   local standard = jo.framework:standardizeSkin(originalSkin)
   if prints.skinConverted then
-    gprint("Standard:")
-    print(standard)
+    gprint("==== Standard =====")
+    print(json.encode(standard, { indent = true }))
   end
 
   --Revert to framework
-  if prints.skinReverted then print("===== REVERTED =====") end
   local reverted = jo.framework:revertSkin(standard)
   if prints.skinReverted then
-    gprint("reverted:")
-    print(reverted)
+    gprint("===== reverted =====")
+    print(json.encode(reverted, { indent = true }))
   end
 
   --Compare the original framework data with reversed data

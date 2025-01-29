@@ -60,6 +60,20 @@ function UnJson(value)
   return value
 end
 
+---Set a default value if the value is nil
+---@param value any your value
+---@param default any the default value
+---@return any
+function GetValue(value, default)
+  if default == nil then
+    return value
+  end
+  if default == false then
+    return value or false
+  end
+  return value == nil and default or value
+end
+
 local function isModuleLoaded(name, needLocal)
   if needLocal and not moduleLocal[name] then return false end
   if moduleInLoading[name] then return true end

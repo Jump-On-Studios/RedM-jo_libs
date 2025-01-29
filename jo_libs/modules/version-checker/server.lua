@@ -126,5 +126,5 @@ function jo.versionChecker.checkUpdate()
 end
 
 jo.ready(function()
-  jo.versionChecker.checkUpdate()
+  CreateThread(jo.versionChecker.checkUpdate)
 end)
