@@ -1,5 +1,3 @@
-jo.file.load("framework-bridge.overwrite-functions")
-
 jo.require("table")
 jo.require("string")
 
@@ -423,16 +421,47 @@ jo.User = User
 -- FRAMEWORK CLASS
 -------------
 
----@class FrameworkClass : table Framework class
----@field name string @FrameworkClass name
----@field core table  @FrameworkClass core
----@field inv table @FrameworkClass inventory
+local function detectFramework()
+  for framework, resources in pairs(mainResourceFramework) do
+    local rightFramework = true
+    for _, resource in pairs(resources) do
+      if resource:sub(1, 1) == "!" then
+        if GetResourceState(resource) ~= "missing" then
+          rightFramework = false
+          break
+        end
+      else
+        if GetResourceState(resource) == "missing" then
+          rightFramework = false
+          break
+        end
+      end
+    end
+    if rightFramework then
+      return framework
+    end
+  end
+end
+
+local frameworkName = detectFramework()
+
+for _, resource in pairs(mainResourceFramework[frameworkName]) do
+  if resource:sub(1, 1) ~= "!" then
+    while GetResourceState(resource) ~= "started" do
+      bprint("Waiting start of " .. frameworkName)
+      Wait(1000)
+    end
+  end
+end
+
 local FrameworkClass = {
   name = "",
   core = {},
   inv = {},
   inventories = {}
 }
+
+
 ---@return FrameworkClass FrameworkClass class
 function FrameworkClass:new(t)
   t = table.copy(FrameworkClass)
@@ -2478,6 +2507,23 @@ function FrameworkClass:example()
   elseif self:is("RPX") then
     return
   end
+end
+
+local file = ("framework-bridge.%s.FrameworkClass"):format(frameworkName)
+
+if not jo.file.isExist(file) then
+  eprint("No compatible Framework detected. Please contact JUMP ON studios on discord")
+else
+  local CustomClass = jo.file.load(file)
+  bprint(("%s detected"):format(frameworkName))
+  table.merge(FrameworkClass, CustomClass)
+end
+
+local overwriteFile = ("framework-bridge.%s.FrameworkClass"):format(frameworkName)
+
+if jo.file.isExist(overwriteFile) then
+  local overwriteClass = jo.file.load(overwriteFile)
+  table.merge(FrameworkClass, overwriteClass)
 end
 
 jo.framework = FrameworkClass:new()
