@@ -79,129 +79,6 @@ local skinCategoryBridge = {
       spots = "spots",
     },
   },
-  RedEM = {
-    components = {
-      beard = "beards_complete"
-    },
-    expressions = {
-      head_width = "headWidth",
-      face_width = "faceWidth",
-      face_depth = "eyebrowWidth",
-      forehead_size = "eyebrowHeight",
-      neck_width = "neckWidth",
-      neck_depth = "neckDepth",
-      eyebrow_height = "eyebrowHeight",
-      eyebrow_width = "eyebrowWidth",
-      eyebrow_depth = "eyebrowDepth",
-      eyes_depth = "eyesDepth",
-      eyes_angle = "eyesAngle",
-      eyes_distance = "eyesDistance",
-      eyes_height = "eyesHeight",
-      eyelid_height = "eyelidHeight",
-      eyelid_width = "eyelidWidth",
-      eyelid_left = "eyelidLeft",
-      eyelid_right = "eyelidRight",
-      ears_width = "earsWidth",
-      ears_angle = "earsAngle",
-      ears_height = "earsHeight",
-      ears_size = "earlobes",
-      cheekbones_height = "cheekbonesHeight",
-      cheekbones_width = "cheekbonesWidth",
-      cheekbones_depth = "cheekbonesDepth",
-      jaw_height = "jawHeight",
-      jaw_width = "jawWidth",
-      jaw_depthawD = "jawDepth",
-      chin_height = "chinHeight",
-      chin_width = "chinWidth",
-      chin_depth = "chinDepth",
-      nose_width = "noseWidth",
-      nose_size = "noseSize",
-      nose_height = "noseHeight",
-      nose_angle = "noseAngle",
-      nose_curvature = "noseCurvature",
-      nostrils_distance = "nostrilsDistance",
-      mouth_width = "mouthWidth",
-      mouth_depth = "mouthDepth",
-      mouth_y_pos = "mouthX",
-      mouth_x_pos = "mouthY",
-      upper_lip_height = "upperLipHeight",
-      upper_lip_width = "upperLipWidth",
-      upper_lip_depth = "upperLipDepth",
-      lower_lip_height = "lowerLipHeight",
-      lower_lip_width = "lowerLipWidth",
-      lower_lip_depth = "lowerLipDepth",
-      mouth_corner_left_width = "mouthConerLeftWidth",
-      mouth_corner_right_width = "mouthConerRightWidth",
-      mouth_corner_left_depth = "mouthConerLeftDepth",
-      mouth_corner_right_depth = "mouthConerRightDepth",
-      mouth_corner_left_height = "mouthConerLeftHeight",
-      mouth_corner_right_height = "mouthConerRightHeight",
-      mouth_corner_left_lips_distance = "mouthConerLeftLipsDistance",
-      mouth_corner_right_lips_distance = "mouthConerRightLipsDistance",
-      arms_size = "arms",
-      uppr_shoulder_size = "shoulders",
-      back_shoulder_thickness = "shoulderThickness",
-      back_muscle = "shoulderBlades",
-      chest_size = "chest",
-      waist_width = "waist",
-      hips_size = "hip",
-      tight_size = "thighs",
-      calves_size = "calves",
-    },
-    convertedValues = {
-      skin_tone = {
-        [1] = 1,
-        [2] = 4,
-        [3] = 3,
-        [4] = 5,
-        [5] = 2,
-        [6] = 6
-      },
-      head = {
-        mp_male = {
-          [16] = 18,
-          [17] = 21,
-          [18] = 22,
-          [19] = 25,
-          [20] = 28
-        },
-        mp_female = {
-          [17] = 20,
-          [18] = 22,
-          [19] = 27,
-          [20] = 28
-        }
-      },
-      bodies = {
-        [1] = 2,
-        [2] = 1,
-        [3] = 3,
-        [4] = 4,
-        [5] = 5,
-        [6] = 6
-      },
-    },
-    overlays = {
-      beardstabble_ = "beard",
-      hair_ = "hair",
-      scars_ = "scar",
-      spots_ = "spots",
-      disc_ = "disc",
-      complex_ = "complex",
-      acne_ = "acne",
-      ageing_ = "ageing",
-      freckles_ = "freckles",
-      moles_ = "moles",
-      shadows_ = "eyeshadow",
-      eyebrows_ = "eyebrow",
-      eyeliners_ = "eyeliner",
-      blush_ = "blush",
-      lipsticks_ = "lipstick",
-      grime_ = "grime",
-      foundation_ = "foundation",
-      paintedmasks_ = "masks",
-    },
-  },
 }
 
 -------------
@@ -1177,6 +1054,11 @@ local function standardizeSkin(object)
     return (value or 1) - 1
   end
 
+  if jo.debug then
+    oprint("Standardizing skin")
+    print(json.encode(object))
+  end
+
   if jo.framework:is("VORP") then
     standard.model = table.extract(object, "sex")
     standard.headHash = table.extract(object, "HeadType")
@@ -1276,7 +1158,7 @@ local function standardizeSkin(object)
     object.ageing_visibility = nil
 
     standard.overlays.beard = needOverlay(object.beardstabble_visibility) and {
-      id = 1,
+      id = 0,
       tint0 = object.beardstabble_color_primary,
       opacity = convertToPercent(object.beardstabble_opacity)
     }
@@ -1326,7 +1208,7 @@ local function standardizeSkin(object)
     object.eyeliner_visibility = nil
 
     standard.overlays.eyeshadow = needOverlay(object.shadows_visibility) and {
-      id = 1,
+      id = 0,
       sheetGrid = decrease(object.shadows_palette_id),
       tint0 = object.shadows_palette_color_primary,
       tint1 = object.shadows_palette_color_secondary,
@@ -1349,7 +1231,7 @@ local function standardizeSkin(object)
     object.freckles_visibility = nil
 
     standard.overlays.lipstick = needOverlay(object.lipsticks_visibility) and {
-      id = 1,
+      id = 0,
       sheetGrid = decrease(object.lipsticks_palette_id),
       tint0 = object.lipsticks_palette_color_primary,
       tint1 = object.lipsticks_palette_color_secondary,
@@ -1606,7 +1488,7 @@ local function standardizeSkin(object)
     object.eyebrows_op = nil
 
     standard.overlays.eyeliner = object.eyeliners_t and {
-      id = 1,
+      id = 0,
       sheetGrid = decrease(object.eyeliners_t),
       palette = object.eyeliners_id,
       tint0 = object.eyeliners_c1,
@@ -1618,7 +1500,7 @@ local function standardizeSkin(object)
     object.eyeliners_op = nil
 
     standard.overlays.eyeshadow = object.shadows_t and {
-      id = 1,
+      id = 0,
       sheetGrid = decrease(object.shadows_t),
       palette = object.shadows_id,
       tint0 = object.shadows_c1,
@@ -1637,7 +1519,7 @@ local function standardizeSkin(object)
     object.freckles_op = nil
 
     standard.overlays.lipstick = object.lipsticks_t and {
-      id = 1,
+      id = 0,
       sheetGrid = decrease(object.lipsticks_t),
       palette = object.lipsticks_id,
       tint0 = object.lipsticks_c1,
@@ -1670,21 +1552,29 @@ local function standardizeSkin(object)
     }
     object.spots_t = nil
     object.spots_op = nil
+
+    -- standard.overlays.acne = {},
+    -- standard.overlays.foundation = {},
+    -- standard.overlays.grime = {},
+    -- standard.overlays.hair = {},
+    -- standard.overlays.masks = {},
+    -- standard.overlays.complex = {},
+    -- standard.overlays.disc = {},
   elseif jo.framework:is("RedEM") then
-    local function needOverlay(value)
-      if not value then return nil end
-      if value == 0 then return nil end
-      return true
-    end
     local skin_tone = { 1, 4, 3, 5, 2, 6 }
+    local heads = {
+      mp_male = { [16] = 18, [17] = 21, [18] = 22, [19] = 25, [20] = 28 },
+      mp_female = { [17] = 20, [18] = 22, [19] = 27, [20] = 28 }
+    }
     local bodies = { 2, 1, 3, 4, 5, 6 }
 
     standard.model = table.extract(object, "sex") == 2 and "mp_female" or "mp_male"
     standard.bodiesIndex = bodies[object.body_size] or object.body_size
     object.body_size = nil
     standard.eyesIndex = table.extract(object, "eyes_color")
-    standard.headIndex = math.ceil((object.head or 6) / 6)
+    local head = object.head or 1
     object.head = nil
+    standard.headIndex = heads[standard.model][math.ceil(head / 6)] or math.ceil(head / 6)
     standard.skinTone = skin_tone[table.extract(object, "skin_tone")]
     standard.teethIndex = table.extract(object, "teeth")
     standard.hair = table.extract(object, "hair")
@@ -1761,21 +1651,21 @@ local function standardizeSkin(object)
     }
 
     standard.overlays = {}
-    standard.overlays.ageing = needOverlay(object.ageing_t) and {
+    standard.overlays.ageing = object.ageing_t and {
       id = decrease(object.ageing_t),
       opacity = convertToPercent(object.ageing_op)
     }
     object.ageing_t = nil
     object.ageing_op = nil
 
-    standard.overlays.beard = needOverlay(object.beardstabble_t) and {
+    standard.overlays.beard = object.beardstabble_t and {
       id = object.beardstabble_t,
       opacity = convertToPercent(object.beardstabble_op)
     }
     object.beardstabble_t = nil
     object.beardstabble_op = nil
 
-    standard.overlays.blush = needOverlay(object.blush_t) and {
+    standard.overlays.blush = object.blush_t and {
       id = decrease(object.blush_t),
       palette = object.blush_id,
       tint0 = object.blush_c1,
@@ -1786,7 +1676,7 @@ local function standardizeSkin(object)
     object.blush_c1 = nil
     object.blush_op = nil
 
-    standard.overlays.eyebrow = needOverlay(object.eyebrows_t) and (function()
+    standard.overlays.eyebrow = object.eyebrows_t and (function()
       local id = decrease(object.eyebrows_t)
       local sexe = "m"
       if id > 15 then
@@ -1801,14 +1691,13 @@ local function standardizeSkin(object)
         opacity = convertToPercent(object.eyebrows_op)
       }
     end)()
-
     object.eyebrows_t = nil
     object.eyebrows_id = nil
     object.eyebrows_c1 = nil
     object.eyebrows_op = nil
 
-    standard.overlays.eyeliner = needOverlay(object.eyeliners_t) and {
-      id = 1,
+    standard.overlays.eyeliner = object.eyeliners_t and {
+      id = 0,
       sheetGrid = decrease(object.eyeliners_t),
       palette = object.eyeliners_id,
       tint0 = object.eyeliners_c1,
@@ -1819,8 +1708,8 @@ local function standardizeSkin(object)
     object.eyeliners_c1 = nil
     object.eyeliners_op = nil
 
-    standard.overlays.eyeshadow = needOverlay(object.shadows_t) and {
-      id = 1,
+    standard.overlays.eyeshadow = object.shadows_t and {
+      id = 0,
       sheetGrid = decrease(object.shadows_t),
       palette = object.shadows_id,
       tint0 = object.shadows_c1,
@@ -1831,15 +1720,15 @@ local function standardizeSkin(object)
     object.shadows_c1 = nil
     object.shadows_op = nil
 
-    standard.overlays.freckles = needOverlay(object.freckles_t) and {
+    standard.overlays.freckles = object.freckles_t and {
       id = decrease(object.freckles_t),
       opacity = convertToPercent(object.freckles_op)
     }
     object.freckles_t = nil
     object.freckles_op = nil
 
-    standard.overlays.lipstick = needOverlay(object.lipsticks_t) and {
-      id = 1,
+    standard.overlays.lipstick = object.lipsticks_t and {
+      id = 0,
       sheetGrid = decrease(object.lipsticks_t),
       palette = object.lipsticks_id,
       tint0 = object.lipsticks_c1,
@@ -1852,21 +1741,21 @@ local function standardizeSkin(object)
     object.lipsticks_c2 = nil
     object.lipsticks_op = nil
 
-    standard.overlays.moles = needOverlay(object.moles_t) and {
+    standard.overlays.moles = object.moles_t and {
       id = decrease(object.moles_t),
       opacity = convertToPercent(object.moles_op)
     }
     object.moles_t = nil
     object.moles_op = nil
 
-    standard.overlays.scar = needOverlay(object.scars_t) and {
+    standard.overlays.scar = object.scars_t and {
       id = decrease(object.scars_t),
       opacity = convertToPercent(object.scars_op)
     }
     object.scars_t = nil
     object.scars_op = nil
 
-    standard.overlays.spots = needOverlay(object.spots_t) and {
+    standard.overlays.spots = object.spots_t and {
       id = decrease(object.spots_t),
       opacity = convertToPercent(object.spots_op)
     }
@@ -1882,7 +1771,7 @@ local function standardizeSkin(object)
     -- standard.overlays.disc = {},
   end
 
-  if Config and Config.debug then
+  if jo.debug then
     if table.count(object) > 0 then
       eprint("Skin keys not converted to standard")
       for key, value in pairs(object) do
@@ -1918,6 +1807,11 @@ local function standardizeSkin(object)
     standard.beards_complete = {
       hash = standard.beards_complete
     }
+  end
+
+  if jo.debug then
+    oprint("Standardized skin")
+    print(json.encode(standard))
   end
 
   return standard
@@ -2414,10 +2308,12 @@ local function revertSkin(standard)
       standard.expressions = nil
     end
 
-    if Config and Config.debug then
+    if config and Config.debug then
       if table.count(standard) > 0 then
         eprint("Skin keys not reverted")
-        TriggerEvent("print", standard)
+        for key, value in pairs(standard) do
+          print(key, type(value) == "table" and json.encode(value) or value)
+        end
       else
         gprint("All skin keys reverted")
       end
@@ -2629,10 +2525,12 @@ local function revertSkin(standard)
       standard.expressions = nil
     end
 
-    if Config and Config.debug then
+    if config and Config.debug then
       if table.count(standard) > 0 then
         eprint("Skin keys not reverted")
-        TriggerEvent("print", standard)
+        for key, value in pairs(standard) do
+          print(key, type(value) == "table" and json.encode(value) or value)
+        end
       else
         gprint("All skin keys reverted")
       end

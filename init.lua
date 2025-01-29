@@ -281,3 +281,9 @@ for _, name in ipairs(modules) do
   end
 end
 jo.libLoaded = true
+
+if GetConvar(resourceName .. ":debug", "off") == "on" then
+  oprint("/!\\ Jo_libs is in debug mode /!\\")
+  oprint("Don't use this in production!")
+  jo.debug = true
+end
