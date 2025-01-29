@@ -629,7 +629,7 @@ function jo.component.applyComponents(ped, components)
 end
 
 function jo.component.applySkin(ped, skin)
-  dprint("applySkin", ped, json.encode(skin))
+  -- dprint("applySkin", ped, json.encode(skin))
   if not ped then return end
   if not DoesEntityExist(ped) then return dprint("jo.component.applySkin() => Ped doesn't exist:", ped) end
   if not skin then return end
@@ -641,7 +641,7 @@ function jo.component.applySkin(ped, skin)
         eprint("You can't swap the model of existing ped. Current model:", GetEntityModel(ped), "Request model:", skin.model, modelHash)
       else
         jo.utils.loadGameData(modelHash, true)
-        dprint("model loaded", skin.model)
+        -- dprint("model loaded", skin.model)
         SetPlayerModel(PlayerId(), modelHash, true)
         Wait(100)
         ped = PlayerPedId()
@@ -649,13 +649,13 @@ function jo.component.applySkin(ped, skin)
       end
     end
   end
-  dprint("fix issue on body")
+  -- dprint("fix issue on body")
   applyDefaultBodyParts(ped)
 
   jo.component.refreshPed(ped)
   waitReadyPed(ped)
 
-  dprint("start apply default body components")
+  -- dprint("start apply default body components")
 
   local headHash = skin.headHash or jo.component.getHeadFromSkinTone(ped, skin.headIndex, skin.skinTone)
   jo.component.apply(ped, "heads", headHash)
@@ -666,7 +666,7 @@ function jo.component.applySkin(ped, skin)
   local bodies_lower = skin.bodyLowerHash or jo.component.getBodiesLowerFromSkinTone(ped, skin.bodiesIndex, skin.skinTone)
   jo.component.apply(ped, "body_lower", bodies_lower)
 
-  dprint("apply outfit")
+  -- dprint("apply outfit")
   if skin.bodyType then
     EquipMetaPedOutfit(ped, skin.bodyType)
   end
@@ -677,7 +677,7 @@ function jo.component.applySkin(ped, skin)
   jo.component.refreshPed(ped)
   waitReadyPed(ped)
 
-  dprint("apply expression")
+  -- dprint("apply expression")
   for expression, value in pairs(skin.expressions) do
     local percent = (value or 0.0) * 1.0
     percent = math.min(1.0, percent)
@@ -686,7 +686,7 @@ function jo.component.applySkin(ped, skin)
   end
 
   jo.component.refreshPed(ped)
-  dprint("wait refresh")
+  -- dprint("wait refresh")
   waitReadyPed(ped)
 
   local eyes = skin.eyesHash or jo.component.getEyesFromIndex(ped, skin.eyesIndex)
@@ -723,7 +723,7 @@ function jo.component.applySkin(ped, skin)
   Wait(100)
 
   SetPedScale(ped, skin.bodyScale)
-  dprint("done create ped")
+  -- dprint("done create ped")
 
   waitReadyPed(ped)
 end
