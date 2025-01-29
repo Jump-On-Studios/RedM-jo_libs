@@ -1158,7 +1158,7 @@ end
 
 local function clearOverlaysTable(overlays)
   for layerName, overlay in pairs(overlays) do
-    if overlay[1] then
+    if table.type(overlay) == "array" then
       overlay = clearOverlaysTable(overlay)
     else
       if overlay.opacity == 0 then
@@ -1481,8 +1481,9 @@ local function standardizeSkin(object)
     standard.bodiesIndex = bodies[object.body_size] or object.body_size
     object.body_size = nil
     standard.eyesIndex = table.extract(object, "eyes_color")
-    standard.headIndex = heads[standard.model][math.ceil(object.head / 6)] or math.ceil(object.head / 6)
+    local head = object.head or 1
     object.head = nil
+    standard.headIndex = heads[standard.model][math.ceil(head / 6)] or math.ceil(head / 6)
     standard.skinTone = skin_tone[table.extract(object, "skin_tone")]
     standard.teethIndex = table.extract(object, "teeth")
     standard.hair = table.extract(object, "hair")
@@ -1669,14 +1670,6 @@ local function standardizeSkin(object)
     }
     object.spots_t = nil
     object.spots_op = nil
-
-    -- standard.overlays.acne = {},
-    -- standard.overlays.foundation = {},
-    -- standard.overlays.grime = {},
-    -- standard.overlays.hair = {},
-    -- standard.overlays.masks = {},
-    -- standard.overlays.complex = {},
-    -- standard.overlays.disc = {},
   elseif jo.framework:is("RedEM") then
     local function needOverlay(value)
       if not value then return nil end
@@ -1892,7 +1885,9 @@ local function standardizeSkin(object)
   if Config and Config.debug then
     if table.count(object) > 0 then
       eprint("Skin keys not converted to standard")
-      TriggerEvent("print", object)
+      for key, value in pairs(object) do
+        print(key, type(value) == "table" and json.encode(value) or value)
+      end
     else
       gprint("All skin keys standardized")
     end
@@ -2203,7 +2198,9 @@ local function revertSkin(standard)
     if config and Config.debug then
       if table.count(standard) > 0 then
         eprint("Skin keys not reverted")
-        TriggerEvent("print", standard)
+        for key, value in pairs(standard) do
+          print(key, type(value) == "table" and json.encode(value) or value)
+        end
       else
         gprint("All skin keys reverted")
       end
@@ -2665,8 +2662,11 @@ local function cleanClothesTable(clothesList)
 end
 
 local function convertClothesTableToObject(object)
-  --convert the data from ctrl_clothshop
-  if object[1] then
+  if table.type(object) == "hash" then
+    return object
+  end
+  if table.type(object) == "array" then
+    --convert the data from ctrl_clothshop
     local clothes = {}
     for _, value in pairs(object) do
       local cloth = value
@@ -2690,9 +2690,8 @@ local function convertClothesTableToObject(object)
       end
     end
     return clothes
-  else
-    return object
   end
+  return {}
 end
 
 local function standardizeClothes(object)
@@ -2763,7 +2762,7 @@ function FrameworkClass:updateUserClothes(source, _clothes, value)
   end
   local clothes = revertClothes(_clothes)
   if OWFramework.updateUserClothes then
-    return OWFramework.updateUserClothes(source, _clothes, value)
+    return OWFramework.updateUserClothes(source, category, value)
   end
   if self:is("VORP") then
     local newClothes = {}

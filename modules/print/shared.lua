@@ -1,39 +1,77 @@
-function sprint(...)
-  if IsDuplicityVersion() then
-    return print("^1" .. GetCurrentResourceName() .. ":", ..., "^0")
+jo.require("table")
+
+local function encodeTable(...)
+  local args = table.copy({ ... })
+  for i = 1, #args do
+    if type(args[i]) == "table" then
+      args[i] = json.encode(args[i])
+    end
   end
-  return print("^1", ...)
+  return args
+end
+
+local function addColor(args, start, reset)
+  table.insert(args, 1, start)
+  if IsDuplicityVersion() then
+    args[1] = args[1] .. GetCurrentResourceName() .. ":"
+  end
+  table.insert(args, reset or "^0")
+end
+
+local function addResourceName(args)
+  if not IsDuplicityVersion() then return end
+  args[1] = args[1] .. GetCurrentResourceName() .. ":"
+end
+
+function sprint(...)
+  local args = encodeTable(...)
+  addColor(args, "^1")
+  addResourceName(args)
+  return print(table.unpack(args))
 end
 
 function eprint(...)
-  if IsDuplicityVersion() then
-    return print("^1" .. GetCurrentResourceName() .. ":", ..., "^0")
-  end
-  return print("^1", ...)
+  local args = encodeTable(...)
+  addColor(args, "^1")
+  addResourceName(args)
+  return print(table.unpack(args))
 end
 
 function gprint(...)
+  local args = encodeTable(...)
   if IsDuplicityVersion() then
-    return print("\x1b[92m" .. GetCurrentResourceName() .. ":", ..., "\x1b[0m")
+    addColor(args, "\x1b[92m", "\x1b[0m")
+  else
+    addColor(args, "^2")
   end
-  return print("^2", ...)
+  addResourceName(args)
+  return print(table.unpack(args))
 end
 
 function oprint(...)
+  local args = encodeTable(...)
   if IsDuplicityVersion() then
-    return print("\x1b[38;2;255;95;31m" .. GetCurrentResourceName() .. ":", ..., "\x1b[0m")
+    addColor(args, "\x1b[38;2;255;95;31m", "\x1b[0m")
+  else
+    addColor(args, "^3")
   end
-  return print("^3", ...)
+  return print(table.unpack(args))
 end
 
+wprint = oprint
+
 function bprint(...)
+  local args = encodeTable(...)
   if IsDuplicityVersion() then
-    return print("\x1b[96m" .. GetCurrentResourceName() .. ":", ..., "\x1b[0m")
+    addColor(args, "\x1b[96m", "\x1b[0m")
+  else
+    addColor(args, "^5")
   end
-  return print("^5", ...)
+  return print(table.unpack(args))
 end
 
 function dprint(...)
-  if not Config?.debug then return end
-  print(...)
+  local args = encodeTable(...)
+  if not Config?.debug and not jo.debug then return end
+  print(table.unpack(args))
 end

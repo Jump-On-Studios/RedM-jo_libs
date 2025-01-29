@@ -168,6 +168,11 @@ function jo.waitLibLoading()
   end
 end
 
+function jo.isModuleLoaded(name, needLocal)
+  local name = getAlias(name)
+  return isModuleLoaded(name, needLocal)
+end
+
 local function onReady(cb)
   jo.waitLibLoading()
   Wait(1000)
