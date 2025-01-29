@@ -2195,7 +2195,7 @@ local function revertSkin(standard)
       standard.expressions = nil
     end
 
-    if config and Config.debug then
+    if Config and Config.debug then
       if table.count(standard) > 0 then
         eprint("Skin keys not reverted")
         for key, value in pairs(standard) do
@@ -2414,7 +2414,7 @@ local function revertSkin(standard)
       standard.expressions = nil
     end
 
-    if config and Config.debug then
+    if Config and Config.debug then
       if table.count(standard) > 0 then
         eprint("Skin keys not reverted")
         TriggerEvent("print", standard)
@@ -2629,7 +2629,7 @@ local function revertSkin(standard)
       standard.expressions = nil
     end
 
-    if config and Config.debug then
+    if Config and Config.debug then
       if table.count(standard) > 0 then
         eprint("Skin keys not reverted")
         TriggerEvent("print", standard)
