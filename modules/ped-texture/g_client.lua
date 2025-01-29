@@ -404,6 +404,7 @@ end
 
 local function updateAllPedTexture(ped, category)
   delays["updatePedTexture" .. ped] = jo.timeout.delay("updatePedTexture" .. ped, 200, function()
+    dprint("REFRESH Ped Texture", json.encode(pedsTextures[ped]))
     if pedsTextures[ped][category].textureId ~= nil then
       ClearPedTexture(pedsTextures[ped][category].textureId)
     end
@@ -420,9 +421,9 @@ local function updateAllPedTexture(ped, category)
 
     for _, name in ipairs(jo.pedTexture.ordersToApply[category]) do
       local layer = pedsTextures[ped][category].layers[name]
-      if layer?[1] then
-        for _, data in pairs(layer) do
-          applyLayer(textureId, name, data)
+      if table.type(layer) == "array" then
+        for i = 1, #layer do
+          applyLayer(textureId, name, layer[i])
         end
       else
         applyLayer(textureId, name, layer)
@@ -462,7 +463,7 @@ function jo.pedTexture.apply(ped, layerName, _data)
   pedsTextures[ped][category] = pedsTextures[ped][category] or { layers = {} }
   pedsTextures[ped][category].layers[layerName] = nil
 
-  if data[1] then
+  if table.type(data) == "array" then
     pedsTextures[ped][category].layers[layerName] = {}
     for _, d in pairs(data) do
       local convertedData = convertDataLayer(ped, layerName, d)
