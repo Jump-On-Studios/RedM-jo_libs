@@ -37,7 +37,7 @@ function convertVersion(version)
     local array = version:split("%.")
     local multiplicator = 1
     for i = #array, 1, -1 do
-      converted = converted + multiplicator * array[i]
+      converted = converted + multiplicator * (tonumber(array[i]) or 0)
       multiplicator = multiplicator * 100
     end
   end
@@ -69,12 +69,12 @@ function jo.versionChecker.checkUpdate()
 
   local serverName = urlencode(GetConvar("sv_hostname", ""))
 
-  local framework = urlencode("")
-  if jo and jo.framework then
-    framework = urlencode(jo.framework:get())
-  end
+  -- local framework = urlencode("")
+  -- if jo and jo.framework then
+  --   framework = urlencode(jo.framework:get())
+  -- end
 
-  local link = ("https://dashboard.jumpon-studios.com/api/checkVersion?package=%d&server_name=%s&framework=%s"):format(packageID, serverName, framework)
+  local link = ("https://dashboard.jumpon-studios.com/api/checkVersion?package=%d&server_name=%s&framework=%s"):format(packageID, serverName, framework or "")
   local waiter = promise.new()
   PerformHttpRequest(link, function(errorCode, resultData, resultHeaders, errorData)
     waiter:resolve("")
@@ -123,5 +123,5 @@ function jo.versionChecker.checkUpdate()
 end
 
 jo.ready(function()
-  jo.versionChecker.checkUpdate()
+  CreateThread(jo.versionChecker.checkUpdate)
 end)
