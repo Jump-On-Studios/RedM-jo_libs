@@ -421,39 +421,6 @@ jo.User = User
 -- FRAMEWORK CLASS
 -------------
 
-local function detectFramework()
-  for framework, resources in pairs(mainResourceFramework) do
-    local rightFramework = true
-    for _, resource in pairs(resources) do
-      if resource:sub(1, 1) == "!" then
-        if GetResourceState(resource) ~= "missing" then
-          rightFramework = false
-          break
-        end
-      else
-        if GetResourceState(resource) == "missing" then
-          rightFramework = false
-          break
-        end
-      end
-    end
-    if rightFramework then
-      return framework
-    end
-  end
-end
-
-local frameworkName = detectFramework()
-
-for _, resource in pairs(mainResourceFramework[frameworkName]) do
-  if resource:sub(1, 1) ~= "!" then
-    while GetResourceState(resource) ~= "started" do
-      bprint("Waiting start of " .. frameworkName)
-      Wait(1000)
-    end
-  end
-end
-
 local FrameworkClass = {
   name = "",
   core = {},
@@ -2500,6 +2467,39 @@ function FrameworkClass:example()
     return
   elseif self:is("RPX") then
     return
+  end
+end
+
+local function detectFramework()
+  for framework, resources in pairs(mainResourceFramework) do
+    local rightFramework = true
+    for _, resource in pairs(resources) do
+      if resource:sub(1, 1) == "!" then
+        if GetResourceState(resource) ~= "missing" then
+          rightFramework = false
+          break
+        end
+      else
+        if GetResourceState(resource) == "missing" then
+          rightFramework = false
+          break
+        end
+      end
+    end
+    if rightFramework then
+      return framework
+    end
+  end
+end
+
+local frameworkName = detectFramework()
+
+for _, resource in pairs(mainResourceFramework[frameworkName]) do
+  if resource:sub(1, 1) ~= "!" then
+    while GetResourceState(resource) ~= "started" do
+      bprint("Waiting start of " .. frameworkName)
+      Wait(1000)
+    end
   end
 end
 
