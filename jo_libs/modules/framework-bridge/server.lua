@@ -156,14 +156,14 @@ function User:getMoney(moneyType)
         oprint("Please check jo_libs docs to add OWFramework.User.getSecondMoney()")
         return 0
       end
-      return OWFramework.User.getSecondMoney(source)
+      return OWFramework.User.getSecondMoney(self.source)
     elseif moneyType == 2 then
       if not OWFramework.User.getThirdMoney then
         oprint("Gold in not supported by your Framework")
         oprint("Please check jo_libs docs to add OWFramework.User.getThirdMoney()")
         return 0
       end
-      return OWFramework.User.getThirdMoney(source)
+      return OWFramework.User.getThirdMoney(self.source)
     end
   elseif jo.framework:is("RedEM") then
     if moneyType == 0 then
@@ -176,7 +176,7 @@ function User:getMoney(moneyType)
         oprint("Please check jo_libs docs to add OWFramework.User.getThirdMoney()")
         return 0
       end
-      return OWFramework.User.getThirdMoney(source)
+      return OWFramework.User.getThirdMoney(self.source)
     end
   elseif jo.framework:is("QBR") or jo.framework:is("RSG") or jo.framework:is("QR") then
     if moneyType == 0 then
@@ -187,14 +187,14 @@ function User:getMoney(moneyType)
         oprint("Please check jo_libs docs to add OWFramework.User.getSecondMoney()")
         return 0
       end
-      return OWFramework.User.getSecondMoney(source)
+      return OWFramework.User.getSecondMoney(self.source)
     elseif moneyType == 2 then
       if not OWFramework.User.getThirdMoney then
         oprint("Gold in not supported by your Framework")
         oprint("Please check jo_libs docs to add OWFramework.User.getThirdMoney()")
         return 0
       end
-      return OWFramework.User.getThirdMoney(source)
+      return OWFramework.User.getThirdMoney(self.source)
     end
   end
   return 0
@@ -410,7 +410,7 @@ function User:getRPName()
   elseif jo.framework:is("QBR") or jo.framework:is("RSG") or jo.framework:is("QR") then
     return ("%s %s"):format(self.data.PlayerData.charinfo.firstname, self.data.PlayerData.charinfo.lastname)
   end
-  return source .. ""
+  return self.source .. ""
 end
 
 jo.User = User
