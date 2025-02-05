@@ -579,16 +579,7 @@ function FrameworkClass:canUseItem(source, item, amount, meta, remove)
   if OWFramework.canUseItem then
     return OWFramework.canUseItem(source, item, amount, meta, remove)
   end
-  if self:is("VORP") then
-    local count = self.inv:getItemCount(source, nil, item, meta)
-    if count >= amount then
-      if remove then
-        self.inv:subItem(source, item, amount, meta)
-      end
-      return true
-    end
-    return false
-  elseif self:is("RedEM") or self:is("RedEM2023") then
+  if self:is("RedEM") or self:is("RedEM2023") then
     local itemData = self.inv.getItem(source, item)
     if itemData and itemData.ItemAmount >= amount then
       if remove then
@@ -617,23 +608,6 @@ function FrameworkClass:registerUseItem(item, closeAfterUsed, callback)
     if (closeAfterUsed == nil) then closeAfterUsed = true end
     if OWFramework.registerUseItem then
       OWFramework.registerUseItem(item, closeAfterUsed, callback)
-    elseif self:is("VORP") then
-      local isExist = self.inv:getItemDB(item)
-      local count = 0
-      while not isExist and count < 10 do
-        isExist = self.inv:getItemDB(item)
-        count = count + 1
-        Wait(1000)
-      end
-      if not isExist then
-        return eprint(item .. " < item does not exist in the database")
-      end
-      self.inv:registerUsableItem(item, function(data)
-        if closeAfterUsed then
-          self.inv:closeInventory(data.source)
-        end
-        return callback(data.source, { metadata = data.item.metadata })
-      end)
     elseif self:is("RedEM2023") or self:is("RedEM") then
       local isExist = self.inv.getItemData(item)
       local count = 0
@@ -696,12 +670,6 @@ end
 function FrameworkClass:giveItem(source, item, quantity, meta)
   if OWFramework.giveItem then
     return OWFramework.giveItem(source, item, quantity, meta)
-  elseif self:is("VORP") then
-    if self.inv:canCarryItem(source, item, quantity) then
-      self.inv:addItem(source, item, quantity, meta)
-      return true
-    end
-    return false
   elseif self:is("RedEM2023") or self:is("RedEM") then
     local ItemData = self.inv.getItem(source, item, meta) -- this give you info and functions
     return ItemData.AddItem(quantity, meta)
@@ -729,20 +697,6 @@ function FrameworkClass:createInventory(invName, name, invConfig)
   }
   if OWFramework.createInventory then
     OWFramework.createInventory(invName, name, invConfig)
-  elseif self:is("VORP") then
-    local invConfig = invConfig
-    self.inv:registerInventory({
-      id = invName,
-      name = name,
-      limit = invConfig.maxSlots,
-      acceptWeapons = invConfig.acceptWeapons or false,
-      shared = invConfig.shared or true,
-      ignoreItemStackLimit = invConfig.ignoreStackLimit or true,
-      whitelistItems = invConfig.whitelist and true or false,
-    })
-    for _, data in pairs(invConfig.whitelist or {}) do
-      self.inv:setCustomInventoryItemLimit(invName, data.item, data.limit)
-    end
   elseif self:is("RedEM") then
     self.inv.createLocker(invName, "empty")
   end
@@ -751,8 +705,6 @@ end
 function FrameworkClass:removeInventory(invName)
   if OWFramework.removeInventory then
     OWFramework.removeInventory(invName)
-  elseif self:is("VORP") then
-    self.inv:removeInventory(invName)
   end
 end
 
@@ -763,9 +715,6 @@ function FrameworkClass:openInventory(source, invName)
   local invConfig = self.inventories[invName].invConfig
   if OWFramework.openInventory then
     return OWFramework.openInventory(source, invName, name, invConfig)
-  elseif self:is("VORP") then
-    self:createInventory(invName, name, invConfig)
-    return self.inv:openInventory(source, invName)
   end
   if self:is("RedEM2023") then
     TriggerClientEvent("redemrp_inventory:OpenStash", source, invName, invConfig.maxWeight)
@@ -799,24 +748,6 @@ function FrameworkClass:addItemInInventory(source, invId, item, quantity, metada
   local waiter = promise.new()
   if OWFramework.addItemInInventory then
     OWFramework.addItemInInventory(invId, item, quantity, metadata, needWait)
-  elseif self:is("VORP") then
-    local itemId = self.inv:getItemDB(item).id
-    local user = UserClass:get(source)
-    local charIdentifier = user.data.charIdentifier
-    MySQL.insert("INSERT INTO items_crafted (character_id, item_id, metadata) VALUES (@charid, @itemid, @metadata)", {
-      charid = charIdentifier,
-      itemid = itemId,
-      metadata = json.encode(metadata)
-    }, function(id)
-      MySQL.insert("INSERT INTO character_inventories (character_id, item_crafted_id, amount, inventory_type) VALUES (@charid, @itemid, @amount, @invId);", {
-        charid = charIdentifier,
-        itemid = id,
-        amount = quantity,
-        invId = invId
-      }, function()
-        waiter:resolve(true)
-      end)
-    end)
   elseif self:is("RSG") and self.isV2 then
     self.inv:CreateInventory(invId)
     return self.inv:AddItem(invId, item, quantity, false, metadata)
@@ -862,9 +793,9 @@ end
 
 ---@param source integer source ID
 ---@param invId string name of the inventory
-function FrameworkClass:getItemsFromInventory(source, invId)
+function FrameworkClass:getItemsFromInventory(invId)
   if OWFramework.getItemsFromInventory then
-    return OWFramework.getItemsFromInventory(source, invId)
+    return OWFramework.getItemsFromInventory(invId)
   elseif self:is("VORP") then
     local items = MySQL.query.await("SELECT ci.character_id, ic.id, i.item, ci.amount, ic.metadata, ci.created_at FROM items_crafted ic\
       LEFT JOIN character_inventories ci on ic.id = ci.item_crafted_id\
