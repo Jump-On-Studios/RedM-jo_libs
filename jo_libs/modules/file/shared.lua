@@ -24,6 +24,8 @@ local function convertModName(modname)
   return resource, modpath
 end
 
+---@param modname string file location
+---@return any
 function jo.file.load(modname)
   if type(modname) ~= "string" then return end
   dprint(modname, "~orange~: Start loading")
