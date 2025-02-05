@@ -417,8 +417,6 @@ end
 function FrameworkClass:init()
   if OWFramework.initFramework then
     return OWFramework.initFramework(self)
-  elseif self:is("VORP") then
-    return
   elseif self:is("RedEM2023") then
     bprint("RedEM:RP 2023 detected")
     self.core = exports["redem_roleplay"]:RedEM()
@@ -456,7 +454,6 @@ function FrameworkClass:init()
     bprint("RPX detected")
     self.inv = exports["rpx-inventory"]
   end
-  eprint("No compatible Framework detected. Please contact JUMP ON studios on discord")
 end
 
 ---@return string Name of the framework
