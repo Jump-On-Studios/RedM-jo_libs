@@ -231,6 +231,16 @@ if GetConvar(resourceName .. ":debug", "off") == "on" then
   jo.debug = true
 end
 
+AddConvarChangeListener(resourceName .. ":debug", function(conVarName, reserved)
+  jo.debug = GetConvar(resourceName .. ":debug", "off") == "on"
+  if jo.debug then
+    oprint("/!\\ Jo_libs is in debug mode /!\\")
+    oprint("Don't use this in production!")
+  else
+    oprint("/!\\ Jo_libs debug mode turned OFF /!\\")
+  end
+end)
+
 
 -------------
 -- EXPORTS (prevent call before initializes)
