@@ -37,7 +37,7 @@ function convertVersion(version)
     local array = version:split("%.")
     local multiplicator = 1
     for i = #array, 1, -1 do
-      converted = converted + multiplicator * array[i]
+      converted = converted + multiplicator * (tonumber(array[i]) or 0)
       multiplicator = multiplicator * 100
     end
   end
