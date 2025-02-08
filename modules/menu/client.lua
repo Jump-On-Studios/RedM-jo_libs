@@ -384,7 +384,7 @@ local function menuNUIChange(data)
   currentData.menu = data.menu
   currentData.index = data.item.index
   -- menus[data.menu].currentItem = data.item.index
-  menus[data.menu].items[data.item.index] = table.merge(menus[data.menu].items[data.item.index], data.item)
+  menus[data.menu].items[data.item.index] = table.merge(menus[data.menu].items[data.item.index], data.item, false)
   currentData.item = menus[data.menu].items[data.item.index]
 
   for _, slider in pairs(currentData.item.sliders) do
