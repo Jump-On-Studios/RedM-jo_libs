@@ -258,7 +258,7 @@ function jo.menu.show(show, keepInput, hideRadar, animation)
       radarAlreadyHidden = IsRadarHidden()
     end
     if not radarAlreadyHidden and hideRadar then
-      DisplayRadar(not show)
+      SetMinimapType(0)
     end
   end)
 end
