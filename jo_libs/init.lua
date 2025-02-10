@@ -223,6 +223,24 @@ if resourceName == "jo_libs" then
   end)
 end
 
+jo.require("print")
+
+if GetConvar(resourceName .. ":debug", "off") == "on" then
+  oprint(("/!\\ %s is in debug mode /!\\"):format(resourceName))
+  oprint("Don't use this in production!")
+  jo.debug = true
+end
+
+AddConvarChangeListener(resourceName .. ":debug", function()
+  jo.debug = GetConvar(resourceName .. ":debug", "off") == "on"
+  if jo.debug then
+    oprint(("/!\\ %s is in debug mode /!\\"):format(resourceName))
+    oprint("Don't use this in production!")
+  else
+    oprint(("/!\\ %s debug mode turned OFF /!\\"):format(resourceName))
+  end
+end)
+
 
 -------------
 -- EXPORTS (prevent call before initializes)
@@ -263,9 +281,3 @@ for _, name in ipairs(modules) do
   end
 end
 jo.libLoaded = true
-
-if GetConvar(resourceName .. ":debug", "off") == "on" then
-  oprint("/!\\ Jo_libs is in debug mode /!\\")
-  oprint("Don't use this in production!")
-  jo.debug = true
-end
