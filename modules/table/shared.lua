@@ -19,7 +19,7 @@ end
 ---@param t2 table
 ---@param addDuplicateNumbers boolean?
 ---@return table
-table.merge = function(t1, t2, addDuplicateNumbers)
+table.overwrite = function(t1, t2, addDuplicateNumbers)
   if not t1 then t1 = {} end
   if type(t2) ~= "table" then return t1 end  -- Evita erro ao tentar iterar `nil`
 
@@ -30,7 +30,7 @@ table.merge = function(t1, t2, addDuplicateNumbers)
       local type1, type2 = type(v1), type(v2)
 
       if type1 == "table" and type2 == "table" then
-          t1[k] = table.merge(v1, v2, addDuplicateNumbers)
+          t1[k] = table.overwrite(v1, v2, addDuplicateNumbers)
       elseif addDuplicateNumbers and type1 == "number" and type2 == "number" then
           t1[k] = v1 + v2
       else
@@ -41,6 +41,25 @@ table.merge = function(t1, t2, addDuplicateNumbers)
   return t1
 end
 
+---@param t1 table
+---@param t2 table
+---@return table
+table.merge = function(t1, t2)
+  t1 = t1 or {}
+  if not t2 then return t1 end
+  for k, v in pairs(t2 or {}) do
+    if type(v) == "table" then
+      if type(t1[k] or false) == "table" then
+        table.merge(t1[k] or {}, t2[k] or {})
+      else
+        t1[k] = v
+      end
+    else
+      t1[k] = v
+    end
+  end
+  return t1
+end
 
 table.mergeAfter = function(t1, t2)
   t1 = t1 or {}
