@@ -246,6 +246,7 @@ function jo.menu.show(show, keepInput, hideRadar, animation)
     if not nuiShow then
       timeoutClose = jo.timeout.set(150, function()
         SetNuiFocus(false, false)
+        jo.menu.fireAllLevelsEvent("onExit")
         SendNUIMessage({ event = "updateShow", show = show, cancelAnimation = not animation })
       end)
     else
