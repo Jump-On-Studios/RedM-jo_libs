@@ -14,69 +14,6 @@ local mainResourceFramework = {
 -- VARIABLES
 -------------
 local skinCategoryBridge = {
-  VORP = {
-    components = {
-      Accessories = "accessories",
-      armor = "armor",
-      Badge = "badges",
-      Beard = "beards_complete",
-      Belt = "belts",
-      Boots = "boots",
-      bow = "hair_accessories",
-      Bracelet = "jewelry_bracelets",
-      Buckle = "belt_buckles",
-      Chap = "chaps",
-      Cloak = "cloaks",
-      Coat = "coats",
-      CoatClosed = "coats_closed",
-      Dress = "dresses",
-      EyeWear = "eyewear",
-      Gauntlets = "gauntlets",
-      Glove = "gloves",
-      Gunbelt = "gunbelts",
-      GunbeltAccs = "gunbelt_accs",
-      Hair = "hair",
-      Hat = "hats",
-      Holster = "holsters_left",
-      Loadouts = "loadouts",
-      Mask = "masks",
-      NeckTies = "neckties",
-      NeckWear = "neckwear",
-      Pant = "pants",
-      Poncho = "ponchos",
-      RingLh = "jewelry_rings_left",
-      RingRh = "jewelry_rings_right",
-      Satchels = "satchels",
-      Shirt = "shirts_full",
-      Skirt = "skirts",
-      Spats = "spats",
-      Spurs = "boot_accessories",
-      Suspender = "suspenders",
-      Teeth = "teeth",
-      Vest = "vests",
-    },
-    overlays = {
-      acne = "acne",
-      ageing = "ageing",
-      beardstabble = "beard",
-      blush = "blush",
-      complex = "complex",
-      disc = "disc",
-      eyebrows = "eyebrow",
-      eyeliner = "eyeliner",
-      eyeliners = "eyeliner",
-      foundation_ = "foundation",
-      freckles = "freckles",
-      grime = "grime",
-      hair = "hair",
-      lipsticks = "lipstick",
-      moles = "moles",
-      paintedmasks = "masks",
-      scars = "scar",
-      shadows = "eyeshadow",
-      spots = "spots",
-    },
-  },
 }
 
 -------------
@@ -764,24 +701,6 @@ end
 function FrameworkClass:getItemsFromInventory(invId)
   if OWFramework.getItemsFromInventory then
     return OWFramework.getItemsFromInventory(invId)
-  elseif self:is("VORP") then
-    local items = MySQL.query.await("SELECT ci.character_id, ic.id, i.item, ci.amount, ic.metadata, ci.created_at FROM items_crafted ic\
-      LEFT JOIN character_inventories ci on ic.id = ci.item_crafted_id\
-      LEFT JOIN items i on ic.item_id = i.id\
-      WHERE ci.inventory_type = @invType;",
-      {
-        ["invType"] = invId
-      })
-    local itemFiltered = {}
-    for _, item in pairs(items) do
-      itemFiltered[#itemFiltered + 1] = {
-        metadata = UnJson(item.metadata),
-        amount = item.amount,
-        item = item.item,
-        id = item.id
-      }
-    end
-    return itemFiltered
   elseif self:is("RSG") and self.isV2 then
     local inventory = self.inv:GetInventory(invId) or { items = {} }
     local itemFiltered = {}
@@ -923,299 +842,7 @@ local function standardizeSkin(object)
     print(json.encode(object))
   end
 
-  if jo.framework:is("VORP") then
-    standard.model = table.extract(object, "sex")
-    standard.headHash = table.extract(object, "HeadType")
-    standard.bodyUpperHash = object.BodyType ~= 0 and object.BodyType or object.Torso
-    object.BodyType = nil
-    object.Torso = nil
-    standard.bodyLowerHash = object.LegsType ~= 0 and object.LegsType or object.Legs
-    object.LegsType = nil
-    object.Legs = nil
-    standard.eyesHash = table.extract(object, "Eyes")
-    standard.teethHash = table.extract(object, "Teeth")
-    standard.hair = table.extract(object, "Hair")
-    standard.beards_complete = table.extract(object, "Beard")
-    standard.bodyType = table.extract(object, "Body")
-    standard.bodyWeight = table.extract(object, "Waist")
-    standard.bodyScale = table.extract(object, "Scale")
-
-    standard.expressions = {
-      arms = table.extract(object, "ArmsS"),
-      calves = table.extract(object, "CalvesS"),
-      cheekbonesDepth = table.extract(object, "CheekBonesD"),
-      cheekbonesHeight = table.extract(object, "CheekBonesH"),
-      cheekbonesWidth = table.extract(object, "CheekBonesW"),
-      chest = table.extract(object, "ChestS"),
-      chinDepth = table.extract(object, "ChinD"),
-      chinHeight = table.extract(object, "ChinH"),
-      chinWidth = table.extract(object, "ChinW"),
-      earlobes = table.extract(object, "EarsD"),
-      earsAngle = table.extract(object, "EarsA"),
-      earsDepth = table.extract(object, "earsDepth"),
-      earsHeight = table.extract(object, "EarsH"),
-      earsWidth = table.extract(object, "EarsW"),
-      eyebrowDepth = table.extract(object, "EyeBrowD"),
-      eyebrowHeight = table.extract(object, "EyeBrowH"),
-      eyebrowWidth = table.extract(object, "EyeBrowW"),
-      eyelidHeight = table.extract(object, "EyeLidH"),
-      eyelidLeft = table.extract(object, "EyeLidL"),
-      eyelidRight = table.extract(object, "EyeLidR"),
-      eyelidWidth = table.extract(object, "EyeLidW"),
-      eyesAngle = table.extract(object, "EyeAng"),
-      eyesDepth = table.extract(object, "EyeD"),
-      eyesDistance = table.extract(object, "EyeDis"),
-      eyesHeight = table.extract(object, "EyeH"),
-      faceWidth = table.extract(object, "FaceW"),
-      headWidth = table.extract(object, "HeadSize"),
-      hip = table.extract(object, "HipsS"),
-      jawDepth = table.extract(object, "JawD"),
-      jawHeight = table.extract(object, "JawH"),
-      jawWidth = table.extract(object, "JawW"),
-      jawY = table.extract(object, "jawY"),
-      lowerLipDepth = table.extract(object, "LLiphD"),
-      lowerLipHeight = table.extract(object, "LLiphH"),
-      lowerLipWidth = table.extract(object, "LLiphW"),
-      mouthConerLeftDepth = table.extract(object, "MouthCLD"),
-      mouthConerLeftHeight = table.extract(object, "MouthCLH"),
-      mouthConerLeftLipsDistance = table.extract(object, "MouthCLLD"),
-      mouthConerLeftWidth = table.extract(object, "MouthCLW"),
-      mouthConerRightDepth = table.extract(object, "MouthCRD"),
-      mouthConerRightHeight = table.extract(object, "MouthCRH"),
-      mouthConerRightLipsDistance = table.extract(object, "MouthCRLD"),
-      mouthConerRightWidth = table.extract(object, "MouthCRW"),
-      mouthDepth = table.extract(object, "MouthD"),
-      mouthWidth = table.extract(object, "MouthW"),
-      mouthX = table.extract(object, "MouthX"),
-      mouthY = table.extract(object, "MouthY"),
-      neckDepth = table.extract(object, "NeckD"),
-      neckWidth = table.extract(object, "NeckW"),
-      noseAngle = table.extract(object, "NoseAng"),
-      noseCurvature = table.extract(object, "NoseC"),
-      noseHeight = table.extract(object, "NoseH"),
-      noseSize = table.extract(object, "NoseS"),
-      noseWidth = table.extract(object, "NoseW"),
-      nostrilsDistance = table.extract(object, "NoseDis"),
-      shoulderBlades = table.extract(object, "ShouldersM"),
-      shoulders = table.extract(object, "ShouldersS"),
-      shoulderThickness = table.extract(object, "ShouldersT"),
-      thighs = table.extract(object, "LegsS"),
-      upperLipDepth = table.extract(object, "ULiphD"),
-      upperLipHeight = table.extract(object, "ULiphH"),
-      upperLipWidth = table.extract(object, "ULiphW"),
-      waist = table.extract(object, "WaistW"),
-    }
-
-    local function needOverlay(value)
-      if not value then return nil end
-      if value == 0 then return nil end
-      return true
-    end
-
-    standard.overlays = {}
-    standard.overlays.ageing = needOverlay(object.ageing_visibility) and {
-      id = decrease(object.ageing_tx_id),
-      opacity = convertToPercent(object.ageing_opacity)
-    }
-    object.ageing_tx_id = nil
-    object.ageing_opacity = nil
-    object.ageing_visibility = nil
-
-    standard.overlays.beard = needOverlay(object.beardstabble_visibility) and {
-      id = 0,
-      tint0 = object.beardstabble_color_primary,
-      opacity = convertToPercent(object.beardstabble_opacity)
-    }
-    object.beardstabble_color_primary = nil
-    object.beardstabble_opacity = nil
-    object.beardstabble_visibility = nil
-
-    standard.overlays.blush = needOverlay(object.blush_visibility) and {
-      id = decrease(object.blush_tx_id),
-      tint0 = object.blush_palette_color_primary,
-      opacity = convertToPercent(object.blush_opacity)
-    }
-    object.blush_tx_id = nil
-    object.blush_palette_color_primary = nil
-    object.blush_opacity = nil
-    object.blush_visibility = nil
-
-    standard.overlays.eyebrow = needOverlay(object.eyebrows_visibility) and (function()
-      local id = decrease(object.eyebrows_tx_id)
-      local sexe = "m"
-      if id > 15 then
-        id = id - 15
-        sexe = "f"
-      end
-      return {
-        id = id,
-        sexe = sexe,
-        tint0 = object.eyebrows_color,
-        opacity = convertToPercent(object.eyebrows_opacity)
-      }
-    end)()
-    object.eyebrows_tx_id = nil
-    object.eyebrows_color = nil
-    object.eyebrows_opacity = nil
-    object.eyebrows_visibility = nil
-
-    standard.overlays.eyeliner = needOverlay(object.eyeliner_visibility) and {
-      id = decrease(object.eyeliner_tx_id),
-      sheetGrid = decrease(object.eyeliner_palette_id),
-      tint0 = object.eyeliner_color_primary,
-      opacity = convertToPercent(object.eyeliner_opacity)
-    }
-    object.eyeliner_tx_id = nil
-    object.eyeliner_palette_id = nil
-    object.eyeliner_color_primary = nil
-    object.eyeliner_opacity = nil
-    object.eyeliner_visibility = nil
-
-    standard.overlays.eyeshadow = needOverlay(object.shadows_visibility) and {
-      id = 0,
-      sheetGrid = decrease(object.shadows_palette_id),
-      tint0 = object.shadows_palette_color_primary,
-      tint1 = object.shadows_palette_color_secondary,
-      tint2 = object.shadows_palette_color_tertiary,
-      opacity = convertToPercent(object.shadows_opacity)
-    }
-    object.shadows_palette_id = nil
-    object.shadows_palette_color_primary = nil
-    object.shadows_palette_color_secondary = nil
-    object.shadows_palette_color_tertiary = nil
-    object.shadows_opacity = nil
-    object.shadows_visibility = nil
-
-    standard.overlays.freckles = needOverlay(object.freckles_visibility) and {
-      id = decrease(object.freckles_tx_id),
-      opacity = convertToPercent(object.freckles_opacity)
-    }
-    object.freckles_tx_id = nil
-    object.freckles_opacity = nil
-    object.freckles_visibility = nil
-
-    standard.overlays.lipstick = needOverlay(object.lipsticks_visibility) and {
-      id = 0,
-      sheetGrid = decrease(object.lipsticks_palette_id),
-      tint0 = object.lipsticks_palette_color_primary,
-      tint1 = object.lipsticks_palette_color_secondary,
-      tint2 = object.lipsticks_palette_color_tertiary,
-      opacity = convertToPercent(object.lipsticks_opacity)
-    }
-    object.lipsticks_palette_id = nil
-    object.lipsticks_palette_color_primary = nil
-    object.lipsticks_palette_color_secondary = nil
-    object.lipsticks_palette_color_tertiary = nil
-    object.lipsticks_opacity = nil
-    object.lipsticks_visibility = nil
-
-    standard.overlays.moles = needOverlay(object.moles_visibility) and {
-      id = decrease(object.moles_tx_id),
-      opacity = convertToPercent(object.moles_opacity)
-    }
-    object.moles_tx_id = nil
-    object.moles_opacity = nil
-    object.moles_visibility = nil
-
-    standard.overlays.scar = needOverlay(object.scars_visibility) and {
-      id = decrease(object.scars_tx_id),
-      opacity = convertToPercent(object.scars_opacity)
-    }
-    object.scars_tx_id = nil
-    object.scars_opacity = nil
-    object.scars_visibility = nil
-
-    standard.overlays.spots = needOverlay(object.spots_visibility) and {
-      id = decrease(object.spots_tx_id),
-      opacity = convertToPercent(object.spots_opacity)
-    }
-    object.spots_tx_id = nil
-    object.spots_opacity = nil
-    object.spots_visibility = nil
-
-    standard.overlays.acne = needOverlay(object.acne_visibility) and {
-      id = decrease(object.acne_tx_id),
-      opacity = convertToPercent(object.acne_opacity)
-    }
-    object.acne_tx_id = nil
-    object.acne_opacity = nil
-    object.acne_visibility = nil
-
-    standard.overlays.grime = needOverlay(object.grime_visibility) and {
-      id = decrease(object.grime_tx_id),
-      opacity = convertToPercent(object.grime_opacity)
-    }
-    object.grime_tx_id = nil
-    object.grime_opacity = nil
-    object.grime_visibility = nil
-
-    standard.overlays.hair = needOverlay(object.hair_visibility) and {
-      id = decrease(object.hair_tx_id),
-      tint0 = object.hair_color_primary,
-      opacity = convertToPercent(object.hair_opacity)
-    }
-    object.hair_tx_id = nil
-    object.hair_color_primary = nil
-    object.hair_opacity = nil
-    object.hair_visibility = nil
-
-    standard.overlays.complex = needOverlay(object.complex_visibility) and {
-      id = decrease(object.complex_tx_id),
-      opacity = convertToPercent(object.complex_opacity)
-    }
-    object.complex_tx_id = nil
-    object.complex_opacity = nil
-    object.complex_visibility = nil
-
-    standard.overlays.disc = needOverlay(object.disc_visibility) and {
-      id = decrease(object.disc_tx_id),
-      opacity = convertToPercent(object.disc_opacity)
-    }
-    object.disc_tx_id = nil
-    object.disc_opacity = nil
-    object.disc_visibility = nil
-
-    standard.overlays.foundation = needOverlay(object.foundation_visibility) and {
-      id = decrease(object.foundation_tx_id),
-      tint0 = object.foundation_palette_color_primary,
-      tint1 = object.foundation_palette_color_secondary,
-      tint2 = object.foundation_palette_color_tertiary,
-      sheetGrid = decrease(object.foundation_palette_id),
-      opacity = convertToPercent(object.foundation_opacity)
-    }
-    object.foundation_tx_id = nil
-    object.foundation_palette_color_primary = nil
-    object.foundation_palette_color_secondary = nil
-    object.foundation_palette_color_tertiary = nil
-    object.foundation_palette_id = nil
-    object.foundation_opacity = nil
-    object.foundation_visibility = nil
-
-    standard.overlays.masks = needOverlay(object.paintedmasks_visibility) and {
-      id = decrease(object.paintedmasks_tx_id),
-      tint0 = object.paintedmasks_palette_color_primary,
-      tint1 = object.paintedmasks_palette_color_secondary,
-      tint2 = object.paintedmasks_palette_color_tertiary,
-      sheetGrid = decrease(object.paintedmasks_palette_id),
-      opacity = convertToPercent(object.paintedmasks_opacity)
-    }
-    object.paintedmasks_tx_id = nil
-    object.paintedmasks_palette_color_primary = nil
-    object.paintedmasks_palette_color_secondary = nil
-    object.paintedmasks_palette_color_tertiary = nil
-    object.paintedmasks_palette_id = nil
-    object.paintedmasks_opacity = nil
-    object.paintedmasks_visibility = nil
-
-    --Clear unneccessary keys
-    table.extract(object, "FaceD")              --Same hash than EyeBrowW
-    table.extract(object, "FaceS")              --Same hash than EyeBrowH
-    table.extract(object, "albedo")             --Useless
-    table.extract(object, "beardstabble_tx_id") --Unused by VORP
-    table.extract(object, "blush_palette_id")   --Unused by VORP
-    table.extract(object, "shadows_tx_id")      --Unused by VORP
-    table.extract(object, "lipsticks_tx_id")    --Unused by VORP
-  elseif jo.framework:is("RSG") then
+  if jo.framework:is("RSG") then
     local skin_tone = { 1, 4, 3, 5, 2, 6 }
     local heads = {
       mp_male = { [16] = 18, [17] = 21, [18] = 22, [19] = 25, [20] = 28 },
@@ -1483,7 +1110,7 @@ local function formatComponentData(data)
       data.comp = nil
     end
     if not data.hash or data.hash == 0 or data.hash == -1 then return nil end
-    if type(data.hash) == "table" then --for VORP
+    if type(data.hash) == "table" then
       return data.hash
     end
     return data
@@ -1507,262 +1134,7 @@ local function revertSkin(standard)
     return (value or 0) + 1
   end
 
-  local function extractHashIfAlone(value)
-    if type(value) ~= "table" then return value end
-    if table.count(value) ~= 1 then return value end
-    return value.hash or value
-  end
-
-  if jo.framework:is("VORP") then
-    reverted.sex = table.extract(standard, "model")
-    reverted.HeadType = table.extract(standard, "headHash")
-    reverted.Torso = standard.bodyUpperHash
-    reverted.BodyType = standard.bodyUpperHash
-    standard.bodyUpperHash = nil
-    reverted.Legs = standard.bodyLowerHash
-    reverted.LegsType = standard.bodyLowerHash
-    standard.bodyLowerHash = nil
-    reverted.Eyes = table.extract(standard, "eyesHash")
-    reverted.Teeth = table.extract(standard, "teethHash")
-    reverted.Hair = extractHashIfAlone(table.extract(standard, "hair"))
-    reverted.Beard = extractHashIfAlone(table.extract(standard, "beards_complete"))
-    reverted.Body = table.extract(standard, "bodyType")
-    reverted.Waist = table.extract(standard, "bodyWeight")
-    reverted.Scale = table.extract(standard, "bodyScale")
-
-    reverted.ArmsS = table.extract(standard.expressions, "arms")
-    reverted.CalvesS = table.extract(standard.expressions, "calves")
-    reverted.CheekBonesD = table.extract(standard.expressions, "cheekbonesDepth")
-    reverted.CheekBonesH = table.extract(standard.expressions, "cheekbonesHeight")
-    reverted.CheekBonesW = table.extract(standard.expressions, "cheekbonesWidth")
-    reverted.ChestS = table.extract(standard.expressions, "chest")
-    reverted.ChinD = table.extract(standard.expressions, "chinDepth")
-    reverted.ChinH = table.extract(standard.expressions, "chinHeight")
-    reverted.ChinW = table.extract(standard.expressions, "chinWidth")
-    reverted.EarsD = table.extract(standard.expressions, "earlobes")
-    reverted.EarsA = table.extract(standard.expressions, "earsAngle")
-    reverted.earsDepth = table.extract(standard.expressions, "earsDepth")
-    reverted.EarsH = table.extract(standard.expressions, "earsHeight")
-    reverted.EarsW = table.extract(standard.expressions, "earsWidth")
-    reverted.EyeBrowD = table.extract(standard.expressions, "eyebrowDepth")
-    reverted.EyeBrowH = table.extract(standard.expressions, "eyebrowHeight")
-    reverted.EyeBrowW = table.extract(standard.expressions, "eyebrowWidth")
-    reverted.EyeLidH = table.extract(standard.expressions, "eyelidHeight")
-    reverted.EyeLidL = table.extract(standard.expressions, "eyelidLeft")
-    reverted.EyeLidR = table.extract(standard.expressions, "eyelidRight")
-    reverted.EyeLidW = table.extract(standard.expressions, "eyelidWidth")
-    reverted.EyeAng = table.extract(standard.expressions, "eyesAngle")
-    reverted.EyeD = table.extract(standard.expressions, "eyesDepth")
-    reverted.EyeDis = table.extract(standard.expressions, "eyesDistance")
-    reverted.EyeH = table.extract(standard.expressions, "eyesHeight")
-    reverted.FaceW = table.extract(standard.expressions, "faceWidth")
-    reverted.HeadSize = table.extract(standard.expressions, "headWidth")
-    reverted.HipsS = table.extract(standard.expressions, "hip")
-    reverted.JawD = table.extract(standard.expressions, "jawDepth")
-    reverted.JawH = table.extract(standard.expressions, "jawHeight")
-    reverted.JawW = table.extract(standard.expressions, "jawWidth")
-    reverted.jawY = table.extract(standard.expressions, "jawY")
-    reverted.LLiphD = table.extract(standard.expressions, "lowerLipDepth")
-    reverted.LLiphH = table.extract(standard.expressions, "lowerLipHeight")
-    reverted.LLiphW = table.extract(standard.expressions, "lowerLipWidth")
-    reverted.MouthCLD = table.extract(standard.expressions, "mouthConerLeftDepth")
-    reverted.MouthCLH = table.extract(standard.expressions, "mouthConerLeftHeight")
-    reverted.MouthCLLD = table.extract(standard.expressions, "mouthConerLeftLipsDistance")
-    reverted.MouthCLW = table.extract(standard.expressions, "mouthConerLeftWidth")
-    reverted.MouthCRD = table.extract(standard.expressions, "mouthConerRightDepth")
-    reverted.MouthCRH = table.extract(standard.expressions, "mouthConerRightHeight")
-    reverted.MouthCRLD = table.extract(standard.expressions, "mouthConerRightLipsDistance")
-    reverted.MouthCRW = table.extract(standard.expressions, "mouthConerRightWidth")
-    reverted.MouthD = table.extract(standard.expressions, "mouthDepth")
-    reverted.MouthW = table.extract(standard.expressions, "mouthWidth")
-    reverted.MouthX = table.extract(standard.expressions, "mouthX")
-    reverted.MouthY = table.extract(standard.expressions, "mouthY")
-    reverted.NeckD = table.extract(standard.expressions, "neckDepth")
-    reverted.NeckW = table.extract(standard.expressions, "neckWidth")
-    reverted.NoseAng = table.extract(standard.expressions, "noseAngle")
-    reverted.NoseC = table.extract(standard.expressions, "noseCurvature")
-    reverted.NoseH = table.extract(standard.expressions, "noseHeight")
-    reverted.NoseS = table.extract(standard.expressions, "noseSize")
-    reverted.NoseW = table.extract(standard.expressions, "noseWidth")
-    reverted.NoseDis = table.extract(standard.expressions, "nostrilsDistance")
-    reverted.ShouldersM = table.extract(standard.expressions, "shoulderBlades")
-    reverted.ShouldersS = table.extract(standard.expressions, "shoulders")
-    reverted.ShouldersT = table.extract(standard.expressions, "shoulderThickness")
-    reverted.LegsS = table.extract(standard.expressions, "thighs")
-    reverted.ULiphD = table.extract(standard.expressions, "upperLipDepth")
-    reverted.ULiphH = table.extract(standard.expressions, "upperLipHeight")
-    reverted.ULiphW = table.extract(standard.expressions, "upperLipWidth")
-    reverted.WaistW = table.extract(standard.expressions, "waist")
-
-    if standard.overlays.ageing then
-      reverted.ageing_visibility = 1
-      reverted.ageing_tx_id = increase(standard.overlays.ageing.id)
-      reverted.ageing_opacity = standard.overlays.ageing.opacity
-      standard.overlays.ageing.id = nil
-      standard.overlays.ageing.opacity = nil
-    end
-    if standard.overlays.beard then
-      reverted.beardstabble_visibility = 1
-      reverted.beardstabble_color_primary = standard.overlays.beard.tint0
-      reverted.beardstabble_opacity = standard.overlays.beard.opacity
-      standard.overlays.beard.tint0 = nil
-      standard.overlays.beard.opacity = nil
-    end
-    if standard.overlays.blush then
-      reverted.blush_visibility = 1
-      reverted.blush_tx_id = increase(standard.overlays.blush.id)
-      reverted.blush_palette_color_primary = standard.overlays.blush.tint0
-      reverted.blush_opacity = standard.overlays.blush.opacity
-      standard.overlays.blush.id = nil
-      standard.overlays.blush.tint0 = nil
-      standard.overlays.blush.opacity = nil
-    end
-    if standard.overlays.eyebrow then
-      reverted.eyebrows_visibility = 1
-      reverted.eyebrows_tx_id = increase(standard.overlays.eyebrow.id)
-      if standard.overlays.sexe == "f" then
-        reverted.eyebrows_tx_id = reverted.eyebrows_tx_id + 15
-      end
-      reverted.eyebrows_color = standard.overlays.eyebrow.tint0
-      reverted.eyebrows_opacity = standard.overlays.eyebrow.opacity
-      standard.overlays.eyebrow.id = nil
-      standard.overlays.eyebrow.sexe = nil
-      standard.overlays.eyebrow.tint0 = nil
-      standard.overlays.eyebrow.opacity = nil
-    end
-    if standard.overlays.eyeliner then
-      reverted.eyeliner_visibility = 1
-      reverted.eyeliner_tx_id = increase(standard.overlays.eyeliner.id)
-      reverted.eyeliner_palette_id = increase(standard.overlays.eyeliner.sheetGrid)
-      reverted.eyeliner_color_primary = standard.overlays.eyeliner.tint0
-      reverted.eyeliner_opacity = standard.overlays.eyeliner.opacity
-      standard.overlays.eyeliner.id = nil
-      standard.overlays.eyeliner.sheetGrid = nil
-      standard.overlays.eyeliner.tint0 = nil
-      standard.overlays.eyeliner.opacity = nil
-    end
-    if standard.overlays.eyeshadow then
-      reverted.shadows_visibility = 1
-      reverted.shadows_tx_id = increase(standard.overlays.eyeshadow.id)
-      reverted.shadows_palette_id = increase(standard.overlays.eyeshadow.sheetGrid)
-      reverted.shadows_palette_color_primary = standard.overlays.eyeshadow.tint0
-      reverted.shadows_palette_color_secondary = standard.overlays.eyeshadow.tint1
-      reverted.shadows_palette_color_tertiary = standard.overlays.eyeshadow.tint2
-      reverted.shadows_opacity = standard.overlays.eyeshadow.opacity
-      standard.overlays.eyeshadow.id = nil
-      standard.overlays.eyeshadow.sheetGrid = nil
-      standard.overlays.eyeshadow.tint0 = nil
-      standard.overlays.eyeshadow.tint1 = nil
-      standard.overlays.eyeshadow.tint2 = nil
-      standard.overlays.eyeshadow.opacity = nil
-    end
-    if standard.overlays.freckles then
-      reverted.freckles_visibility = 1
-      reverted.freckles_tx_id = increase(standard.overlays.freckles.id)
-      reverted.freckles_opacity = standard.overlays.freckles.opacity
-      standard.overlays.freckles.id = nil
-      standard.overlays.freckles.opacity = nil
-    end
-    if standard.overlays.lipstick then
-      reverted.lipsticks_visibility = 1
-      reverted.lipsticks_tx_id = increase(standard.overlays.lipstick.id)
-      reverted.lipsticks_palette_id = increase(standard.overlays.lipstick.sheetGrid)
-      reverted.lipsticks_palette_color_primary = standard.overlays.lipstick.tint0
-      reverted.lipsticks_palette_color_secondary = standard.overlays.lipstick.tint1
-      reverted.lipsticks_palette_color_tertiary = standard.overlays.lipstick.tint2
-      reverted.lipsticks_opacity = standard.overlays.lipstick.opacity
-      standard.overlays.lipstick.id = nil
-      standard.overlays.lipstick.sheetGrid = nil
-      standard.overlays.lipstick.tint0 = nil
-      standard.overlays.lipstick.tint1 = nil
-      standard.overlays.lipstick.tint2 = nil
-      standard.overlays.lipstick.opacity = nil
-    end
-    if standard.overlays.moles then
-      reverted.moles_visibility = 1
-      reverted.moles_tx_id = increase(standard.overlays.moles.id)
-      reverted.moles_opacity = standard.overlays.moles.opacity
-      standard.overlays.moles.id = nil
-      standard.overlays.moles.opacity = nil
-    end
-    if standard.overlays.scar then
-      reverted.scars_visibility = 1
-      reverted.scars_tx_id = increase(standard.overlays.scar.id)
-      reverted.scars_opacity = standard.overlays.scar.opacity
-      standard.overlays.scar.id = nil
-      standard.overlays.scar.opacity = nil
-    end
-    if standard.overlays.spots then
-      reverted.spots_visibility = 1
-      reverted.spots_tx_id = increase(standard.overlays.spots.id)
-      reverted.spots_opacity = standard.overlays.spots.opacity
-      standard.overlays.spots.id = nil
-      standard.overlays.spots.opacity = nil
-    end
-    if standard.overlays.acne then
-      reverted.acne_visibility = 1
-      reverted.acne_tx_id = increase(standard.overlays.acne.id)
-      reverted.acne_opacity = standard.overlays.acne.opacity
-      standard.overlays.acne.id = nil
-      standard.overlays.acne.opacity = nil
-    end
-    if standard.overlays.grime then
-      reverted.grime_visibility = 1
-      reverted.grime_tx_id = increase(standard.overlays.grime.id)
-      reverted.grime_opacity = standard.overlays.grime.opacity
-      standard.overlays.grime.id = nil
-      standard.overlays.grime.opacity = nil
-    end
-    if standard.overlays.hair then
-      reverted.hair_visibility = 1
-      reverted.hair_tx_id = increase(standard.overlays.hair.id)
-      reverted.hair_color_primary = standard.overlays.hair.tint0
-      reverted.hair_opacity = standard.overlays.hair.opacity
-      standard.overlays.hair.id = nil
-      standard.overlays.hair.tint0 = nil
-      standard.overlays.hair.opacity = nil
-    end
-    if standard.overlays.complex then
-      reverted.complex_visibility = 1
-      reverted.complex_tx_id = increase(standard.overlays.complex.id)
-      reverted.complex_opacity = standard.overlays.complex.opacity
-      standard.overlays.complex.id = nil
-      standard.overlays.complex.opacity = nil
-    end
-    if standard.overlays.disc then
-      reverted.disc_visibility = 1
-      reverted.disc_tx_id = increase(standard.overlays.disc.id)
-      reverted.disc_opacity = standard.overlays.disc.opacity
-      standard.overlays.disc.id = nil
-      standard.overlays.disc.opacity = nil
-    end
-
-    for key, data in pairs(standard.overlays) do
-      if table.count(data) == 0 then
-        standard.overlays[key] = nil
-      end
-    end
-
-    if table.count(standard.overlays) == 0 then
-      standard.overlays = nil
-    end
-    if table.count(standard.expressions) == 0 then
-      standard.expressions = nil
-    end
-
-    if jo.debug then
-      if table.count(standard) > 0 then
-        eprint("Skin keys not reverted")
-        for key, value in pairs(standard) do
-          print(key, type(value) == "table" and json.encode(value) or value)
-        end
-      else
-        gprint("All skin keys reverted")
-      end
-    end
-
-    reverted.overlays = table.copy(standard.overlays)
-  elseif jo.framework:is("RSG") then
+  if jo.framework:is("RSG") then
     local function revertPercent(value)
       if not value then return nil end
       return math.ceil((value) * 100)
@@ -2056,20 +1428,6 @@ function FrameworkClass:getUserClothes(source)
   local clothes = {}
   if OWFramework.getUserClothes then
     clothes = OWFramework.getUserClothes(source)
-  elseif self:is("VORP") then
-    local user = UserClass:get(source)
-    clothes = UnJson(user.data.comps)
-    local clothesTints = UnJson(user.data.compTints)
-    for category, data in pairs(clothesTints) do
-      for hash, data2 in pairs(data) do
-        if tonumber(clothes[category]) == tonumber(hash) then
-          clothes[category] = {
-            hash = clothes[category]
-          }
-          table.merge(clothes[category], data2)
-        end
-      end
-    end
   elseif self:is("RedEM2023") or self:is("RedEM") then
     local user = self:getUserIdentifiers(source)
     clothes = MySQL.scalar.await("SELECT clothes FROM clothes WHERE identifier=? AND charid=?;", { user.identifier, user.charid })
@@ -2106,42 +1464,7 @@ function FrameworkClass:updateUserClothes(source, _clothes, value)
   if OWFramework.updateUserClothes then
     return OWFramework.updateUserClothes(source, category, value)
   end
-  if self:is("VORP") then
-    local newClothes = {}
-    for category, value in pairs(clothes) do
-      newClothes[category] = value
-      newClothes[category].comp = value?.hash or 0
-    end
-    local user = UserClass:get(source)
-    local tints = UnJson(user.data.comptTints)
-    for category, value in pairs(clothes) do
-      if clothes.hash ~= 0 then
-        if type(value) == "table" then
-          tints[category] = {}
-          if value.palette and value.palette ~= 0 then
-            tints[category][value.hash] = {
-              tint0 = value.tint0 or 0,
-              tint1 = value.tint1 or 0,
-              tint2 = value.tint2 or 0,
-              palette = value.palette or 0,
-            }
-          end
-          if value.state then
-            tints[category][value.hash] = tints[category][value.hash] or {}
-            tints[category][value.hash].state = value.state
-          end
-          value = value.hash
-        end
-      end
-    end
-    for _, value in pairs(tints) do
-      if table.count(value) == 0 then
-        value = nil
-      end
-    end
-    TriggerClientEvent("vorpcharacter:updateCache", source, false, newClothes)
-    user.data.updateCompTints(json.encode(tints))
-  elseif self:is("RedEM2023") or self:is("RedEM") then
+  if self:is("RedEM2023") or self:is("RedEM") then
     local identifiers = self:getUserIdentifiers(source)
     MySQL.scalar("SELECT clothes FROM clothes WHERE identifier=? AND charid=?;", { identifiers.identifier, identifiers.charid }, function(oldClothes)
       local decoded = UnJson(oldClothes)
@@ -2185,9 +1508,7 @@ function FrameworkClass:getUserSkin(source)
   local user = UserClass:get(source)
   local skin = {}
   if not user then return {} end
-  if self:is("VORP") then
-    skin = user.data.skin
-  elseif self:is("RedEM2023") or self:is("RedEM") then
+  if self:is("RedEM2023") or self:is("RedEM") then
     local identifiers = user:getIdentifiers()
     skin = MySQL.scalar.await("SELECT skin FROM skins WHERE identifier=? AND charid=?;", { identifiers.identifier, identifiers.charid })
   elseif self:is("QBR") or self:is("RSG") then
@@ -2231,13 +1552,7 @@ function FrameworkClass:updateUserSkin(...)
   if OWFramework.updateUserSkin then
     return OWFramework.updateUserSkin(source, skin)
   end
-  if self:is("VORP") then
-    if overwrite then
-      TriggerClientEvent("vorpcharacter:updateCache", source, skin)
-    else
-      TriggerClientEvent("vorpcharacter:savenew", source, false, skin)
-    end
-  elseif self:is("RedEM2023") or self:is("RedEM") then
+  if self:is("RedEM2023") or self:is("RedEM") then
     local identifiers = self:getUserIdentifiers(source)
     MySQL.scalar("SELECT skin FROM skins WHERE identifier=? AND charid=?", { identifiers.identifier, identifiers.charid }, function(oldSkin)
       if not oldSkin then
@@ -2284,25 +1599,7 @@ function FrameworkClass:createUser(source, data, spawnCoordinate, isDead)
   if OWFramework.createUser then
     return OWFramework.createUser(source, data)
   end
-  if self:is("VORP") then
-    local convertData = {
-      firstname = data.firstname or "",
-      lastname = data.lastname or "",
-      skin = json.encode(data.skin or {}),
-      comps = json.encode(data.comps or {}),
-      compTints = "[]",
-      age = data.age,
-      gender = data.skin.model == "mp_male" and "Male" or "Female",
-      charDescription = data.charDescription or "",
-      nickname = data.nickname or ""
-    }
-    self.core.getUser(source).addCharacter(convertData)
-    TriggerClientEvent("vorp:initCharacter", source, spawnCoordinate.xyz, spawnCoordinate.w, isDead)
-    SetTimeout(3000, function()
-      TriggerEvent("vorp_NewCharacter", source)
-    end)
-    return
-  elseif self:is("RedEM2023") or self:is("RedEM") then
+  if self:is("RedEM2023") or self:is("RedEM") then
     return
   elseif self:is("QBR") then
     return
@@ -2331,9 +1628,7 @@ function FrameworkClass:example()
   if OWFramework.example then
     return OWFramework.example()
   end
-  if self:is("VORP") then
-    return
-  elseif self:is("RedEM2023") or self:is("RedEM") then
+  if self:is("RedEM2023") or self:is("RedEM") then
     return
   elseif self:is("QBR") then
     return

@@ -1,0 +1,2 @@
+Remove Framework:standardizeSkinKeys
+Remove first argument for Framework:getItemsFromInventory
