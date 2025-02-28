@@ -226,18 +226,18 @@ end
 jo.require("print")
 
 if GetConvar(resourceName .. ":debug", "off") == "on" then
-  oprint("/!\\ Jo_libs is in debug mode /!\\")
+  oprint(("/!\\ %s is in debug mode /!\\"):format(resourceName))
   oprint("Don't use this in production!")
   jo.debug = true
 end
 
-AddConvarChangeListener(resourceName .. ":debug", function(conVarName, reserved)
+AddConvarChangeListener(resourceName .. ":debug", function()
   jo.debug = GetConvar(resourceName .. ":debug", "off") == "on"
   if jo.debug then
-    oprint("/!\\ Jo_libs is in debug mode /!\\")
+    oprint(("/!\\ %s is in debug mode /!\\"):format(resourceName))
     oprint("Don't use this in production!")
   else
-    oprint("/!\\ Jo_libs debug mode turned OFF /!\\")
+    oprint(("/!\\ %s debug mode turned OFF /!\\"):format(resourceName))
   end
 end)
 

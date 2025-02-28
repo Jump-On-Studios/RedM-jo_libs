@@ -7,8 +7,12 @@ function jo.date.convertMsToInterval(ms, lang)
     min = "min",
     h = "h",
     d = "day",
-    ds = "days"
+    ds = "days",
+    separator = ", ",
+    now = "now"
   }
+
+  local seperator = lang.separator or " "
 
   local ms_in_day = 86400000 -- 24 * 60 * 60 * 1000
   local ms_in_hour = 3600000 -- 60 * 60 * 1000
@@ -19,14 +23,14 @@ function jo.date.convertMsToInterval(ms, lang)
   if lang.d then
     local days = math.floor(ms / ms_in_day)
     ms = ms % ms_in_day
-    if days > 0 then string = ('%d %s'):format(days, days > 1 and lang.ds or lang.d) end
+    if days > 0 then string = ("%d %s"):format(days, days > 1 and lang.ds or lang.d) end
   end
 
   if lang.h then
     local hours = math.floor(ms / ms_in_hour)
     ms = ms % ms_in_hour
     if hours > 0 then
-      string = string .. ('%s%d %s'):format(string:len() > 0 and ', ' or '', hours, lang.h)
+      string = string .. ("%s%d %s"):format(string:len() > 0 and seperator or "", hours, lang.h)
     end
   end
 
@@ -34,7 +38,7 @@ function jo.date.convertMsToInterval(ms, lang)
     local minutes = math.floor(ms / ms_in_minute)
     ms = ms % ms_in_minute
     if minutes > 0 then
-      string = string .. ('%s%d %s'):format(string:len() > 0 and ', ' or '', minutes, lang.min)
+      string = string .. ("%s%d %s"):format(string:len() > 0 and seperator or "", minutes, lang.min)
     end
   end
 
@@ -42,19 +46,18 @@ function jo.date.convertMsToInterval(ms, lang)
     local seconds = math.floor(ms / ms_in_second)
     ms = ms % ms_in_second
     if seconds > 0 then
-      string = string .. ('%s%d %s'):format(string:len() > 0 and ', ' or '', seconds, lang.s)
+      string = string .. ("%s%d %s"):format(string:len() > 0 and seperator or "", seconds, lang.s)
     end
   end
 
   if lang.ms then
     local milliseconds = ms
     if milliseconds > 0 then
-      string = string .. ('%s%d %s'):format(string:len() > 0 and ', ' or '', milliseconds, lang.ms)
+      string = string .. ("%s%d %s"):format(string:len() > 0 and seperator or "", milliseconds, lang.ms)
     end
   end
 
-  if string == "" then string = "now" end
+  if string == "" then string = lang.now or "now" end
 
   return string
 end
-

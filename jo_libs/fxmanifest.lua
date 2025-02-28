@@ -1,4 +1,4 @@
-author "JUMP ON studios : shop.jumpon-studios.com"
+author "JUMP ON studios : https://jumpon-studios.com"
 documentation "https://docs.jumpon-studios.com"
 version "2.0.0.beta.1"
 package_id "1"

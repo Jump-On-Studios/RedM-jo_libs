@@ -160,7 +160,7 @@ function UserClass:getMoney(moneyType)
       end
       return OWFramework.UserClass.getThirdMoney(source)
     end
-  elseif jo.framework:is("QBR") or jo.framework:is("RSG") or jo.framework:is("QR") then
+  elseif jo.framework:is("QBR") or jo.framework:is("QR") then
     if moneyType == 0 then
       return self.data.Functions.GetMoney("cash")
     elseif moneyType == 1 then
@@ -236,7 +236,7 @@ function UserClass:removeMoney(amount, moneyType)
       end
       OWFramework.UserClass.removeThirdMoney(self.source, amount)
     end
-  elseif jo.framework:is("QBR") or jo.framework:is("RSG") or jo.framework:is("QR") then
+  elseif jo.framework:is("QBR") or jo.framework:is("QR") then
     if moneyType == 0 then
       self.data.Functions.RemoveMoney("cash", amount)
     elseif moneyType == 1 then
@@ -308,7 +308,7 @@ function UserClass:addMoney(amount, moneyType)
     elseif moneyType == 2 then
       OWFramework.UserClass.addThirdMoney(self.source, amount)
     end
-  elseif jo.framework:is("QBR") or jo.framework:is("RSG") or jo.framework:is("QR") then
+  elseif jo.framework:is("QBR") or jo.framework:is("QR") then
     if moneyType == 0 then
       self.data.Functions.AddMoney("cash", amount)
     elseif moneyType == 1 then
@@ -351,7 +351,7 @@ function UserClass:getIdentifiers()
       identifier = self.data.getIdentifier(),
       charid = self.data.getSessionVar("charid")
     }
-  elseif jo.framework:is("QBR") or jo.framework:is("RSG") or jo.framework:is("QR") then
+  elseif jo.framework:is("QBR") or jo.framework:is("QR") then
     return {
       identifier = self.data.PlayerData.citizenid,
       charid = 0
@@ -367,7 +367,7 @@ function UserClass:getJob()
     return self.data.job
   elseif jo.framework:is("RedEM") then
     return self.data.getJob()
-  elseif jo.framework:is("QBR") or jo.framework:is("RSG") or jo.framework:is("QR") then
+  elseif jo.framework:is("QBR") or jo.framework:is("QR") then
     return self.data.PlayerData.job.name
   end
   return ""
@@ -380,10 +380,10 @@ function UserClass:getRPName()
   end
   if jo.framework:is("RedEM2023") or jo.framework:is("RedEM") then
     return ("%s %s"):format(self.data.firstname, self.data.lastname)
-  elseif jo.framework:is("QBR") or jo.framework:is("RSG") or jo.framework:is("QR") then
+  elseif jo.framework:is("QBR") or jo.framework:is("QR") then
     return ("%s %s"):format(self.data.PlayerData.charinfo.firstname, self.data.PlayerData.charinfo.lastname)
   end
-  return source .. ""
+  return self.source .. ""
 end
 
 -------------
@@ -433,18 +433,6 @@ function FrameworkClass:init()
   elseif self:is("QBR") then
     bprint("QBR detected")
     self.core = self.core
-    return
-  elseif self:is("RSG") then
-    self.core = exports["rsg-core"]:GetCoreObject()
-    self.coreVersion = GetResourceMetadata("rsg-core", "version", 0) or 1
-    if ("2.0.0"):convertVersion() <= self.coreVersion:convertVersion() then
-      self.inv = exports["rsg-inventory"]
-      self.isV2 = true
-      bprint("RSG V2 detected")
-    else
-      self.isV2 = false
-      bprint("RSG V1 detected")
-    end
     return
   elseif self:is("QR") then
     bprint("QR detected")
@@ -587,7 +575,7 @@ function FrameworkClass:canUseItem(source, item, amount, meta, remove)
       end
       return true
     end
-  elseif self:is("QBR") or self:is("RSG") or self:is("QR") then
+  elseif self:is("QBR") or self:is("QR") then
     local Player = UserClass:get(source)
     local itemData = Player.data.Functions.GetItemByName(item)
     if itemData and itemData.amount >= amount then
@@ -636,18 +624,7 @@ function FrameworkClass:registerUseItem(item, closeAfterUsed, callback)
           TriggerClientEvent("qbr-inventory:client:closeinv", source)
         end
       end)
-    elseif self:is("RSG") and self.isV2 then
-      local isAdded = self.core.Functions.AddItem(item, nil)
-      if isAdded then
-        return eprint(item .. " < item does not exist in the core configuration")
-      end
-      self.core.Functions.CreateUseableItem(item, function(source, data)
-        callback(source, { metadata = data.info })
-        if closeAfterUsed then
-          TriggerClientEvent("rsg-inventory:client:closeInv", source)
-        end
-      end)
-    elseif self:is("RSG") or self:is("QR") then
+    elseif self:is("QR") then
       local isAdded = self.core.Functions.AddItem(item, nil)
       if isAdded then
         return eprint(item .. " < item does not exist in the core configuration")
@@ -673,7 +650,7 @@ function FrameworkClass:giveItem(source, item, quantity, meta)
   elseif self:is("RedEM2023") or self:is("RedEM") then
     local ItemData = self.inv.getItem(source, item, meta) -- this give you info and functions
     return ItemData.AddItem(quantity, meta)
-  elseif self:is("QBR") or self:is("RSG") or self:is("QR") then
+  elseif self:is("QBR") or self:is("QR") then
     local Player = UserClass:get(source)
     return Player.data.Functions.AddItem(item, quantity, false, meta)
   elseif GetFramework() == "RPX" then
@@ -724,16 +701,7 @@ function FrameworkClass:openInventory(source, invName)
     TriggerClientEvent("redemrp_inventory:OpenLocker", source, invName)
     return
   end
-  if self:is("RSG") and self.isV2 then
-    local data = {
-      label = self.inventories[invName].name,
-      maxweight = self.inventories[invName].invConfig.maxWeight,
-      slots = self.inventories[invName].invConfig.maxSlots
-    }
-    self.inv:OpenInventory(source, invName, data)
-    return
-  end
-  if self:is("RSG") or self:is("QBR") or self:is("QR") then
+  if self:is("QBR") or self:is("QR") then
     TriggerClientEvent(GetCurrentResourceName() .. ":client:openInventory", source, invName, invConfig)
     return
   end
@@ -1539,6 +1507,12 @@ local function revertSkin(standard)
     return (value or 0) + 1
   end
 
+  local function extractHashIfAlone(value)
+    if type(value) ~= "table" then return value end
+    if table.count(value) ~= 1 then return value end
+    return value.hash or value
+  end
+
   if jo.framework:is("VORP") then
     reverted.sex = table.extract(standard, "model")
     reverted.HeadType = table.extract(standard, "headHash")
@@ -1550,8 +1524,8 @@ local function revertSkin(standard)
     standard.bodyLowerHash = nil
     reverted.Eyes = table.extract(standard, "eyesHash")
     reverted.Teeth = table.extract(standard, "teethHash")
-    reverted.Hair = table.extract(standard, "hair")
-    reverted.Beard = table.extract(standard, "beards_complete")
+    reverted.Hair = extractHashIfAlone(table.extract(standard, "hair"))
+    reverted.Beard = extractHashIfAlone(table.extract(standard, "beards_complete"))
     reverted.Body = table.extract(standard, "bodyType")
     reverted.Waist = table.extract(standard, "bodyWeight")
     reverted.Scale = table.extract(standard, "bodyScale")
@@ -1776,7 +1750,7 @@ local function revertSkin(standard)
       standard.expressions = nil
     end
 
-    if config and Config.debug then
+    if jo.debug then
       if table.count(standard) > 0 then
         eprint("Skin keys not reverted")
         for key, value in pairs(standard) do
@@ -1995,7 +1969,7 @@ local function revertSkin(standard)
       standard.expressions = nil
     end
 
-    if config and Config.debug then
+    if jo.debug then
       if table.count(standard) > 0 then
         eprint("Skin keys not reverted")
         for key, value in pairs(standard) do
