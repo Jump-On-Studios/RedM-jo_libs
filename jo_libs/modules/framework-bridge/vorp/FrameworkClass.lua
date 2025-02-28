@@ -14,17 +14,6 @@ FrameworkClass.inv = exports.vorp_inventory
 local inventoriesCreated = {}
 
 -------------
--- FRAMEWORK
--------------
-
-function FrameworkClass:init()
-end
-
-function FrameworkClass:get()
-  return self.name
-end
-
--------------
 -- INVENTORY
 -------------
 
@@ -794,7 +783,7 @@ function FrameworkClass:revertClothes(object)
 
   for key, value in pairs(object) do
     if jo.debug then
-      dprint('Clothes key not reverted', key, value)
+      dprint("Clothes key not reverted", key, value)
     end
     reverted[key] = value
   end
