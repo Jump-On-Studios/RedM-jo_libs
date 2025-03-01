@@ -155,3 +155,5 @@ RegisterNetEvent(GetCurrentResourceName() .. ":client:notifPrint", function(...)
 end)
 
 
+
+return jo.notif

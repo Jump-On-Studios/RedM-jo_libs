@@ -106,15 +106,15 @@ function OWFramework.getUserClothes(source)
     local character = Core.GetCharacterFromPlayerId(source)
 
     if character then
-        MySQL.Async.fetchAll('SELECT * FROM characters_outfit WHERE `ownerId` = @ownerId', {
+        local clothes = MySQL.scalar.await('SELECT clothes FROM characters_outfit WHERE `ownerId` = @ownerId', {
             ownerId = character.id
-        }, function (clothes)
-            if clothes[1] ~= nil then
-                waiter:resolve(json.decode(clothes[1].clothes))
-            else
-				waiter:resolve(false)
-            end
-        end)
+        });
+
+        if clothes then
+            waiter:resolve(clothes)
+        else
+            waiter:resolve({})
+        end
     end
 
     return Citizen.Await(waiter)
@@ -123,13 +123,7 @@ end
 function OWFramework.updateUserClothes(source, clothesOrCategory, value)
     local character = Core.GetCharacterFromPlayerId(source)
     if character then
-        local dadosTraje = clothesOrCategory
-        for chave, valor in pairs(dadosTraje) do
-            if type(valor) == "table" and valor.hash ~= nil then
-                dadosTraje[chave] = valor.hash
-            end
-        end
-        dadosTraje = json.encode(dadosTraje)
+        local dadosTraje = json.encode(clothesOrCategory)
 
         MySQL.Async.execute("UPDATE characters_outfit SET `clothes`=@encode WHERE `ownerId`=@characterId;", { encode = dadosTraje, characterId = character.id})
     end
@@ -201,7 +195,7 @@ function OWFramework.updateUserSkin(...)
         if overwrite then
           decoded = _skin
         else
-          table.merge(decoded, _skin)
+          decoded = table.merge(decoded, _skin)
         end
         MySQL.Async.execute("UPDATE characters_appearance SET skin = @skin WHERE `characterId`=@characterId", { characterId = character.id, skin = json.encode(decoded) })
     end)

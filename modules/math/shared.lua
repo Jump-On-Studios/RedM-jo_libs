@@ -8,3 +8,4 @@ function math.round(number, precision)
 end
 
 jo.math = {}
+return jo.math

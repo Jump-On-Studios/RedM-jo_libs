@@ -40,13 +40,5 @@ function string:trim()
   return self:match("^%s*(.-)%s*$")
 end
 
-function string:toHex()
-  local number = tonumber(self:sub(3), 16) -- Convertit la chaîne hexadécimale en nombre
-  if not number then return self end
-  if number >= 0x80000000 then
-    number = number - 0x100000000 -- Ajuster pour une valeur signée
-  end
-  return number
-end
-
 jo.string = {}
+return jo.string
