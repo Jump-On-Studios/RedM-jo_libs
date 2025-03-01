@@ -33,7 +33,6 @@ RegisterNetEvent("rdr_creator:SkinLoaded")
 AddEventHandler("rdr_creator:SkinLoaded", function(skin, ped, clothes)
   ped = ped or PlayerPedId()
   TriggerServerEvent("jo_libs:server:applySkinAndClothes", ped, skin, clothes)
-
 end)
 
 RegisterNetEvent("jo_libs:client:applySkinAndClothes", function(ped, skin, clothes)

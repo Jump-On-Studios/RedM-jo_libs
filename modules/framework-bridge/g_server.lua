@@ -13,10 +13,3 @@ RegisterNetEvent("jo_libs:server:applySkinAndClothes", function(ped, skin, cloth
 
   TriggerClientEvent("jo_libs:client:applySkinAndClothes", source, ped, skin, clothes)
 end)
-
-RegisterNetEvent("vorpcharacter:reloadedskinlistener", function()
-  local source = source
-  local skin = jo.framework:getUserSkin(source)
-  local clothes = jo.framework:getUserClothes(source)
-  TriggerClientEvent("jo_libs:client:applySkinAndClothes", source, nil, skin, clothes)
-end)
