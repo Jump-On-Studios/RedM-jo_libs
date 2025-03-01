@@ -2188,6 +2188,9 @@ local function standardizeClothes(object)
   return standard
 end
 FrameworkClass.standardizeClothesKeys = standardizeClothesKeys
+FrameworkClass.standardizeSkinKeys = standardizeSkinKeys
+FrameworkClass.revertSkinKeys = revertSkinKeys
+FrameworkClass.revertClothesKeys = revertClothesKeys
 
 function FrameworkClass:getUserClothes(source)
   local clothes = {}
@@ -2241,7 +2244,7 @@ function FrameworkClass:updateUserClothes(source, _clothes, value)
   end
   local clothes = revertClothes(_clothes)
   if OWFramework.updateUserClothes then
-    return OWFramework.updateUserClothes(source, category, value)
+    return OWFramework.updateUserClothes(source, _clothes, value)
   end
   if self:is("VORP") then
     local newClothes = {}
@@ -2344,7 +2347,6 @@ function FrameworkClass:getUserSkin(source)
       skinStandardized.teeth = clothes.teeth.hash
     end
   end
-
 
   return skinStandardized
 end
