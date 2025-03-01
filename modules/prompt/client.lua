@@ -17,7 +17,7 @@ function jo.prompt.displayGroup(group, title)
   if not group then return end
   if not jo.prompt.isGroupExist(group) then return end
   local promptName = CreateVarString(10, "LITERAL_STRING", title)
-  PromptSetActiveGroupThisFrame(promptGroups[group].group, promptName)
+  PromptSetActiveGroupThisFrame(promptGroups[group].group, promptName, promptGroups[group].nbrPage, 0)
 end
 
 function jo.prompt.isActive(group, key, page)
@@ -49,18 +49,23 @@ end
 ---@param group string Name of the group
 ---@param key string Input
 ---@param value boolean
-function jo.prompt.setVisible(group, key, value)
-  if not jo.prompt.isExist(group, key) then return end
+function jo.prompt.setVisible(group, key, value, page)
+  if not group or not key then return false end
+  page = page or jo.prompt.getPage(group)
+  if not jo.prompt.isExist(group, key, page) then return end
   if not value then
-    promptHidden[group .. key] = true
+    promptHidden[group .. page .. key] = true
   else
-    promptHidden[group .. key] = nil
+    promptHidden[group .. page .. key] = nil
   end
-  UiPromptSetVisible(promptGroups[group].prompts[key], value)
+  UiPromptSetVisible(promptGroups[group].prompts[page][key], value)
 end
 
-function jo.prompt.isVisible(group, key)
-  if promptHidden[group .. key] then
+function jo.prompt.isVisible(group, key, page)
+  if not group or not key then return false end
+  page = page or jo.prompt.getPage(group)
+  if not jo.prompt.isExist(group, key, page) then return false end
+  if promptHidden[group .. page .. key] then
     return false
   end
   return true
@@ -69,10 +74,12 @@ end
 ---@param group string Name of the group
 ---@param key string Input
 ---@param label string Label of the prompt
-function jo.prompt.editKeyLabel(group, key, label)
-  if not jo.prompt.isExist(group, key) then return end
+function jo.prompt.editKeyLabel(group, key, label, page)
+  if not group or not key then return false end
+  page = page or jo.prompt.getPage(group)
+  if not jo.prompt.isExist(group, key, page) then return end
   local str = CreateVarString(10, "LITERAL_STRING", label)
-  PromptSetText(promptGroups[group].prompts[key], str)
+  PromptSetText(promptGroups[group].prompts[page][key], str)
 end
 
 ---@param group string Group of the prompt
@@ -89,12 +96,12 @@ function jo.prompt.isCompleted(group, key, fireMultipleTimes, page)
       return true
     end
   end
-  if not jo.prompt.isEnabled(group, key) then return false end
-  if not jo.prompt.isVisible(group, key) then return false end
-  if UiPromptHasHoldMode(promptGroups[group].prompts[key]) then
-    if PromptHasHoldModeCompleted(promptGroups[group].prompts[key]) then
-      lastKey = promptGroups[group].prompts[key]
-      jo.prompt.setEnabled(group, key, false)
+  if not jo.prompt.isEnabled(group, key, page) then return false end
+  if not jo.prompt.isVisible(group, key, page) then return false end
+  if UiPromptHasHoldMode(promptGroups[group].prompts[page][key]) then
+    if PromptHasHoldModeCompleted(promptGroups[group].prompts[page][key]) then
+      lastKey = promptGroups[group].prompts[page][key]
+      jo.prompt.setEnabled(group, key, false, page)
       Citizen.CreateThread(function()
         local group = group
         local key = key
@@ -150,25 +157,11 @@ end
 function jo.prompt.create(group, str, key, holdTime, page)
   if not group or not key then return false end
   --Check if group exist
-  if not page then page = 0 end
-  if not holdTime then holdTime = 0 end
+  page = page or 0
+  holdTime = holdTime or 0
 
   if key == nil or (type(key) == "table" and key[1] == nil) then
     return eprint("No key set for", group, str)
-  end
-
-  if (promptGroups[group] == nil) then
-    if type(group) == "string" then
-      promptGroups[group] = {
-        group = GetRandomIntInRange(0, 0xffffff),
-        prompts = {}
-      }
-    else
-      promptGroups[group] = {
-        group = group,
-        prompts = {}
-      }
-    end
   end
 
   promptGroups[group] = promptGroups[group] or {
@@ -191,10 +184,10 @@ function jo.prompt.create(group, str, key, holdTime, page)
     PromptSetControlAction(promptGroups[group].prompts[page][key], joaat(key))
   end
   str = CreateVarString(10, "LITERAL_STRING", str)
-  PromptSetText(promptGroups[group].prompts[key], str)
-  PromptSetPriority(promptGroups[group].prompts[key], 2)
-  PromptSetEnabled(promptGroups[group].prompts[key], true)
-  PromptSetVisible(promptGroups[group].prompts[key], true)
+  PromptSetText(promptGroups[group].prompts[page][key], str)
+  PromptSetPriority(promptGroups[group].prompts[page][key], 2)
+  PromptSetEnabled(promptGroups[group].prompts[page][key], true)
+  PromptSetVisible(promptGroups[group].prompts[page][key], true)
   if holdTime > 0 then
     PromptSetHoldMode(promptGroups[group].prompts[page][key], holdTime)
   end
@@ -202,9 +195,9 @@ function jo.prompt.create(group, str, key, holdTime, page)
     PromptSetGroup(promptGroups[group].prompts[page][key], promptGroups[group].group, page)
     promptGroups[group].nbrPage = math.max(promptGroups[group].nbrPage, page + 1)
   end
-  PromptRegisterEnd(promptGroups[group].prompts[key])
+  PromptRegisterEnd(promptGroups[group].prompts[page][key])
   jo.prompt.setVisible(group, key, true)
-  return promptGroups[group].prompts[key]
+  return promptGroups[group].prompts[page][key]
 end
 
 function jo.prompt.deleteAllGroups()
@@ -292,6 +285,21 @@ function jo.prompt.get(group, key, page)
   page = page or jo.prompt.getPage(group)
   if not jo.prompt.isExist(group, key, page) then return false end
   return promptGroups[group].prompts[page][key]
+end
+
+---@param group string the name of the group
+---@return any groupId the group ID
+function jo.prompt.getGroup(group)
+  if not jo.prompt.isGroupExist(group) then return false end
+  return promptGroups[group].group
+end
+
+---@param group string the name of the group
+---@return integer page the page ID
+function jo.prompt.getPage(group)
+  if not jo.prompt.isGroupExist(group) then return 0 end
+  local page = PromptGetGroupActivePage(promptGroups[group].group)
+  return page >= 0 and page or 0
 end
 
 exports("jo_prompt_get", function()
