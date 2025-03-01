@@ -17,7 +17,7 @@ function jo.prompt.displayGroup(group, title)
   if not group then return end
   if not jo.prompt.isGroupExist(group) then return end
   local promptName = CreateVarString(10, "LITERAL_STRING", title)
-  PromptSetActiveGroupThisFrame(promptGroups[group].group, promptName, promptGroups[group].nbrPage, 0)
+  PromptSetActiveGroupThisFrame(promptGroups[group].group, promptName)
 end
 
 function jo.prompt.isActive(group, key, page)
@@ -74,12 +74,10 @@ end
 ---@param group string Name of the group
 ---@param key string Input
 ---@param label string Label of the prompt
-function jo.prompt.editKeyLabel(group, key, label, page)
-  if not group or not key then return false end
-  page = page or jo.prompt.getPage(group)
-  if not jo.prompt.isExist(group, key, page) then return end
+function jo.prompt.editKeyLabel(group, key, label)
+  if not jo.prompt.isExist(group, key) then return end
   local str = CreateVarString(10, "LITERAL_STRING", label)
-  PromptSetText(promptGroups[group].prompts[page][key], str)
+  PromptSetText(promptGroups[group].prompts[key], str)
 end
 
 ---@param group string Group of the prompt
@@ -157,11 +155,25 @@ end
 function jo.prompt.create(group, str, key, holdTime, page)
   if not group or not key then return false end
   --Check if group exist
-  page = page or 0
-  holdTime = holdTime or 0
+  if not page then page = 0 end
+  if not holdTime then holdTime = 0 end
 
   if key == nil or (type(key) == "table" and key[1] == nil) then
     return eprint("No key set for", group, str)
+  end
+
+  if (promptGroups[group] == nil) then
+    if type(group) == "string" then
+      promptGroups[group] = {
+        group = GetRandomIntInRange(0, 0xffffff),
+        prompts = {}
+      }
+    else
+      promptGroups[group] = {
+        group = group,
+        prompts = {}
+      }
+    end
   end
 
   promptGroups[group] = promptGroups[group] or {
@@ -184,10 +196,10 @@ function jo.prompt.create(group, str, key, holdTime, page)
     PromptSetControlAction(promptGroups[group].prompts[page][key], joaat(key))
   end
   str = CreateVarString(10, "LITERAL_STRING", str)
-  PromptSetText(promptGroups[group].prompts[page][key], str)
-  PromptSetPriority(promptGroups[group].prompts[page][key], 2)
-  PromptSetEnabled(promptGroups[group].prompts[page][key], true)
-  PromptSetVisible(promptGroups[group].prompts[page][key], true)
+  PromptSetText(promptGroups[group].prompts[key], str)
+  PromptSetPriority(promptGroups[group].prompts[key], 2)
+  PromptSetEnabled(promptGroups[group].prompts[key], true)
+  PromptSetVisible(promptGroups[group].prompts[key], true)
   if holdTime > 0 then
     PromptSetHoldMode(promptGroups[group].prompts[page][key], holdTime)
   end
@@ -285,21 +297,6 @@ function jo.prompt.get(group, key, page)
   page = page or jo.prompt.getPage(group)
   if not jo.prompt.isExist(group, key, page) then return false end
   return promptGroups[group].prompts[page][key]
-end
-
----@param group string the name of the group
----@return any groupId the group ID
-function jo.prompt.getGroup(group)
-  if not jo.prompt.isGroupExist(group) then return false end
-  return promptGroups[group].group
-end
-
----@param group string the name of the group
----@return integer page the page ID
-function jo.prompt.getPage(group)
-  if not jo.prompt.isGroupExist(group) then return 0 end
-  local page = PromptGetGroupActivePage(promptGroups[group].group)
-  return page >= 0 and page or 0
 end
 
 exports("jo_prompt_get", function()

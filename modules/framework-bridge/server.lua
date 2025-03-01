@@ -741,10 +741,10 @@ function FrameworkClass:canUseItem(source, item, amount, meta, remove)
     return OWFramework.canUseItem(source, item, amount, meta, remove)
   end
   if self:is("VORP") then
-    local count = self.inv:getItemCount(source, nil, item)
+    local count = self.inv:getItemCount(source, nil, item, meta)
     if count >= amount then
       if remove then
-        self.inv:subItem(source, item, amount)
+        self.inv:subItem(source, item, amount, meta)
       end
       return true
     end
@@ -873,6 +873,10 @@ function FrameworkClass:giveItem(source, item, quantity, meta)
     return self.inv:AddItem(source, item, quantity, meta)
   end
   return false
+end
+
+function FrameworkClass:removeItem(source, item, quantity, meta)
+  return self:canUseItem(source, item, quantity, meta, true)
 end
 
 ---@param invName string unique ID of the inventory
