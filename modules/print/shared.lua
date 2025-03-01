@@ -71,7 +71,6 @@ function bprint(...)
 end
 
 function dprint(...)
-  local args = encodeTable(...)
-  if not Config?.debug and not jo.debug then return end
-  print(table.unpack(args))
+  if not Config?.debug then return end
+  print(...)
 end

@@ -152,6 +152,31 @@ jo.component.wearableStates = {
   }
 }
 
+jo.component.palettes = {
+  "metaped_tint_animal",
+  "metaped_tint_combined",
+  "metaped_tint_combined_leather",
+  "metaped_tint_combined_leather",
+  "metaped_tint_eye",
+  "metaped_tint_generic",
+  "metaped_tint_generic_clean",
+  "metaped_tint_generic_weathered",
+  "metaped_tint_generic_worn",
+  "metaped_tint_hair",
+  "metaped_tint_hat",
+  "metaped_tint_hat_clean",
+  "metaped_tint_hat_weathered",
+  "metaped_tint_hat_worn",
+  "metaped_tint_horse",
+  "metaped_tint_horse_leather",
+  "metaped_tint_leather",
+  "metaped_tint_makeup",
+  "metaped_tint_mpadv",
+  "metaped_tint_skirt_clean",
+  "metaped_tint_skirt_weathered",
+  "metaped_tint_skirt_worn",
+}
+
 -------------
 -- local functions
 -------------
@@ -367,6 +392,7 @@ local function getBaseLayer(ped, hash)
   if palette == 0 then palette = nil end
   return drawable, albedo, normal, material, palette, tint0, tint1, tint2
 end
+jo.component.getBaseLayer = getBaseLayer
 
 local function convertToMetaTag(ped, data)
   --restrict to hats & masks
@@ -674,6 +700,15 @@ function jo.component.getComponentsEquiped(ped)
   local component = putInCacheCurrentComponent(ped) or {}
   ResetCachedPed(ped)
   return component
+end
+
+function jo.component.getPaletteNameFromHash(hash)
+  for _, palette in pairs(jo.component.palettes) do
+    if joaat(palette) == hash then
+      return palette
+    end
+  end
+  return "unknown"
 end
 
 -- Add shortcut with old name
