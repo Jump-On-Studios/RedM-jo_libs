@@ -171,23 +171,6 @@ end
 function OWFramework.updateUserSkin(source, skin, overwrite)
     local character = Core.GetCharacterFromPlayerId(source)
 
-
-    local function recursiveFix(tbl)
-        local fixedData = {}
-    
-        for key, value in pairs(tbl) do
-            if type(value) == "table" then
-                -- Se o valor for uma tabela, chamamos a função recursivamente
-                fixedData[key] = recursiveFix(value)
-            elseif value and type(value) == "table" and value.hash then
-                fixedData[key] = value.hash
-            else
-                fixedData[key] = value
-            end
-        end
-    
-        return fixedData
-    end
     
     MySQL.scalar("SELECT skin from characters_appearance WHERE `characterId`=@characterId", { characterId = character.id }, function(oldSkin)
         local decoded = jo.framework.standardizeSkinKeys(UnJson(oldSkin))

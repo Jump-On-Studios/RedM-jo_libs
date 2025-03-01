@@ -1,5 +1,4 @@
 local delays = {}
-local nextId = 0
 jo.timeout = {}
 
 jo.require("table")
@@ -20,8 +19,7 @@ function TimeoutClass:set(msec, cb, args)
   local t = table.copy(TimeoutClass)
   t.msec = msec
   t.cb = cb
-  t.id = nextId
-  nextId = nextId + 1
+  t.id = math.random()
   t.args = args or {}
   return t
 end

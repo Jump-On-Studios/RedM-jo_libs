@@ -49,23 +49,18 @@ end
 ---@param group string Name of the group
 ---@param key string Input
 ---@param value boolean
-function jo.prompt.setVisible(group, key, value, page)
-  if not group or not key then return false end
-  page = page or jo.prompt.getPage(group)
-  if not jo.prompt.isExist(group, key, page) then return end
+function jo.prompt.setVisible(group, key, value)
+  if not jo.prompt.isExist(group, key) then return end
   if not value then
-    promptHidden[group .. page .. key] = true
+    promptHidden[group .. key] = true
   else
-    promptHidden[group .. page .. key] = nil
+    promptHidden[group .. key] = nil
   end
-  UiPromptSetVisible(promptGroups[group].prompts[page][key], value)
+  UiPromptSetVisible(promptGroups[group].prompts[key], value)
 end
 
-function jo.prompt.isVisible(group, key, page)
-  if not group or not key then return false end
-  page = page or jo.prompt.getPage(group)
-  if not jo.prompt.isExist(group, key, page) then return false end
-  if promptHidden[group .. page .. key] then
+function jo.prompt.isVisible(group, key)
+  if promptHidden[group .. key] then
     return false
   end
   return true
@@ -94,12 +89,12 @@ function jo.prompt.isCompleted(group, key, fireMultipleTimes, page)
       return true
     end
   end
-  if not jo.prompt.isEnabled(group, key, page) then return false end
-  if not jo.prompt.isVisible(group, key, page) then return false end
-  if UiPromptHasHoldMode(promptGroups[group].prompts[page][key]) then
-    if PromptHasHoldModeCompleted(promptGroups[group].prompts[page][key]) then
-      lastKey = promptGroups[group].prompts[page][key]
-      jo.prompt.setEnabled(group, key, false, page)
+  if not jo.prompt.isEnabled(group, key) then return false end
+  if not jo.prompt.isVisible(group, key) then return false end
+  if UiPromptHasHoldMode(promptGroups[group].prompts[key]) then
+    if PromptHasHoldModeCompleted(promptGroups[group].prompts[key]) then
+      lastKey = promptGroups[group].prompts[key]
+      jo.prompt.setEnabled(group, key, false)
       Citizen.CreateThread(function()
         local group = group
         local key = key
@@ -207,9 +202,9 @@ function jo.prompt.create(group, str, key, holdTime, page)
     PromptSetGroup(promptGroups[group].prompts[page][key], promptGroups[group].group, page)
     promptGroups[group].nbrPage = math.max(promptGroups[group].nbrPage, page + 1)
   end
-  PromptRegisterEnd(promptGroups[group].prompts[page][key])
+  PromptRegisterEnd(promptGroups[group].prompts[key])
   jo.prompt.setVisible(group, key, true)
-  return promptGroups[group].prompts[page][key]
+  return promptGroups[group].prompts[key]
 end
 
 function jo.prompt.deleteAllGroups()
