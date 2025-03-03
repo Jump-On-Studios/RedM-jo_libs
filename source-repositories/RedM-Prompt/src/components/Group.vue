@@ -1,27 +1,26 @@
 <script setup>
-import { useGroupStore } from '@/stores/group';
-import Prompt from './Prompt.vue';
-const groupStore = useGroupStore();
-
+import { useGroupStore } from '@/stores/group'
+import Prompt from './Prompt.vue'
+const groupStore = useGroupStore()
 </script>
 
 <template>
-
-<div id="group" :class="[groupStore.position]">
-
+  <div id="group" :class="[groupStore.position]">
     <div id="prompts">
-        <Prompt v-for="(prompt, index) in groupStore.prompts" :prompt="prompt" />
+      <Prompt v-for="(prompt, index) in groupStore.prompts" :key="index" :prompt="prompt" />
     </div>
 
-    <img id="line" v-if="groupStore.title"src="/assets/images/ilo_title_line.png" alt="ilo_title_line">
-    <div  v-if="groupStore.title" id="groupTitle" class="crock">{{groupStore.title }}</div>
-  
-</div>
-
+    <img
+      id="line"
+      v-if="groupStore.title"
+      src="/assets/images/ilo_title_line.png"
+      alt="ilo_title_line"
+    />
+    <div v-if="groupStore.title" id="groupTitle" class="crock">{{ groupStore.title }}</div>
+  </div>
 </template>
 
 <style scoped lang="scss">
-
 #group {
   color: #fff;
   position: relative;
@@ -43,19 +42,18 @@ const groupStore = useGroupStore();
   // Position modifiers
 
   // For classes starting with "top-": reverse order and right-aligned text.
-  &[class^="top-"] {
+  &[class^='top-'] {
     flex-direction: column-reverse;
     align-self: flex-start;
-
   }
 
   // For classes starting with "bottom-": align to the bottom.
-  &[class^="bottom-"] {
+  &[class^='bottom-'] {
     align-self: flex-end;
   }
 
   // For classes starting with "center": center the group.
-  &[class^="center"] {
+  &[class^='center'] {
     align-self: center;
     margin-left: auto;
     margin-right: auto;
@@ -92,7 +90,4 @@ const groupStore = useGroupStore();
     margin-right: auto;
   }
 }
-
-
-
 </style>
