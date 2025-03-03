@@ -1,4 +1,5 @@
 <body>
+  <div id="eventListener"></div>
 </body>
 
 <script>
@@ -181,6 +182,18 @@
   }
 
   iframe {
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    top: 0px;
+    bottom: 0px;
+    border: 0px;
+    width: 100%;
+    height: 100%;
+  }
+
+  #eventListener {
+    z-index: 999999;
     position: absolute;
     left: 0px;
     right: 0px;
