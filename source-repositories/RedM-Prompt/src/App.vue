@@ -2,11 +2,13 @@
 import Group from './components/Group.vue'
 import './dev.js'
 import Bridge from './components/Bridge.vue'
+
+const isDev = import.meta.env.DEV
 </script>
 
 <template>
   <Bridge />
-  <img id="bg" src="/assets/images/capture.png" />
+  <img v-if="isDev" id="bg" src="/assets/images/capture.png" />
   <Group />
 </template>
 
