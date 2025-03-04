@@ -19,7 +19,7 @@ export default [
       'vue/multi-word-component-names': [
         'error',
         {
-          ignores: ['Group', 'Prompt'], // Add component names here if you want to ignore them
+          ignores: ['Group', 'Prompt', 'Bridge'], // Add component names here if you want to ignore them
         },
       ],
     },

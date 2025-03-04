@@ -2,28 +2,20 @@ import { ref } from 'vue'
 import { defineStore } from 'pinia'
 
 export const useGroupStore = defineStore('group', () => {
-  const title = ref('Stable Shop')
-  const position = ref('top-left')
-  const prompts = ref([
-    {
-      label: 'Press Prompt',
-      keyboardKeys: ['E'],
-    },
-    {
-      label: 'Multi press Prompt',
-      keyboardKeys: ['F', 'A'],
-    },
-    {
-      label: 'Hold Prompt',
-      keyboardKeys: ['SPACE'],
-      holdTime: 1000,
-    },
-  ])
+  const title = ref()
+  const position = ref()
+  const prompts = ref([])
 
-  // const doubleCount = computed(() => count.value * 2)
-  // function increment() {
-  //   count.value++
-  // }
+  function updateGroup(data) {
+    title.value = data.title
+    position.value = data.position
+    prompts.value = data.prompts
+  }
 
-  return { title, prompts, position }
+  return {
+    title,
+    position,
+    prompts,
+    updateGroup,
+  }
 })
