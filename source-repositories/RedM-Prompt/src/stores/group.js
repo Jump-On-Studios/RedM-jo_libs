@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 
 export const useGroupStore = defineStore('group', () => {
   const title = ref('Stable Shop')
-  const position = ref('bottom-left')
+  const position = ref('top-left')
   const prompts = ref([
     {
       label: 'Press Prompt',
