@@ -16,6 +16,7 @@ const groupStore = useGroupStore()
       src="/assets/images/ilo_title_line.png"
       alt="ilo_title_line"
     />
+
     <div v-if="groupStore.title" id="groupTitle" class="crock">{{ groupStore.title }}</div>
   </div>
 </template>
@@ -35,8 +36,8 @@ const groupStore = useGroupStore()
 
   // Line image styling
   #line {
-    margin: 8px 0;
-    width: 140px;
+    margin: 0.33rem 0;
+    width: 5.75rem;
   }
 
   // Position modifiers
