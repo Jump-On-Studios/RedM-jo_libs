@@ -5,14 +5,14 @@ const groupStore = useGroupStore()
 </script>
 
 <template>
-  <div id="group" :class="[groupStore.position]">
+  <div id="group" v-if="groupStore.prompts.length > 0" :class="[groupStore.position]">
     <div id="prompts">
       <Prompt v-for="(prompt, index) in groupStore.prompts" :key="index" :prompt="prompt" />
     </div>
 
     <img
       id="line"
-      v-if="groupStore.title"
+      v-if="!(groupStore.title === false)"
       src="/assets/images/ilo_title_line.png"
       alt="ilo_title_line"
     />
