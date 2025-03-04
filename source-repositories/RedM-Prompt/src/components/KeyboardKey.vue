@@ -1,12 +1,40 @@
 <script setup>
+import { onMounted, onUnmounted, ref } from 'vue'
+
 const props = defineProps({
   kkey: String,
   holdTime: Number,
 })
+
+const isActive = ref(false)
+
+const handleKeyDown = (event) => {
+  if (event.key.toUpperCase() === props.kkey.toUpperCase()) {
+    isActive.value = true
+  }
+}
+
+const handleKeyUp = (event) => {
+  if (event.key.toUpperCase() === props.kkey.toUpperCase()) {
+    isActive.value = false
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('keydown', handleKeyDown)
+  window.addEventListener('keyup', handleKeyUp)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeyDown)
+  window.removeEventListener('keyup', handleKeyUp)
+})
 </script>
 
 <template>
-  <div class="keyboardKey bebas" :class="{ holdable: props.holdTime }">{{ props.kkey }}</div>
+  <div class="keyboardKey bebas" :class="{ holdable: props.holdTime, active: isActive }">
+    {{ props.kkey }}
+  </div>
 </template>
 
 <style lang="scss" scoped>
@@ -21,9 +49,11 @@ const props = defineProps({
   min-height: 30px;
   min-width: 30px;
   padding: 0 12px;
+
   &:not(:first-child) {
     margin-left: 5px;
   }
+
   &.holdable {
     outline: 4px solid rgba($color: #000000, $alpha: 0.5);
 
@@ -35,6 +65,11 @@ const props = defineProps({
       background: rgba($color: #fff, $alpha: 0.3);
       z-index: -1;
     }
+  }
+
+  // Example style for the active state; customize as needed
+  &.active {
+    background: red;
   }
 }
 </style>
