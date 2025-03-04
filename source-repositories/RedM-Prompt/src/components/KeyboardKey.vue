@@ -46,21 +46,21 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   font-size: 0.75rem;
-  min-height: 30px;
-  min-width: 30px;
-  padding: 0 12px;
+  min-height: 1.23rem;
+  min-width: 1.23rem;
+  padding: 0 0.49rem;
 
   &:not(:first-child) {
-    margin-left: 5px;
+    margin-left: 0.205rem;
   }
 
   &.holdable {
-    outline: 4px solid rgba($color: #000000, $alpha: 0.5);
+    outline: 0.2rem solid rgba($color: #000000, $alpha: 0.5);
 
     &::after {
       content: '';
-      width: calc(100% + 15px);
-      height: 44px;
+      width: calc(100% + 0.6rem);
+      height: 1.8rem;
       position: absolute;
       background: rgba($color: #fff, $alpha: 0.3);
       z-index: -1;

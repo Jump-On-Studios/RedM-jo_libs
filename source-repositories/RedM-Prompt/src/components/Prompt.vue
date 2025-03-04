@@ -26,13 +26,13 @@ const props = defineProps({
   display: flex;
   flex-direction: row;
   align-items: center;
-  margin-bottom: 15px;
+  margin-bottom: 0.6rem;
   &:last-child {
     margin-bottom: 0;
   }
 
   #label {
-    margin-right: 12px;
+    margin-right: 0.5rem;
   }
 
   #keyboardKeys {
