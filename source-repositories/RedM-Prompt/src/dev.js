@@ -1,5 +1,3 @@
-export default {}
-
 if (import.meta.env.DEV) {
   const SendNUIMessage = window.postMessage
 
