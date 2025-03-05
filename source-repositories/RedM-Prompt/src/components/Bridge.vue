@@ -1,3 +1,5 @@
+
+<template></template>
 <script setup>
 import { useGroupStore } from '@/stores/group'
 
