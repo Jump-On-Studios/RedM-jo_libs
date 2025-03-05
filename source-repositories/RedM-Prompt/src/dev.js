@@ -1,7 +1,6 @@
 const SendNUIMessage = window.postMessage
 
-export function initGroup()
-{
+export function initGroup() {
   setTimeout(() => {
     SendNUIMessage({
       type: 'updateGroup',
@@ -28,8 +27,7 @@ export function initGroup()
   }, 200)
 }
 
-export function SendNUIKey(key,type)
-{
+export function SendNUIKey(key, type) {
   SendNUIMessage({
     type,
     data: {

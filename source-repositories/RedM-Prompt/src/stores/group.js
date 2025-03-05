@@ -1,13 +1,13 @@
-import { ref } from 'vue'
+
 import { defineStore } from 'pinia'
 
 
 export const useGroupStore = defineStore('group', {
   state: () => ({
     title: undefined,
-    position:"bottom-right",
-    prompts:[],
-    pressedKeys:{}
+    position: "bottom-right",
+    prompts: [],
+    pressedKeys: {}
   }),
   actions: {
     // since we rely on `this`, we cannot use an arrow function
@@ -16,15 +16,13 @@ export const useGroupStore = defineStore('group', {
       this.position = data.position
       this.prompts = data.prompts
     },
-    updatePressedKeys(key,value)
-    {
+    updatePressedKeys(key, value) {
 
-      if(!value)
-      {
+      if (!value) {
         delete this.pressedKeys[key];
       }
-      else{
-        this.pressedKeys[key]=value
+      else {
+        this.pressedKeys[key] = value
       }
       console.log(this.pressedKeys);
     }
