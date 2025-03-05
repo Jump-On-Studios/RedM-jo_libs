@@ -52,8 +52,7 @@ end
 
 function FrameworkClass:giveItem(source, item, quantity, meta)
   if self.inv:canCarryItem(source, item, quantity) then
-    self.inv:addItem(source, item, quantity, meta)
-    return true
+    return self.inv:addItem(source, item, quantity, meta)
   end
   return false
 end

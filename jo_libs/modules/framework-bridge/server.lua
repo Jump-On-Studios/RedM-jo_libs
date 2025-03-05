@@ -40,9 +40,7 @@ function UserClass:get(source)
 end
 
 function UserClass:init()
-  if OWFramework.User.getUser then
-    self.data = OWFramework.User.getUser(self.source)
-  elseif jo.framework:is("RedEM2023") then
+  if jo.framework:is("RedEM2023") then
     self.data = jo.framework.core.GetPlayer(self.source)
   elseif jo.framework:is("RedEM") then
     local user = promise.new()
@@ -63,26 +61,17 @@ end
 ---@return number
 function UserClass:getMoney(moneyType)
   moneyType = moneyType or 0
-  if OWFramework.UserClass.getMoney then
-    return OWFramework.UserClass.getMoney(self.source, moneyType)
-  end
   if jo.framework:is("RedEM2023") then
     if moneyType == 0 then
       return self.data.money
     elseif moneyType == 1 then
-      if not OWFramework.UserClass.getSecondMoney then
-        oprint("Gold in not supported by your Framework")
-        oprint("Please check jo_libs docs to add OWFramework.UserClass.getSecondMoney()")
-        return 0
-      end
-      return OWFramework.UserClass.getSecondMoney(source)
+      oprint("Gold in not supported by your Framework")
+      oprint("Please check jo_libs docs to add OWFramework.UserClass.getSecondMoney()")
+      return 0
     elseif moneyType == 2 then
-      if not OWFramework.UserClass.getThirdMoney then
-        oprint("Gold in not supported by your Framework")
-        oprint("Please check jo_libs docs to add OWFramework.UserClass.getThirdMoney()")
-        return 0
-      end
-      return OWFramework.UserClass.getThirdMoney(source)
+      oprint("Gold in not supported by your Framework")
+      oprint("Please check jo_libs docs to add OWFramework.UserClass.getThirdMoney()")
+      return 0
     end
   elseif jo.framework:is("RedEM") then
     if moneyType == 0 then
@@ -90,30 +79,21 @@ function UserClass:getMoney(moneyType)
     elseif moneyType == 1 then
       return self.data.getGold()
     elseif moneyType == 2 then
-      if not OWFramework.UserClass.getThirdMoney then
-        oprint("Gold in not supported by your Framework")
-        oprint("Please check jo_libs docs to add OWFramework.UserClass.getThirdMoney()")
-        return 0
-      end
-      return OWFramework.UserClass.getThirdMoney(source)
+      oprint("Gold in not supported by your Framework")
+      oprint("Please check jo_libs docs to add OWFramework.UserClass.getThirdMoney()")
+      return 0
     end
   elseif jo.framework:is("QBR") or jo.framework:is("QR") then
     if moneyType == 0 then
       return self.data.Functions.GetMoney("cash")
     elseif moneyType == 1 then
-      if not OWFramework.UserClass.getSecondMoney then
-        oprint("Gold in not supported by your Framework")
-        oprint("Please check jo_libs docs to add OWFramework.UserClass.getSecondMoney()")
-        return 0
-      end
-      return OWFramework.UserClass.getSecondMoney(source)
+      oprint("Gold in not supported by your Framework")
+      oprint("Please check jo_libs docs to add OWFramework.UserClass.getSecondMoney()")
+      return 0
     elseif moneyType == 2 then
-      if not OWFramework.UserClass.getThirdMoney then
-        oprint("Gold in not supported by your Framework")
-        oprint("Please check jo_libs docs to add OWFramework.UserClass.getThirdMoney()")
-        return 0
-      end
-      return OWFramework.UserClass.getThirdMoney(source)
+      oprint("Gold in not supported by your Framework")
+      oprint("Please check jo_libs docs to add OWFramework.UserClass.getThirdMoney()")
+      return 0
     end
   end
   return 0
@@ -140,25 +120,17 @@ end
 ---@param moneyType integer 0: money, 1: gold, 2: rol
 function UserClass:removeMoney(amount, moneyType)
   moneyType = moneyType or 0
-  if OWFramework.UserClass.removeMoney then
-    return OWFramework.UserClass.removeMoney(self, amount, moneyType)
-  elseif jo.framework:is("RedEM2023") then
+  if jo.framework:is("RedEM2023") then
     if moneyType == 0 then
       self.data.RemoveMoney(amount)
     elseif moneyType == 1 then
-      if not OWFramework.UserClass.removeSecondMoney then
-        oprint("The Gold was not removed - Gold in not supported by your Framework")
-        oprint("Please check jo_libs docs to add OWFramework.UserClass.removeSecondMoney()")
-        return
-      end
-      OWFramework.UserClass.removeSecondMoney(self.source, amount)
+      oprint("The Gold was not removed - Gold in not supported by your Framework")
+      oprint("Please check jo_libs docs to add OWFramework.UserClass.removeSecondMoney()")
+      return
     elseif moneyType == 2 then
-      if not OWFramework.UserClass.removeThirdMoney then
-        oprint("The Gold was not removed - Gold in not supported by your Framework")
-        oprint("Please check jo_libs docs to add OWFramework.UserClass.removeThirdMoney()")
-        return
-      end
-      OWFramework.UserClass.removeThirdMoney(self.source, amount)
+      oprint("The Gold was not removed - Gold in not supported by your Framework")
+      oprint("Please check jo_libs docs to add OWFramework.UserClass.removeThirdMoney()")
+      return
     end
   elseif jo.framework:is("RedEM") then
     if moneyType == 0 then
@@ -166,48 +138,33 @@ function UserClass:removeMoney(amount, moneyType)
     elseif moneyType == 1 then
       self.data.removeGold(amount)
     elseif moneyType == 2 then
-      if not OWFramework.UserClass.removeThirdMoney then
-        oprint("The Gold was not removed - Gold in not supported by your Framework")
-        oprint("Please check jo_libs docs to add OWFramework.UserClass.removeThirdMoney()")
-        return
-      end
-      OWFramework.UserClass.removeThirdMoney(self.source, amount)
+      oprint("The Gold was not removed - Gold in not supported by your Framework")
+      oprint("Please check jo_libs docs to add OWFramework.UserClass.removeThirdMoney()")
+      return
     end
   elseif jo.framework:is("QBR") or jo.framework:is("QR") then
     if moneyType == 0 then
       self.data.Functions.RemoveMoney("cash", amount)
     elseif moneyType == 1 then
-      if not OWFramework.UserClass.removeSecondMoney then
-        oprint("The Gold was not removed - Gold in not supported by your Framework")
-        oprint("Please check jo_libs docs to add OWFramework.UserClass.removeSecondMoney()")
-        return
-      end
-      OWFramework.UserClass.removeSecondMoney(self.source, amount)
+      oprint("The Gold was not removed - Gold in not supported by your Framework")
+      oprint("Please check jo_libs docs to add OWFramework.UserClass.removeSecondMoney()")
+      return
     elseif moneyType == 2 then
-      if not OWFramework.UserClass.removeThirdMoney then
-        oprint("The Gold was not removed - Gold in not supported by your Framework")
-        oprint("Please check jo_libs docs to add OWFramework.UserClass.removeThirdMoney()")
-        return
-      end
-      OWFramework.UserClass.removeThirdMoney(self.source, amount)
+      oprint("The Gold was not removed - Gold in not supported by your Framework")
+      oprint("Please check jo_libs docs to add OWFramework.UserClass.removeThirdMoney()")
+      return
     end
   elseif jo.framework:is("RPX") then
     if moneyType == 0 then
       self.data.RemoveMoney("cash", amount)
     elseif moneyType == 1 then
-      if not OWFramework.UserClass.removeSecondMoney then
-        oprint("The Gold was not removed - Gold in not supported by your Framework")
-        oprint("Please check jo_libs docs to add OWFramework.UserClass.removeSecondMoney()")
-        return
-      end
-      OWFramework.UserClass.removeSecondMoney(self.source, amount)
+      oprint("The Gold was not removed - Gold in not supported by your Framework")
+      oprint("Please check jo_libs docs to add OWFramework.UserClass.removeSecondMoney()")
+      return
     elseif moneyType == 2 then
-      if not OWFramework.UserClass.removeThirdMoney then
-        oprint("The Gold was not removed - Gold in not supported by your Framework")
-        oprint("Please check jo_libs docs to add OWFramework.UserClass.removeThirdMoney()")
-        return
-      end
-      OWFramework.UserClass.removeThirdMoney(self.source, amount)
+      oprint("The Gold was not removed - Gold in not supported by your Framework")
+      oprint("Please check jo_libs docs to add OWFramework.UserClass.removeThirdMoney()")
+      return
     end
   end
 end
@@ -216,26 +173,17 @@ end
 ---@param moneyType integer 0: money, 1: gold, 2: rol
 function UserClass:addMoney(amount, moneyType)
   moneyType = moneyType or 0
-  if OWFramework.UserClass.addMoney then
-    return OWFramework.UserClass.addMoney(self.source, amount, moneyType)
-  end
   if jo.framework:is("RedEM2023") then
     if moneyType == 0 then
       self.data.AddMoney(amount)
     elseif moneyType == 1 then
-      if not OWFramework.UserClass.addSecondMoney then
-        oprint("Gold in not supported by your Framework")
-        oprint("Please check jo_libs docs to add OWFramework.UserClass.addSecondMoney()")
-        return
-      end
-      OWFramework.UserClass.addSecondMoney(self.source, amount)
+      oprint("Gold in not supported by your Framework")
+      oprint("Please check jo_libs docs to add OWFramework.UserClass.addSecondMoney()")
+      return
     elseif moneyType == 2 then
-      if not OWFramework.UserClass.addThirdMoney then
-        oprint("Gold in not supported by your Framework")
-        oprint("Please check jo_libs docs to add OWFramework.UserClass.addThirdMoney()")
-        return
-      end
-      OWFramework.UserClass.addThirdMoney(self.source, amount)
+      oprint("Gold in not supported by your Framework")
+      oprint("Please check jo_libs docs to add OWFramework.UserClass.addThirdMoney()")
+      return
     end
   elseif jo.framework:is("RedEM") then
     if moneyType == 0 then
@@ -243,25 +191,18 @@ function UserClass:addMoney(amount, moneyType)
     elseif moneyType == 1 then
       self.data.addGold(amount)
     elseif moneyType == 2 then
-      OWFramework.UserClass.addThirdMoney(self.source, amount)
     end
   elseif jo.framework:is("QBR") or jo.framework:is("QR") then
     if moneyType == 0 then
       self.data.Functions.AddMoney("cash", amount)
     elseif moneyType == 1 then
-      if not OWFramework.UserClass.addSecondMoney then
-        oprint("Gold in not supported by your Framework")
-        oprint("Please check jo_libs docs to add OWFramework.UserClass.addSecondMoney()")
-        return
-      end
-      OWFramework.UserClass.addSecondMoney(self.source, amount)
+      oprint("Gold in not supported by your Framework")
+      oprint("Please check jo_libs docs to add OWFramework.UserClass.addSecondMoney()")
+      return
     elseif moneyType == 2 then
-      if not OWFramework.UserClass.addThirdMoney then
-        oprint("Gold in not supported by your Framework")
-        oprint("Please check jo_libs docs to add OWFramework.UserClass.addThirdMoney()")
-        return
-      end
-      OWFramework.UserClass.addThirdMoney(self.source, amount)
+      oprint("Gold in not supported by your Framework")
+      oprint("Please check jo_libs docs to add OWFramework.UserClass.addThirdMoney()")
+      return
     end
   end
 end
@@ -272,10 +213,6 @@ function UserClass:giveGold(amount)
 end
 
 function UserClass:getIdentifiers()
-  if OWFramework.UserClass.getIdentifiers then
-    return OWFramework.UserClass.getIdentifiers(self.source)
-  end
-
   if not self.data then return {} end
 
   if jo.framework:is("RedEM2023") then
@@ -298,9 +235,7 @@ end
 
 ---@return string job
 function UserClass:getJob()
-  if OWFramework.UserClass.getJob then
-    return OWFramework.UserClass.getJob(self.source)
-  elseif jo.framework:is("RedEM2023") then
+  if jo.framework:is("RedEM2023") then
     return self.data.job
   elseif jo.framework:is("RedEM") then
     return self.data.getJob()
@@ -312,9 +247,6 @@ end
 
 ---@return string name
 function UserClass:getRPName()
-  if OWFramework.UserClass.getRPName then
-    return OWFramework.UserClass.getRPName(self.source)
-  end
   if jo.framework:is("RedEM2023") or jo.framework:is("RedEM") then
     return ("%s %s"):format(self.data.firstname, self.data.lastname)
   elseif jo.framework:is("QBR") or jo.framework:is("QR") then
@@ -352,9 +284,7 @@ function FrameworkClass:new(t)
 end
 
 function FrameworkClass:init()
-  if OWFramework.initFramework then
-    return OWFramework.initFramework(self)
-  elseif self:is("RedEM2023") then
+  if self:is("RedEM2023") then
     bprint("RedEM:RP 2023 detected")
     self.core = exports["redem_roleplay"]:RedEM()
     TriggerEvent("redemrp_inventory:getData", function(call)
@@ -385,36 +315,33 @@ end
 function FrameworkClass:get()
   if self.name ~= "" then return self.name end
 
-  if OWFramework.get then
-    self.name = OWFramework.get()
-  else
-    for framework, resources in pairs(mainResourceFramework) do
-      local rightFramework = true
+
+  for framework, resources in pairs(mainResourceFramework) do
+    local rightFramework = true
+    for _, resource in pairs(resources) do
+      if resource:sub(1, 1) == "!" then
+        if GetResourceState(resource) ~= "missing" then
+          rightFramework = false
+          break
+        end
+      else
+        if GetResourceState(resource) == "missing" then
+          rightFramework = false
+          break
+        end
+      end
+    end
+    if rightFramework then
+      self.name = framework
       for _, resource in pairs(resources) do
-        if resource:sub(1, 1) == "!" then
-          if GetResourceState(resource) ~= "missing" then
-            rightFramework = false
-            break
-          end
-        else
-          if GetResourceState(resource) == "missing" then
-            rightFramework = false
-            break
+        if resource:sub(1, 1) ~= "!" then
+          while GetResourceState(resource) ~= "started" do
+            bprint("Waiting start of " .. framework)
+            Wait(1000)
           end
         end
       end
-      if rightFramework then
-        self.name = framework
-        for _, resource in pairs(resources) do
-          if resource:sub(1, 1) ~= "!" then
-            while GetResourceState(resource) ~= "started" do
-              bprint("Waiting start of " .. framework)
-              Wait(1000)
-            end
-          end
-        end
-        return self.name
-      end
+      return self.name
     end
   end
   return self.name
@@ -444,9 +371,6 @@ end
 ---@param meta table metadata of the item
 ---@param remove boolean if removed after used
 function FrameworkClass:canUseItem(source, item, amount, meta, remove)
-  if OWFramework.canUseItem then
-    return OWFramework.canUseItem(source, item, amount, meta, remove)
-  end
   if self:is("RedEM") or self:is("RedEM2023") then
     local itemData = self.inv.getItem(source, item)
     if itemData and itemData.ItemAmount >= amount then
@@ -474,9 +398,7 @@ end
 function FrameworkClass:registerUseItem(item, closeAfterUsed, callback)
   CreateThread(function()
     if (closeAfterUsed == nil) then closeAfterUsed = true end
-    if OWFramework.registerUseItem then
-      OWFramework.registerUseItem(item, closeAfterUsed, callback)
-    elseif self:is("RedEM2023") or self:is("RedEM") then
+    if self:is("RedEM2023") or self:is("RedEM") then
       local isExist = self.inv.getItemData(item)
       local count = 0
       while not isExist and count < 10 do
@@ -525,9 +447,7 @@ end
 ---@param meta table metadata of the item
 ---@return boolean
 function FrameworkClass:giveItem(source, item, quantity, meta)
-  if OWFramework.giveItem then
-    return OWFramework.giveItem(source, item, quantity, meta)
-  elseif self:is("RedEM2023") or self:is("RedEM") then
+  if self:is("RedEM2023") or self:is("RedEM") then
     local ItemData = self.inv.getItem(source, item, meta) -- this give you info and functions
     return ItemData.AddItem(quantity, meta)
   elseif self:is("QBR") or self:is("QR") then
@@ -552,17 +472,13 @@ function FrameworkClass:createInventory(invName, name, invConfig)
     name = name,
     invConfig = invConfig
   }
-  if OWFramework.createInventory then
-    OWFramework.createInventory(invName, name, invConfig)
-  elseif self:is("RedEM") then
+  if self:is("RedEM") then
     self.inv.createLocker(invName, "empty")
   end
 end
 
 function FrameworkClass:removeInventory(invName)
-  if OWFramework.removeInventory then
-    OWFramework.removeInventory(invName)
-  end
+
 end
 
 ---@param source integer sourceIdentifier
@@ -570,9 +486,6 @@ end
 function FrameworkClass:openInventory(source, invName)
   local name = self.inventories[invName].name
   local invConfig = self.inventories[invName].invConfig
-  if OWFramework.openInventory then
-    return OWFramework.openInventory(source, invName, name, invConfig)
-  end
   if self:is("RedEM2023") then
     TriggerClientEvent("redemrp_inventory:OpenStash", source, invName, invConfig.maxWeight)
     return
@@ -594,9 +507,7 @@ end
 ---@param needWait? boolean wait after the adding
 function FrameworkClass:addItemInInventory(source, invId, item, quantity, metadata, needWait)
   local waiter = promise.new()
-  if OWFramework.addItemInInventory then
-    OWFramework.addItemInInventory(invId, item, quantity, metadata, needWait)
-  elseif self:is("QBR") or self:is("RPX") then
+  if self:is("QBR") or self:is("RPX") then
     MySQL.scalar("SELECT items FROM stashitems WHERE stash = ?", { invId }, function(items)
       items = UnJson(items)
       if not items then items = {} end
@@ -639,9 +550,7 @@ end
 ---@param source integer source ID
 ---@param invId string name of the inventory
 function FrameworkClass:getItemsFromInventory(invId)
-  if OWFramework.getItemsFromInventory then
-    return OWFramework.getItemsFromInventory(invId)
-  elseif self:is("QBR") or self:is("RPX") then
+  if self:is("QBR") or self:is("RPX") then
     local items = MySQL.scalar.await("SELECT items FROM stashitems WHERE stash = ?", { invId })
     items = UnJson(items)
     if not items then items = {} end
@@ -849,9 +758,7 @@ FrameworkClass.standardizeClothesKeys = standardizeClothes
 
 function FrameworkClass:getUserClothes(source)
   local clothes = {}
-  if OWFramework.getUserClothes then
-    clothes = OWFramework.getUserClothes(source)
-  elseif self:is("RedEM2023") or self:is("RedEM") then
+  if self:is("RedEM2023") or self:is("RedEM") then
     local user = self:getUserIdentifiers(source)
     clothes = MySQL.scalar.await("SELECT clothes FROM clothes WHERE identifier=? AND charid=?;", { user.identifier, user.charid })
   elseif self:is("QBR") then
@@ -881,9 +788,6 @@ function FrameworkClass:updateUserClothes(source, _clothes, value)
     _clothes = { [_clothes] = formatComponentData(value) }
   end
   local clothes = revertClothes(_clothes)
-  if OWFramework.updateUserClothes then
-    return OWFramework.updateUserClothes(source, category, value)
-  end
   if self:is("RedEM2023") or self:is("RedEM") then
     local identifiers = self:getUserIdentifiers(source)
     MySQL.scalar("SELECT clothes FROM clothes WHERE identifier=? AND charid=?;", { identifiers.identifier, identifiers.charid }, function(oldClothes)
@@ -922,9 +826,6 @@ end
 
 ---@param source integer
 function FrameworkClass:getUserSkin(source)
-  if OWFramework.getUserSkin then
-    return UnJson(OWFramework.getUserSkin(source))
-  end
   local user = UserClass:get(source)
   local skin = {}
   if not user then return {} end
@@ -969,9 +870,6 @@ function FrameworkClass:updateUserSkin(...)
     overwrite = args[math.max(3, #args)] or overwrite
   end
   local skin = revertSkin(_skin)
-  if OWFramework.updateUserSkin then
-    return OWFramework.updateUserSkin(source, skin)
-  end
   if self:is("RedEM2023") or self:is("RedEM") then
     local identifiers = self:getUserIdentifiers(source)
     MySQL.scalar("SELECT skin FROM skins WHERE identifier=? AND charid=?", { identifiers.identifier, identifiers.charid }, function(oldSkin)
@@ -1016,9 +914,6 @@ function FrameworkClass:createUser(source, data, spawnCoordinate, isDead)
   data.lastname = data.lastname or ""
   data.skin = revertSkin(data.skin)
   data.comps = revertClothes(data.comps)
-  if OWFramework.createUser then
-    return OWFramework.createUser(source, data)
-  end
   if self:is("RedEM2023") or self:is("RedEM") then
     return
   elseif self:is("QBR") then

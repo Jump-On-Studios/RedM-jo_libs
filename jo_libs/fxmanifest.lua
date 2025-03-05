@@ -39,3 +39,7 @@ jo_libs {
 	"framework-bridge",
 	"version-checker"
 }
+
+server_scripts {
+	"test/server_module.lua"
+}

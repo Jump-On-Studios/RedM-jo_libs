@@ -161,13 +161,13 @@ end
 ---@param invId string name of the inventory
 ---@return table
 function FrameworkClass:getItemsFromInventory(invId)
-  /* item structure
+  --[[ item structure
   {
     metadata = {},
     amount = 0,
     item = "itemName"
   }
-  */
+  ]]
   return {}
 end
 
