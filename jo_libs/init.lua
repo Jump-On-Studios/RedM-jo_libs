@@ -18,7 +18,8 @@ local alias = {
   notif = "notification",
   pedTexture = "ped-texture",
   gameEvents = "game-events",
-  triggerEvent = "trigger-event"
+  triggerEvent = "trigger-event",
+  promptNui="prompt-nui"
 }
 
 local function getAlias(module)
