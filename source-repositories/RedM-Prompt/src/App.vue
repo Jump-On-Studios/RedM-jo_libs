@@ -1,14 +1,20 @@
 <script setup>
 import Group from './components/Group.vue'
-import './dev.js'
+import { initGroup } from './dev'
 import Bridge from './components/Bridge.vue'
 
 const isDev = import.meta.env.DEV
+
+if (isDev) {
+  initGroup()
+}
 </script>
 
 <template>
   <Bridge />
-  <img v-if="isDev" id="bg" src="/assets/images/capture.png" />
+  <img v-if="isDev"
+       id="bg"
+       src="/assets/images/capture.png" />
   <Group />
 </template>
 
