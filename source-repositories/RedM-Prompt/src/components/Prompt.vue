@@ -6,7 +6,7 @@ const props = defineProps({
 </script>
 
 <template>
-  <div id="prompt">
+  <div class="prompt">
     <div id="label" class="crock">
       {{ props.prompt.label }}
     </div>
@@ -22,7 +22,7 @@ const props = defineProps({
 </template>
 
 <style scoped lang="scss">
-#prompt {
+.prompt {
   display: flex;
   flex-direction: row;
   align-items: center;

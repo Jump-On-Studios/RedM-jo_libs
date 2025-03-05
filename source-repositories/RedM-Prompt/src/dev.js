@@ -6,7 +6,7 @@ if (import.meta.env.DEV) {
       type: 'updateGroup',
       data: {
         title: 'Stable Shop',
-        position: 'top-left',
+        position: 'top-right',
         prompts: [
           {
             label: 'Press Prompt',
@@ -18,8 +18,8 @@ if (import.meta.env.DEV) {
           },
           {
             label: 'Hold Prompt',
-            keyboardKeys: ['SPACE'],
-            holdTime: 1000,
+            keyboardKeys: ['M'],
+            holdTime: 2000,
           },
         ],
       },
