@@ -2,22 +2,29 @@
 import { useGroupStore } from '@/stores/group'
 import Prompt from './Prompt.vue'
 const groupStore = useGroupStore()
+
+
+
 </script>
 
 <template>
-  <div id="group" v-if="groupStore.prompts.length > 0" :class="[groupStore.position]">
+  <div id="group"
+       v-if="groupStore.prompts.length > 0"
+       :class="[groupStore.position]">
     <div id="prompts">
-      <Prompt v-for="(prompt, index) in groupStore.prompts" :key="index" :prompt="prompt" />
+      <Prompt v-for="(prompt, index) in groupStore.prompts"
+              :key="index"
+              :prompt="prompt" />
     </div>
 
-    <img
-      id="line"
-      v-if="!(groupStore.title === false)"
-      src="/assets/images/ilo_title_line.png"
-      alt="ilo_title_line"
-    />
+    <img id="line"
+         v-if="!(groupStore.title === false)"
+         src="/assets/images/ilo_title_line.png"
+         alt="ilo_title_line" />
 
-    <div v-if="groupStore.title" id="groupTitle" class="crock">{{ groupStore.title }}</div>
+    <div v-if="groupStore.title"
+         id="groupTitle"
+         class="crock">{{ groupStore.title }}</div>
   </div>
 </template>
 
@@ -66,6 +73,7 @@ const groupStore = useGroupStore()
   &.center-right {
     margin-left: auto;
     text-align: right;
+
     // Align the line image to the right.
     #line {
       margin-left: auto;

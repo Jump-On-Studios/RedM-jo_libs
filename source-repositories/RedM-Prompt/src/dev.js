@@ -1,6 +1,7 @@
-if (import.meta.env.DEV) {
-  const SendNUIMessage = window.postMessage
+const SendNUIMessage = window.postMessage
 
+export function initGroup()
+{
   setTimeout(() => {
     SendNUIMessage({
       type: 'updateGroup',
@@ -19,10 +20,20 @@ if (import.meta.env.DEV) {
           {
             label: 'Hold Prompt',
             keyboardKeys: ['M'],
-            holdTime: 2000,
+            holdTime: 1000,
           },
         ],
       },
     })
   }, 200)
+}
+
+export function SendNUIKey(key,type)
+{
+  SendNUIMessage({
+    type,
+    data: {
+      key
+    },
+  })
 }

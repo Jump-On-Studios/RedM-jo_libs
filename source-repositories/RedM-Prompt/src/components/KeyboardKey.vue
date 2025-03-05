@@ -12,6 +12,19 @@
 
 <script setup>
 import { onMounted, onUnmounted, ref, computed } from 'vue'
+import { SendNUIKey } from '@/dev';
+
+import { useGroupStore } from '@/stores/group'
+const groupStore = useGroupStore()
+
+groupStore.$subscribe((mutation, state) => {
+  if (state.pressedKeys.hasOwnProperty(props.kkey)) {
+    showKeyDown()
+  }
+  else {
+    showKeyUp()
+  }
+})
 
 const props = defineProps({
   kkey: String,
@@ -30,11 +43,11 @@ const animationDuration = computed(() => {
 })
 
 
+
+
 onMounted(() => {
   window.addEventListener('keydown', handleKeyDown)
   window.addEventListener('keyup', handleKeyUp)
-
-
 })
 
 
@@ -42,21 +55,33 @@ const handleKeyDown = (event) => {
   if (event.repeat) return; // Ignore auto-repeated keydown events
   if (import.meta.env.DEV) {
     if (event.key.toUpperCase() === props.kkey.toUpperCase()) {
-      isActive.value = true
-      if (props.holdTime) {
-        startProgressAnimation()
-      }
+      SendNUIKey(props.kkey, "keyDown")
     }
   }
 }
 
+function showKeyDown() {
+  isActive.value = true
+  if (props.holdTime) {
+    startProgressAnimation()
+  }
+}
+
+
+function showKeyUp() {
+  if (!isActive.value) return;
+  isActive.value = false
+  if (props.holdTime) {
+    stopProgressAnimation()
+  }
+}
+
+
+
 const handleKeyUp = (event) => {
   if (import.meta.env.DEV) {
     if (event.key.toUpperCase() === props.kkey.toUpperCase()) {
-      isActive.value = false
-      if (props.holdTime) {
-        stopProgressAnimation()
-      }
+      SendNUIKey(props.kkey, "keyUp")
     }
   }
 }
@@ -213,7 +238,7 @@ onUnmounted(() => {
         animation-direction: reverse;
         animation-fill-mode: both;
         animation-delay: calc(-1*var(--duration));
-
+        animation-timing-function: linear;
       }
     }
 

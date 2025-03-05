@@ -1,21 +1,34 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 
-export const useGroupStore = defineStore('group', () => {
-  const title = ref()
-  const position = ref()
-  const prompts = ref([])
 
-  function updateGroup(data) {
-    title.value = data.title
-    position.value = data.position
-    prompts.value = data.prompts
-  }
+export const useGroupStore = defineStore('group', {
+  state: () => ({
+    title: undefined,
+    position:"bottom-right",
+    prompts:[],
+    pressedKeys:{}
+  }),
+  actions: {
+    // since we rely on `this`, we cannot use an arrow function
+    updateGroup(data) {
+      this.title = data.title
+      this.position = data.position
+      this.prompts = data.prompts
+    },
+    updatePressedKeys(key,value)
+    {
 
-  return {
-    title,
-    position,
-    prompts,
-    updateGroup,
-  }
+      if(!value)
+      {
+        delete this.pressedKeys[key];
+      }
+      else{
+        this.pressedKeys[key]=value
+      }
+      console.log(this.pressedKeys);
+    }
+  },
 })
+
+
