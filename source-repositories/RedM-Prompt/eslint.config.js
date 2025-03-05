@@ -12,7 +12,9 @@ export default [
     name: 'app/files-to-ignore',
     ignores: ['**/dist/**', '**/dist-ssr/**', '**/coverage/**'],
   },
-
+  js.configs.recommended,
+  ...pluginVue.configs['flat/essential'],
+  skipFormatting,
   {
     name: 'app/vue-rules',
     rules: {
@@ -22,10 +24,14 @@ export default [
           ignores: ['Group', 'Prompt', 'Bridge'], // Add component names here if you want to ignore them
         },
       ],
+
     },
   },
 
-  js.configs.recommended,
-  ...pluginVue.configs['flat/essential'],
-  skipFormatting,
+
+  {
+    rules: {
+      'no-prototype-builtins': 'off',
+    },
+  },
 ]
