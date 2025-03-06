@@ -190,7 +190,7 @@ onUnmounted(() => {
   }
 
   &.holdable {
-    outline: 0.2rem solid rgba($color: #000000, $alpha: 0.3);
+    outline: 0.2rem solid rgba($color: #000000, $alpha: 0.1);
 
     .progressContainer {
       background: rgba($color: #ffffff, $alpha: .2);
