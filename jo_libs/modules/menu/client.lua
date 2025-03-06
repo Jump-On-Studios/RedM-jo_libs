@@ -35,6 +35,16 @@ local disabledKeys = {
 }
 
 ---@class MenuClass : table Menu class
+---@field id string Menu Unique ID
+---@field title string Menu Title
+---@field subtitle string Menu Subtitle
+---@field type? string Menu type
+---@field items? table list of items
+---@field numberOnScreen? integer number of items displayed before the scroll
+---@field onEnter? function Function fired when the item is pressed
+---@field onBack? function Function fired when the backspace is pressed
+---@field onExit? function Function fired when the menu is exit
+---@field onChange? function Function fired when something is changed in the menu (scroll, switch,...)
 local MenuClass = {
   id = "",
   title = "Jump On",
