@@ -1,10 +1,12 @@
 <template>
   <div class="keyboardKey bebas"
        :class="{ holdable: props.holdTime, active: isActive }">
+
     <div class="progressContainer">
       <div class="progress"
            ref="progressElementRef"></div>
     </div>
+    <div class="activeIndicator"></div>
     {{ props.kkey }}
   </div>
 </template>
@@ -191,8 +193,6 @@ onUnmounted(() => {
   }
 
   &.holdable {
-
-
     .progressContainer {
 
 
@@ -224,7 +224,7 @@ onUnmounted(() => {
       width: calc(100% + 0.6rem);
       height: 1.8rem;
       position: absolute;
-      z-index: -1;
+
 
       .progress {
         --scaleRTop: 50;
@@ -234,6 +234,8 @@ onUnmounted(() => {
         --scaleRight: 0;
         width: 100%;
         height: 100%;
+        position: relative;
+        z-index: 4;
 
         background: linear-gradient(to right,
             var(--fillColor) 0%,
@@ -267,13 +269,21 @@ onUnmounted(() => {
         animation-timing-function: linear;
       }
     }
+  }
 
-
-
+  .activeIndicator {
+    width: calc(100% + 0.6rem);
+    height: 1.8rem;
+    position: absolute;
+    background: rgba(192, 192, 192, 0.9);
+    z-index: 3;
+    display: none;
   }
 
   &.active {
-    background: red;
+    .activeIndicator {
+      display: block;
+    }
   }
 }
 
