@@ -172,7 +172,8 @@ onUnmounted(() => {
   --scaleLTop: 0;
   --duration: 10000ms;
   --stroke: .14rem;
-  --color: white;
+  --fillColor: white;
+  --strokeBgColor: rgba(255, 255, 255, 0.2);
 
   position: relative;
   background: #fff;
@@ -190,10 +191,35 @@ onUnmounted(() => {
   }
 
   &.holdable {
-    outline: 0.2rem solid rgba($color: #000000, $alpha: 0.1);
+
 
     .progressContainer {
-      background: rgba($color: #ffffff, $alpha: .2);
+
+
+      background:
+        linear-gradient(to right,
+          var(--strokeBgColor) 0%,
+          var(--strokeBgColor) calc(100% - var(--stroke)),
+          transparent 0%,
+        ),
+        linear-gradient(to bottom,
+          var(--strokeBgColor) 0%,
+          var(--strokeBgColor) calc(100% - var(--stroke)),
+          transparent 0%,
+        ),
+        linear-gradient(to left,
+          var(--strokeBgColor) 0%,
+          var(--strokeBgColor) calc(100% - var(--stroke)),
+          transparent 0%,
+        ),
+        linear-gradient(to top,
+          var(--strokeBgColor) 0%,
+          var(--strokeBgColor) calc(100% - var(--stroke)),
+          transparent 0%,
+        );
+      background-size: 100% var(--stroke), var(--stroke) 100%, 100% var(--stroke), var(--stroke) 100%;
+      background-position: top left, top right, bottom left, top left;
+      background-repeat: no-repeat;
 
       width: calc(100% + 0.6rem);
       height: 1.8rem;
@@ -210,23 +236,23 @@ onUnmounted(() => {
         height: 100%;
 
         background: linear-gradient(to right,
-            var(--color) 0%,
-            var(--color) calc(var(--scaleLTop)*1%),
+            var(--fillColor) 0%,
+            var(--fillColor) calc(var(--scaleLTop)*1%),
             transparent 0%,
             transparent 50%,
-            var(--color) 0%,
-            var(--color) calc(var(--scaleRTop)*1%),
+            var(--fillColor) 0%,
+            var(--fillColor) calc(var(--scaleRTop)*1%),
             transparent 0%), linear-gradient(to bottom,
-            var(--color) 0%,
-            var(--color) calc(var(--scaleRight)*1%),
+            var(--fillColor) 0%,
+            var(--fillColor) calc(var(--scaleRight)*1%),
             transparent 0%,
           ), linear-gradient(to left,
-            var(--color) 0%,
-            var(--color) calc(var(--scaleBottom)*1%),
+            var(--fillColor) 0%,
+            var(--fillColor) calc(var(--scaleBottom)*1%),
             transparent 0%,
           ), linear-gradient(to top,
-            var(--color) 0%,
-            var(--color) calc(var(--scaleLeft)*1%),
+            var(--fillColor) 0%,
+            var(--fillColor) calc(var(--scaleLeft)*1%),
             transparent 0%,
           );
 
