@@ -6,7 +6,7 @@ export function initGroup() {
       type: 'updateGroup',
       data: {
         title: 'Stable Shop',
-        position: 'top-right',
+        position: 'top-left',
         prompts: [
           {
             label: 'Press Prompt',
@@ -20,6 +20,10 @@ export function initGroup() {
             label: 'Hold Prompt',
             keyboardKeys: ['M'],
             holdTime: 1000,
+          },
+          {
+            label: 'CTRL Prompt',
+            keyboardKeys: ['LCONTROL'],
           },
         ],
       },

@@ -12,6 +12,7 @@ window.addEventListener('message', (event) => {
       groupStore.updateGroup(data)
       break
     case 'keyDown':
+      console.log(type, data);
       groupStore.updatePressedKeys(data.key, true)
       break
     case 'keyUp':

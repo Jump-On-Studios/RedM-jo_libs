@@ -7,7 +7,7 @@
            ref="progressElementRef"></div>
     </div>
     <div class="activeIndicator"></div>
-    {{ props.kkey }}
+    {{ keymaps[props.kkey]?.text || props.kkey }}
   </div>
 </template>
 
@@ -15,6 +15,7 @@
 <script setup>
 import { onMounted, onUnmounted, ref, computed } from 'vue'
 import { SendNUIKey } from '@/dev';
+import { keymaps } from '@/data/keymaps';
 
 import { useGroupStore } from '@/stores/group'
 const groupStore = useGroupStore()
