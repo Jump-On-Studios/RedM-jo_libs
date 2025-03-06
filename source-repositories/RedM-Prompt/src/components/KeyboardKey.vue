@@ -14,7 +14,7 @@
 
 <script setup>
 import { onMounted, onUnmounted, ref, computed } from 'vue'
-import { SendNUIKey } from '@/dev';
+import { SendNUIKey, SendNUINextPage } from '@/dev';
 import { keymaps } from '@/data/keymaps';
 
 import { useGroupStore } from '@/stores/group'
@@ -30,8 +30,9 @@ groupStore.$subscribe((mutation, state) => {
 })
 
 const props = defineProps({
-  kkey: String,
-  holdTime: Number,
+  kkey: { type: String, required: true },
+  holdTime: { type: Number, required: false, default: 0 },
+  isNextPage: { type: Boolean, required: false, default: false },
 })
 
 const isActive = ref(false)
@@ -58,6 +59,9 @@ const handleKeyDown = (event) => {
   if (event.repeat) return; // Ignore auto-repeated keydown events
   if (import.meta.env.DEV) {
     if (event.key.toUpperCase() === props.kkey.toUpperCase()) {
+      if (props.isNextPage) {
+        SendNUINextPage()
+      }
       SendNUIKey(props.kkey, "keyDown")
     }
   }

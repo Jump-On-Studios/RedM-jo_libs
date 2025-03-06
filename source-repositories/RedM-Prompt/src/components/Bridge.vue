@@ -18,6 +18,9 @@ window.addEventListener('message', (event) => {
     case 'keyUp':
       groupStore.updatePressedKeys(data.key, false)
       break
+    case 'nextPage':
+      groupStore.nextPage()
+      break
   }
 })
 </script>

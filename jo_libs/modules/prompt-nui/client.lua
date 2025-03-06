@@ -56,7 +56,8 @@ local GroupClass = {
     position = "bottom-right",
     prompts = {},
     visible = false,
-    nextPageKey = "A"
+    nextPageKey = "A",
+    currentPage = 1
 }
 
 --- Sets the title of the group.
@@ -122,7 +123,6 @@ local function listenPage(group, pageNumber)
             local key = prompt.keyboardKeys[j]
 
             -- Set up a listener for the key using jo.rawKeys.listen.
-            -- The key is prefixed with "VK_" to match the expected key format.
             jo.rawKeys.listen(key, function(isPressed)
                 -- Check if the key is being pressed.
                 if isPressed then
@@ -170,20 +170,36 @@ end
 --- Displays the group by sending an NUI update with its title, position, and first page prompts.
 -- Also initiates key listeners for the first page.
 --- @return nil
-function GroupClass:display()
+function GroupClass:display(page)
+    self.currentPage = page or 1;
     self.visible = true;
     SendNUIMessage({
         type = "updateGroup",
-        -- data=table.clearForNui(self)
-        data = {
-            title = self.title,
-            position = self.position,
-            prompts = table.clearForNui(self.prompts[1])
-        }
+        data = table.clearForNui(self)
     })
 
 
-    listenPage(self, 1)
+    listenPage(self, self.currentPage)
+
+    if #self.prompts > 1 then
+        jo.rawKeys.listen(self.nextPageKey, function(isPressed)
+            if isPressed then
+                SendNUIMessage({
+                    type = "nextPage",
+                })
+                removePage(self, self.currentPage)
+                self.currentPage += 1
+                if (self.currentPage > #self.prompts) then self.currentPage = 1 end
+                listenPage(self, self.currentPage)
+            end
+            SendNUIMessage({
+                type = isPressed and "keyDown" or "keyUp",
+                data = {
+                    key = self.nextPageKey
+                }
+            })
+        end)
+    end
 end
 
 --- Hides the group by clearing its prompts from the NUI.
