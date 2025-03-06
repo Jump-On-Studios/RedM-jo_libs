@@ -1,6 +1,7 @@
 <script setup>
 import { useGroupStore } from '@/stores/group'
-import Prompt from './Prompt.vue'
+import Prompt from './Prompt.vue';
+import KeyboardKey from './KeyboardKey.vue';
 const groupStore = useGroupStore()
 
 
@@ -12,7 +13,7 @@ const groupStore = useGroupStore()
        v-if="groupStore.prompts.length > 0"
        :class="[groupStore.position]">
     <div id="prompts">
-      <Prompt v-for="(prompt, index) in groupStore.prompts"
+      <Prompt v-for="(prompt, index) in groupStore.prompts[groupStore.currentPageIndex]"
               :key="index"
               :prompt="prompt"
               :isLeft="groupStore.position.includes('left')" />
@@ -25,7 +26,12 @@ const groupStore = useGroupStore()
 
     <div v-if="groupStore.title"
          id="groupTitle"
-         class="crock">{{ groupStore.title }}</div>
+         class="crock">
+      {{ groupStore.title }}
+      <KeyboardKey v-if="groupStore.prompts.length > 1"
+                   :kkey="groupStore.nextPageKey"
+                   :isNextPage="true"></KeyboardKey>
+    </div>
   </div>
 </template>
 
@@ -35,6 +41,11 @@ const groupStore = useGroupStore()
   position: relative;
   display: flex;
   flex-direction: column;
+
+  #groupTitle {
+    display: flex;
+    gap: 0.5rem;
+  }
 
   // Prompts container
   #prompts {
@@ -88,6 +99,10 @@ const groupStore = useGroupStore()
   &.center-right {
     #prompts {
       align-items: end;
+    }
+
+    #groupTitle {
+      justify-content: end;
     }
   }
 

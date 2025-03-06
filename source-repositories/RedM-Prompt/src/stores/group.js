@@ -7,7 +7,9 @@ export const useGroupStore = defineStore('group', {
     title: undefined,
     position: "bottom-right",
     prompts: [],
-    pressedKeys: {}
+    pressedKeys: {},
+    currentPageIndex: 0,
+    nextPageKey: "A"
   }),
   actions: {
     // since we rely on `this`, we cannot use an arrow function
@@ -15,6 +17,8 @@ export const useGroupStore = defineStore('group', {
       this.title = data.title
       this.position = data.position
       this.prompts = data.prompts
+      this.nextPageKey = data.nextPageKey;
+      this.currentPageIndex = data.currentPage ? data.currentPage - 1 : 0;
     },
     updatePressedKeys(key, value) {
 
@@ -25,6 +29,14 @@ export const useGroupStore = defineStore('group', {
         this.pressedKeys[key] = value
       }
       console.log(this.pressedKeys);
+    },
+
+    nextPage() {
+      if (this.prompts[this.currentPageIndex + 1] !== undefined) {
+        this.currentPageIndex++;
+      } else {
+        this.currentPageIndex = 0;
+      }
     }
   },
 })
