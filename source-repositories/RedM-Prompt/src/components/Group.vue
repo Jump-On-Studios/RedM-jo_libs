@@ -14,7 +14,8 @@ const groupStore = useGroupStore()
     <div id="prompts">
       <Prompt v-for="(prompt, index) in groupStore.prompts"
               :key="index"
-              :prompt="prompt" />
+              :prompt="prompt"
+              :isLeft="groupStore.position.includes('left')" />
     </div>
 
     <img id="line"
@@ -39,6 +40,7 @@ const groupStore = useGroupStore()
   #prompts {
     display: flex;
     flex-direction: column;
+    align-items: start;
   }
 
   // Line image styling
@@ -61,11 +63,11 @@ const groupStore = useGroupStore()
   }
 
   // For classes starting with "center": center the group.
-  &[class^='center'] {
-    align-self: center;
-    margin-left: auto;
-    margin-right: auto;
-  }
+  // &[class^='center'] {
+  //   align-self: center;
+  //   margin-left: auto;
+  //   margin-right: auto;
+  // }
 
   // Right side adjustments: apply to top-right, bottom-right, and center-right.
   &.top-right,
@@ -82,7 +84,8 @@ const groupStore = useGroupStore()
 
   // For top-right and bottom-right: align prompts to the end.
   &.top-right,
-  &.bottom-right {
+  &.bottom-right,
+  &.center-right {
     #prompts {
       align-items: end;
     }
@@ -92,11 +95,18 @@ const groupStore = useGroupStore()
   &.top-left,
   &.bottom-left {
     margin-right: auto;
+
   }
 
   &.center-left {
     align-self: center;
     margin-right: auto;
+  }
+
+  &.center-right {
+    align-self: center;
+    margin-left: auto;
+
   }
 }
 </style>
