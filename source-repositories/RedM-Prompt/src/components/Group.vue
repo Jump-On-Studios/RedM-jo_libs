@@ -21,7 +21,7 @@ const groupStore = useGroupStore()
 
     <img id="line"
          v-if="!(groupStore.title === false)"
-         src="/assets/images/ilo_title_line.png"
+         src="/assets/images/ilo_title_line.webp"
          alt="ilo_title_line" />
 
     <div v-if="groupStore.title"
@@ -85,7 +85,7 @@ const groupStore = useGroupStore()
 
   #line {
     margin: 0.33rem 0;
-    width: 5.75rem;
+    width: 8rem;
   }
 
   // Position modifiers
