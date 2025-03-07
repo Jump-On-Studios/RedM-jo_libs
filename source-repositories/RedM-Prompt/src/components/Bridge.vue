@@ -8,8 +8,8 @@ window.addEventListener('message', (event) => {
   const { type, data } = event.data
 
   switch (type) {
-    case 'updateGroup':
-      groupStore.updateGroup(data)
+    case 'setGroup':
+      groupStore.setGroup(data)
       break
     case 'keyDown':
       console.log(type, data);
@@ -21,6 +21,13 @@ window.addEventListener('message', (event) => {
     case 'nextPage':
       groupStore.nextPage()
       break
+    case 'updatePrompt':
+      groupStore.updatePrompt(data)
+      break
+    case 'updateGroup':
+      groupStore.updateGroup(data)
+      break
+
   }
 })
 </script>

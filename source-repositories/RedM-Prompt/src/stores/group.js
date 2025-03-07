@@ -13,7 +13,7 @@ export const useGroupStore = defineStore('group', {
   }),
   actions: {
     // since we rely on `this`, we cannot use an arrow function
-    updateGroup(data) {
+    setGroup(data) {
       this.title = data.title
       this.position = data.position
       this.prompts = data.prompts
@@ -38,6 +38,17 @@ export const useGroupStore = defineStore('group', {
         this.currentPageIndex = 0;
       }
       this.pressedKeys = {}
+    },
+
+    updatePrompt(data) {
+      const page = data.page - 1; // Lua is 1 indexed
+      const position = data.position - 1;  // Lua is 1 indexed
+      this.prompts[page][position][data.property] = data.value
+    },
+
+
+    updateGroup(data) {
+      this[data.property] = data.value
     }
 
   },
