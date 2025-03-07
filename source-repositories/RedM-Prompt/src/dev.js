@@ -14,29 +14,41 @@ export function initGroup() {
             {
               label: 'Press Prompt',
               keyboardKeys: ['E'],
+              visible: true
             },
             {
               label: 'Hold Prompt',
               keyboardKeys: ['M'],
               holdTime: 1000,
+              visible: true
             },
             {
               label: 'CTRL Prompt',
               keyboardKeys: ['LCONTROL'],
+              visible: true
             },
             {
               label: 'SPACE Prompt',
               keyboardKeys: ['SPACE'],
+              visible: true,
+              disabled: true
+            },
+            {
+              label: 'NOT VISIBLE PROMPT',
+              keyboardKeys: ['N'],
+              visible: false
             },
           ],
           [
             {
               label: 'Page 2 ',
               keyboardKeys: ['P'],
+              visible: true,
             },
             {
               label: 'Multi press Prompt',
               keyboardKeys: ['F', 'S'],
+              visible: true,
             },
           ]
         ],
