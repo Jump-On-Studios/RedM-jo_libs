@@ -1,6 +1,6 @@
 jo.rawKeys = {}
 
-local events = {};
+local events = {}
 -- Function to listen for a key press
 function jo.rawKeys.listen(key, callback)
     TriggerEvent("jo_libs:rawKeys:register", key)
@@ -10,10 +10,10 @@ function jo.rawKeys.listen(key, callback)
 end
 
 function jo.rawKeys.remove(key)
-    if not events[key] then return end;
+    if not events[key] then return end
     TriggerEvent("jo_libs:rawKeys:remove", key)
     for i = 1, #events[key] do
         RemoveEventHandler(events[key][i])
     end
-    events[key] = nil;
+    events[key] = nil
 end

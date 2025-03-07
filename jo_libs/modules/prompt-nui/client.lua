@@ -88,7 +88,7 @@ end
 --- @param page number|nil: The page number to add the prompt to (default is 1).
 --- @return nil
 function GroupClass:addPrompt(key, label, holdTime, page)
-    local prompt = table.copy(PromptClass);
+    local prompt = table.copy(PromptClass)
     prompt:setLabel(label)
     prompt:setKeyboardKeys(key)
     prompt:setHoldTime(holdTime)
@@ -133,7 +133,7 @@ local function listenPage(group, pageNumber)
                     -- When the key is released, remove its entry from keysPressed.
                     keysPressed[key] = nil -- delete the key from the active keys table
                     -- Also reset its fired status in keysFired so it can be triggered again later.
-                    keysFired[key] = nil;
+                    keysFired[key] = nil
                 end
 
                 -- Send a message to the NUI to update the key state.
@@ -155,8 +155,8 @@ function removePage(group, pageNumber)
         for j = 1, #prompt.keyboardKeys do
             local key = prompt.keyboardKeys[j]
             jo.rawKeys.remove(key)
-            keysPressed[key] = nil;
-            keysFired[key] = nil;
+            keysPressed[key] = nil
+            keysFired[key] = nil
             SendNUIMessage({
                 type = "keyUp",
                 data = {
@@ -171,8 +171,8 @@ end
 -- Also initiates key listeners for the first page.
 --- @return nil
 function GroupClass:display(page)
-    self.currentPage = page or 1;
-    self.visible = true;
+    self.currentPage = page or 1
+    self.visible = true
     SendNUIMessage({
         type = "updateGroup",
         data = table.clearForNui(self)
@@ -205,7 +205,7 @@ end
 --- Hides the group by clearing its prompts from the NUI.
 -- @return nil
 function GroupClass:hide()
-    self.visible = false;
+    self.visible = false
     SendNUIMessage({
         type = "updateGroup",
         data = {
@@ -224,11 +224,11 @@ end
 --- @param position string|nil: (Optional) The position for the group.
 --- @return GroupClass: A new instance of GroupClass representing the prompt group.
 function jo.promptNui.createGroup(title, position)
-    local group = table.copy(GroupClass);
-    group:setTitle(title);
+    local group = table.copy(GroupClass)
+    group:setTitle(title)
     if position then group:setPosition(position) end
 
-    return group;
+    return group
 end
 
 --- Checks if a specific key has been held long enough to be considered complete.
@@ -237,13 +237,13 @@ end
 --- @param fireMultipleTimes boolean|nil: (Optional) If true, the key can fire multiple times (default is false).
 --- @return boolean: True if the key press duration is complete and it hasn't already fired (unless allowed), otherwise false.
 function jo.promptNui.isCompleted(key, fireMultipleTimes)
-    fireMultipleTimes = fireMultipleTimes or false;
-    if not keysPressed[key] then return false end;
+    fireMultipleTimes = fireMultipleTimes or false
+    if not keysPressed[key] then return false end
 
     if GetGameTimer() >= keysPressed[key] then
-        if (not fireMultipleTimes and keysFired[key]) then return false end;
-        keysFired[key] = true;
+        if (not fireMultipleTimes and keysFired[key]) then return false end
+        keysFired[key] = true
         return true
     end
-    return false;
+    return false
 end
