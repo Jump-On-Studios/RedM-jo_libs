@@ -37,7 +37,9 @@ export const useGroupStore = defineStore('group', {
       } else {
         this.currentPageIndex = 0;
       }
+      this.pressedKeys = {}
     }
+
   },
 })
 

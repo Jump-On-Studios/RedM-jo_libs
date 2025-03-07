@@ -14,7 +14,7 @@ if (isDev) {
   <Bridge />
   <img v-if="isDev"
        id="bg"
-       src="/assets/images/capture3.jpg" />
+       src="/assets/images/capture4.jpg" />
   <Group />
 </template>
 

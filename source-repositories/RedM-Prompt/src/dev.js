@@ -6,7 +6,7 @@ export function initGroup() {
       type: 'updateGroup',
       data: {
         title: 'Stable Shop',
-        position: 'top-right',
+        position: 'top-left',
         visible: false,
         nextPageKey: "A",
         prompts: [
