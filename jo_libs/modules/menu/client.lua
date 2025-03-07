@@ -244,11 +244,14 @@ end
 ---@param keepInput? boolean if the game input has to be keep (default: true)
 ---@param hideRadar? boolean if the radar has to be hide (default: true)
 ---@param animation? boolean if the menu has to be show/hide with animation (default: true)
-function jo.menu.show(show, keepInput, hideRadar, animation)
+---@param hideCursor? boolean if the cursor has to be hide (default: false)
+function jo.menu.show(show, keepInput, hideRadar, animation, hideCursor)
   CreateThread(function()
     keepInput = keepInput == nil and true or keepInput
     hideRadar = hideRadar == nil and true or hideRadar
     animation = animation == nil and true or animation
+    hideCursor = hideCursor or false
+
     nuiShow = show
     if timeoutClose then
       timeoutClose:clear()
@@ -260,7 +263,7 @@ function jo.menu.show(show, keepInput, hideRadar, animation)
         SendNUIMessage({ event = "updateShow", show = show, cancelAnimation = not animation })
       end)
     else
-      SetNuiFocus(true, true)
+      SetNuiFocus(true, not hideCursor)
       SetNuiFocusKeepInput(keepInput)
       SendNUIMessage({ event = "updateShow", show = show, cancelAnimation = not animation })
       loopMenu()
