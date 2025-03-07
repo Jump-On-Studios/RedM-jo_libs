@@ -61,7 +61,7 @@ const groupStore = useGroupStore()
       align-items: center;
       gap: 0.5rem;
 
-      &::v-deep {
+      &:deep {
         img {
           height: .9rem;
         }
