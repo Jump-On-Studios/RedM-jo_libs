@@ -8,7 +8,8 @@ const props = defineProps({
 
 <template>
   <div class="prompt"
-       :class="{ isLeft }">
+       v-if="prompt.visible"
+       :class="{ isLeft, disabled: prompt.disabled }">
     <div id="label"
          class="crock">
       {{ props.prompt.label }}
@@ -43,6 +44,10 @@ const props = defineProps({
     display: flex;
     flex-direction: row;
     align-items: center;
+  }
+
+  &.disabled {
+    opacity: .4
   }
 }
 </style>

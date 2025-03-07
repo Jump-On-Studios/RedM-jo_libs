@@ -8,7 +8,6 @@ jo.require("raw-keys")
 
 local keysPressed = {}
 local keysFired = {}
-local currentGroup = nil
 
 -- * =============================================================================
 -- * PROMPT
@@ -18,6 +17,8 @@ local PromptClass = {
     label = "",
     keyboardKeys = {},
     holdTime = false,
+    disabled = false,
+    visible = true
 }
 
 
@@ -26,6 +27,14 @@ local PromptClass = {
 --- @return nil
 function PromptClass:setLabel(label)
     self.label = label
+end
+
+function PromptClass:setEnabled(enabled)
+    self.enabled = enabled
+end
+
+function PromptClass:setVisible(visible)
+    self.visible = visible
 end
 
 --- Sets the keyboard keys for the prompt.
