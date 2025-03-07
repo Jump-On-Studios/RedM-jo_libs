@@ -214,9 +214,9 @@ end)
 
 
 AddEventHandler("jo_libs:rawKeys:remove", function(key)
-    if not linkedResources[key] then return end;
+    if not linkedResources[key] then return end
     local resource = GetInvokingResource()
-    if not linkedResources[key][resource] then return end;
+    if not linkedResources[key][resource] then return end
     linkedResources[key][resource] = nil
 
     for _, _ in pairs(linkedResources[key]) do
