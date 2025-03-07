@@ -32,6 +32,16 @@ const groupStore = useGroupStore()
                    :kkey="groupStore.nextPageKey"
                    :isNextPage="true"></KeyboardKey>
     </div>
+
+    <div id="dots"
+         v-if="groupStore.prompts.length > 1">
+      <div class="dot"
+           v-for="(prompt, index) in groupStore.prompts"
+           :key="index"
+           :class="{ active: groupStore.currentPageIndex === index }">
+
+      </div>
+    </div>
   </div>
 </template>
 
@@ -47,14 +57,32 @@ const groupStore = useGroupStore()
     gap: 0.5rem;
   }
 
-  // Prompts container
+  #dots {
+    display: flex;
+    flex-direction: row;
+    gap: 0.3rem;
+    position: absolute;
+
+    .dot {
+      height: 0.215rem;
+      width: 0.215rem;
+      background: #fff;
+      border-radius: 50%;
+      opacity: 0.4;
+      box-shadow: 1px 1px rgba(0, 0, 0, 0.3);
+
+      &.active {
+        opacity: 1;
+      }
+    }
+  }
+
   #prompts {
     display: flex;
     flex-direction: column;
-    align-items: start;
+    align-items: flex-start;
   }
 
-  // Line image styling
   #line {
     margin: 0.33rem 0;
     width: 5.75rem;
@@ -62,66 +90,61 @@ const groupStore = useGroupStore()
 
   // Position modifiers
 
-  // For classes starting with "top-": reverse order and right-aligned text.
-  &[class^='top-'] {
+  // For classes starting with "top-": reverse order and align to the left.
+  &[class^="top-"] {
     flex-direction: column-reverse;
     align-self: flex-start;
+
+    #dots {
+      top: -0.5rem;
+    }
   }
 
   // For classes starting with "bottom-": align to the bottom.
-  &[class^='bottom-'] {
+  &[class^="bottom-"] {
     align-self: flex-end;
+
+    #dots {
+      bottom: -0.5rem;
+    }
   }
 
-  // For classes starting with "center": center the group.
-  // &[class^='center'] {
-  //   align-self: center;
-  //   margin-left: auto;
-  //   margin-right: auto;
-  // }
-
-  // Right side adjustments: apply to top-right, bottom-right, and center-right.
+  // Right side adjustments for top-right and bottom-right.
   &.top-right,
-  &.bottom-right,
-  &.center-right {
+  &.bottom-right {
     margin-left: auto;
     text-align: right;
 
-    // Align the line image to the right.
     #line {
       margin-left: auto;
     }
-  }
 
-  // For top-right and bottom-right: align prompts to the end.
-  &.top-right,
-  &.bottom-right,
-  &.center-right {
+    #dots {
+      right: 0.25rem;
+    }
+
     #prompts {
-      align-items: end;
+      align-items: flex-end;
     }
 
     #groupTitle {
-      justify-content: end;
+      justify-content: flex-end;
     }
   }
 
-  // Left side adjustments.
+  // Left side adjustments for top-left and bottom-left.
   &.top-left,
   &.bottom-left {
     margin-right: auto;
 
-  }
+    #groupTitle {
+      flex-direction: row-reverse;
+      justify-content: start;
+    }
 
-  &.center-left {
-    align-self: center;
-    margin-right: auto;
-  }
-
-  &.center-right {
-    align-self: center;
-    margin-left: auto;
-
+    #dots {
+      left: 0.25rem;
+    }
   }
 }
 </style>

@@ -192,6 +192,7 @@ onUnmounted(() => {
   min-height: 1.23rem;
   min-width: 1.23rem;
   padding: 0 0.49rem;
+  // box-shadow: 1px 1px rgba(0, 0, 0, .3);
 
   &:not(:first-child) {
     margin-left: 0.205rem;
@@ -201,8 +202,7 @@ onUnmounted(() => {
     .progressContainer {
 
 
-      background:
-        linear-gradient(to right,
+      background: linear-gradient(to right,
           var(--strokeBgColor) 0%,
           var(--strokeBgColor) calc(100% - var(--stroke)),
           transparent 0%,
