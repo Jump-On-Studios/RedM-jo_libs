@@ -3,6 +3,6 @@ export const keymaps = {
     text: "CTRL"
   },
   "SPACE": {
-    image: "/public/assets/images/keys/SPACE.png"
+    image: "/assets/images/keys/SPACE.png"
   }
 }
