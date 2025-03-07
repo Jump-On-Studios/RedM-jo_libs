@@ -8,6 +8,7 @@ jo.require("raw-keys")
 
 local keysPressed = {}
 local keysFired = {}
+local currentGroup = nil
 
 -- * =============================================================================
 -- * PROMPT
@@ -171,6 +172,7 @@ end
 -- Also initiates key listeners for the first page.
 --- @return nil
 function GroupClass:display(page)
+    currentGroup = self
     self.currentPage = page or 1
     self.visible = true
     SendNUIMessage({
@@ -205,6 +207,7 @@ end
 --- Hides the group by clearing its prompts from the NUI.
 -- @return nil
 function GroupClass:hide()
+    currentGroup = nil
     self.visible = false
     SendNUIMessage({
         type = "updateGroup",
@@ -212,7 +215,7 @@ function GroupClass:hide()
             prompts = {}
         }
     })
-    removePage(self, 1)
+    removePage(self, self.currentPage)
 end
 
 -- * =============================================================================

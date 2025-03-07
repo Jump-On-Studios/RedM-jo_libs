@@ -213,9 +213,8 @@ AddEventHandler("jo_libs:rawKeys:register", function(key)
 end)
 
 
-AddEventHandler("jo_libs:rawKeys:remove", function(key)
-    if not linkedResources[key] then return end
-    local resource = GetInvokingResource()
+
+local function removeScriptKeys(resource, key)
     if not linkedResources[key][resource] then return end
     linkedResources[key][resource] = nil
 
@@ -231,7 +230,14 @@ AddEventHandler("jo_libs:rawKeys:remove", function(key)
             return
         end
     end
+end
+
+AddEventHandler("jo_libs:rawKeys:remove", function(key)
+    if not linkedResources[key] then return end
+    local resource = GetInvokingResource()
+    removeScriptKeys(resource, key)
 end)
+
 
 
 -- Listen for key pressed and fire an event if the pressed key is part of the listenedKeys table, true when pressed and false when release, which is then passed to the callback of jo_libs:rawKeys:XXX
@@ -254,5 +260,14 @@ CreateThread(function()
         end
 
         Wait(0)
+    end
+end)
+
+
+
+
+AddEventHandler("onResourceStop", function(resource)
+    for key in pairs(linkedResources) do
+        removeScriptKeys(resource, key)
     end
 end)
