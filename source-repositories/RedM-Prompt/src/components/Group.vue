@@ -27,7 +27,7 @@ const groupStore = useGroupStore()
     <div v-if="groupStore.title"
          id="groupTitle"
          class="crock">
-      {{ groupStore.title }}
+      <span v-html="groupStore.title"></span>
       <KeyboardKey v-if="groupStore.prompts.length > 1"
                    :kkey="groupStore.nextPageKey"
                    :isNextPage="true"></KeyboardKey>
@@ -55,6 +55,18 @@ const groupStore = useGroupStore()
   #groupTitle {
     display: flex;
     gap: 0.5rem;
+
+    span {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+
+      &::v-deep {
+        img {
+          height: .9rem;
+        }
+      }
+    }
   }
 
   #dots {

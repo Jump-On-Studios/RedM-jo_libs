@@ -5,7 +5,7 @@ export function initGroup() {
     SendNUIMessage({
       type: 'updateGroup',
       data: {
-        title: 'Stable Shop',
+        title: '<img src="https://raw.githubusercontent.com/BryceCanyonCounty/rdr3-nativedb-data/master/blips/images/blip_ambient_horse.png" /> Stable Shop',
         position: 'bottom-right',
         visible: false,
         nextPageKey: "A",
