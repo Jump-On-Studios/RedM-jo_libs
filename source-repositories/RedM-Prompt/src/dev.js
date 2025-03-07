@@ -16,10 +16,6 @@ export function initGroup() {
               keyboardKeys: ['E'],
             },
             {
-              label: 'Multi press Prompt',
-              keyboardKeys: ['F', 'S'],
-            },
-            {
               label: 'Hold Prompt',
               keyboardKeys: ['M'],
               holdTime: 1000,
@@ -28,13 +24,20 @@ export function initGroup() {
               label: 'CTRL Prompt',
               keyboardKeys: ['LCONTROL'],
             },
+            {
+              label: 'SPACE Prompt',
+              keyboardKeys: ['SPACE'],
+            },
           ],
           [
             {
               label: 'Page 2 ',
               keyboardKeys: ['P'],
             },
-
+            {
+              label: 'Multi press Prompt',
+              keyboardKeys: ['F', 'S'],
+            },
           ]
         ],
       },

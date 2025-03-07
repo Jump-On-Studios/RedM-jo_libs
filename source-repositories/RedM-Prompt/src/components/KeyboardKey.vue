@@ -7,7 +7,17 @@
            ref="progressElementRef"></div>
     </div>
     <div class="activeIndicator"></div>
-    {{ keymaps[props.kkey]?.text || props.kkey }}
+    <div class="text"
+         v-if="keymaps[props.kkey]?.text">
+      {{ keymaps[props.kkey].text }}
+    </div>
+    <img :src="keymaps[props.kkey].image"
+         class="image"
+         v-else-if="keymaps[props.kkey]?.image" />
+    <div v-else
+         class="text">
+      {{ props.kkey }}
+    </div>
   </div>
 </template>
 
@@ -183,16 +193,31 @@ onUnmounted(() => {
   --strokeBgColor: rgba(255, 255, 255, 0.2);
 
   position: relative;
-  background: #fff;
+
   color: #000;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 0.75rem;
-  min-height: 1.23rem;
-  min-width: 1.23rem;
-  padding: 0 0.49rem;
-  // box-shadow: 1px 1px rgba(0, 0, 0, .3);
+
+
+  box-shadow: 1px 1px rgba(0, 0, 0, .3);
+
+  .text {
+    background: #fff;
+    height: 1.23rem;
+    min-width: 1.23rem;
+    padding: 0 0.49rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .image {
+    height: 1.23rem;
+
+  }
+
 
   &:not(:first-child) {
     margin-left: 0.205rem;
