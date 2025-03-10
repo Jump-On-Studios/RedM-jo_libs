@@ -1,6 +1,6 @@
-jo.debug = {}
+jo.debugger = {}
 
-jo.debug.perfomance = function(title, cb)
+jo.debugger.perfomance = function(title, cb)
   local starTime = os.microtime()
   local result = table.pack(cb())
   local endTime = os.microtime()
