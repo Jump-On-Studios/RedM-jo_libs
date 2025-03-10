@@ -85,6 +85,7 @@ const showKeyUp = () => {
 
 // Start progress animation by setting dynamic CSS properties
 const startProgressAnimation = () => {
+  console.log("ANIMATION STARTED")
   const progressElement = progressElementRef.value
   if (!progressElement) return
 
@@ -93,6 +94,7 @@ const startProgressAnimation = () => {
   const offset = endPressed > 0 ? Math.max(durationMs - (Date.now() - endPressed), 0) : 0
 
   progressElement.style.animationName = 'none'
+  progressElement.style.animationPlayState = 'running'
   progressElement.style.animationDirection = 'normal'
   progressElement.style.animationDelay = `-${offset}ms`
   startPressed = Date.now() - offset
@@ -104,6 +106,7 @@ const startProgressAnimation = () => {
 
 // Stop progress animation by adjusting CSS properties in reverse
 const stopProgressAnimation = () => {
+  console.log("ANIMATION STOPPED")
   const progressElement = progressElementRef.value
   if (!progressElement) return
 
@@ -111,12 +114,14 @@ const stopProgressAnimation = () => {
   const gap = Math.min(durationMs, Date.now() - startPressed)
 
   progressElement.style.animationName = 'none'
+
   progressElement.style.animationDirection = 'reverse'
   progressElement.style.animationDelay = `${-durationMs + gap}ms`
   endPressed = Date.now() - durationMs + gap
 
   requestAnimationFrame(() => {
     progressElement.style.animationName = ''
+
   })
 }
 
@@ -124,6 +129,16 @@ const stopProgressAnimation = () => {
 onMounted(() => {
   window.addEventListener('keydown', handleKeyDown)
   window.addEventListener('keyup', handleKeyUp)
+
+  // Reset progress animation on initial load
+  const progressElement = progressElementRef.value
+  if (progressElement) {
+    progressElement.style.animationName = 'none'
+    requestAnimationFrame(() => {
+      progressElement.style.animationName = ''
+    })
+  }
+
 })
 
 onUnmounted(() => {
@@ -261,6 +276,7 @@ onUnmounted(() => {
         animation-fill-mode: both;
         animation-delay: calc(-1 * var(--duration));
         animation-timing-function: linear;
+        animation-play-state: paused;
       }
     }
   }
