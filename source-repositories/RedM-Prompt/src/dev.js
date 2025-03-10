@@ -3,7 +3,7 @@ const SendNUIMessage = window.postMessage
 export function initGroup() {
   setTimeout(() => {
     SendNUIMessage({
-      type: 'updateGroup',
+      type: 'setGroup',
       data: {
         title: '<img src="https://raw.githubusercontent.com/BryceCanyonCounty/rdr3-nativedb-data/master/blips/images/blip_ambient_horse.png" /> Stable Shop',
         position: 'bottom-right',
@@ -12,7 +12,7 @@ export function initGroup() {
         prompts: [
           [
             {
-              label: 'Press Prompt',
+              label: ' <img src="https://raw.githubusercontent.com/BryceCanyonCounty/rdr3-nativedb-data/master/blips/images/blip_ambient_horse.png" /> <span style="color:red">Press Prompt</span>',
               keyboardKeys: ['E'],
               visible: true
             },
