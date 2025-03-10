@@ -15,6 +15,7 @@ vk_qwerty = {
     -- 0x0E-0x0F: Unassigned
     SHIFT = 0x10,
     CONTROL = 0x11,
+    ["CTRL"] = 0x11,
     MENU = 0x12,
     PAUSE = 0x13,
     CAPITAL = 0x14,
@@ -27,6 +28,7 @@ vk_qwerty = {
     KANJI = 0x19,
     IME_OFF = 0x1A,
     ESCAPE = 0x1B,
+    ["Esc"] = 0x1B,
     CONVERT = 0x1C,
     NONCONVERT = 0x1D,
     ACCEPT = 0x1E,
@@ -135,11 +137,17 @@ vk_qwerty = {
     -- 0x92-0x96: OEM specific
     -- 0x97-0x9F: Unassigned
     LSHIFT = 0xA0,
+    ["L SHIFT"] = 0xA0,
     RSHIFT = 0xA1,
+    ["R SHIFT"] = 0xA1,
     LCONTROL = 0xA2,
+    ["L CTRL"] = 0xA2,
     RCONTROL = 0xA3,
+    ["R CTRL"] = 0xA3,
     LMENU = 0xA4,
+    ["L ALT"] = 0xA4,
     RMENU = 0xA5,
+    ["R ALT"] = 0xA5,
     BROWSER_BACK = 0xA6,
     BROWSER_FORWARD = 0xA7,
     BROWSER_REFRESH = 0xA8,
