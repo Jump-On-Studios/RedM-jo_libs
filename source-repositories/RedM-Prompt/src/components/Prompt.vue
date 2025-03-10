@@ -12,7 +12,7 @@ const props = defineProps({
        :class="{ isLeft, disabled: prompt.disabled }">
     <div id="label"
          class="crock">
-      {{ props.prompt.label }}
+      <span v-html="props.prompt.label"></span>
     </div>
     <div id="keyboardKeys">
       <KeyboardKey v-for="(keyboardKey, index) in props.prompt.keyboardKeys"
@@ -39,6 +39,19 @@ const props = defineProps({
     margin-bottom: 0;
   }
 
+  #label {
+    span {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+
+      &:deep {
+        img {
+          height: .9rem;
+        }
+      }
+    }
+  }
 
   #keyboardKeys {
     display: flex;
