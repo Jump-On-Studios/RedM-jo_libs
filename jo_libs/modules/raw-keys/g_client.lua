@@ -5,8 +5,8 @@ jo.file.load("raw-keys.vk_azerty")
 local listenedKeys = {}
 local linkedResources = {}
 
-local keyboard_type = GetConvar('jo_libs:keyboard_type','qwerty')
-keyboard_type = string.lower(keyboard_type)
+local keyboard_layout = GetConvar('jo_libs:keyboard_layout','qwerty')
+keyboard_layout = string.lower(keyboard_layout)
 
 -- Listen if other scripts ask to register a new key to listen and add it to listenedKeys (multiple scripts can ask for the same key, so we increment a counter)
 AddEventHandler("jo_libs:rawKeys:register", function(key)
@@ -52,7 +52,7 @@ AddEventHandler("jo_libs:rawKeys:remove", function(key)
 end)
 
 local function getVKValue(key)
-    return  _G["vk_"..keyboard_type]?[key] or vk_qwerty[key]
+    return  _G["vk_"..keyboard_layout]?[key] or vk_qwerty[key]
 end
 
 
@@ -80,10 +80,10 @@ CreateThread(function()
 end)
 
 
-AddConvarChangeListener("jo_libs:keyboard_type",function()
-    keyboard_type = GetConvar('jo_libs:keyboard_type','qwerty')
-    keyboard_type = string.lower(keyboard_type)
-    print(keyboard_type)
+AddConvarChangeListener("jo_libs:keyboard_layout",function()
+    keyboard_layout = GetConvar('jo_libs:keyboard_layout','qwerty')
+    keyboard_layout = string.lower(keyboard_layout)
+    print(keyboard_layout)
 end)
 
 AddEventHandler("onResourceStop", function(resource)
