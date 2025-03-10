@@ -29,12 +29,14 @@ end
 ---@param text string The text of the notification
 function jo.notif.rightSuccess(source, text)
   jo.notif.right(source, text, "hud_textures", "check", "COLOR_GREEN")
+  return true
 end
 
 ---@param source integer the source ID of the player
 ---@param text string The text of the notification
 function jo.notif.rightError(source, text)
   jo.notif.right(source, text, "menu_textures", "cross", "COLOR_RED")
+  return false
 end
 
 ---@param source integer the source ID of the player
@@ -48,4 +50,3 @@ end
 function jo.notif.print(source, ...)
   TriggerClientEvent(GetCurrentResourceName() .. ":client:notifPrint", source, ...)
 end
-
