@@ -5,7 +5,7 @@ jo.require("raw-keys")
 local clockStart = GetGameTimer()
 local NativeSendNUIMessage = SendNUIMessage
 local function SendNUIMessage(data)
-  if clockStart == GetGameTimer() then Wait(100) end
+  if clockStart == GetGameTimer() then Wait(500) end
   data.messageTargetUiName = "jo_prompt"
   NativeSendNUIMessage(data)
 end
@@ -189,6 +189,11 @@ end
 --- @return nil
 function GroupClass:setNextPageKey(key)
     self.nextPageKey = string.upper(key)
+end
+
+--- @return boolean
+function GroupClass:isVisible()
+    return self.visible
 end
 
 --- Adds a new prompt to the group on a specified page.
