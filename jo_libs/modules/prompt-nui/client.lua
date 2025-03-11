@@ -2,6 +2,12 @@ jo.promptNui = {}
 jo.require("table")
 jo.require("raw-keys")
 
+local NativeSendNUIMessage = SendNUIMessage
+local function SendNUIMessage(data)
+  if clockStart == GetGameTimer() then Wait(100) end
+  data.messageTargetUiName = "jo_prompt"
+  NativeSendNUIMessage(data)
+end
 
 CreateThread(function()
     Wait(100)
