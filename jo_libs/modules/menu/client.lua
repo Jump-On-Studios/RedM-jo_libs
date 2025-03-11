@@ -212,6 +212,9 @@ end
 function jo.menu.setCurrentMenu(id, keepHistoric, resetMenu)
   keepHistoric = (keepHistoric == nil) and true or keepHistoric
   resetMenu = (resetMenu == nil) and true or resetMenu
+  if not keepHistoric then
+    previousData = {}
+  end
   SendNUIMessage({
     event = "setCurrentMenu",
     menu = id,
@@ -231,12 +234,15 @@ end
 jo.timeout.loop(1000, LoopDisableKeys)
 
 local function loopMenu()
+  jo.menu.fireEvent(jo.menu.getCurrentMenu(), "onEnter")
+  jo.menu.fireEvent(jo.menu.getCurrentItem(), "onActive")
   CreateThread(function()
     while jo.menu.isOpen() do
       jo.menu.fireAllLevelsEvent("tick")
       jo.menu.fireAllLevelsEvent("onTick")
       Wait(0)
     end
+    jo.menu.fireAllLevelsEvent("onExit")
   end)
 end
 
@@ -259,7 +265,6 @@ function jo.menu.show(show, keepInput, hideRadar, animation, hideCursor)
     if not nuiShow then
       timeoutClose = jo.timeout.set(150, function()
         SetNuiFocus(false, false)
-        jo.menu.fireAllLevelsEvent("onExit")
         SendNUIMessage({ event = "updateShow", show = show, cancelAnimation = not animation })
       end)
     else
@@ -388,8 +393,6 @@ function jo.menu.fireAllLevelsEvent(eventName, ...)
 end
 
 local function menuNUIChange(data)
-  previousData = table.copy(currentData)
-
   if not menus[data.menu] then return end
   if not menus[data.menu].items[data.item.index] then return end
 
@@ -438,6 +441,8 @@ local function menuNUIChange(data)
   for _, listener in ipairs(jo.menu.listeners) do
     listener.cb(currentData)
   end
+
+  previousData = table.copy(currentData)
 end
 
 RegisterNUICallback("updatePreview", function(data, cb)
