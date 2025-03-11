@@ -2,6 +2,7 @@ jo.promptNui = {}
 jo.require("table")
 jo.require("raw-keys")
 
+local clockStart = GetGameTimer()
 local NativeSendNUIMessage = SendNUIMessage
 local function SendNUIMessage(data)
   if clockStart == GetGameTimer() then Wait(100) end
