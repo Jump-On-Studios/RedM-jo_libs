@@ -4,7 +4,7 @@ import { useGroupStore } from '@/stores/group'
 const groupStore = useGroupStore()
 
 window.addEventListener('message', (event) => {
-  console.log(event)
+  // console.log(event)
   const { type, data } = event.data
 
   switch (type) {
@@ -12,7 +12,7 @@ window.addEventListener('message', (event) => {
       groupStore.setGroup(data)
       break
     case 'keyDown':
-      console.log(type, data);
+      // console.log(type, data);
       groupStore.updatePressedKeys(data.key, true)
       break
     case 'keyUp':

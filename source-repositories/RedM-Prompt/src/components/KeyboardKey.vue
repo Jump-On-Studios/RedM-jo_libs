@@ -85,7 +85,7 @@ const showKeyUp = () => {
 
 // Start progress animation by setting dynamic CSS properties
 const startProgressAnimation = () => {
-  console.log("ANIMATION STARTED")
+  // console.log("ANIMATION STARTED")
   const progressElement = progressElementRef.value
   if (!progressElement) return
 
@@ -106,7 +106,7 @@ const startProgressAnimation = () => {
 
 // Stop progress animation by adjusting CSS properties in reverse
 const stopProgressAnimation = () => {
-  console.log("ANIMATION STOPPED")
+  // console.log("ANIMATION STOPPED")
   const progressElement = progressElementRef.value
   if (!progressElement) return
 

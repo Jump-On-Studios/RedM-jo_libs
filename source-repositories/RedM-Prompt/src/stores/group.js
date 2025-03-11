@@ -28,7 +28,7 @@ export const useGroupStore = defineStore('group', {
       else {
         this.pressedKeys[key] = value
       }
-      console.log(this.pressedKeys);
+      // console.log(this.pressedKeys);
     },
 
     nextPage() {
