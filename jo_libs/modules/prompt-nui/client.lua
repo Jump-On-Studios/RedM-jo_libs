@@ -2,6 +2,16 @@ jo.promptNui = {}
 jo.require("table")
 jo.require("raw-keys")
 
+
+CreateThread(function()
+    Wait(100)
+    if GetResourceMetadata(GetCurrentResourceName(), "ui_page") == "nui://jo_libs/nui/prompt/index.html" then
+      return
+    end
+    jo.nui.load("jo_prompt", "nui://jo_libs/nui/prompt/index.html")
+  end)
+
+
 -- * =============================================================================
 -- * VARIABLES
 -- * =============================================================================
