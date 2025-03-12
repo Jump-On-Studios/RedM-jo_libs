@@ -227,13 +227,7 @@ function jo.prompt.deleteGroup(group)
 end
 
 jo.stopped(function()
-  for _, group in pairs(promptGroups) do
-    for _, prompts in pairs(group.prompts) do
-      for _, prompt in pairs(prompts) do
-        PromptDelete(prompt)
-      end
-    end
-  end
+  jo.prompt.deleteAllGroups()
 end)
 
 ---@param group string the name of the group
