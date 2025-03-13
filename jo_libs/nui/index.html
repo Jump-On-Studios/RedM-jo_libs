@@ -23,6 +23,8 @@
 
   let listener = document.querySelector("#eventListener")
   let iFrames = []
+  let uiNameFocused = ""
+  const zIndexFocused = 999999
 
   function createNewFrame(resourceName, uiName, url) {
     const frame = document.createElement('iframe');
@@ -30,12 +32,29 @@
     frame.allow = 'microphone *; camera *;';
     frame.src = url;
     frame.tabIndex = -1;
+    frame.style.overflow = "hidden"
 
     document.body.appendChild(frame);
 
     frame.contentWindow.GetParentResourceName = function () {
       return resourceName;
     }
+
+    // frame.contentWindow.addEventListener('load', () => {
+    // console.log(uiName)
+    // const fullScreen = document.body.getBoundingClientRect()
+    // let body = frame.contentWindow.document.body
+    // let rect = body.getBoundingClientRect()
+    // frame.style.width = rect.width + "px"
+    // body.style.width = fullScreen.width + "px"
+    // frame.style.height = rect.height + "px"
+    // body.style.height = fullScreen.height + "px"
+    // frame.style.left = rect.left + "px"
+    // body.style.left = "0px"
+    // frame.style.top = rect.top + "px"
+    // body.style.top = "0px"
+    // body.style.overflow = "hidden"
+    // })
 
     frame.contentWindow.addEventListener('dispatchEvent', (event) => {
       // console.log('FAKE', event.realtype)
@@ -46,6 +65,10 @@
         return
       }
       const el = frame.contentWindow.document.elementFromPoint(event.screenX, event.screenY)
+      if (el == null) {
+        frame.contentWindow.document.dispatchEvent(redirectedEvent)
+        return
+      }
       el.dispatchEvent(redirectedEvent)
     })
 
@@ -60,6 +83,21 @@
         })
       })
     });
+
+    frame.contentWindow.addEventListener('load', () => {
+      let body = frame.contentWindow.document.body
+      body.addEventListener('mouseleave', (event) => {
+        iFrames.forEach((frame, index) => {
+          console.log(frame.element.contentWindow.document.elementFromPoint(event.screenX, event.screenY))
+          if (frame.uiName == uiName)
+            frame.element.style.zIndex = 0
+          else if (frame.uiName == uiNameFocused)
+            frame.element.style.zIndex = zIndexFocused
+          else
+            frame.element.style.zIndex = index + 1
+        })
+      })
+    })
 
     return frame
 
@@ -81,8 +119,9 @@
         })
         break;
       case "jo_nui_focus":
+        uiNameFocused = data.uiName
         iFrames.forEach((frame, index) => {
-          frame.element.style.zIndex = frame.uiName == data.uiName ? 99999 : index
+          frame.element.style.zIndex = frame.uiName == data.uiName ? zIndexFocused : (index + 1)
         })
         break;
       default:
