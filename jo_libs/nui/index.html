@@ -84,6 +84,7 @@
           em = frame.element.contentWindow.document
         else
           em = frame.element.contentWindow.document.elementFromPoint(event.screenX, event.screenY)
+        if (em === null) return
         em.dispatchEvent(redirectedEvent)
       })
     })
