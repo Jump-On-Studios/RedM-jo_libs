@@ -5,18 +5,18 @@ jo.require("raw-keys")
 local clockStart = GetGameTimer()
 local NativeSendNUIMessage = SendNUIMessage
 local function SendNUIMessage(data)
-  if clockStart == GetGameTimer() then Wait(500) end
-  data.messageTargetUiName = "jo_prompt"
-  NativeSendNUIMessage(data)
+    if clockStart == GetGameTimer() then Wait(500) end
+    data.messageTargetUiName = "jo_prompt"
+    NativeSendNUIMessage(data)
 end
 
 CreateThread(function()
     Wait(100)
     if GetResourceMetadata(GetCurrentResourceName(), "ui_page") == "nui://jo_libs/nui/prompt/index.html" then
-      return
+        return
     end
     jo.nui.load("jo_prompt", "nui://jo_libs/nui/prompt/index.html")
-  end)
+end)
 
 
 -- * =============================================================================
@@ -72,7 +72,7 @@ local PromptClass = {
 --- @param property string: The property name to update (e.g., "label", "disabled").
 --- @return nil
 function PromptClass:refreshNUI(property)
-    if currentGroupVisible ~= self.groupId then
+    if currentGroupVisible?.id ~= self.groupId then
         return
     end
     SendNUIMessage({
@@ -229,6 +229,7 @@ end
 --- @param pageNumber number: The page number from which to activate key listeners.
 --- @return nil
 local function listenPage(group, pageNumber)
+    if not group.prompts[pageNumber] then return end
     for i = 1, #group.prompts[pageNumber] do
         local prompt = group.prompts[pageNumber][i]
         if (not prompt.disabled) then
@@ -245,6 +246,7 @@ end
 --- @param pageNumber number: The page number from which to remove key listeners.
 --- @return nil
 function removePage(group, pageNumber)
+    if not group.prompts[pageNumber] then return end
     for i = 1, #group.prompts[pageNumber] do
         local prompt = group.prompts[pageNumber][i]
         for j = 1, #prompt.keyboardKeys do
@@ -267,8 +269,14 @@ end
 --- @param page number|nil: (Optional) The page number to display; defaults to the group's current page.
 --- @return nil
 function GroupClass:display(page)
-    currentGroupVisible = self.id
-    self.currentPage = page or 1
+    if currentGroupVisible then
+        jo.rawKeys.remove(currentGroupVisible.nextPageKey)
+        removePage(currentGroupVisible, currentGroupVisible.currentPage)
+    end
+
+    currentGroupVisible = self
+    self.currentPage = page and math.min(page, #self.prompts) or 1
+    -- print(self.currentPage)
     self.visible = true
     SendNUIMessage({
         type = "setGroup",
@@ -285,6 +293,7 @@ function GroupClass:display(page)
                 })
                 removePage(self, self.currentPage)
                 self.currentPage = self.currentPage + 1
+                -- print(self.currentPage)
                 if (self.currentPage > #self.prompts) then self.currentPage = 1 end
                 listenPage(self, self.currentPage)
             end
@@ -301,7 +310,7 @@ end
 --- Hides the prompt group from the NUI interface and removes its active key listeners.
 --- @return nil
 function GroupClass:hide()
-    currentGroupVisible = -1
+    currentGroupVisible = nil
     self.visible = false
     SendNUIMessage({
         type = "setGroup",
@@ -309,6 +318,7 @@ function GroupClass:hide()
             prompts = {}
         }
     })
+    jo.rawKeys.remove(self.nextPageKey)
     removePage(self, self.currentPage)
 end
 
