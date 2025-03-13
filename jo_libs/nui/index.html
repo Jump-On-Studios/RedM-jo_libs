@@ -1,9 +1,25 @@
 <body>
-  <div id="eventListener"></div>
 </body>
 
 <script>
   window.citFrames = {};
+
+  const eventsToRedirect = [
+    'keydown',
+    'keyup',
+    'wheel',
+    'resize',
+    'scroll',
+    'click',
+    'dblclick',
+    'mousedown',
+    'mouseup',
+    'mousemove',
+    // 'mouseenter',
+    // 'mouseleave',
+    // 'mouseout',
+    // 'mouseover',
+  ];
 
   let listener = document.querySelector("#eventListener")
   let iFrames = []
@@ -21,72 +37,69 @@
       return resourceName;
     }
 
+    frame.contentWindow.addEventListener('dispatchEvent', (event) => {
+      // console.log('FAKE', event.realtype)
+      const redirectedEvent = new event.constructor(event.realtype, event);
+      redirectedEvent.fake = true
+      if (event.realtype.includes("key")) {
+        frame.contentWindow.document.dispatchEvent(redirectedEvent)
+        return
+      }
+      const el = frame.contentWindow.document.elementFromPoint(event.screenX, event.screenY)
+      el.dispatchEvent(redirectedEvent)
+    })
+
+    eventsToRedirect.forEach(eventType => {
+      frame.contentWindow.addEventListener(eventType, (event) => {
+        if (event.fake) return
+        const redirectedEvent = new event.constructor('dispatchEvent', event);
+        redirectedEvent.realtype = eventType
+        iFrames.forEach((frame) => {
+          if (frame.uiName != uiName)
+            frame.element.contentWindow.document.dispatchEvent(redirectedEvent)
+        })
+      })
+    });
+
     return frame
 
   }
 
   window.addEventListener('message', (event) => {
-    if (event.data.action == "loadNUI") {
-      // Create the new iframe
-      const uiName = event.data.name
-      const url = event.data.url
-      if (iFrames.find((e) => e.id == uiName))
-        return console.log('ERROR, this uiName is already used:', uiName)
+    const data = event.data
+    switch (data.action) {
+      case "jo_nui_loadNUI":
+        // Create the new iframe
+        if (iFrames.find((e) => e.uiName == data.uiName))
+          return console.log('ERROR, this uiName is already used:', data.uiName)
 
-      let frame = createNewFrame(GetParentResourceName(), uiName, url);
+        let frame = createNewFrame(GetParentResourceName(), data.uiName, data.url);
 
-      iFrames.push({
-        uiName: uiName,
-        element: frame
-      })
-
-    } else {
-      // Redirect events
-      const redirectedEvent = new event.constructor(event.type, event);
-      if (event.data.messageTargetUiName) {
-        const uiName = event.data.messageTargetUiName
-        let frame = iFrames.find((frame) => frame.uiName == uiName)
-        if (!frame)
-          return console.log('ERROR, this uiName is not loaded', uiName)
-        frame.element.contentWindow.dispatchEvent(redirectedEvent)
-      } else {
-        iFrames.forEach((frame) => {
-          frame.element.contentWindow.dispatchEvent(redirectedEvent);
+        iFrames.push({
+          uiName: data.uiName,
+          element: frame
         })
-      }
+        break;
+      case "jo_nui_focus":
+        iFrames.forEach((frame, index) => {
+          frame.element.style.zIndex = frame.uiName == data.uiName ? 99999 : index
+        })
+        break;
+      default:
+        const redirectedEvent = new event.constructor(event.type, event);
+        if (data.messageTargetUiName) {
+          const uiName = data.messageTargetUiName
+          let frame = iFrames.find((frame) => frame.uiName == uiName)
+          if (!frame)
+            return console.log('ERROR, this uiName is not loaded', uiName)
+          frame.element.contentWindow.dispatchEvent(redirectedEvent)
+        } else {
+          iFrames.forEach((frame) => {
+            frame.element.contentWindow.dispatchEvent(redirectedEvent);
+          })
+        }
+        break;
     }
-  })
-
-
-
-  const eventsToRedirect = [
-    'keydown',
-    'keyup',
-    'wheel',
-    'resize',
-    'scroll',
-    'click',
-    'dblclick',
-    'mousedown',
-    'mouseenter',
-    'mouseleave',
-    'mousemove',
-    'mouseout',
-    'mouseover',
-    'mouseup'
-  ];
-  eventsToRedirect.forEach((eventType) => {
-    window.addEventListener(eventType, (event) => {
-      const redirectedEvent = new event.constructor(event.type, event);
-      iFrames.forEach((frame) => {
-        let em;
-        if (eventType.includes('key'))
-          em = frame.element.contentWindow.document
-        else
-          em = frame.element.contentWindow.document.elementFromPoint(event.screenX, event.screenY)
-        em.dispatchEvent(redirectedEvent)
-      })
-    })
   })
 
 </script>
@@ -99,18 +112,6 @@
   }
 
   iframe {
-    position: absolute;
-    left: 0px;
-    right: 0px;
-    top: 0px;
-    bottom: 0px;
-    border: 0px;
-    width: 100%;
-    height: 100%;
-  }
-
-  #eventListener {
-    z-index: 999999;
     position: absolute;
     left: 0px;
     right: 0px;
