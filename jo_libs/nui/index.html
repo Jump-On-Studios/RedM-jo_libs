@@ -1,22 +1,12 @@
 <body>
+  <div id="eventListener"></div>
 </body>
 
 <script>
   window.citFrames = {};
 
-  /**
-   * @type string[]
-   */
-  let zStack = [];
-
-  /**
-   * @type string[]
-   */
-  let focusStack = [];
-
-  let handoverBlob = {};
-  let serverAddress = '';
-  let frameEscapeFunctions = {};
+  let listener = document.querySelector("#eventListener")
+  let iFrames = []
 
   function createNewFrame(resourceName, uiName, url) {
     const frame = document.createElement('iframe');
@@ -25,42 +15,11 @@
     frame.src = url;
     frame.tabIndex = -1;
 
-    const curElement = document.activeElement;
-    const hadFocus = (curElement?.tagName.toUpperCase() === 'IFRAME');
-
     document.body.appendChild(frame);
-
-    if (hadFocus) {
-      frame.blur();
-      curElement.focus();
-    }
 
     frame.contentWindow.GetParentResourceName = function () {
       return resourceName;
     }
-
-    const eventsToRedirect = [
-      'click',
-      'keydown',
-      'keyup',
-      'mousemove',
-      'mousedown',
-      'mouseup',
-      'wheel',
-      'resize',
-      'scroll',
-      'message'
-    ];
-
-    eventsToRedirect.forEach(eventType => {
-      window.addEventListener(eventType, (event) => {
-        if (eventType == "message" && (event.data.messageTargetUiName !== undefined && event.data.messageTargetUiName != uiName))
-          return
-        // Créer un nouvel événement pour le transmettre
-        const redirectedEvent = new event.constructor(event.type, event);
-        frame.contentWindow.dispatchEvent(redirectedEvent);
-      });
-    });
 
     return frame
 
@@ -68,9 +27,68 @@
 
   window.addEventListener('message', (event) => {
     if (event.data.action == "loadNUI") {
-      createNewFrame(GetParentResourceName(), event.data.name, event.data.url);
+      // Create the new iframe
+      const uiName = event.data.name
+      const url = event.data.url
+      if (iFrames.find((e) => e.id == uiName))
+        return console.log('ERROR, this uiName is already used:', uiName)
+
+      let frame = createNewFrame(GetParentResourceName(), uiName, url);
+
+      iFrames.push({
+        uiName: uiName,
+        element: frame
+      })
+
+    } else {
+      // Redirect events
+      const redirectedEvent = new event.constructor(event.type, event);
+      if (event.data.messageTargetUiName) {
+        const uiName = event.data.messageTargetUiName
+        let frame = iFrames.find((frame) => frame.uiName == uiName)
+        if (!frame)
+          return console.log('ERROR, this uiName is not loaded', uiName)
+        frame.element.contentWindow.dispatchEvent(redirectedEvent)
+      } else {
+        iFrames.forEach((frame) => {
+          frame.element.contentWindow.dispatchEvent(redirectedEvent);
+        })
+      }
     }
   })
+
+
+
+  const eventsToRedirect = [
+    'keydown',
+    'keyup',
+    'wheel',
+    'resize',
+    'scroll',
+    'click',
+    'dblclick',
+    'mousedown',
+    'mouseenter',
+    'mouseleave',
+    'mousemove',
+    'mouseout',
+    'mouseover',
+    'mouseup'
+  ];
+  eventsToRedirect.forEach((eventType) => {
+    window.addEventListener(eventType, (event) => {
+      const redirectedEvent = new event.constructor(event.type, event);
+      iFrames.forEach((frame) => {
+        let em;
+        if (eventType.includes('key'))
+          em = frame.element.contentWindow.document
+        else
+          em = frame.element.contentWindow.document.elementFromPoint(event.screenX, event.screenY)
+        em.dispatchEvent(redirectedEvent)
+      })
+    })
+  })
+
 </script>
 
 <style>
@@ -81,6 +99,18 @@
   }
 
   iframe {
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    top: 0px;
+    bottom: 0px;
+    border: 0px;
+    width: 100%;
+    height: 100%;
+  }
+
+  #eventListener {
+    z-index: 999999;
     position: absolute;
     left: 0px;
     right: 0px;
