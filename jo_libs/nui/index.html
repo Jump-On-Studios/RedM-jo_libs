@@ -65,36 +65,26 @@
     'wheel',
     'resize',
     'scroll',
+    'click',
+    'dblclick',
+    'mousedown',
+    'mouseenter',
+    'mouseleave',
+    'mousemove',
+    'mouseout',
+    'mouseover',
+    'mouseup'
   ];
   eventsToRedirect.forEach((eventType) => {
     window.addEventListener(eventType, (event) => {
-      console.log(eventType)
       const redirectedEvent = new event.constructor(event.type, event);
       iFrames.forEach((frame) => {
-        frame.element.contentWindow.dispatchEvent(redirectedEvent)
-      })
-    })
-  })
-
-  const mouseEventsToRedirect = [
-    'click',
-    // 'dblclick',
-    // 'mousedown',
-    // 'mouseenter',
-    // 'mouseleave',
-    // 'mousemove',
-    // 'mouseout',
-    // 'mouseover',
-    // 'mouseup'
-  ];
-  mouseEventsToRedirect.forEach((eventType) => {
-    listener.addEventListener(eventType, (event) => {
-      const screenX = event.screenX
-      const screenY = event.screenY
-      iFrames.forEach((frame) => {
-        const em = frame.element.contentWindow.document.elementFromPoint(screenX, screenY)
-        em.click()
-        console.log(em)
+        let em;
+        if (eventType.includes('key'))
+          em = frame.element.contentWindow.document
+        else
+          em = frame.element.contentWindow.document.elementFromPoint(event.screenX, event.screenY)
+        em.dispatchEvent(redirectedEvent)
       })
     })
   })
