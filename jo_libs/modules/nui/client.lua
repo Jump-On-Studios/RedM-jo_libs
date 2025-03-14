@@ -17,10 +17,16 @@ function jo.nui.load(uiName, url)
   })
 end
 
-function jo.nui.focus(uiName)
+function jo.nui.forceFocus(uiName)
   if not nuiLoaded[uiName] then return eprint("This nui is not loaded:", uiName) end
   SendNUIMessage({
-    action = "jo_nui_focus",
+    action = "jo_nui_force_focus",
     uiName = uiName
+  })
+end
+
+function jo.nui.resetFocus()
+  SendNUIMessage({
+    action = "jo_nui_reset_focus"
   })
 end

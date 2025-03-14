@@ -15,16 +15,42 @@
     'mousedown',
     'mouseup',
     'mousemove',
-    // 'mouseenter',
-    // 'mouseleave',
-    // 'mouseout',
-    // 'mouseover',
   ];
 
-  let listener = document.querySelector("#eventListener")
   let iFrames = []
   let uiNameFocused = ""
   const zIndexFocused = 999999
+  let lastCoords = [0, 0]
+  const gapDistance = 10
+
+  function isEnoughFar(X, Y) {
+    if (Math.abs(lastCoords[0] - X) < gapDistance && Math.abs(lastCoords[1] - Y) < gapDistance)
+      return false
+
+    lastCoords = [X, Y]
+    return true
+  }
+
+  function getUiFromPoint(X, Y) {
+    for (let index = 0; index < iFrames.length; index++) {
+      const frame = iFrames[index];
+      const el = frame.element.contentWindow.document.elementFromPoint(X, Y)
+      if (el && el.nodeName != "BODY" && el.nodeName != "HTML")
+        return frame.uiName
+    }
+    return null
+  }
+
+  function moveiFrameOnTop(uiName) {
+    iFrames.forEach((frame, index) => {
+      if (frame.uiName == uiName)
+        frame.element.style.zIndex = iFrames.length
+      else if (frame.uiName == uiNameFocused)
+        frame.element.style.zIndex = zIndexFocused
+      else
+        frame.element.style.zIndex = index
+    })
+  }
 
   function createNewFrame(resourceName, uiName, url) {
     const frame = document.createElement('iframe');
@@ -39,22 +65,6 @@
     frame.contentWindow.GetParentResourceName = function () {
       return resourceName;
     }
-
-    // frame.contentWindow.addEventListener('load', () => {
-    // console.log(uiName)
-    // const fullScreen = document.body.getBoundingClientRect()
-    // let body = frame.contentWindow.document.body
-    // let rect = body.getBoundingClientRect()
-    // frame.style.width = rect.width + "px"
-    // body.style.width = fullScreen.width + "px"
-    // frame.style.height = rect.height + "px"
-    // body.style.height = fullScreen.height + "px"
-    // frame.style.left = rect.left + "px"
-    // body.style.left = "0px"
-    // frame.style.top = rect.top + "px"
-    // body.style.top = "0px"
-    // body.style.overflow = "hidden"
-    // })
 
     frame.contentWindow.addEventListener('dispatchEvent', (event) => {
       // console.log('FAKE', event.realtype)
@@ -84,19 +94,18 @@
       })
     });
 
-    frame.contentWindow.addEventListener('load', () => {
-      let body = frame.contentWindow.document.body
-      body.addEventListener('mouseleave', (event) => {
-        iFrames.forEach((frame, index) => {
-          console.log(frame.element.contentWindow.document.elementFromPoint(event.screenX, event.screenY))
-          if (frame.uiName == uiName)
-            frame.element.style.zIndex = 0
-          else if (frame.uiName == uiNameFocused)
-            frame.element.style.zIndex = zIndexFocused
-          else
-            frame.element.style.zIndex = index + 1
-        })
-      })
+
+    frame.contentWindow.addEventListener('mousemove', (event) => {
+      if (event.fake) return
+      if (uiName == uiNameFocused) return
+      const target = event.target
+      if (target.nodeName != "BODY" && target.nodeName != "HTML") return
+      const X = event.screenX
+      const Y = event.screenY
+      if (!isEnoughFar(X, Y)) return
+      const uiNameUnder = getUiFromPoint(X, Y)
+      if (uiNameUnder == null) return
+      moveiFrameOnTop(uiNameUnder)
     })
 
     return frame
@@ -118,10 +127,16 @@
           element: frame
         })
         break;
-      case "jo_nui_focus":
+      case "jo_nui_force_focus":
         uiNameFocused = data.uiName
         iFrames.forEach((frame, index) => {
-          frame.element.style.zIndex = frame.uiName == data.uiName ? zIndexFocused : (index + 1)
+          frame.element.style.zIndex = frame.uiName == data.uiName ? zIndexFocused : index
+        })
+        break;
+      case "jo_nui_reset_focus":
+        uiNameFocused = ""
+        iFrames.forEach((frame, index) => {
+          frame.element.style.zIndex = index
         })
         break;
       default:
