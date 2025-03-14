@@ -27,6 +27,7 @@ files {
 	"nui/**/**.css",
 	"nui/**/**.ttf",
 	"nui/**/**.png",
+	"nui/**/**.webp",
 	"nui/**/**.mp3",
 	"nui/**/**.gif",
 }
