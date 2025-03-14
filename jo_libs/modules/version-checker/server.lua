@@ -34,13 +34,13 @@ function convertVersion(version)
   if not version then return 1 end
   local converted = 0
   if type(version) == "string" then
-      local array = version:split("%.")  
-      local multiplicator = 1
-      for i = #array, 1, -1 do
-          local num = tonumber(array[i])
-          converted = converted + multiplicator * num
-          multiplicator = multiplicator * 100
-      end
+    local array = version:split("%.")
+    local multiplicator = 1
+    for i = #array, 1, -1 do
+      local num = tonumber(array[i]) or 0
+      converted = converted + multiplicator * num
+      multiplicator = multiplicator * 100
+    end
   end
   return converted
 end
