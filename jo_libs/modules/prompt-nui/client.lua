@@ -274,8 +274,31 @@ function GroupClass:display(page)
         removePage(currentGroupVisible, currentGroupVisible.currentPage)
     end
 
+    local lastGroupVisibleId = currentGroupVisible and currentGroupVisible.id or -1
     currentGroupVisible = self
-    self.currentPage = page and math.min(page, #self.prompts) or 1
+
+    if lastGroupVisibleId ~= self.id then
+        CreateThread(function()
+            while true do
+                for i = 1, 12 do
+                    UiPromptDisablePromptTypeThisFrame(i)
+                end
+                if not currentGroupVisible or (currentGroupVisible.id ~= self.id) then break end
+                if IsPauseMenuActive() then
+                    self:hide()
+                    while IsPauseMenuActive() do
+                        Wait(100)
+                    end
+                    Wait(650)
+                    self:display()
+                    break
+                end
+                Wait(0)
+            end
+        end)
+    end
+
+    self.currentPage = page and math.min(page, #self.prompts) or self.currentPage
     -- print(self.currentPage)
     self.visible = true
     SendNUIMessage({

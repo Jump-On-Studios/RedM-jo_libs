@@ -1,6 +1,6 @@
 author "JUMP ON studios : https://jumpon-studios.com"
 documentation "https://docs.jumpon-studios.com"
-version "1.15.3"
+version "1.15.4"
 package_id "1"
 
 fx_version "adamant"
