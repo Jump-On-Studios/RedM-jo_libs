@@ -1,3 +1,4 @@
+<template><span></span></template>
 <script setup>
 import { useGroupStore } from '@/stores/group'
 
@@ -12,10 +13,11 @@ window.addEventListener('message', (event) => {
       groupStore.setGroup(data)
       break
     case 'keyDown':
-      // console.log(type, data);
+      // console.log(type, data)
       groupStore.updatePressedKeys(data.key, true)
       break
     case 'keyUp':
+      // console.log(type, data)
       groupStore.updatePressedKeys(data.key, false)
       break
     case 'nextPage':
@@ -27,7 +29,6 @@ window.addEventListener('message', (event) => {
     case 'updateGroup':
       groupStore.updateGroup(data)
       break
-
   }
 })
 </script>

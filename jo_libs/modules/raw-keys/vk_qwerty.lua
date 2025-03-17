@@ -1,4 +1,3 @@
-
 vk_qwerty = {
     LBUTTON = 0x01,
     RBUTTON = 0x02,
@@ -12,6 +11,7 @@ vk_qwerty = {
     -- 0x0A-0x0B: Reserved
     CLEAR = 0x0C,
     RETURN = 0x0D,
+    ["ENTER"] = 0x0D,
     -- 0x0E-0x0F: Unassigned
     SHIFT = 0x10,
     CONTROL = 0x11,
@@ -35,9 +35,9 @@ vk_qwerty = {
     MODECHANGE = 0x1F,
     SPACE = 0x20,
     PRIOR = 0x21,
-    ["PAGEUP"]= 0x21,
+    ["PAGEUP"] = 0x21,
     NEXT = 0x22,
-    ["PAGEDOWN"]= 0x22,
+    ["PAGEDOWN"] = 0x22,
     END = 0x23,
     HOME = 0x24,
     LEFT = 0x25,
@@ -174,16 +174,16 @@ vk_qwerty = {
     LAUNCH_APP2 = 0xB7,
     -- 0xB8-B9: Reserved
     OEM_1 = 0xBA,
-    [";"]=0xBA,
+    [";"] = 0xBA,
 
     OEM_PLUS = 0xBB,
-    ["+"]=0xBB,
+    ["+"] = 0xBB,
 
     OEM_COMMA = 0xBC,
-    [","]=0xBC,
+    [","] = 0xBC,
 
     OEM_MINUS = 0xBD,
-    ["-"]=0xBD,
+    ["-"] = 0xBD,
 
     OEM_PERIOD = 0xBE,
     [";"] = 0xBE,
@@ -228,4 +228,3 @@ vk_qwerty = {
     PA1 = 0xFD,
     OEM_CLEAR = 0xFE,
 }
-
