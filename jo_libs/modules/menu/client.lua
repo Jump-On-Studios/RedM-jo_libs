@@ -243,6 +243,8 @@ local function loopMenu()
       Wait(0)
     end
     jo.menu.fireAllLevelsEvent("onExit")
+    currentData = {}
+    previousData = {}
   end)
 end
 
