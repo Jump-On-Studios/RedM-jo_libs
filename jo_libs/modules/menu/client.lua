@@ -189,7 +189,14 @@ function jo.menu.create(id, data)
   if not id then
     return "The `id` of the menu is missing"
   end
-  if menus[id] then menus[id] = nil end
+  if menus[id] then
+    if jo.menu.isOpen() and currentData.menu == id then
+      jo.menu.fireAllLevelsEvent("onExit")
+      previousData = {}
+      currentData = {}
+    end
+    menus[id] = nil
+  end
   menus[id] = table.merge(table.copy(MenuClass), data)
   menus[id].id = id
   menus[id]:send()
@@ -228,8 +235,10 @@ function jo.menu.setCurrentMenu(id, keepHistoric, resetMenu)
 end
 
 local function loopMenu()
-  jo.menu.fireEvent(jo.menu.getCurrentMenu(), "onEnter")
-  jo.menu.fireEvent(jo.menu.getCurrentItem(), "onActive")
+  Wait(200)
+  -- jo.menu.fireEvent(jo.menu.getCurrentMenu(), "onEnter")
+  -- jo.menu.fireEvent(jo.menu.getCurrentItem(), "onActive")
+  -- previousData = jo.menu.getCurrentData()
   local ped = PlayerPedId()
   local origin = GetEntityCoords(ped)
   CreateThread(function()
