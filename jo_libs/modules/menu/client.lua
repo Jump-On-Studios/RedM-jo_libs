@@ -55,6 +55,7 @@ local MenuClass = {
   type = "list",
   items = {},
   numberOnScreen = 8,
+  distanceToClose = false,
   onEnter = function() end,
   onBack = function() end,
   onExit = function() end,
@@ -226,21 +227,23 @@ function jo.menu.setCurrentMenu(id, keepHistoric, resetMenu)
   })
 end
 
-function LoopDisableKeys()
-  while nuiShow do
-    for _, key in pairs(disabledKeys) do
-      DisableControlAction(0, key, true)
-    end
-    Wait(0)
-  end
-end
-jo.timeout.loop(1000, LoopDisableKeys)
-
 local function loopMenu()
   jo.menu.fireEvent(jo.menu.getCurrentMenu(), "onEnter")
   jo.menu.fireEvent(jo.menu.getCurrentItem(), "onActive")
+  local ped = PlayerPedId()
+  local origin = GetEntityCoords(ped)
   CreateThread(function()
     while jo.menu.isOpen() do
+      for i = 1, #disabledKeys do
+        DisableControlAction(0, disabledKeys[i], true)
+      end
+      local menu = jo.menu.getCurrentMenu()
+      if menu and menu.distanceToClose then
+        if #(GetEntityCoords(ped) - origin) > menu.distanceToClose then
+          jo.menu.show(false)
+          break
+        end
+      end
       jo.menu.fireAllLevelsEvent("tick")
       jo.menu.fireAllLevelsEvent("onTick")
       Wait(0)
