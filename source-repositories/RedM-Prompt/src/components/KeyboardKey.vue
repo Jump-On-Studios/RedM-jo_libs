@@ -1,20 +1,27 @@
 <template>
-  <div class="keyboardKey bebas"
-       :class="{ holdable: props.holdTime, active: isActive }">
+  <div class="keyboardKey bebas" :class="{ holdable: props.holdTime, active: isActive }">
     <div class="progressContainer">
-      <div class="progress"
-           ref="progressElementRef"></div>
+      <div
+        class="progress"
+        :style="{
+          '--duration': animationDuration,
+          '--animation-state': animationState,
+          '--animation-direction': animationDirection,
+          '--animation-delay': animationDelay,
+          '--scale-r-top': scaleRTop,
+          '--scale-l-top': scaleLTop,
+          '--scale-right': scaleRight,
+          '--scale-bottom': scaleBottom,
+          '--scale-left': scaleLeft,
+        }"
+      ></div>
     </div>
     <div class="activeIndicator"></div>
-    <div v-if="keymap?.text"
-         class="text">
+    <div v-if="keymap?.text" class="text">
       {{ keymap.text }}
     </div>
-    <img v-else-if="keymap?.image"
-         :src="keymap.image"
-         class="image" />
-    <div v-else
-         class="text">
+    <img v-else-if="keymap?.image" :src="keymap.image" class="image" />
+    <div v-else class="text">
       {{ props.kkey }}
     </div>
   </div>
@@ -36,13 +43,27 @@ const props = defineProps({
 // Create a computed keymap to avoid repetitive lookups in the template
 const keymap = computed(() => keymaps[props.kkey])
 
+// Animation states
 const isActive = ref(false)
-const progressElementRef = ref(null)
+const animationState = ref('paused')
+const animationDirection = ref('normal')
+const animationDelay = ref('0ms')
+
+// Scale values directly as reactive refs
+const scaleRTop = ref(50)
+const scaleLTop = ref(0)
+const scaleRight = ref(0)
+const scaleBottom = ref(0)
+const scaleLeft = ref(0)
+
+// Time tracking variables
 let startPressed = 0
 let endPressed = 0
+let animationTimer = null
 
 // Compute animation duration based on holdTime
 const animationDuration = computed(() => (props.holdTime ? `${props.holdTime}ms` : '1000ms'))
+const durationMs = computed(() => props.holdTime || 1000)
 
 // Subscribe to the group store changes and trigger key animations accordingly
 const groupStore = useGroupStore()
@@ -70,118 +91,212 @@ const handleKeyUp = (event) => {
   }
 }
 
+// Reset animation values to initial state
+const resetAnimation = () => {
+  scaleRTop.value = 50
+  scaleLTop.value = 0
+  scaleRight.value = 0
+  scaleBottom.value = 0
+  scaleLeft.value = 0
+}
+
+// Calculate current animation progress based on elapsed time
+const calculateProgress = (elapsed, total) => {
+  const progress = Math.min(1, elapsed / total)
+
+  // Apply the same animation logic from the keyframes but in JS
+  if (progress <= 0.125) {
+    // 0% to 12.5%
+    const segmentProgress = progress / 0.125
+    scaleRTop.value = 50 + segmentProgress * 50
+    scaleLTop.value = 0
+    scaleRight.value = 0
+    scaleBottom.value = 0
+    scaleLeft.value = 0
+  } else if (progress <= 0.375) {
+    // 12.5% to 37.5%
+    const segmentProgress = (progress - 0.125) / 0.25
+    scaleRTop.value = 100
+    scaleLTop.value = 0
+    scaleRight.value = segmentProgress * 100
+    scaleBottom.value = 0
+    scaleLeft.value = 0
+  } else if (progress <= 0.625) {
+    // 37.5% to 62.5%
+    const segmentProgress = (progress - 0.375) / 0.25
+    scaleRTop.value = 100
+    scaleLTop.value = 0
+    scaleRight.value = 100
+    scaleBottom.value = segmentProgress * 100
+    scaleLeft.value = 0
+  } else if (progress <= 0.875) {
+    // 62.5% to 87.5%
+    const segmentProgress = (progress - 0.625) / 0.25
+    scaleRTop.value = 100
+    scaleLTop.value = 0
+    scaleRight.value = 100
+    scaleBottom.value = 100
+    scaleLeft.value = segmentProgress * 100
+  } else {
+    // 87.5% to 100%
+    const segmentProgress = (progress - 0.875) / 0.125
+    scaleRTop.value = 100
+    scaleRight.value = 100
+    scaleBottom.value = 100
+    scaleLeft.value = 100
+    scaleLTop.value = segmentProgress * 50
+  }
+}
+
 // Show key press state and start animation if applicable
 const showKeyDown = () => {
   isActive.value = true
-  if (props.holdTime) startProgressAnimation()
+  if (props.holdTime) {
+    // Clear any existing animation
+    if (animationTimer) {
+      clearInterval(animationTimer)
+      animationTimer = null
+    }
+
+    // Calculate where to start from, if we're resuming a partial animation
+    const offset = endPressed > 0 ? Math.max(durationMs.value - (Date.now() - endPressed), 0) : 0
+    startPressed = Date.now() - offset
+
+    // Calculate initial state based on offset
+    if (offset > 0) {
+      calculateProgress(offset, durationMs.value)
+    } else {
+      resetAnimation()
+    }
+
+    // Set up animation timer that updates the CSS variables
+    animationTimer = setInterval(() => {
+      const elapsed = Date.now() - startPressed
+
+      if (elapsed >= durationMs.value) {
+        // Animation complete
+        calculateProgress(durationMs.value, durationMs.value)
+        clearInterval(animationTimer)
+        animationTimer = null
+
+        resetAnimation()
+        isActive.value = false
+      } else {
+        // Animation in progress
+        calculateProgress(elapsed, durationMs.value)
+      }
+    }, 16) // ~60fps
+  }
 }
 
 // Hide key press state and stop animation if applicable
 const showKeyUp = () => {
   if (!isActive.value) return
   isActive.value = false
-  if (props.holdTime) stopProgressAnimation()
-}
 
-// Start progress animation by setting dynamic CSS properties
-const startProgressAnimation = () => {
-  // console.log("ANIMATION STARTED")
-  const progressElement = progressElementRef.value
-  if (!progressElement) return
+  if (props.holdTime) {
+    // Clear forward animation timer
+    if (animationTimer) {
+      clearInterval(animationTimer)
+      animationTimer = null
+    }
 
-  progressElement.style.setProperty('--duration', animationDuration.value)
-  const durationMs = parseFloat(animationDuration.value)
-  const offset = endPressed > 0 ? Math.max(durationMs - (Date.now() - endPressed), 0) : 0
+    // Calculate progress so far
+    const elapsed = Date.now() - startPressed
+    const progress = Math.min(elapsed, durationMs.value)
 
-  progressElement.style.animationName = 'none'
-  progressElement.style.animationPlayState = 'running'
-  progressElement.style.animationDirection = 'normal'
-  progressElement.style.animationDelay = `-${offset}ms`
-  startPressed = Date.now() - offset
+    // Store the current time for potential resumption
+    endPressed = Date.now() - (durationMs.value - progress)
 
-  requestAnimationFrame(() => {
-    progressElement.style.animationName = ''
-  })
-}
+    // Set up reverse animation
+    startPressed = Date.now()
 
-// Stop progress animation by adjusting CSS properties in reverse
-const stopProgressAnimation = () => {
-  // console.log("ANIMATION STOPPED")
-  const progressElement = progressElementRef.value
-  if (!progressElement) return
+    // Calculate what percentage of the full animation was completed
+    const forwardProgress = Math.min(1, progress / durationMs.value)
 
-  const durationMs = parseFloat(animationDuration.value)
-  const gap = Math.min(durationMs, Date.now() - startPressed)
+    animationTimer = setInterval(() => {
+      const reverseElapsed = Date.now() - startPressed
+      // Calculate how much of the forward progress we've reversed
+      const reverseProgressRatio = Math.min(1, reverseElapsed / progress)
+      // Calculate the effective progress point in the original animation
+      const effectiveProgress = forwardProgress * (1 - reverseProgressRatio)
 
-  progressElement.style.animationName = 'none'
+      // Apply the same keyframe logic but with the reversed progress
+      if (effectiveProgress <= 0) {
+        resetAnimation()
+      } else if (effectiveProgress <= 0.125) {
+        // 0% to 12.5%
+        const segmentProgress = effectiveProgress / 0.125
+        scaleRTop.value = 50 + segmentProgress * 50
+        scaleLTop.value = 0
+        scaleRight.value = 0
+        scaleBottom.value = 0
+        scaleLeft.value = 0
+      } else if (effectiveProgress <= 0.375) {
+        // 12.5% to 37.5%
+        const segmentProgress = (effectiveProgress - 0.125) / 0.25
+        scaleRTop.value = 100
+        scaleLTop.value = 0
+        scaleRight.value = segmentProgress * 100
+        scaleBottom.value = 0
+        scaleLeft.value = 0
+      } else if (effectiveProgress <= 0.625) {
+        // 37.5% to 62.5%
+        const segmentProgress = (effectiveProgress - 0.375) / 0.25
+        scaleRTop.value = 100
+        scaleLTop.value = 0
+        scaleRight.value = 100
+        scaleBottom.value = segmentProgress * 100
+        scaleLeft.value = 0
+      } else if (effectiveProgress <= 0.875) {
+        // 62.5% to 87.5%
+        const segmentProgress = (effectiveProgress - 0.625) / 0.25
+        scaleRTop.value = 100
+        scaleLTop.value = 0
+        scaleRight.value = 100
+        scaleBottom.value = 100
+        scaleLeft.value = segmentProgress * 100
+      } else {
+        // 87.5% to 100%
+        const segmentProgress = (effectiveProgress - 0.875) / 0.125
+        scaleRTop.value = 100
+        scaleLTop.value = segmentProgress * 50
+        scaleRight.value = 100
+        scaleBottom.value = 100
+        scaleLeft.value = 100
+      }
 
-  progressElement.style.animationDirection = 'reverse'
-  progressElement.style.animationDelay = `${-durationMs + gap}ms`
-  endPressed = Date.now() - durationMs + gap
-
-  requestAnimationFrame(() => {
-    progressElement.style.animationName = ''
-
-  })
+      if (reverseElapsed >= progress || effectiveProgress <= 0) {
+        // Reverse animation complete
+        resetAnimation()
+        clearInterval(animationTimer)
+        animationTimer = null
+        isActive.value = false
+      }
+    }, 16) // ~60fps
+  }
 }
 
 // Attach and detach event listeners
 onMounted(() => {
   window.addEventListener('keydown', handleKeyDown)
   window.addEventListener('keyup', handleKeyUp)
-
-  // Reset progress animation on initial load
-  const progressElement = progressElementRef.value
-  if (progressElement) {
-    progressElement.style.animationName = 'none'
-    requestAnimationFrame(() => {
-      progressElement.style.animationName = ''
-    })
-  }
-
+  resetAnimation()
 })
 
 onUnmounted(() => {
   window.removeEventListener('keydown', handleKeyDown)
   window.removeEventListener('keyup', handleKeyUp)
+
+  if (animationTimer) {
+    clearInterval(animationTimer)
+    animationTimer = null
+  }
 })
 </script>
 
 <style lang="scss" scoped>
-@property --scaleRTop {
-  syntax: "<number>";
-  initial-value: 50;
-  inherits: true;
-}
-
-@property --scaleLTop {
-  syntax: "<number>";
-  initial-value: 0;
-  inherits: true;
-}
-
-@property --scaleRight {
-  syntax: "<number>";
-  initial-value: 0;
-  inherits: true;
-}
-
-@property --scaleBottom {
-  syntax: "<number>";
-  initial-value: 0;
-  inherits: true;
-}
-
-@property --scaleLeft {
-  syntax: "<number>";
-  initial-value: 0;
-  inherits: true;
-}
-
 .keyboardKey {
-  --scaleRTop: 50;
-  --scaleLTop: 0;
-  --duration: 10000ms;
   --stroke: 0.14rem;
   --fillColor: white;
   --strokeBgColor: rgba(255, 255, 255, 0.2);
@@ -214,69 +329,91 @@ onUnmounted(() => {
 
   &.holdable {
     .progressContainer {
-      background: linear-gradient(to right,
+      background:
+        linear-gradient(
+          to right,
           var(--strokeBgColor) 0%,
           var(--strokeBgColor) calc(100% - var(--stroke)),
-          transparent 0%),
-        linear-gradient(to bottom,
+          transparent 0%
+        ),
+        linear-gradient(
+          to bottom,
           var(--strokeBgColor) 0%,
           var(--strokeBgColor) calc(100% - var(--stroke)),
-          transparent 0%),
-        linear-gradient(to left,
+          transparent 0%
+        ),
+        linear-gradient(
+          to left,
           var(--strokeBgColor) 0%,
           var(--strokeBgColor) calc(100% - var(--stroke)),
-          transparent 0%),
-        linear-gradient(to top,
+          transparent 0%
+        ),
+        linear-gradient(
+          to top,
           var(--strokeBgColor) 0%,
           var(--strokeBgColor) calc(100% - var(--stroke)),
-          transparent 0%);
-      background-size: 100% var(--stroke), var(--stroke) 100%, 100% var(--stroke), var(--stroke) 100%;
-      background-position: top left, top right, bottom left, top left;
+          transparent 0%
+        );
+      background-size:
+        100% var(--stroke),
+        var(--stroke) 100%,
+        100% var(--stroke),
+        var(--stroke) 100%;
+      background-position:
+        top left,
+        top right,
+        bottom left,
+        top left;
       background-repeat: no-repeat;
       width: calc(100% + 0.6rem);
       height: 1.8rem;
       position: absolute;
 
       .progress {
-        --scaleRTop: 50;
-        --scaleLTop: 0;
-        --scaleLeft: 0;
-        --scaleBottom: 0;
-        --scaleRight: 0;
         width: 100%;
         height: 100%;
         position: relative;
         z-index: 4;
-        background: linear-gradient(to right,
+        background:
+          linear-gradient(
+            to right,
             var(--fillColor) 0%,
-            var(--fillColor) calc(var(--scaleLTop) * 1%),
+            var(--fillColor) calc(var(--scale-l-top) * 1%),
             transparent 0%,
             transparent 50%,
             var(--fillColor) 0%,
-            var(--fillColor) calc(var(--scaleRTop) * 1%),
-            transparent 0%),
-          linear-gradient(to bottom,
+            var(--fillColor) calc(var(--scale-r-top) * 1%),
+            transparent 0%
+          ),
+          linear-gradient(
+            to bottom,
             var(--fillColor) 0%,
-            var(--fillColor) calc(var(--scaleRight) * 1%),
-            transparent 0%),
-          linear-gradient(to left,
+            var(--fillColor) calc(var(--scale-right) * 1%),
+            transparent 0%
+          ),
+          linear-gradient(
+            to left,
             var(--fillColor) 0%,
-            var(--fillColor) calc(var(--scaleBottom) * 1%),
-            transparent 0%),
-          linear-gradient(to top,
+            var(--fillColor) calc(var(--scale-bottom) * 1%),
+            transparent 0%
+          ),
+          linear-gradient(
+            to top,
             var(--fillColor) 0%,
-            var(--fillColor) calc(var(--scaleLeft) * 1%),
-            transparent 0%);
-        background-size: 100% var(--stroke), var(--stroke) 100%, 100% var(--stroke), var(--stroke) 100%;
-        background-position: top left, top right, bottom left, top left;
+            var(--fillColor) calc(var(--scale-left) * 1%),
+            transparent 0%
+          );
+        background-size:
+          100% var(--stroke),
+          var(--stroke) 100%,
+          100% var(--stroke),
+          var(--stroke) 100%;
+        background-position:
+          top left,
+          top right,
+          bottom left,
+          top left;
         background-repeat: no-repeat;
-        animation-name: progress;
-        animation-duration: var(--duration);
-        animation-direction: reverse;
-        animation-fill-mode: both;
-        animation-delay: calc(-1 * var(--duration));
-        animation-timing-function: linear;
-        animation-play-state: paused;
       }
     }
   }
@@ -294,56 +431,6 @@ onUnmounted(() => {
     .activeIndicator {
       display: block;
     }
-  }
-}
-
-@keyframes progress {
-  0% {
-    --scaleRTop: 50;
-    --scaleLTop: 0;
-    --scaleLeft: 0;
-    --scaleBottom: 0;
-    --scaleRight: 0;
-  }
-
-  12.5% {
-    --scaleRTop: 100;
-    --scaleLTop: 0;
-    --scaleLeft: 0;
-    --scaleBottom: 0;
-    --scaleRight: 0;
-  }
-
-  37.5% {
-    --scaleRTop: 100;
-    --scaleLTop: 0;
-    --scaleLeft: 0;
-    --scaleBottom: 0;
-    --scaleRight: 100;
-  }
-
-  62.5% {
-    --scaleRTop: 100;
-    --scaleLTop: 0;
-    --scaleLeft: 0;
-    --scaleBottom: 100;
-    --scaleRight: 100;
-  }
-
-  87.5% {
-    --scaleRTop: 100;
-    --scaleLTop: 0;
-    --scaleLeft: 100;
-    --scaleBottom: 100;
-    --scaleRight: 100;
-  }
-
-  100% {
-    --scaleRTop: 100;
-    --scaleLTop: 50;
-    --scaleLeft: 100;
-    --scaleBottom: 100;
-    --scaleRight: 100;
   }
 }
 </style>

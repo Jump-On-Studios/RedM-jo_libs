@@ -283,8 +283,6 @@ function GroupClass:display(page)
                 for i = 1, 12 do
                     UiPromptDisablePromptTypeThisFrame(i)
                 end
-
-
                 if not currentGroupVisible or (currentGroupVisible.id ~= self.id) then break end
                 if IsPauseMenuActive() then
                     self:hide()
@@ -295,9 +293,6 @@ function GroupClass:display(page)
                     self:display()
                     break
                 end
-
-
-
                 Wait(0)
             end
         end)
