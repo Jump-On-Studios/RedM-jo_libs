@@ -177,7 +177,7 @@ function MenuClass:send(reset)
     currentData.item = self.items[currentData.index]
   end
 end
-function jo.menu.send(id) menus[id]:send() end
+function jo.menu.send(id, reset) menus[id]:send(reset) end
 
 function MenuClass:use(keepHistoric, resetMenu)
   jo.menu.setCurrentMenu(self.id, keepHistoric, resetMenu)
