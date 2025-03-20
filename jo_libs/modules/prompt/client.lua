@@ -181,7 +181,7 @@ function jo.prompt.create(group, str, key, holdTime, page)
   if type(key) == "table" then
     for _, k in pairs(key) do
       promptGroups[group].prompts[page][k] = promptId
-      PromptSetControlAction(ppromptId, joaat(k))
+      PromptSetControlAction(promptId, joaat(k))
     end
   else
     PromptSetControlAction(promptId, joaat(key))
