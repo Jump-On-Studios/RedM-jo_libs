@@ -105,16 +105,16 @@ function jo.entity.create(model, coords, heading, networked, fadeDuration)
 		entity = CreatePed(model, vec4(0, 0, 0, 0), networked)
 		if model == joaat("mp_female") then
 			EquipMetaPedOutfitPreset(entity, 7)
-			ApplyShopItemToPed(entity, joaat('CLOTHING_ITEM_F_HEAD_001_V_001'), true, true, false) --head
-			ApplyShopItemToPed(entity, joaat('CLOTHING_ITEM_F_BODIES_UPPER_001_V_001'), true, true, false)
-			ApplyShopItemToPed(entity, joaat('CLOTHING_ITEM_F_BODIES_LOWER_001_V_001'), true, true, false)
-			ApplyShopItemToPed(entity, joaat('CLOTHING_ITEM_F_EYES_001_TINT_001'), true, true, false)
-		elseif model == joaat('mp_male') then
+			ApplyShopItemToPed(entity, joaat("CLOTHING_ITEM_F_HEAD_001_V_001"), true, true, false) --head
+			ApplyShopItemToPed(entity, joaat("CLOTHING_ITEM_F_BODIES_UPPER_001_V_001"), true, true, false)
+			ApplyShopItemToPed(entity, joaat("CLOTHING_ITEM_F_BODIES_LOWER_001_V_001"), true, true, false)
+			ApplyShopItemToPed(entity, joaat("CLOTHING_ITEM_F_EYES_001_TINT_001"), true, true, false)
+		elseif model == joaat("mp_male") then
 			EquipMetaPedOutfitPreset(entity, 4)
-			ApplyShopItemToPed(entity, joaat('CLOTHING_ITEM_M_HEAD_001_V_001'), true, true, false) --head
-			ApplyShopItemToPed(entity, joaat('CLOTHING_ITEM_M_BODIES_UPPER_001_V_001'), true, true, false)
-			ApplyShopItemToPed(entity, joaat('CLOTHING_ITEM_M_BODIES_LOWER_001_V_001'), true, true, false)
-			ApplyShopItemToPed(entity, joaat('CLOTHING_ITEM_M_EYES_001_TINT_001'), true, true, false)
+			ApplyShopItemToPed(entity, joaat("CLOTHING_ITEM_M_HEAD_001_V_001"), true, true, false) --head
+			ApplyShopItemToPed(entity, joaat("CLOTHING_ITEM_M_BODIES_UPPER_001_V_001"), true, true, false)
+			ApplyShopItemToPed(entity, joaat("CLOTHING_ITEM_M_BODIES_LOWER_001_V_001"), true, true, false)
+			ApplyShopItemToPed(entity, joaat("CLOTHING_ITEM_M_EYES_001_TINT_001"), true, true, false)
 		else
 			SetRandomOutfitVariation(entity, true)
 		end
@@ -138,3 +138,107 @@ function jo.entity.create(model, coords, heading, networked, fadeDuration)
 	return entity
 end
 
+local glm = require "glm"
+
+local glm_rad = glm.rad
+local glm_quatEulerAngleZYX = glm.quatEulerAngleZYX
+local glm_rayPicking = glm.rayPicking
+local glm_up = glm.up()
+local glm_forward = glm.forward()
+local camFov = GetFinalRenderedCamFov()
+local screenRatio = 16 / 9
+
+function ScreenPositionToCameraRay(screenX, screenY)
+	local pos = GetFinalRenderedCamCoord()
+	local rot = glm_rad(GetFinalRenderedCamRot(2))
+
+	local q = glm_quatEulerAngleZYX(rot.z, rot.y, rot.x)
+	return pos, glm_rayPicking(
+		q * glm_forward,
+		q * glm_up,
+		glm_rad(camFov),
+		screenRatio,
+		0.10000,       -- GetFinalRenderedCamNearClip(),
+		1000.0,        -- GetFinalRenderedCamFarClip(),
+		screenX * 2 - 1, -- scale mouse coordinates from [0, 1] to [-1, 1]
+		screenY * 2 - 1
+	)
+end
+
+local function screenToWorld(distance, flags, toIgnore)
+	distance = distance or 100
+	flags = flags or (1|2|8|16)
+	toIgnore = toIgnore or PlayerPedId()
+
+	-- Create a ray from the camera origin that extends through the mouse cursor
+	local r_pos, r_dir = ScreenPositionToCameraRay(0.5, 0.5)
+	local b = r_pos + distance * r_dir
+	local rayHandle = StartShapeTestRay(r_pos, b, flags, toIgnore, 0)
+	-- local rayHandle = StartExpensiveSynchronousShapeTestLosProbe(cam3DPos, direction, 1|2|8|16, toIgnore, 0)
+	local a, hit, endCoords, surfaceNormal, entityHit = GetShapeTestResult(rayHandle)
+	return hit, endCoords, surfaceNormal, entityHit
+end
+
+function jo.entity.createWithMouse(model, keepEntity, networked)
+	networked = networked or false
+	if keepEntity == nil then keepEntity = true end
+	model = GetHashFromString(model)
+	camFov = GetFinalRenderedCamFov()
+	local screenResoX, screenResoY = GetScreenResolution()
+	screenRatio = screenResoX / screenResoY
+
+	local origin = GetOffsetFromEntityInWorldCoords(jo.me, 0.0, 5.0, 0.0)
+	local previousCoord = origin
+	local heading = 0
+	local entity = jo.entity.create(model, origin, heading, false)
+	local maxDistanceCreate = 10
+
+	SetEntityCompletelyDisableCollision(entity, false, false)
+	SetEntityAlpha(entity, 200, false)
+
+	local groupPrompt = "interaction_mouse"
+
+	jo.prompt.create(groupPrompt, "Rotate", { "INPUT_SELECT_NEXT_WEAPON", "INPUT_SELECT_PREV_WEAPON" })
+	jo.prompt.create(groupPrompt, "Place", "INPUT_CONTEXT_RT", 1500)
+	jo.prompt.create(groupPrompt, "Cancel", "INPUT_CONTEXT_LT", 1500)
+
+	while true do
+		DisableControlAction(0, `INPUT_ATTACK`, true)
+		DisableControlAction(0, `INPUT_AIM`, true)
+
+		local hit, targetCoord = screenToWorld(maxDistanceCreate)
+		origin = GetEntityCoords(jo.me)
+
+		if hit and #(targetCoord - origin) <= maxDistanceCreate and #(previousCoord - targetCoord) > 0.025 then
+			previousCoord = targetCoord
+			SetEntityCoords(entity, targetCoord)
+		end
+
+		if IsControlPressed(0, `INPUT_SELECT_PREV_WEAPON`) then
+			heading = (heading - 5 + 360) % 360
+			SetEntityHeading(entity, heading * 1.0)
+		end
+		if IsControlPressed(0, `INPUT_SELECT_NEXT_WEAPON`) then
+			heading = (heading + 5) % 360
+			SetEntityHeading(entity, heading * 1.0)
+		end
+
+		if jo.prompt.isCompleted(groupPrompt, "INPUT_CONTEXT_RT") then
+			break
+		end
+
+		if jo.prompt.isCompleted(groupPrompt, "INPUT_CONTEXT_LT") then
+			previousCoord = false
+			break
+		end
+		Wait(0)
+	end
+	jo.prompt.deleteGroup(groupPrompt)
+
+	jo.entity.delete(entity)
+	if keepEntity then
+		entity = jo.entity.create(model, previousCoord, heading, networked)
+	end
+
+	return entity, previousCoord, heading
+end
