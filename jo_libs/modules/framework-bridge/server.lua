@@ -1047,11 +1047,6 @@ end
 
 --- A function to standardize a object of categories
 local function standardizeSkin(object)
---  local user = jo.User:get(source)
---  local rpName = user:getRPName()
-  
---  print(string.format("Standarding Skin Part 1 - Recieved skin data for character: %s | Data: %s", rpName, json.encode(object)))
-
   object = table.copy(object)
   local standard = {}
 
@@ -1448,7 +1443,7 @@ local function standardizeSkin(object)
 
     standard.overlays = {}
     standard.overlays.ageing = object.ageing_t and {
-      id = decrease(object.ageing_t),
+      id = object.ageing_t,
       opacity = convertToPercent(object.ageing_op)
     }
     object.ageing_t = nil
@@ -1462,7 +1457,7 @@ local function standardizeSkin(object)
     object.beardstabble_op = nil
 
     standard.overlays.blush = object.blush_t and {
-      id = decrease(object.blush_t),
+      id = object.blush_t,
       palette = object.blush_id,
       tint0 = object.blush_c1,
       opacity = convertToPercent(object.blush_op)
@@ -1473,7 +1468,7 @@ local function standardizeSkin(object)
     object.blush_op = nil
 
     standard.overlays.eyebrow = object.eyebrows_t and (function()
-      local id = decrease(object.eyebrows_t)
+      local id = object.eyebrows_t
       local sexe = "m"
       if id > 15 then
         id = id - 15
@@ -1493,8 +1488,8 @@ local function standardizeSkin(object)
     object.eyebrows_op = nil
 
     standard.overlays.eyeliner = object.eyeliners_t and {
-      id = 0,
-      sheetGrid = decrease(object.eyeliners_t),
+      id = object.eyeliners_t,
+      sheetGrid = 0,
       palette = object.eyeliners_id,
       tint0 = object.eyeliners_c1,
       opacity = convertToPercent(object.eyeliners_op)
@@ -1505,8 +1500,8 @@ local function standardizeSkin(object)
     object.eyeliners_op = nil
 
     standard.overlays.eyeshadow = object.shadows_t and {
-      id = 0,
-      sheetGrid = decrease(object.shadows_t),
+      id = object.shadows_t,
+      sheetGrid = 0,
       palette = object.shadows_id,
       tint0 = object.shadows_c1,
       opacity = convertToPercent(object.shadows_op)
@@ -1517,15 +1512,15 @@ local function standardizeSkin(object)
     object.shadows_op = nil
 
     standard.overlays.freckles = object.freckles_t and {
-      id = decrease(object.freckles_t),
+      id = object.freckles_t,
       opacity = convertToPercent(object.freckles_op)
     }
     object.freckles_t = nil
     object.freckles_op = nil
 
     standard.overlays.lipstick = object.lipsticks_t and {
-      id = 0,
-      sheetGrid = decrease(object.lipsticks_t),
+      id = object.eyeliners_t,
+      sheetGrid = 0,
       palette = object.lipsticks_id,
       tint0 = object.lipsticks_c1,
       tint1 = object.lipsticks_c2,
@@ -1538,21 +1533,21 @@ local function standardizeSkin(object)
     object.lipsticks_op = nil
 
     standard.overlays.moles = object.moles_t and {
-      id = decrease(object.moles_t),
+      id = object.moles_t,
       opacity = convertToPercent(object.moles_op)
     }
     object.moles_t = nil
     object.moles_op = nil
 
     standard.overlays.scar = object.scars_t and {
-      id = decrease(object.scars_t),
+      id = object.scars_t,
       opacity = convertToPercent(object.scars_op)
     }
     object.scars_t = nil
     object.scars_op = nil
 
     standard.overlays.spots = object.spots_t and {
-      id = decrease(object.spots_t),
+      id = object.spots_t,
       opacity = convertToPercent(object.spots_op)
     }
     object.spots_t = nil
@@ -1657,7 +1652,7 @@ local function standardizeSkin(object)
 
     standard.overlays = {}
     standard.overlays.ageing = object.ageing_t and {
-      id = decrease(object.ageing_t),
+      id = object.ageing_t,
       opacity = convertToPercent(object.ageing_op)
     }
     object.ageing_t = nil
@@ -1671,7 +1666,7 @@ local function standardizeSkin(object)
     object.beardstabble_op = nil
 
     standard.overlays.blush = object.blush_t and {
-      id = decrease(object.blush_t),
+      id = object.blush_t,
       palette = object.blush_id,
       tint0 = object.blush_c1,
       opacity = convertToPercent(object.blush_op)
@@ -1682,7 +1677,7 @@ local function standardizeSkin(object)
     object.blush_op = nil
 
     standard.overlays.eyebrow = object.eyebrows_t and (function()
-      local id = decrease(object.eyebrows_t)
+      local id = object.eyebrows_t
       local sexe = "m"
       if id > 15 then
         id = id - 15
@@ -1702,8 +1697,8 @@ local function standardizeSkin(object)
     object.eyebrows_op = nil
 
     standard.overlays.eyeliner = object.eyeliners_t and {
-      id = 0,
-      sheetGrid = decrease(object.eyeliners_t),
+      id = object.eyeliners_t,
+      sheetGrid = 0,
       palette = object.eyeliners_id,
       tint0 = object.eyeliners_c1,
       opacity = convertToPercent(object.eyeliners_op)
@@ -1714,8 +1709,8 @@ local function standardizeSkin(object)
     object.eyeliners_op = nil
 
     standard.overlays.eyeshadow = object.shadows_t and {
-      id = 0,
-      sheetGrid = decrease(object.shadows_t),
+      id = object.shadows_t,
+      sheetGrid = 0,
       palette = object.shadows_id,
       tint0 = object.shadows_c1,
       opacity = convertToPercent(object.shadows_op)
@@ -1726,15 +1721,15 @@ local function standardizeSkin(object)
     object.shadows_op = nil
 
     standard.overlays.freckles = object.freckles_t and {
-      id = decrease(object.freckles_t),
+      id = object.freckles_t,
       opacity = convertToPercent(object.freckles_op)
     }
     object.freckles_t = nil
     object.freckles_op = nil
 
     standard.overlays.lipstick = object.lipsticks_t and {
-      id = 0,
-      sheetGrid = decrease(object.lipsticks_t),
+      id = object.eyeliners_t,
+      sheetGrid = 0,
       palette = object.lipsticks_id,
       tint0 = object.lipsticks_c1,
       tint1 = object.lipsticks_c2,
@@ -1747,21 +1742,21 @@ local function standardizeSkin(object)
     object.lipsticks_op = nil
 
     standard.overlays.moles = object.moles_t and {
-      id = decrease(object.moles_t),
+      id = object.moles_t,
       opacity = convertToPercent(object.moles_op)
     }
     object.moles_t = nil
     object.moles_op = nil
 
     standard.overlays.scar = object.scars_t and {
-      id = decrease(object.scars_t),
+      id = object.scars_t,
       opacity = convertToPercent(object.scars_op)
     }
     object.scars_t = nil
     object.scars_op = nil
 
     standard.overlays.spots = object.spots_t and {
-      id = decrease(object.spots_t),
+      id = object.spots_t,
       opacity = convertToPercent(object.spots_op)
     }
     object.spots_t = nil
