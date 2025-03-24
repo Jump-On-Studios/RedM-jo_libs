@@ -171,33 +171,36 @@ function jo.prompt.create(group, str, key, holdTime, page)
   }
   promptGroups[group].prompts[page] = promptGroups[group].prompts[page] or {}
 
+  local _key = type(key) == "table" and key[1] or key
+  if promptGroups[group].prompts[page][_key] then
+    PromptDelete(promptGroups[group].prompts[page][_key])
+  end
+  local promptId = PromptRegisterBegin()
+  promptGroups[group].prompts[page][_key] = promptId
+
   if type(key) == "table" then
-    local keys = key
-    key = keys[1]
-    promptGroups[group].prompts[page][key] = PromptRegisterBegin()
-    for _, k in pairs(keys) do
-      promptGroups[group].prompts[page][k] = promptGroups[group].prompts[page][key]
-      PromptSetControlAction(promptGroups[group].prompts[page][key], joaat(k))
+    for _, k in pairs(key) do
+      promptGroups[group].prompts[page][k] = promptId
+      PromptSetControlAction(promptId, joaat(k))
     end
   else
-    promptGroups[group].prompts[page][key] = PromptRegisterBegin()
-    PromptSetControlAction(promptGroups[group].prompts[page][key], joaat(key))
+    PromptSetControlAction(promptId, joaat(key))
   end
   str = CreateVarString(10, "LITERAL_STRING", str)
-  PromptSetText(promptGroups[group].prompts[page][key], str)
-  PromptSetPriority(promptGroups[group].prompts[page][key], 2)
-  PromptSetEnabled(promptGroups[group].prompts[page][key], true)
-  PromptSetVisible(promptGroups[group].prompts[page][key], true)
+  PromptSetText(promptId, str)
+  PromptSetPriority(promptId, 2)
+  PromptSetEnabled(promptId, true)
+  PromptSetVisible(promptId, true)
   if holdTime > 0 then
-    PromptSetHoldMode(promptGroups[group].prompts[page][key], holdTime)
+    PromptSetHoldMode(promptId, holdTime)
   end
   if type(group) ~= "string" or not group:find("interaction") then
-    PromptSetGroup(promptGroups[group].prompts[page][key], promptGroups[group].group, page)
+    PromptSetGroup(promptId, promptGroups[group].group, page)
     promptGroups[group].nbrPage = math.max(promptGroups[group].nbrPage, page + 1)
   end
-  PromptRegisterEnd(promptGroups[group].prompts[page][key])
+  PromptRegisterEnd(promptId)
   jo.prompt.setVisible(group, key, true)
-  return promptGroups[group].prompts[page][key]
+  return promptId
 end
 
 function jo.prompt.deleteAllGroups()
@@ -227,13 +230,7 @@ function jo.prompt.deleteGroup(group)
 end
 
 jo.stopped(function()
-  for _, group in pairs(promptGroups) do
-    for _, prompts in pairs(group.prompts) do
-      for _, prompt in pairs(prompts) do
-        PromptDelete(prompt)
-      end
-    end
-  end
+  jo.prompt.deleteAllGroups()
 end)
 
 ---@param group string the name of the group

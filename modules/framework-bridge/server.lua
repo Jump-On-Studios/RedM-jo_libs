@@ -1853,6 +1853,12 @@ local function revertSkin(standard)
     return (value or 0) + 1
   end
 
+  local function extractHashIfAlone(value)
+    if type(value) ~= "table" then return value end
+    if table.count(value) ~= 1 then return value end
+    return value.hash or value
+  end
+
   if jo.framework:is("VORP") then
     reverted.sex = table.extract(standard, "model")
     reverted.HeadType = table.extract(standard, "headHash")
@@ -1864,8 +1870,8 @@ local function revertSkin(standard)
     standard.bodyLowerHash = nil
     reverted.Eyes = table.extract(standard, "eyesHash")
     reverted.Teeth = table.extract(standard, "teethHash")
-    reverted.Hair = table.extract(standard, "hair")
-    reverted.Beard = table.extract(standard, "beards_complete")
+    reverted.Hair = extractHashIfAlone(table.extract(standard, "hair"))
+    reverted.Beard = extractHashIfAlone(table.extract(standard, "beards_complete"))
     reverted.Body = table.extract(standard, "bodyType")
     reverted.Waist = table.extract(standard, "bodyWeight")
     reverted.Scale = table.extract(standard, "bodyScale")
@@ -2090,7 +2096,7 @@ local function revertSkin(standard)
       standard.expressions = nil
     end
 
-    if Config and Config.debug then
+    if jo.debug then
       if table.count(standard) > 0 then
         eprint("Skin keys not reverted")
         for key, value in pairs(standard) do

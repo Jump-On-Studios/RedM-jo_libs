@@ -1,5 +1,14 @@
 jo.date = {}
 
+
+---@return integer time the current time in ms
+function jo.date.now()
+  if IsDuplicityVersion() then
+    return os.time() * 1000
+  end
+  return GetGameTimer()
+end
+
 function jo.date.convertMsToInterval(ms, lang)
   lang = lang or {
     ms = "ms",

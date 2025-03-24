@@ -1,7 +1,7 @@
 jo.notif = {}
 
 if not DataView then
-  jo.require('dataview')
+  jo.require("dataview")
 end
 
 local function LoadDictFile(dict, waiter)
@@ -38,11 +38,13 @@ end)
 ---@param text string the text of the notification
 function jo.notif.rightSuccess(text)
   jo.notif.right(text, "hud_textures", "check", "COLOR_GREEN")
+  return true
 end
 
 ---@param text string the text of the notification
 function jo.notif.rightError(text)
-  jo.notif.right(text, "menu_textures", "cross", "COLOR_RED", nil, nil, 'Transaction_Negative')
+  jo.notif.right(text, "menu_textures", "cross", "COLOR_RED", nil, nil, "Transaction_Negative")
+  return false
 end
 
 ---@param text string The text of the notification
@@ -54,10 +56,10 @@ end
 ---@param soundset_name? string The name of the soundset
 function jo.notif.right(text, dict, icon, color, duration, soundset_ref, soundset_name)
   local message = {
-    type = 'notificationRight',
-    text = tostring(text or ''),
-    dict = tostring(dict or ''),
-    icon = tostring(icon or ''),
+    type = "notificationRight",
+    text = tostring(text or ""),
+    dict = tostring(dict or ""),
+    icon = tostring(icon or ""),
     color = tostring(color or "COLOR_WHITE"),
     duration = tonumber(duration or 3000),
     soundset_ref = soundset_ref or "Transaction_Feed_Sounds",
@@ -99,11 +101,11 @@ end)
 ---@param soundset_name? string The name of the soundset
 function jo.notif.left(title, text, dict, icon, color, duration, soundset_ref, soundset_name)
   local message = {
-    type = 'notificationLeft',
-    title = tostring(title or ''),
-    text = tostring(text or ''),
-    dict = tostring(dict or ''),
-    icon = tostring(icon or ''),
+    type = "notificationLeft",
+    title = tostring(title or ""),
+    text = tostring(text or ""),
+    dict = tostring(dict or ""),
+    icon = tostring(icon or ""),
     color = tostring(color or "COLOR_WHITE"),
     duration = tonumber(duration or 3000),
     soundset_ref = soundset_ref or "Transaction_Feed_Sounds",
@@ -153,5 +155,3 @@ end)
 RegisterNetEvent(GetCurrentResourceName() .. ":client:notifPrint", function(...)
   print(...)
 end)
-
-

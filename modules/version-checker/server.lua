@@ -37,7 +37,8 @@ function convertVersion(version)
     local array = version:split("%.")
     local multiplicator = 1
     for i = #array, 1, -1 do
-      converted = converted + multiplicator * array[i]
+      local num = tonumber(array[i]) or 0
+      converted = converted + multiplicator * num
       multiplicator = multiplicator * 100
     end
   end
@@ -60,66 +61,68 @@ exports("StopAddon", function(resource)
 end)
 
 function jo.versionChecker.checkUpdate()
-  local myResource = GetCurrentResourceName()
-  local currentVersion = GetResourceMetadata(myResource, "version", 0)
-  local packageID = tonumber(GetResourceMetadata(myResource, "package_id", 0))
-  if not packageID or not currentVersion then
-    return
-  end
-
-  local serverName = urlencode(GetConvar("sv_hostname", ""))
-
-  local framework = urlencode("")
-  if jo and jo.framework then
-    framework = urlencode(jo.framework:get())
-  end
-
-  local link = ("https://dashboard.jumpon-studios.com/api/checkVersion?package=%d&server_name=%s&framework=%s"):format(packageID, serverName, framework)
-  local waiter = promise.new()
-  PerformHttpRequest(link, function(errorCode, resultData, resultHeaders, errorData)
-    waiter:resolve("")
-    if errorCode ~= 200 then
-      return print("^3" .. myResource .. ": version checker API is offline. Impossible to check your version.^0")
+  CreateThread(function()
+    local myResource = GetCurrentResourceName()
+    local currentVersion = GetResourceMetadata(myResource, "version", 0)
+    local packageID = tonumber(GetResourceMetadata(myResource, "package_id", 0))
+    if not packageID or not currentVersion then
+      return
     end
-    resultData = json.decode(resultData)
-    if not resultData.version then
-      return print("^3" .. myResource .. ": error in the format of version checker. Impossible to check your version.^0")
+
+    local serverName = urlencode(GetConvar("sv_hostname", ""))
+
+    local framework = urlencode("")
+    if jo and jo.framework then
+      framework = urlencode(jo.framework:get())
     end
-    local lastVersion = convertVersion(resultData.version:sub(2))
-    if convertVersion(currentVersion) >= lastVersion then
-      return print(("^3%s: \x1b[92mUp to date - Version %s^0"):format(myResource, currentVersion))
-    end
-    print("^3┌───────────────────────────────────────────────────┐^0")
-    print("")
-    print("^3" .. myResource .. ": ^5 Update found : Version " .. resultData.version .. "^0")
-    print("^3Download it on ^0https://keymaster.fivem.net/asset-grants")
-    print("")
-    print("^3 Description of " .. resultData.version .. ":^0")
-    print(resultData.body)
-    print("")
-    print("^3└───────────────── jumpon-studios.com ──────────────┘^0")
-  end)
 
-  Citizen.Await(waiter)
+    local link = ("https://dashboard.jumpon-studios.com/api/checkVersion?package=%d&server_name=%s&framework=%s"):format(packageID, serverName, framework)
+    local waiter = promise.new()
+    PerformHttpRequest(link, function(errorCode, resultData, resultHeaders, errorData)
+      waiter:resolve("")
+      if errorCode ~= 200 then
+        return print("^3" .. myResource .. ": version checker API is offline. Impossible to check your version.^0")
+      end
+      resultData = json.decode(resultData)
+      if not resultData.version then
+        return print("^3" .. myResource .. ": error in the format of version checker. Impossible to check your version.^0")
+      end
+      local lastVersion = convertVersion(resultData.version:sub(2))
+      if convertVersion(currentVersion) >= lastVersion then
+        return print(("^3%s: \x1b[92mUp to date - Version %s^0"):format(myResource, currentVersion))
+      end
+      print("^3┌───────────────────────────────────────────────────┐^0")
+      print("")
+      print("^3" .. myResource .. ": ^5 Update found : Version " .. resultData.version .. "^0")
+      print("^3Download it on ^0https://keymaster.fivem.net/asset-grants")
+      print("")
+      print("^3 Description of " .. resultData.version .. ":^0")
+      print(resultData.body)
+      print("")
+      print("^3└───────────────── jumpon-studios.com ──────────────┘^0")
+    end)
 
-  local dependencies = GetResourceMetadata(myResource, "dependencies_version_min", 0)
-  if dependencies then
-    dependencies = dependencies:split(",")
-    for _, dependency in ipairs(dependencies) do
-      local data = dependency:split(":")
-      local script = data[1]
-      local minVersion = data[2]
+    Citizen.Await(waiter)
 
-      if GetResourceState(script) ~= "started" then
-        eprint(script .. " is missing !")
-      else
-        local currentVersion = exports[script]:GetScriptVersion()
-        if convertVersion(currentVersion) < convertVersion(minVersion) then
-          print("^1" .. script .. " needs to be updated^0: Required version: " .. minVersion .. ", Your version: " .. currentVersion)
+    local dependencies = GetResourceMetadata(myResource, "dependencies_version_min", 0)
+    if dependencies then
+      dependencies = dependencies:split(",")
+      for _, dependency in ipairs(dependencies) do
+        local data = dependency:split(":")
+        local script = data[1]
+        local minVersion = data[2]
+
+        if GetResourceState(script) ~= "started" then
+          eprint(script .. " is missing !")
+        else
+          local currentVersion = exports[script]:GetScriptVersion()
+          if convertVersion(currentVersion) < convertVersion(minVersion) then
+            print("^1" .. script .. " needs to be updated^0: Required version: " .. minVersion .. ", Your version: " .. currentVersion)
+          end
         end
       end
     end
-  end
+  end)
 end
 
 jo.ready(function()

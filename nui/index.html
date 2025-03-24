@@ -4,19 +4,53 @@
 <script>
   window.citFrames = {};
 
-  /**
-   * @type string[]
-   */
-  let zStack = [];
+  const eventsToRedirect = [
+    'keydown',
+    'keyup',
+    'wheel',
+    'resize',
+    'scroll',
+    'click',
+    'dblclick',
+    'mousedown',
+    'mouseup',
+    'mousemove',
+  ];
 
-  /**
-   * @type string[]
-   */
-  let focusStack = [];
+  let iFrames = []
+  let uiNameFocused = ""
+  const zIndexFocused = 999999
+  let lastCoords = [0, 0]
+  const gapDistance = 10
 
-  let handoverBlob = {};
-  let serverAddress = '';
-  let frameEscapeFunctions = {};
+  function isEnoughFar(X, Y) {
+    if (Math.abs(lastCoords[0] - X) < gapDistance && Math.abs(lastCoords[1] - Y) < gapDistance)
+      return false
+
+    lastCoords = [X, Y]
+    return true
+  }
+
+  function getUiFromPoint(X, Y) {
+    for (let index = 0; index < iFrames.length; index++) {
+      const frame = iFrames[index];
+      const el = frame.element.contentWindow.document.elementFromPoint(X, Y)
+      if (el && el.nodeName != "BODY" && el.nodeName != "HTML")
+        return frame.uiName
+    }
+    return null
+  }
+
+  function moveiFrameOnTop(uiName) {
+    iFrames.forEach((frame, index) => {
+      if (frame.uiName == uiName)
+        frame.element.style.zIndex = iFrames.length
+      else if (frame.uiName == uiNameFocused)
+        frame.element.style.zIndex = zIndexFocused
+      else
+        frame.element.style.zIndex = index
+    })
+  }
 
   function createNewFrame(resourceName, uiName, url) {
     const frame = document.createElement('iframe');
@@ -24,53 +58,119 @@
     frame.allow = 'microphone *; camera *;';
     frame.src = url;
     frame.tabIndex = -1;
-
-    const curElement = document.activeElement;
-    const hadFocus = (curElement?.tagName.toUpperCase() === 'IFRAME');
+    frame.style.overflow = "hidden"
 
     document.body.appendChild(frame);
-
-    if (hadFocus) {
-      frame.blur();
-      curElement.focus();
-    }
 
     frame.contentWindow.GetParentResourceName = function () {
       return resourceName;
     }
 
-    const eventsToRedirect = [
-      'click',
-      'keydown',
-      'keyup',
-      'mousemove',
-      'mousedown',
-      'mouseup',
-      'wheel',
-      'resize',
-      'scroll',
-      'message'
-    ];
+    frame.contentWindow.addEventListener('dispatchEvent', (event) => {
+      const redirectedEvent = new event.constructor(event.realtype, event);
+      redirectedEvent.fake = true
+      if (event.realtype.includes("key")) {
+        frame.contentWindow.document.dispatchEvent(redirectedEvent)
+        return
+      }
+      const el = frame.contentWindow.document.elementFromPoint(event.screenX, event.screenY)
+      if (el == null) {
+        frame.contentWindow.document.dispatchEvent(redirectedEvent)
+        return
+      }
+      el.dispatchEvent(redirectedEvent)
+    })
 
     eventsToRedirect.forEach(eventType => {
-      window.addEventListener(eventType, (event) => {
-        if (eventType == "message" && (event.data.messageTargetUiName !== undefined && event.data.messageTargetUiName != uiName))
-          return
-        // Créer un nouvel événement pour le transmettre
-        const redirectedEvent = new event.constructor(event.type, event);
-        frame.contentWindow.dispatchEvent(redirectedEvent);
-      });
+      frame.contentWindow.addEventListener(eventType, (event) => {
+        if (event.fake) return
+        const redirectedEvent = new event.constructor('dispatchEvent', event);
+        redirectedEvent.realtype = eventType
+        iFrames.forEach((frame) => {
+          if (frame.uiName != uiName)
+            frame.element.contentWindow.document.dispatchEvent(redirectedEvent)
+        })
+      })
     });
+
+
+    frame.contentWindow.addEventListener('mousemove', (event) => {
+      if (event.fake) return
+      if (uiName == uiNameFocused) return
+      const target = event.target
+      if (target.nodeName != "BODY" && target.nodeName != "HTML") return
+      const X = event.screenX
+      const Y = event.screenY
+      if (!isEnoughFar(X, Y)) return
+      const uiNameUnder = getUiFromPoint(X, Y)
+      if (uiNameUnder == null) return
+      moveiFrameOnTop(uiNameUnder)
+    })
 
     return frame
 
   }
 
+  const globalEvents = [
+    'keydown',
+    'keyup',
+  ]
+
+  globalEvents.forEach(eventType => {
+    window.addEventListener(eventType, (event) => {
+      if (event.fake) return
+      const redirectedEvent = new event.constructor('dispatchEvent', event);
+      redirectedEvent.realtype = eventType
+      iFrames.forEach((frame) => {
+        frame.element.contentWindow.document.dispatchEvent(redirectedEvent)
+      })
+    })
+  });
+
   window.addEventListener('message', (event) => {
-    if (event.data.action == "loadNUI") {
-      createNewFrame(GetParentResourceName(), event.data.name, event.data.url);
+    const data = event.data
+    switch (data.action) {
+      case "jo_nui_loadNUI":
+        // Create the new iframe
+        if (iFrames.find((e) => e.uiName == data.uiName))
+          return console.log('ERROR, this uiName is already used:', data.uiName)
+
+        let frame = createNewFrame(GetParentResourceName(), data.uiName, data.url);
+
+        iFrames.push({
+          uiName: data.uiName,
+          element: frame
+        })
+        break;
+      case "jo_nui_force_focus":
+        uiNameFocused = data.uiName
+        iFrames.forEach((frame, index) => {
+          frame.element.style.zIndex = frame.uiName == data.uiName ? zIndexFocused : index
+        })
+        break;
+      case "jo_nui_reset_focus":
+        uiNameFocused = ""
+        iFrames.forEach((frame, index) => {
+          frame.element.style.zIndex = index
+        })
+        break;
+      default:
+        const redirectedEvent = new event.constructor(event.type, event);
+        if (data.messageTargetUiName) {
+          const uiName = data.messageTargetUiName
+          let frame = iFrames.find((frame) => frame.uiName == uiName)
+          if (!frame)
+            return console.log('ERROR, this uiName is not loaded', uiName)
+          frame.element.contentWindow.dispatchEvent(redirectedEvent)
+        } else {
+          iFrames.forEach((frame) => {
+            frame.element.contentWindow.dispatchEvent(redirectedEvent);
+          })
+        }
+        break;
     }
   })
+
 </script>
 
 <style>

@@ -1,16 +1,16 @@
-RegisterNetEvent(GetCurrentResourceName()..":client:openInventory", function(name,config)
+RegisterNetEvent(GetCurrentResourceName() .. ":client:openInventory", function(name, config)
   TriggerServerEvent("inventory:server:OpenInventory", "stash", name, { maxweight = config.maxWeight, slots = config.maxSlots })
   TriggerEvent("inventory:client:SetCurrentStash", name)
 end)
 
 AddEventHandler("vorp_stables:setClosedInv", function()
-  TriggerServerEvent(GetCurrentResourceName()..":server:closeInventory")
+  TriggerServerEvent(GetCurrentResourceName() .. ":server:closeInventory")
 end)
 
 jo.file.load('framework-bridge.overwrite-functions')
 
 if not table.merge then
-  jo.require('table')
+  jo.require("table")
 end
 
 ---@class FrameworkClass : table Framework class
@@ -25,9 +25,9 @@ local FrameworkClass = {
 }
 ---@return FrameworkClass FrameworkClass class
 function FrameworkClass:new(t)
-  table.merge(self,t or {})
+  table.merge(self, t or {})
   self:init()
-	return self
+  return self
 end
 
 function FrameworkClass:init()
@@ -39,17 +39,17 @@ function FrameworkClass:get()
 
   if OWFramework.get then
     self.name = OWFramework.get()
-  elseif GetResourceState('vorp_core') == "started" then
+  elseif GetResourceState("vorp_core") == "started" then
     self.name = "VORP"
-  elseif GetResourceState('redem') == "started" then
+  elseif GetResourceState("redem") == "started" then
     self.name = "RedEM"
-  elseif GetResourceState('redem_roleplay') == "started" then
+  elseif GetResourceState("redem_roleplay") == "started" then
     self.name = "RedEM2023"
-  elseif GetResourceState('qbr-core') == "started" then
+  elseif GetResourceState("qbr-core") == "started" then
     self.name = "QBR"
-  elseif GetResourceState('rsg-core') == "started" then
+  elseif GetResourceState("rsg-core") == "started" then
     self.name = "RSG"
-  elseif GetResourceState('qr-core') == "started" then
+  elseif GetResourceState("qr-core") == "started" then
     self.name = "QR"
   end
   return self.name
@@ -71,7 +71,7 @@ function FrameworkClass:example()
     return
   elseif self:is("QBR") then
     return
-  elseif self:is('RSG') then
+  elseif self:is("RSG") then
     return
   elseif self:is("RPX") then
     return
@@ -79,4 +79,3 @@ function FrameworkClass:example()
 end
 
 jo.framework = FrameworkClass:new()
-

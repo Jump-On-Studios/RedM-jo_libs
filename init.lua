@@ -18,7 +18,7 @@ local alias = {
   notif = "notification",
   pedTexture = "ped-texture",
   gameEvents = "game-events",
-  triggerEvent = "trigger-event"
+  triggerEvent = "trigger-event",
 }
 
 local function getAlias(module)
@@ -241,7 +241,6 @@ AddConvarChangeListener(resourceName .. ":debug", function()
   end
 end)
 
-
 -------------
 -- EXPORTS (prevent call before initializes)
 -------------
@@ -267,8 +266,8 @@ end)
 -------------
 -- LOAD REQUIRED MODULES
 -------------
-
-for _, name in ipairs(modules) do
+for i = 1, #modules do
+  local name = modules[i]
   jo.require(name)
   if name == "hook" then
     CreateExport("registerAction", jo.hook.registerAction)
@@ -281,9 +280,3 @@ for _, name in ipairs(modules) do
   end
 end
 jo.libLoaded = true
-
-if GetConvar(resourceName .. ":debug", "off") == "on" then
-  oprint("/!\\ Jo_libs is in debug mode /!\\")
-  oprint("Don't use this in production!")
-  jo.debug = true
-end
