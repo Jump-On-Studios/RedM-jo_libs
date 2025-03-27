@@ -1,5 +1,42 @@
 jo.require("table")
 
+function log(...)
+  local args = { ... }
+  for i = 1, #args do
+    if type(args[i]) == "table" then
+      args[i] = json.encode(args[i], { indent = true })
+    end
+  end
+  print(table.unpack(args))
+end
+
+local colors = {
+  red = {
+    start = "^1",
+    reset = "^0",
+  },
+  green = {
+    start = IsDuplicityVersion() and "\x1b[92m" or "^2",
+    reset = IsDuplicityVersion() and "\x1b[97m" or "^0",
+  },
+  orange = {
+    start = IsDuplicityVersion() and "\x1b[38;2;255;95;31m" or "^3",
+    reset = IsDuplicityVersion() and "\x1b[97m" or "^0",
+  },
+  blue = {
+    start = IsDuplicityVersion() and "\x1b[96m" or "^5",
+    reset = IsDuplicityVersion() and "\x1b[97m" or "^0",
+  },
+}
+
+local function getColorCode(color)
+  return colors[color]?.start or ""
+end
+
+local function getColorResetCode(color)
+  return colors[color]?.reset or "^0"
+end
+
 local function encodeTable(...)
   local args = table.copy({ ... })
   for i = 1, #args do
