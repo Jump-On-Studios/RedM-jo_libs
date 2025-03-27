@@ -1,18 +1,22 @@
----@param orig  table Table to copy
+local type = type
+local setmetatable = setmetatable
+local getmetatable = getmetatable
+local pairs = pairs
+
+---@param orig  table Table to deep copy
 ---@return table
 table.copy = function(orig)
-  local orig_type = type(orig)
-  local copy
-  if orig_type == "table" then
-    copy = {}
-    for orig_key, orig_value in next, orig, nil do
-      copy[table.copy(orig_key)] = table.copy(orig_value)
-    end
-    setmetatable(copy, table.copy(getmetatable(orig)))
-  else -- number, string, boolean, etc
-    copy = orig
+  if type(orig) ~= "table" then
+    return orig
   end
-  return copy
+
+  local copy = table.clone(orig)
+  for orig_key, orig_value in pairs(orig) do
+    if type(orig_value) == "table" then
+      copy[orig_key] = table.copy(orig_value)
+    end
+  end
+  return setmetatable(copy, getmetatable(orig))
 end
 
 ---@param  t1 table
