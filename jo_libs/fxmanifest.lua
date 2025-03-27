@@ -37,6 +37,6 @@ shared_scripts {
 }
 
 jo_libs {
-	"framework-bridge",
-	"version-checker"
+	"version-checker",
+	"_unit-test"
 }
