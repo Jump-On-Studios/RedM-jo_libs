@@ -1,8 +1,6 @@
 jo.file = {}
 
-function jo.file.load(modname)
-  if type(modname) ~= "string" then return end
-
+local function convertModName(modname)
   local modpath = modname:gsub("%.", "/")
   local resource = ""
 
@@ -23,6 +21,16 @@ function jo.file.load(modname)
     resource = "jo_libs"
     modpath = "modules/" .. modpath
   end
+  return resource, modpath
+end
+
+---@param modname string file location
+---@return any
+function jo.file.load(modname)
+  if type(modname) ~= "string" then return end
+  dprint(modname, "~orange~: Start loading")
+
+  local resource, modpath = convertModName(modname)
 
   local file = LoadResourceFile(resource, ("%s.lua"):format(modpath))
 
@@ -33,8 +41,20 @@ function jo.file.load(modname)
       return error(("\n^1Error loading file (%s): %s^0"):format(modname, err), 3)
     end
 
-    pcall(fn)
+    dprint(modname, "~green~: Loaded")
+
+    local success, result = pcall(fn)
+
+    if not success then return false, eprint("Error loading: " .. modname) end
+    return result
   else
-    eprint("Impossible to load: " .. modname)
+    return false, eprint(modname, ": Impossible to load. File doesn't exist.")
   end
+end
+
+function jo.file.isExist(modname)
+  local resource, modpath = convertModName(modname)
+  local file = LoadResourceFile(resource, ("%s.lua"):format(modpath))
+
+  return file and true or false
 end

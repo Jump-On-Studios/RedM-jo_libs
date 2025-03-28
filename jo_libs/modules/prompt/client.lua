@@ -87,6 +87,7 @@ end
 ---@param fireMultipleTimes? boolean (optional) fire true until another prompt is completed
 ---@return boolean
 function jo.prompt.isCompleted(group, key, fireMultipleTimes, page)
+  local keyHashed = GetHashFromString(key)
   if not group or not key then return false end
   if fireMultipleTimes == nil then fireMultipleTimes = false end
   if not jo.prompt.isGroupExist(group) then return false end
@@ -106,7 +107,7 @@ function jo.prompt.isCompleted(group, key, fireMultipleTimes, page)
         local group = group
         local key = key
         local page = page
-        while IsDisabledControlPressed(0, joaat(key)) or IsControlPressed(0, joaat(key)) do
+        while IsDisabledControlPressed(0, keyHashed) or IsControlPressed(0, keyHashed) do
           Wait(0)
         end
         lastKey = 0
@@ -115,16 +116,16 @@ function jo.prompt.isCompleted(group, key, fireMultipleTimes, page)
       return true
     end
   else
-    if IsControlJustPressed(0, joaat(key)) then
+    if IsControlJustPressed(0, keyHashed) then
       lastKey = key
       CreateThread(function()
-        while IsControlPressed(0, joaat(key)) do
+        while IsControlPressed(0, keyHashed) do
           Wait(0)
         end
         lastKey = 0
       end)
       return true
-    elseif fireMultipleTimes and IsControlPressed(0, joaat(key)) then
+    elseif fireMultipleTimes and IsControlPressed(0, keyHashed) then
       return true
     end
   end
@@ -134,7 +135,8 @@ end
 ---@param key string Input
 function jo.prompt.waitRelease(key)
   if not key then return false end
-  while IsDisabledControlPressed(0, joaat(key)) or IsControlPressed(0, joaat(key)) do
+  key = GetHashFromString(key)
+  while IsDisabledControlPressed(0, key) or IsControlPressed(0, key) do
     Wait(0)
   end
 end
@@ -181,10 +183,10 @@ function jo.prompt.create(group, str, key, holdTime, page)
   if type(key) == "table" then
     for _, k in pairs(key) do
       promptGroups[group].prompts[page][k] = promptId
-      PromptSetControlAction(promptId, joaat(k))
+      PromptSetControlAction(promptId, GetHashFromString(k))
     end
   else
-    PromptSetControlAction(promptId, joaat(key))
+    PromptSetControlAction(promptId, GetHashFromString(key))
   end
   str = CreateVarString(10, "LITERAL_STRING", str)
   PromptSetText(promptId, str)
@@ -271,7 +273,7 @@ end
 
 ---@param key string the input of the key
 function jo.prompt.isPressed(key)
-  return IsControlPressed(0, joaat(key))
+  return IsControlPressed(0, GetHashFromString(key))
 end
 
 ---@param group string the name of the group

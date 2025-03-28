@@ -1,2 +1,3 @@
 .vscode/*
 /jo_libs/.vscode
+node_modules
