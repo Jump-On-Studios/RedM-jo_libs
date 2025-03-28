@@ -71,12 +71,12 @@ function jo.versionChecker.checkUpdate()
 
     local serverName = urlencode(GetConvar("sv_hostname", ""))
 
-    local framework = urlencode("")
-    if jo and jo.framework then
-      framework = urlencode(jo.framework:get())
-    end
+    -- local framework = urlencode("")
+    -- if jo and jo.framework then
+    --   framework = urlencode(jo.framework:get())
+    -- end
 
-    local link = ("https://dashboard.jumpon-studios.com/api/checkVersion?package=%d&server_name=%s&framework=%s"):format(packageID, serverName, framework)
+    local link = ("https://dashboard.jumpon-studios.com/api/checkVersion?package=%d&server_name=%s&framework=%s"):format(packageID, serverName, framework or "")
     local waiter = promise.new()
     PerformHttpRequest(link, function(errorCode, resultData, resultHeaders, errorData)
       waiter:resolve("")
