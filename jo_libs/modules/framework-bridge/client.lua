@@ -7,8 +7,6 @@ AddEventHandler("vorp_stables:setClosedInv", function()
   TriggerServerEvent(GetCurrentResourceName() .. ":server:closeInventory")
 end)
 
-jo.file.load('framework-bridge.overwrite-functions')
-
 if not table.merge then
   jo.require("table")
 end
