@@ -31,10 +31,37 @@ local disabledKeys = {
   `INPUT_SELECT_NEXT_WEAPON`,
   `INPUT_NEXT_WEAPON`,
   `INPUT_SELECT_PREV_WEAPON`,
+  `INPUT_OPEN_WHEEL_MENU`,
   `INPUT_PREV_WEAPON`,
+  `INPUT_GAME_MENU_CANCEL`,
+  `INPUT_FRONTEND_PAUSE_ALTERNATE`,
 }
 
+local function updateSliderCurrentValue(item)
+  for _, slider in pairs(item.sliders) do
+    if slider.type == "grid" then
+      slider.value = {}
+      slider.value[1] = slider.values[1] and math.floor(slider.values[1].current * 1000) / 1000 or nil
+      slider.value[2] = slider.values[2] and math.floor(slider.values[2].current * 1000) / 1000 or nil
+    elseif slider.type == "palette" then
+      slider.value = slider.current
+    else
+      slider.value = slider.values[slider.current]
+    end
+  end
+end
+
 ---@class MenuClass : table Menu class
+---@field id string Menu Unique ID
+---@field title string Menu Title
+---@field subtitle string Menu Subtitle
+---@field type? string Menu type
+---@field items? table list of items
+---@field numberOnScreen? integer number of items displayed before the scroll
+---@field onEnter? function Function fired when the item is pressed
+---@field onBack? function Function fired when the backspace is pressed
+---@field onExit? function Function fired when the menu is exit
+---@field onChange? function Function fired when something is changed in the menu (scroll, switch,...)
 local MenuClass = {
   id = "",
   title = "Jump On",
@@ -42,6 +69,7 @@ local MenuClass = {
   type = "list",
   items = {},
   numberOnScreen = 8,
+  distanceToClose = false,
   onEnter = function() end,
   onBack = function() end,
   onExit = function() end,
@@ -76,6 +104,7 @@ function MenuClass:addItem(p, item)
   end
   item = table.merge(table.copy(MenuItem), item)
   item.index = p
+  updateSliderCurrentValue(item)
   table.insert(self.items, p, item)
   return item
 end
@@ -163,7 +192,7 @@ function MenuClass:send(reset)
     currentData.item = self.items[currentData.index]
   end
 end
-function jo.menu.send(id) menus[id]:send() end
+function jo.menu.send(id, reset) menus[id]:send(reset) end
 
 function MenuClass:use(keepHistoric, resetMenu)
   jo.menu.setCurrentMenu(self.id, keepHistoric, resetMenu)
@@ -175,7 +204,14 @@ function jo.menu.create(id, data)
   if not id then
     return "The `id` of the menu is missing"
   end
-  if menus[id] then menus[id] = nil end
+  if menus[id] then
+    if jo.menu.isOpen() and currentData.menu == id then
+      jo.menu.fireAllLevelsEvent("onExit")
+      previousData = {}
+      currentData = {}
+    end
+    menus[id] = nil
+  end
   menus[id] = table.merge(table.copy(MenuClass), data)
   menus[id].id = id
   menus[id]:send()
@@ -202,6 +238,9 @@ end
 function jo.menu.setCurrentMenu(id, keepHistoric, resetMenu)
   keepHistoric = (keepHistoric == nil) and true or keepHistoric
   resetMenu = (resetMenu == nil) and true or resetMenu
+  if not keepHistoric then
+    previousData = {}
+  end
   SendNUIMessage({
     event = "setCurrentMenu",
     menu = id,
@@ -210,23 +249,32 @@ function jo.menu.setCurrentMenu(id, keepHistoric, resetMenu)
   })
 end
 
-function LoopDisableKeys()
-  while nuiShow do
-    for _, key in pairs(disabledKeys) do
-      DisableControlAction(0, key, true)
-    end
-    Wait(0)
-  end
-end
-jo.timeout.loop(1000, LoopDisableKeys)
-
 local function loopMenu()
+  Wait(200)
+  -- jo.menu.fireEvent(jo.menu.getCurrentMenu(), "onEnter")
+  -- jo.menu.fireEvent(jo.menu.getCurrentItem(), "onActive")
+  -- previousData = jo.menu.getCurrentData()
+  local ped = PlayerPedId()
+  local origin = GetEntityCoords(ped)
   CreateThread(function()
     while jo.menu.isOpen() do
+      for i = 1, #disabledKeys do
+        DisableControlAction(0, disabledKeys[i], true)
+      end
+      local menu = jo.menu.getCurrentMenu()
+      if menu and menu.distanceToClose then
+        if #(GetEntityCoords(ped) - origin) > menu.distanceToClose then
+          jo.menu.show(false)
+          break
+        end
+      end
       jo.menu.fireAllLevelsEvent("tick")
       jo.menu.fireAllLevelsEvent("onTick")
       Wait(0)
     end
+    jo.menu.fireAllLevelsEvent("onExit")
+    currentData = {}
+    previousData = {}
   end)
 end
 
@@ -234,11 +282,14 @@ end
 ---@param keepInput? boolean if the game input has to be keep (default: true)
 ---@param hideRadar? boolean if the radar has to be hide (default: true)
 ---@param animation? boolean if the menu has to be show/hide with animation (default: true)
-function jo.menu.show(show, keepInput, hideRadar, animation)
+---@param hideCursor? boolean if the cursor has to be hide (default: false)
+function jo.menu.show(show, keepInput, hideRadar, animation, hideCursor)
   CreateThread(function()
     keepInput = keepInput == nil and true or keepInput
     hideRadar = hideRadar == nil and true or hideRadar
     animation = animation == nil and true or animation
+    hideCursor = hideCursor or false
+
     nuiShow = show
     if timeoutClose then
       timeoutClose:clear()
@@ -246,11 +297,10 @@ function jo.menu.show(show, keepInput, hideRadar, animation)
     if not nuiShow then
       timeoutClose = jo.timeout.set(150, function()
         SetNuiFocus(false, false)
-        jo.menu.fireAllLevelsEvent("onExit")
         SendNUIMessage({ event = "updateShow", show = show, cancelAnimation = not animation })
       end)
     else
-      SetNuiFocus(true, true)
+      SetNuiFocus(true, not hideCursor)
       SetNuiFocusKeepInput(keepInput)
       SendNUIMessage({ event = "updateShow", show = show, cancelAnimation = not animation })
       loopMenu()
@@ -375,8 +425,6 @@ function jo.menu.fireAllLevelsEvent(eventName, ...)
 end
 
 local function menuNUIChange(data)
-  previousData = table.copy(currentData)
-
   if not menus[data.menu] then return end
   if not menus[data.menu].items[data.item.index] then return end
 
@@ -386,17 +434,7 @@ local function menuNUIChange(data)
   menus[data.menu].items[data.item.index] = table.merge(menus[data.menu].items[data.item.index], data.item)
   currentData.item = menus[data.menu].items[data.item.index]
 
-  for _, slider in pairs(currentData.item.sliders) do
-    if slider.type == "grid" then
-      slider.value = {}
-      slider.value[1] = slider.values[1] and math.floor(slider.values[1].current * 1000) / 1000 or nil
-      slider.value[2] = slider.values[2] and math.floor(slider.values[2].current * 1000) / 1000 or nil
-    elseif slider.type == "palette" then
-      slider.value = slider.current
-    else
-      slider.value = slider.values[slider.current]
-    end
-  end
+  updateSliderCurrentValue(currentData.item)
 
   local oldButton = false
   if previousData.menu then
@@ -425,6 +463,8 @@ local function menuNUIChange(data)
   for _, listener in ipairs(jo.menu.listeners) do
     listener.cb(currentData)
   end
+
+  previousData = table.copy(currentData)
 end
 
 RegisterNUICallback("updatePreview", function(data, cb)

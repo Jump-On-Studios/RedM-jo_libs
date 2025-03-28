@@ -62,7 +62,7 @@ jo_libs {
 ## 👥 Community
 
 For help, discussion, support or any other conversations:
-[Join the Jump On Studios Discord Server](https://discord.gg/7xy7WEABTC)
+[Join the Jump On Studios Discord Server](https://discord.gg/invite/8rqVHnSb2K)
 
 ## ➕ Contributing
 

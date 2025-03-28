@@ -5,20 +5,8 @@ function string:firstToUpper()
   return (self:gsub("^%l", string.upper))
 end
 
-function string:split(inSplitPattern, outResults)
-  if not outResults then
-    outResults = {}
-  end
-  if not self then return {} end
-  local theStart = 1
-  local theSplitStart, theSplitEnd = self:find(inSplitPattern, theStart)
-  while theSplitStart do
-    table.insert(outResults, self:sub(theStart, theSplitStart - 1))
-    theStart = theSplitEnd + 1
-    theSplitStart, theSplitEnd = self:find(inSplitPattern, theStart)
-  end
-  table.insert(outResults, self:sub(theStart))
-  return outResults
+function string:split(delimiter, pieces)
+  return { self:strsplit(delimiter, pieces) }
 end
 
 function string:convertVersion()
