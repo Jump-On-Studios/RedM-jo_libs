@@ -1,26 +1,30 @@
 jo.ui = {}
 
----@param level integer
----@param xp integer
----@param xpRequired integer
+--- Updates the rank element on the top left of weapon wheel
+---@param level integer (The level printed in the left of the element)
+---@param xp integer (The current xp amount)
+---@param xpRequired integer (The amount of XP required to level up)
 function jo.ui.updateRank(level, xp, xpRequired)
-  local container = DatabindingAddDataContainerFromPath("", "mp_rank_bar")
-  DatabindingAddDataString(container, "rank_text", tostring(level))
-  DatabindingAddDataString(container, "rank_header_text", xp .. "/" .. xpRequired)
-  DatabindingAddDataInt(container, "rank_header_text_alpha", 100)
-  DatabindingAddDataInt(container, "xp_bar_minimum", 0)
-  DatabindingAddDataInt(container, "xp_bar_maximum", xpRequired)
-  DatabindingAddDataInt(container, "xp_bar_value", xp)
+    local container = DatabindingAddDataContainerFromPath("", "mp_rank_bar")
+    DatabindingAddDataString(container, "rank_text", tostring(level))
+    DatabindingAddDataString(container, "rank_header_text", xp .. "/" .. xpRequired)
+    DatabindingAddDataInt(container, "rank_header_text_alpha", 100)
+    DatabindingAddDataInt(container, "xp_bar_minimum", 0)
+    DatabindingAddDataInt(container, "xp_bar_maximum", xpRequired)
+    DatabindingAddDataInt(container, "xp_bar_value", xp)
 end
 
--- Fonction pour formater le temps en minutes:secondes
+-- Formats time in minutes:seconds format
+--@param seconds number (The time in seconds to format)
+--@return string (Formatted time in "MM:SS" format)
 local function formatTime(seconds)
     local minutes = math.floor(seconds / 60)
     seconds = seconds % 60
     return string.format("%02d:%02d", minutes, seconds)
 end
 
--- Initialisation du TimerUI
+--- Initializes the timer's UI
+---@return number (The state machine identifier)
 function jo.ui.initTimer()
     jo.ui.TimerUI = {}
     jo.ui.TimerUI.data = {}
@@ -54,16 +58,16 @@ function jo.ui.initTimer()
     return jo.ui.TimerUI.data.stateMachine
 end
 
--- Fonction pour arrêter le TimerUI
+--- Stops the Timer's UI before it finishes naturally
 function jo.ui.stopTimer()
     if not jo.ui.TimerUI then return end
     jo.ui.TimerUI.data.time = 0
     DatabindingWriteDataBool(jo.ui.TimerUI.data.show, false)
 end
 
--- Fonction pour démarrer le TimerUI
----@param time integer -- en secondes
----@param low? integer -- secondes à partir desquelles la couleur du timer devient rouge
+--- Starts the timer's UI
+---@param time integer (The time in seconds for the timer)
+---@param low? integer (The threshold in seconds at which the timer color will turn red)
 function jo.ui.startTimer(time, low)
     if not jo.ui.TimerUI or UiStateMachineExists(1546991729) == 0 then return end
     DatabindingWriteDataBool(jo.ui.TimerUI.data.show, true)
@@ -76,7 +80,7 @@ function jo.ui.startTimer(time, low)
             if low and jo.ui.TimerUI.data.time <= low then
                 DatabindingAddDataBool(jo.ui.TimerUI.data.container, "isTimerLow", true)
             end
-            jo.timeout.delay('updateTimer', 1000, updateTimer)
+            jo.timeout.delay("updateTimer", 1000, updateTimer)
         else
             jo.ui.finishTimer()
         end
@@ -85,7 +89,7 @@ function jo.ui.startTimer(time, low)
     updateTimer()
 end
 
--- Fonction pour terminer le TimerUI
+--- Terminates the Timer's UI and destroys associated resources
 function jo.ui.finishTimer()
     if not jo.ui.TimerUI then return end
     UiStateMachineDestroy(1546991729)
@@ -99,4 +103,3 @@ function jo.ui.finishTimer()
         DatabindingRemoveDataEntry(jo.ui.TimerUI.data.show)
     end
 end
-

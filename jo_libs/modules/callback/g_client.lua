@@ -9,6 +9,10 @@ local insert = table.insert
 
 jo.callback = {}
 
+-- Function to check if a variable is a callable function.
+-- Checks both direct functions and tables with __call metamethod.
+--@param cb any (The variable to check)
+--@return boolean (True if the variable is a function or callable, false otherwise)
 local function isAFunction(cb)
   local cbType = type(cb)
 
@@ -18,8 +22,9 @@ local function isAFunction(cb)
   return false
 end
 
----@param name string the name of the event
----@param cb function
+--- A function to register a client callback
+---@param name string (The name of the callback event)
+---@param cb function (The function executed when the callback is triggered)
 function jo.callback.register(name, cb)
   if registeredCallback[name] then return eprint("Callback already registered:", name) end
   registeredCallback[name] = {
@@ -36,9 +41,10 @@ AddEventHandler("onResourceStop", function(resource)
   end
 end)
 
----@param name string Name of the callback event
----@param cb function return of the event
----@param ...? any
+--- A function to trigger a server callback
+---@param name string (Name of the callback event)
+---@param cb function (Function to receive the result of the event)
+---@param ...? mixed (The list of parameters to send to the callback event)
 function jo.callback.triggerServer(name, cb, ...)
   local cbType = isAFunction(cb) and "function" or "other"
 
@@ -67,11 +73,21 @@ end
 --deprecated function
 jo.triggerServerCallback = jo.callback.triggerServer
 
+
+-- Execute a registered callback by name.
+-- Internal function that runs the callback and returns its results.
+--@param name string (The name of the registered callback to execute)
+--@param ...? any (Parameters to pass to the callback)
+--@return any (Return values from the executed callback)
 local function executeCallback(name, ...)
   if not registeredCallback[name] then return false, eprint(("No callback for: %s"):format(name)) end
   return registeredCallback[name].cb(...)
 end
 
+--- A function to trigger a client callback
+---@param name string (The name of the callback event)
+---@param cb function (Function to receive the result of the event)
+---@param ...? mixed (The list of parameters to send to the callback event)
 function jo.callback.triggerClient(name, cb, ...)
   if not registeredCallback[name] then return false, eprint("No client callback for:", name) end
 
@@ -89,7 +105,10 @@ function jo.callback.triggerClient(name, cb, ...)
 end
 
 RegisterNetEvent("jo_libs:responseCallback", function(requestId, fromRessource, ...)
-  if not responseCallback[requestId] then return eprint(("No callback response for: %d - Called from: %d"):format(requestId, fromRessource)) end
+  if not responseCallback[requestId] then
+    return eprint(("No callback response for: %d - Called from: %d"):format(
+      requestId, fromRessource))
+  end
   if isAFunction(responseCallback[requestId]) then
     responseCallback[requestId](...)
   else

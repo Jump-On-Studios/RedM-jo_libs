@@ -28,12 +28,16 @@ local keysFired = {}
 local createdGroupsAmount = 0
 local currentGroupVisible = nil
 
---- Listens for key press and release events for a specified key.
---- Updates the keysPressed and keysFired tables based on the key state,
---- and sends an NUI message indicating whether the key was pressed or released.
---- @param key string: The key identifier to listen for.
---- @param holdTime number|nil: Duration (in milliseconds) the key must be held before triggering.
---- @return nil
+-- * =============================================================================
+-- * HELPERS
+-- * =============================================================================
+
+-- Listens for key press and release events for a specified key.
+-- Updates the keysPressed and keysFired tables based on the key state,
+-- and sends an NUI message indicating whether the key was pressed or released.
+-- @param key string: The key identifier to listen for.
+-- @param holdTime number|nil: Duration (in milliseconds) the key must be held before triggering.
+-- @return nil
 local function listenKey(key, holdTime)
     jo.rawKeys.listen(key, function(isPressed)
         if isPressed then
@@ -52,6 +56,29 @@ local function listenKey(key, holdTime)
     end)
 end
 
+-- Removes key listeners and resets key states for all prompts on a specified page.
+-- @param group table: The prompt group containing the page.
+-- @param pageNumber number: The page number from which to remove key listeners.
+-- @return nil
+local function removePage(group, pageNumber)
+    if not group.prompts[pageNumber] then return end
+    for i = 1, #group.prompts[pageNumber] do
+        local prompt = group.prompts[pageNumber][i]
+        for j = 1, #prompt.keyboardKeys do
+            local key = prompt.keyboardKeys[j]
+            jo.rawKeys.remove(key)
+            keysPressed[key] = nil
+            keysFired[key] = nil
+            SendNUIMessage({
+                type = "keyUp",
+                data = {
+                    key = key
+                }
+            })
+        end
+    end
+end
+
 -- * =============================================================================
 -- * PROMPT
 -- * =============================================================================
@@ -67,10 +94,8 @@ local PromptClass = {
     groupId = -1
 }
 
---- Refreshes the NUI interface for a prompt, updating a specific property.
---- This update is only performed if the prompt belongs to the currently visible group.
---- @param property string: The property name to update (e.g., "label", "disabled").
---- @return nil
+--- Refreshes the NUI interface for a prompt, updating a specific property. This update is only performed if the prompt belongs to the currently visible group.
+--- @param property string (The property name to update (e.g., "label", "disabled").)
 function PromptClass:refreshNUI(property)
     if currentGroupVisible?.id ~= self.groupId then
         return
@@ -87,16 +112,14 @@ function PromptClass:refreshNUI(property)
 end
 
 --- Sets the label text for the prompt.
---- @param label string: The text label to assign to the prompt.
---- @return nil
+--- @param label string (The text label to assign to the prompt.)
 function PromptClass:setLabel(label)
     self.label = label
     self:refreshNUI("label")
 end
 
 --- Enables or disables the prompt and updates its associated key listeners.
---- @param enabled boolean: True to enable the prompt, false to disable it.
---- @return nil
+--- @param enabled boolean (`true` to enable the prompt, `false` to disable it.)
 function PromptClass:setEnabled(enabled)
     self.disabled = not enabled
     for i = 1, #self.keyboardKeys do
@@ -110,18 +133,15 @@ function PromptClass:setEnabled(enabled)
 end
 
 --- Sets the visibility of the prompt and updates its enabled state accordingly.
---- @param visible boolean: True to show the prompt, false to hide it.
---- @return nil
+--- @param visible boolean (`true` to show the prompt, `false` to hide it.)
 function PromptClass:setVisible(visible)
     self.visible = visible
     self:setEnabled(visible)
     self:refreshNUI("visible")
 end
 
---- Configures the keyboard keys for the prompt.
---- Ensures that the keys are stored in a table, converting a single key to uppercase if needed.
---- @param keyboardKeys table|string: A table of key strings or a single key string.
---- @return nil
+--- Configures the keyboard keys for the prompt. Ensures that the keys are stored in a table, converting a single key to uppercase if needed.
+--- @param keyboardKeys table|string (A table of key strings or a single key string.)
 function PromptClass:setKeyboardKeys(keyboardKeys)
     if type(keyboardKeys) == "table" then
         self.keyboardKeys = keyboardKeys
@@ -131,8 +151,7 @@ function PromptClass:setKeyboardKeys(keyboardKeys)
 end
 
 --- Sets the key hold duration for the prompt.
---- @param holdTime number|boolean: Duration (in milliseconds) the key must be held before activation; false if not applicable.
---- @return nil
+--- @param holdTime number|boolean (Duration (in milliseconds) the key must be held before activation; `false` if not applicable.)
 function PromptClass:setHoldTime(holdTime)
     self.holdTime = holdTime or false
     self:refreshNUI("holdTime")
@@ -152,10 +171,8 @@ local GroupClass = {
     currentPage = 1
 }
 
---- Refreshes the NUI interface for the group by updating a specified property.
---- This update is only sent if the group is currently visible.
---- @param property string: The group property to update (e.g., "title", "position",..).
---- @return nil
+--- Refreshes the NUI interface for the group by updating a specified property. This update is only sent if the group is currently visible.
+--- @param property string (The group property to update (e.g., "title", "position",..).)
 function GroupClass:refreshNUI(property)
     if not self.visible then return end
     SendNUIMessage({
@@ -169,40 +186,37 @@ function GroupClass:refreshNUI(property)
 end
 
 --- Sets the title for the prompt group.
---- @param title string: The title to assign to the group.
---- @return nil
+--- @param title string (The title to assign to the group.)
 function GroupClass:setTitle(title)
     self.title = title
     self:refreshNUI("title")
 end
 
 --- Sets the display position for the prompt group.
---- @param position string: The screen position (e.g., "bottom-right").
---- @return nil
+--- @param position string (The screen position for the group. <br> Allowed values are : `"bottom-right"`,`"center-right"`,`"top-right"`,`"bottom-left"`,`"center-left"`,`"top-left"`)
 function GroupClass:setPosition(position)
     self.position = position
     self:refreshNUI("position")
 end
 
 --- Sets the key used for navigating to the next page of prompts.
---- @param key string: The key string to be used for pagination.
---- @return nil
+--- @param key string (The key string to be used for pagination.)
 function GroupClass:setNextPageKey(key)
     self.nextPageKey = string.upper(key)
 end
 
---- @return boolean
+--- Returns whether the group is currently visible.
+--- @return boolean (`true` if the group is visible, `false` otherwise)
 function GroupClass:isVisible()
     return self.visible
 end
 
---- Adds a new prompt to the group on a specified page.
---- Creates or initializes pages as necessary, assigns the prompt's position, and returns the new prompt.
---- @param key string|table: A key string or table of key strings for the prompt.
---- @param label string: The descriptive label for the prompt.
---- @param holdTime number|boolean: Duration to hold the key before the prompt triggers.
---- @param page number|nil: (Optional) The page number to add the prompt to; defaults to 1.
---- @return PromptClass: The newly created prompt object.
+--- Adds a new prompt to the group on a specified page. <br>Creates or initializes pages as necessary, assigns the prompt's position, and returns the new prompt.
+--- @param key string|table (A key string or table of key strings for the prompt.)
+--- @param label string (The descriptive label for the prompt.)
+--- @param holdTime number|boolean (Duration to hold the key before the prompt triggers. <br> Set it to `false` if no hold time is required)
+--- @param page? number (The page number to add the prompt to<br> defaults to 1.)
+--- @return PromptClass (The newly created prompt object.)
 function GroupClass:addPrompt(key, label, holdTime, page)
     local prompt = table.copy(PromptClass)
     prompt.groupId = self.id
@@ -224,10 +238,10 @@ function GroupClass:addPrompt(key, label, holdTime, page)
     return prompt
 end
 
---- Activates key listeners for all prompts on a specified page of a prompt group.
---- @param group table: The prompt group containing pages of prompts.
---- @param pageNumber number: The page number from which to activate key listeners.
---- @return nil
+-- Activates key listeners for all prompts on a specified page of a prompt group.
+-- @param group table: The prompt group containing pages of prompts.
+-- @param pageNumber number: The page number from which to activate key listeners.
+-- @return nil
 local function listenPage(group, pageNumber)
     if not group.prompts[pageNumber] then return end
     for i = 1, #group.prompts[pageNumber] do
@@ -241,33 +255,10 @@ local function listenPage(group, pageNumber)
     end
 end
 
---- Removes key listeners and resets key states for all prompts on a specified page.
---- @param group table: The prompt group containing the page.
---- @param pageNumber number: The page number from which to remove key listeners.
---- @return nil
-function removePage(group, pageNumber)
-    if not group.prompts[pageNumber] then return end
-    for i = 1, #group.prompts[pageNumber] do
-        local prompt = group.prompts[pageNumber][i]
-        for j = 1, #prompt.keyboardKeys do
-            local key = prompt.keyboardKeys[j]
-            jo.rawKeys.remove(key)
-            keysPressed[key] = nil
-            keysFired[key] = nil
-            SendNUIMessage({
-                type = "keyUp",
-                data = {
-                    key = key
-                }
-            })
-        end
-    end
-end
 
---- Displays the prompt group on the NUI interface and sets up key listeners for the active page.
---- If the group has multiple pages, it also configures pagination using the nextPageKey.
---- @param page number|nil: (Optional) The page number to display; defaults to the group's current page.
---- @return nil
+
+--- Displays the prompt group on the NUI interface and sets up key listeners for the active page. If the group has multiple pages, it also configures pagination using the nextPageKey.
+--- @param page? number (The page number to display<br> defaults to the group's current page.)
 function GroupClass:display(page)
     if currentGroupVisible then
         jo.rawKeys.remove(currentGroupVisible.nextPageKey)
@@ -331,7 +322,6 @@ function GroupClass:display(page)
 end
 
 --- Hides the prompt group from the NUI interface and removes its active key listeners.
---- @return nil
 function GroupClass:hide()
     currentGroupVisible = nil
     self.visible = false
@@ -350,9 +340,9 @@ end
 -- * =============================================================================
 
 --- Creates a new prompt group with a specified title and optional position.
---- @param title string: The title for the new prompt group.
---- @param position string|nil: (Optional) The screen position for the group.
---- @return GroupClass: A new instance of a prompt group.
+--- @param title string|boolean (The title for the new prompt group. Set to `false` to have no title)
+--- @param position? string (The screen position for the group. <br> Allowed values are : `"bottom-right"`,`"center-right"`,`"top-right"`,`"bottom-left"`,`"center-left"`,`"top-left"` <br> default : `"bottom-right"`)
+--- @return GroupClass (A new instance of a prompt group.)
 function jo.promptNui.createGroup(title, position)
     local group = table.copy(GroupClass)
     group:setTitle(title)
@@ -363,11 +353,10 @@ function jo.promptNui.createGroup(title, position)
     return group
 end
 
---- Checks whether a specified key has been held for the required duration to trigger an action.
---- Optionally ensures that the key does not trigger repeatedly unless explicitly allowed.
---- @param key string: The key identifier to check.
---- @param fireMultipleTimes boolean|nil: (Optional) If true, allows the key to trigger multiple times; defaults to false.
---- @return boolean: True if the key press is complete and valid, otherwise false.
+--- Checks whether a specified key has been held for the required duration to trigger an action.<br>Optionally ensures that the key does not trigger repeatedly unless explicitly allowed.
+--- @param key string (The key identifier to check.)
+--- @param fireMultipleTimes? boolean|nil (If true, allows the key to trigger multiple times<br> defaults to `false`.)
+--- @return boolean (True if the key press is complete and valid, otherwise `false`.)
 function jo.promptNui.isCompleted(key, fireMultipleTimes)
     fireMultipleTimes = fireMultipleTimes or false
     if not keysPressed[key] then return false end
