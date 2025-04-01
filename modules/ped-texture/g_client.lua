@@ -369,6 +369,12 @@ local function convertDataLayer(ped, layerName, data)
     if not data.palette and category == "heads" then
       data.palette = "metaped_tint_makeup"
     end
+    if data.palette and tonumber(data.palette) then
+      local paletteIdentifier = jo.component.palettes[data.palette]
+      if paletteIdentifier then
+        data.palette = paletteIdentifier
+      end
+    end
     data.normal = data.albedo .. "_nm"
     data.material = data.albedo .. "_ab"
   end
@@ -503,23 +509,23 @@ function jo.pedTexture.refreshAll(ped)
 end
 
 function jo.pedTexture.overwriteCategory(ped, category, overlays, forceRemove)
-  -- forceRemove = forceRemove or false
-  -- pedsTextures[ped] = pedsTextures[ped] or Entity(ped).state["jo_pedTexture"] or { [category] = {} }
-  -- if pedsTextures[ped][category] or forceRemove then
-  --   if pedsTextures[ped][category] then
-  --     pedsTextures[ped][category].layers = {}
-  --   end
-  --   for layername, cat in pairs(jo.pedTexture.categories) do
-  --     if cat == category then
-  --       jo.pedTexture.remove(ped, layername)
-  --       break
-  --     end
-  --   end
-  -- end
+  forceRemove = forceRemove or false
+  pedsTextures[ped] = pedsTextures[ped] or Entity(ped).state["jo_pedTexture"] or { [category] = {} }
+  if pedsTextures[ped][category] or forceRemove then
+    if pedsTextures[ped][category] then
+      pedsTextures[ped][category].layers = {}
+    end
+    for layername, cat in pairs(jo.pedTexture.categories) do
+      if cat == category then
+        jo.pedTexture.remove(ped, layername)
+        break
+      end
+    end
+  end
 
-  -- for layername, layer in pairs(overlays or {}) do
-  --   jo.pedTexture.apply(ped, layername, layer)
-  -- end
+  for layername, layer in pairs(overlays or {}) do
+    jo.pedTexture.apply(ped, layername, layer)
+  end
 end
 
 function jo.pedTexture.getAll(ped)

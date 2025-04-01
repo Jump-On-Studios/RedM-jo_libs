@@ -1,5 +1,42 @@
 jo.require("table")
 
+function log(...)
+  local args = { ... }
+  for i = 1, #args do
+    if type(args[i]) == "table" then
+      args[i] = json.encode(args[i], { indent = true })
+    end
+  end
+  print(table.unpack(args))
+end
+
+local colors = {
+  red = {
+    start = "^1",
+    reset = "^0",
+  },
+  green = {
+    start = IsDuplicityVersion() and "\x1b[92m" or "^2",
+    reset = IsDuplicityVersion() and "\x1b[97m" or "^0",
+  },
+  orange = {
+    start = IsDuplicityVersion() and "\x1b[38;2;255;95;31m" or "^3",
+    reset = IsDuplicityVersion() and "\x1b[97m" or "^0",
+  },
+  blue = {
+    start = IsDuplicityVersion() and "\x1b[96m" or "^5",
+    reset = IsDuplicityVersion() and "\x1b[97m" or "^0",
+  },
+}
+
+local function getColorCode(color)
+  return colors[color]?.start or ""
+end
+
+local function getColorResetCode(color)
+  return colors[color]?.reset or "^0"
+end
+
 local function encodeTable(...)
   local args = table.copy({ ... })
   for i = 1, #args do
@@ -10,52 +47,65 @@ local function encodeTable(...)
   return args
 end
 
-local function addColor(args, start, reset)
-  table.insert(args, 1, start)
-  if IsDuplicityVersion() then
-    args[1] = args[1] .. GetCurrentResourceName() .. ":"
+local function convertColor(args)
+  for i = 1, #args do
+    if type(args[i]) == "string" and args[i]:find("~") then
+      for color, _ in pairs(colors) do
+        if args[i]:find(("~%s~"):format(color)) then
+          args[i] = args[i]:gsub(("~%s~"):format(color), getColorCode(color)) .. getColorResetCode(color)
+        end
+      end
+    end
   end
-  table.insert(args, reset or "^0")
+end
+
+function printWithColor(...)
+  local args = { ... }
+  convertColor(args)
+  print(table.unpack(args))
+end
+
+local function addColor(args, color)
+  local start = getColorCode(color)
+  local reset = getColorResetCode(color)
+  for i = 1, #args do
+    if type(args[i]) == "string" then
+      args[i] = ("~%s~%s"):format(color, args[i])
+    end
+  end
 end
 
 local function addResourceName(args)
   if not IsDuplicityVersion() then return end
-  args[1] = args[1] .. GetCurrentResourceName() .. ":"
+  args[1] = GetCurrentResourceName() .. ": " .. args[1]
 end
+
 
 function sprint(...)
   local args = encodeTable(...)
-  addColor(args, "^1")
+  addColor(args, "red")
   addResourceName(args)
-  return print(table.unpack(args))
+  return printWithColor(table.unpack(args))
 end
 
-function eprint(...)
-  local args = encodeTable(...)
-  addColor(args, "^1")
-  addResourceName(args)
-  return print(table.unpack(args))
-end
+eprint = sprint
 
 function gprint(...)
   local args = encodeTable(...)
   if IsDuplicityVersion() then
-    addColor(args, "\x1b[92m", "\x1b[0m")
-  else
-    addColor(args, "^2")
+    addResourceName(args)
   end
-  addResourceName(args)
-  return print(table.unpack(args))
+  addColor(args, "green")
+  return printWithColor(table.unpack(args))
 end
 
 function oprint(...)
   local args = encodeTable(...)
   if IsDuplicityVersion() then
-    addColor(args, "\x1b[38;2;255;95;31m", "\x1b[0m")
-  else
-    addColor(args, "^3")
+    addResourceName(args)
   end
-  return print(table.unpack(args))
+  addColor(args, "orange")
+  return printWithColor(table.unpack(args))
 end
 
 wprint = oprint
@@ -63,15 +113,20 @@ wprint = oprint
 function bprint(...)
   local args = encodeTable(...)
   if IsDuplicityVersion() then
-    addColor(args, "\x1b[96m", "\x1b[0m")
-  else
-    addColor(args, "^5")
+    addResourceName(args)
   end
-  return print(table.unpack(args))
+  addColor(args, "blue")
+  return printWithColor(table.unpack(args))
 end
 
-function dprint(...)
-  local args = encodeTable(...)
+function dprint(cb, ...)
   if not Config?.debug and not jo.debug then return end
-  print(table.unpack(args))
+  local args = encodeTable(...)
+  local printFunc = printWithColor
+  if type(cb) == "function" then
+    printFunc = cb
+  else
+    table.insert(args, 1, cb)
+  end
+  printFunc(table.unpack(args))
 end

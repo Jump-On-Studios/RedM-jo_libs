@@ -19,6 +19,7 @@ local alias = {
   pedTexture = "ped-texture",
   gameEvents = "game-events",
   triggerEvent = "trigger-event",
+  promptNui="prompt-nui"
 }
 
 local function getAlias(module)
@@ -57,6 +58,20 @@ function UnJson(value)
     return json.decode(value)
   end
   return value
+end
+
+---Set a default value if the value is nil
+---@param value any your value
+---@param default any the default value
+---@return any
+function GetValue(value, default)
+  if default == nil then
+    return value
+  end
+  if default == false then
+    return value or false
+  end
+  return value == nil and default or value
 end
 
 local function isModuleLoaded(name, needLocal)
