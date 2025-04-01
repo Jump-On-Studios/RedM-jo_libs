@@ -6,7 +6,6 @@ jo.animation.easeOut = -4.
 --- Load the dictionnary of animation
 ---@param dict string (The dictionnary of the animation)
 ---@param waiter? boolean (If need to wait the loading to end the function - default:false)
----@return nil
 function jo.animation.load(dict, waiter)
   if HasAnimDictLoaded(dict) then return end
   RequestAnimDict(dict)
@@ -38,7 +37,6 @@ end
 ---@param speed? float (The speed of the walk - default:1.0)
 ---@param waiter? boolean (If need to wait the reach of location to end the function - default:false)
 ---@param distanceToStop? float (The distance between the ped and the destination to stop it - default:0.0)
----@return nil
 function jo.animation.goToCoords(ped, coords, speed, waiter, distanceToStop)
   speed = speed or 1.0
   if waiter or type(coords) == "vector4" then
@@ -66,7 +64,6 @@ end
 ---@param ped integer (The ped to turn)
 ---@param heading number (The desired heading)
 ---@param waiter? boolean (If need to reach the heading to end the function - default:true)
----@return nil
 function jo.animation.setDesiredHeading(ped, heading, waiter)
   if waiter == nil then waiter = true end
   TaskAchieveHeading(ped, heading % 360, 10000)
