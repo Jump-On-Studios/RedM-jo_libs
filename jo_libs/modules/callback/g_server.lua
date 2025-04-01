@@ -1,3 +1,5 @@
+-- todo fix this file generation
+
 local nextRequestId = 0
 local responseCallback = {}
 local registeredCallback = {}
@@ -59,7 +61,8 @@ function jo.callback.triggerClient(name, source, cb, ...)
   end
 
 
-  TriggerClientEvent("jo_libs:triggerCallback", source, name, currentRequestId, GetInvokingResource() or "unknown", unpack(args))
+  TriggerClientEvent("jo_libs:triggerCallback", source, name, currentRequestId, GetInvokingResource() or "unknown",
+    unpack(args))
 
   nextRequestId = nextRequestId < 65535 and nextRequestId + 1 or 0
   if cbType == "function" then
@@ -90,7 +93,8 @@ function jo.callback.triggerServer(name, cb, ...)
 end
 
 RegisterServerEvent("jo_libs:responseCallback", function(requestId, fromRessource, ...)
-  if not responseCallback[requestId] then return eprint(("No callback response for: %d - Called from: %d"):format(requestId, fromRessource)) end
+  if not responseCallback[requestId] then return eprint(("No callback response for: %d - Called from: %d"):format(
+    requestId, fromRessource)) end
   if isAFunction(responseCallback[requestId]) then
     responseCallback[requestId](...)
   else
