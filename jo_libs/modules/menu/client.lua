@@ -185,17 +185,13 @@ function MenuClass:sort(first, last)
 end
 function jo.menu.sort(id, first, last) menus[id]:sort(first, last) end
 
-function MenuClass:send(reset)
+function MenuClass:send()
   if self.sentToNUI then
     return error("Menu already sent, please use menu:refresh(): " .. self.id)
   end
   local datas = table.clearForNui(self)
-  if reset == nil then
-    reset = true
-  end
   SendNUIMessage({
     event = "updateMenu",
-    reset = reset,
     menu = datas
   })
   self.sentToNUI = true
@@ -203,7 +199,7 @@ function MenuClass:send(reset)
     currentData.item = self.items[currentData.index]
   end
 end
-function jo.menu.send(id, reset) menus[id]:send(reset) end
+function jo.menu.send(id) menus[id]:send() end
 
 function MenuClass:use(keepHistoric, resetMenu)
   jo.menu.setCurrentMenu(self.id, keepHistoric, resetMenu)

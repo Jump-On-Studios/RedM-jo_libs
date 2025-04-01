@@ -306,6 +306,7 @@ local function formatComponentData(data)
 end
 
 local function clearOverlaysTable(overlays)
+  if not overlays then return end
   for layerName, overlay in pairs(overlays) do
     if not overlay then
       overlays[layerName] = nil
@@ -388,6 +389,10 @@ function FrameworkClass:standardizeSkin(skin)
   table.merge(standard, skin)
 
   clearOverlaysTable(standard.overlays)
+  clearOverlaysTable(skin.overlays)
+  if table.count(skin.overlays) == 0 then
+    skin.overlays = nil
+  end
   clearExpressionsTable(standard.expressions)
 
   if standard.hair and type(standard.hair) ~= "table" then
