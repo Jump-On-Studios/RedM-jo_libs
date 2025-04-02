@@ -12,6 +12,7 @@ local function convertModName(modname)
       end
       return result
     end
+
     for match in (modpath .. "/"):gmatch("(.-)" .. "/") do
       resource = match:sub(2)
       break
@@ -24,8 +25,9 @@ local function convertModName(modname)
   return resource, modpath
 end
 
----@param modname string file location
----@return any
+--- Loads and executes a Lua file
+---@param modname string (The file location)
+---@return any (The result of the executed file, or `false` if there was an error)
 function jo.file.load(modname)
   if type(modname) ~= "string" then return end
   dprint(modname, "~orange~: Start loading")
@@ -52,6 +54,9 @@ function jo.file.load(modname)
   end
 end
 
+--- Checks if a file exists
+---@param modname string (The file location)
+---@return boolean (Returns `true` if the file exists, `false` otherwise)
 function jo.file.isExist(modname)
   local resource, modpath = convertModName(modname)
   local file = LoadResourceFile(resource, ("%s.lua"):format(modpath))
