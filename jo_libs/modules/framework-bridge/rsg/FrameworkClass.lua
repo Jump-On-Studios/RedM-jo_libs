@@ -239,6 +239,8 @@ end
 
 local function getFrameworkValueFromStandard(category, data)
   if not fromFrameworkToStandard[category] then return false end
+  if type(fromFrameworkToStandard[category]) ~= "table" then return false end
+  if table.type(fromFrameworkToStandard[category]) ~= "hash" then return false end
   return table.find(fromFrameworkToStandard[category], function(value)
     return table.isEgal(value.standard, data, false, true, true)
   end)

@@ -128,28 +128,28 @@ end
 ---@param skin table skin data with framework keys
 ---@return table skin skin data with standard keys
 function FrameworkClass:standardizeSkinInternal(skin)
-  return {}
+  return skin
 end
 
 ---A function to reversed the skin data
 ---@param standard table standard skin data
 ---@return table skin framework skin data
 function FrameworkClass:revertSkinInternal(standard)
-  return {}
+  return standard
 end
 
 ---A function to standardize the clothes data
 ---@param clothes table standard clothes data
 ---@return table clothes framework clothes data
 function FrameworkClass:standardizeClothesInternal(clothes)
-  return {}
+  return clothes
 end
 
 ---A function to revert a standardize clothes table
 ---@param standard table clothes with standard keys
 ---@return table clothes clothes with framework keys
 function FrameworkClass:revertClothesInternal(standard)
-  return {}
+  return standard
 end
 
 function FrameworkClass:getUserClothesInternal(source)

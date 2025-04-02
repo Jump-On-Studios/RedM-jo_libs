@@ -165,6 +165,7 @@ end
 ---@param key any the key to get the value
 ---@return any value the value of the key
 table.extract = function(t, key)
+  if not t then return nil end
   local value = type(t[key]) == "table" and table.copy(t[key]) or t[key]
   t[key] = nil
   return value

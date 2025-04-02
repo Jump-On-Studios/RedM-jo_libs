@@ -33,7 +33,7 @@ local supportedFrameworks = {
     resources = { "rsg-core<2.0.0" },
   },
   {
-    id = "rsg_2",
+    id = "rsg",
     name = "RSG V2 RedM Framework",
     folder = "rsg_2",
     resources = { "rsg-core>=2.0.0" },
@@ -306,6 +306,7 @@ local function formatComponentData(data)
 end
 
 local function clearOverlaysTable(overlays)
+  if not overlays then return end
   for layerName, overlay in pairs(overlays) do
     if not overlay then
       overlays[layerName] = nil
@@ -336,11 +337,10 @@ end
 
 local function clearClothesTable(clothesList)
   if not clothesList then return {} end
-  local list = {}
-  for cat, hash in pairs(clothesList) do
-    list[cat] = formatComponentData(hash)
+  for cat, data in pairs(clothesList) do
+    clothesList[cat] = formatComponentData(data)
   end
-  return list
+  return clothesList
 end
 
 
@@ -389,6 +389,10 @@ function FrameworkClass:standardizeSkin(skin)
   table.merge(standard, skin)
 
   clearOverlaysTable(standard.overlays)
+  clearOverlaysTable(skin.overlays)
+  if table.count(skin.overlays) == 0 then
+    skin.overlays = nil
+  end
   clearExpressionsTable(standard.expressions)
 
   if standard.hair and type(standard.hair) ~= "table" then
@@ -461,10 +465,10 @@ function FrameworkClass:getUserSkin(source)
 
   local skinStandardized = self:standardizeSkin(skin)
 
-  if not skinStandardized.teeth then
+  if not skinStandardized.teethHash and not skinStandardized.teethIndex then
     local clothes = self:getUserClothes(source)
     if clothes.teeth then
-      skinStandardized.teeth = clothes.teeth?.hash
+      skinStandardized.teethHash = clothes.teeth?.hash
     end
   end
 
