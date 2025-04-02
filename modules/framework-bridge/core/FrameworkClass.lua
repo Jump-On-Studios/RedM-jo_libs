@@ -352,7 +352,6 @@ function FrameworkClass:standardizeClothesInternal(clothes)
   standard.hair_accessories = table.extract(clothes, "hair_accessories")
   standard.dresses = table.extract(clothes, "dresses")
   standard.armor = table.extract(clothes, "armor")
-  standard.teeth = table.extract(clothes, "teeth")
 
   return standard
 end
@@ -402,12 +401,13 @@ function FrameworkClass:revertClothesInternal(standard)
   clothes.hair_accessories = table.extract(standard, "hair_accessories")
   clothes.dresses = table.extract(standard, "dresses")
   clothes.armor = table.extract(standard, "armor")
-  clothes.teeth = table.extract(standard, "teeth")
 
   return clothes
 end
 
 function FrameworkClass:standardizeSkinInternal(skin)
+  -- print('standardizeSkinInternal', json.encode(skin, { indent = true }))
+
   local standard = {}
 
   local function decrease(value)
@@ -422,8 +422,9 @@ function FrameworkClass:standardizeSkinInternal(skin)
   skin.head = nil
   standard.headIndex = math.ceil(head / 6)
   standard.skinTone = fromFrameworkToStandard.skin_tone[table.extract(skin, "skin_tone")]
-  standard.teethIndex = table.extract(skin, "teeth")
-  standard.teethHash = getTeethHash(standard.model, standard.teethIndex)
+  standard.teethHash = skin.teethHash
+  standard.teethIndex = skin.teethIndex
+
 
   standard.hair = table.extract(skin, "hair")
   if standard.model == "mp_male" then
@@ -648,9 +649,10 @@ function FrameworkClass:revertSkinInternal(standard)
   reverted.head = math.ceil(standard.headIndex * 6)
   standard.headIndex = nil
   _, reverted.skin_tone = table.find(fromFrameworkToStandard.skin_tone, function(value, i) return value == standard.skinTone end)
-  _, reverted.teeth = table.find(fromFrameworkToStandard.teeths[standard.model], function(_, value) return value == standard.teeth end)
-  reverted.teeth = fromFrameworkToStandard.teeths[standard.model][reverted.teeth] or 0
-  reverted.teethHash = getTeethHash(standard.model, reverted.teeth)
+  
+  reverted.teethHash = table.extract(standard, "teeth")
+  reverted.teethIndex = fromFrameworkToStandard.teeths[standard.model][reverted.teethHash]
+  
   reverted.hair = table.extract(standard, "hair")
   if standard.model == "mp_male" then
     reverted.beard = table.extract(standard, "beards_complete")
@@ -862,12 +864,6 @@ function FrameworkClass:getUserClothesInternal(source)
   local clothes = MySQL.scalar.await("SELECT clothes FROM characters_outfit WHERE ownerId=?", { character.id })
   
   local decoded = UnJson(clothes)
-
-  local skin = self:getUserSkinInternal(source)
-
-  decoded.teeth = {
-    hash = getTeethHash(table.extract(skin, "sex") == 2 and "mp_female" or "mp_male", skin.teeth),
-  }
 
   return decoded
 end
