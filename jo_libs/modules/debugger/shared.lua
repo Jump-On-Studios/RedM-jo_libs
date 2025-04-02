@@ -4,11 +4,11 @@ local function now()
   return os and os.microtime() or GetGameTimer() * 1000
 end
 
-jo.debugger.perfomance = function(title, cb)
+function jo.debugger.perfomance(title, cb)
   return jo.debugger.perfomanceRepeat(title, 1, cb)
 end
 
-jo.debugger.perfomanceRepeat = function(title, numberRepeat, cb, waitBetweenRepeat)
+function jo.debugger.perfomanceRepeat(title, numberRepeat, cb, waitBetweenRepeat)
   local sumDuration = 0
   title = title or ""
   numberRepeat = math.max(numberRepeat or 1, 1)
