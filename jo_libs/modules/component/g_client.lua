@@ -335,6 +335,7 @@ local function GetShopItemComponentAtIndex(ped, index)
   return componentHash
 end
 
+--- todo FIND A WAY TO DOCUMENT jo.component.waitPedLoaded without breaking retrocompatibility
 local function waitReadyPed(ped)
   Wait(30)
   local isReady = jo.waiter.exec(function() return IsPedReadyToRender(ped) end)
@@ -645,8 +646,9 @@ function jo.component.apply(ped, category, data)
   reapplyCached(ped)
 end
 
+--- A function to remove a component component
 ---@param ped integer (The entity ID)
--- todo UPDATE DOCUMENTATION
+---@param category integer|string (The category of component to remove)
 function jo.component.remove(ped, category)
   return jo.component.apply(ped, category, 0)
 end
@@ -779,7 +781,11 @@ end
 --* WEARABLE STATE
 --* -----------
 
--- todo UPDATE DOCUMENTATION
+--- A function to edit the wearable state of a category
+--- @param ped integer (The entity ID)
+--- @param category integer|string (The category of the component)
+--- @param data object (The component data, see the structure in [jo.component.apply()](#jo-component-apply))
+--- @param state integer|string (The wearable state to apply on the component <br>  The list of wearable state can be find in the `jo_libs>module>component>client.lua` file `line 76`)
 function jo.component.setWearableState(ped, category, hash, state)
   Entity(ped).state:set("wearableState:" .. category, state)
   initCachePedComponents(ped)
@@ -813,9 +819,9 @@ end
 
 jo.component.isNeckweaUp = jo.component.neckwearIsUp
 
+--- Return if the sleeve are rolled
 ---@param ped integer (The entity ID)
----@return boolean
--- todo UPDATE DOCUMENTATION
+---@return boolean (Return `true` if the sleeve are rolled, `false` otherwise.)
 function jo.component.sleeveIsRolled(ped)
   return jo.component.getWearableState(ped, "shirts_full"):find("rolled") ~= nil
 end
@@ -831,9 +837,9 @@ end
 
 jo.component.isCollarOpened = jo.component.collarIsOpened
 
+--- A function to unroll sleeve
 ---@param ped integer (The entity ID)
----@param hash any the hash of the component
--- todo UPDATE DOCUMENTATION
+---@param data object (The component data, see the structure in [jo.component.apply()](#jo-component-apply))
 function jo.component.sleeveUnroll(ped, hash)
   if jo.component.isCollarOpened(ped) then
     jo.component.setWearableState(ped, "shirts_full", hash, jo.component.data.wearableStates.shirts_full[10])
@@ -844,9 +850,9 @@ end
 
 jo.component.unrollSleeve = jo.component.sleeveUnroll
 
+--- A function to roll sleeve
 ---@param ped integer (The entity ID)
----@param hash any the hash of the component
--- todo UPDATE DOCUMENTATION
+---@param data object (The component data, see the structure in [jo.component.apply()](#jo-component-apply))
 function jo.component.sleeveRoll(ped, hash)
   if jo.component.isCollarOpened(ped) then
     jo.component.setWearableState(ped, "shirts_full", hash, jo.component.data.wearableStates.shirts_full[11])
@@ -892,9 +898,9 @@ end
 
 jo.component.isBootsUnderPant = jo.component.bootsAreUnderPant
 
+--- A function to know if the vest is under the pant
 ---@param ped integer (The entity ID)
----@return boolean
--- todo UPDATE DOCUMENTATION
+---@return boolean (Return `true` if the vest is in the pant, `false` otherwise)
 function jo.component.vestIsUnderPant(ped)
   return Entity(ped).state["wearableState:vests"] == jo.component.data.wearableStates.vests[1]
 end
