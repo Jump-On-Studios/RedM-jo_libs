@@ -335,7 +335,7 @@ local function GetShopItemComponentAtIndex(ped, index)
   return componentHash
 end
 
---- todo FIND A WAY TO DOCUMENT jo.component.waitPedLoaded without breaking retrocompatibility
+-- todo FIND A WAY TO DOCUMENT jo.component.waitPedLoaded without breaking retrocompatibility
 local function waitReadyPed(ped)
   Wait(30)
   local isReady = jo.waiter.exec(function() return IsPedReadyToRender(ped) end)
@@ -422,7 +422,7 @@ end
 --* -----------
 
 ---@param ped integer (The entity ID)
----@param category integer the category hash
+---@param category integer|string the category hash
 local function resetCachedColor(ped, category)
   if not jo.cache.component.color[ped] then return end
   jo.cache.component.color[ped][category] = nil
@@ -541,7 +541,10 @@ function jo.component.getComponentCategory(ped, hash)
   return categoryHash, isMp
 end
 
--- todo UPDATE DOCUMENTATION
+--- A function to check if a component is an MP component (multiplayer component)
+---@param ped integer (The entity ID)
+---@param hash integer (The component hash)
+---@return boolean (Return `true` if it's an MP component, `false` otherwise)
 function jo.component.isMpComponent(ped, hash)
   hash = GetHashFromString(hash)
   local categoryHash = GetShopItemComponentCategory(hash, GetMetaPedType(ped), true)
@@ -652,14 +655,17 @@ function jo.component.remove(ped, category)
   return jo.component.apply(ped, category, 0)
 end
 
--- todo UPDATE DOCUMENTATION
+--- A function to remove all clothing components from a ped
+---@param ped integer (The entity ID)
 function jo.component.removeAllClothes(ped)
   for _, category in pairs(jo.component.data.pedClothes) do
     jo.component.remove(ped, category)
   end
 end
 
--- todo UPDATE DOCUMENTATION
+--- A function to apply multiple components to a ped
+---@param ped integer (The entity ID)
+---@param components table (Table of components indexed by category name with component data)
 function jo.component.applyComponents(ped, components)
   if not ped then return end
   if not DoesEntityExist(ped) then return end
@@ -672,7 +678,28 @@ function jo.component.applyComponents(ped, components)
   end
 end
 
--- todo UPDATE DOCUMENTATION
+-- todo verify if the skin table is OK
+--- A function to apply a complete skin configuration to a ped
+---@param ped integer (The entity ID)
+---@param skin table (The skin configuration data)
+--- skin.model? string (The model name)
+--- skin.headHash? integer (The head component hash)
+--- skin.headIndex? integer (The head index for skin tone)
+--- skin.skinTone? integer (The skin tone value)
+--- skin.bodyUpperHash? integer (The upper body component hash)
+--- skin.bodyLowerHash? integer (The lower body component hash)
+--- skin.bodiesIndex? integer (The body index for skin tone)
+--- skin.bodyType? integer (The body type outfit preset)
+--- skin.bodyWeight? integer (The body weight outfit preset)
+--- skin.expressions? table (Table of expression values)
+--- skin.eyesHash? integer (The eyes component hash)
+--- skin.eyesIndex? integer (The eyes index)
+--- skin.teethHash? integer (The teeth component hash)
+--- skin.teethIndex? integer (The teeth index)
+--- skin.hair? table (Hair component data)
+--- skin.beards_complete? table (Beard component data)
+--- skin.overlays? table (Table of overlay configurations)
+--- skin.bodyScale? number (The body scale value)
 function jo.component.applySkin(ped, skin)
   dprint("applySkin", ped, json.encode(skin))
   if not ped then return end
@@ -801,7 +828,7 @@ end
 
 --- Get the wearable state of a category
 --- @param ped integer (The entity ID)
---- @param category string (The category name)
+--- @param category string|integer (The category name)
 --- @return string (Return the wearable state of the category)
 function jo.component.getWearableState(ped, category)
   local state = Entity(ped).state["wearableState:" .. category]
@@ -959,7 +986,7 @@ end
 --- A function to know if a specific category is equiped on the ped
 ---@param ped integer (The entity ID)
 ---@param category string|integer (The category name)
----@return boolean,integer 1st: Return `true` if the category is equiped, `false` otherwise <br> 2nd: Return the index of the category
+---@return boolean,integer (1st: Return `true` if the category is equiped, `false` otherwise <br> 2nd: Return the index of the category)
 function jo.component.isCategoryEquiped(ped, category)
   local categoryHash = GetHashFromString(category)
   if not IsMetaPedUsingComponent(ped, categoryHash) then
@@ -972,7 +999,7 @@ end
 
 --- A function to get the hash of the component equiped in a category
 --- @param ped integer (The entity ID)
---- @param category string (The category to get the component)
+--- @param category string|integer (The category to get the component)
 --- @return integer|boolean (Return the hash of the component or `false` is not equiped)
 function jo.component.getComponentEquiped(ped, category)
   local categoryHash = GetHashFromString(category)
@@ -1000,7 +1027,7 @@ end
 
 --- A function to get the tints of a category
 --- @param ped integer (The entity ID)
---- @param category string (The category of the component)
+--- @param category string|integer (The category of the component)
 --- @param inTable boolean (When inTable is `true`, returns a table with {palette, tint0, tint1, tint2} <br> When inTable is `false`, returns four separate values: palette, tint0, tint1, tint2)
 --- @return object|integer,integer,integer,integer (When inTable is true: returns a table with {palette, tint0, tint1, tint2} <br> When inTable is false: 1st: color palette <br> 2nd: tint number 0 <br> 3rd: tint number 1 <br> 4th: tint number 2)
 function jo.component.getCategoryTint(ped, category, inTable)
@@ -1028,7 +1055,9 @@ end
 --* Convert Hash
 --* -----------
 
--- todo UPDATE DOCUMENTATION
+--- A function to get the palette name from a hash value
+---@param hash integer (The palette hash)
+---@return string (The palette name, or "unknown" if not found)
 function jo.component.getPaletteNameFromHash(hash)
   for _, palette in pairs(jo.component.data.palettes) do
     if joaat(palette) == hash then
@@ -1038,14 +1067,19 @@ function jo.component.getPaletteNameFromHash(hash)
   return "unknown"
 end
 
--- todo UPDATE DOCUMENTATION
----@return string categoryName
+--- A function to get the category name from a hash value
+---@param category integer|string (The category hash)
+---@return string (The category name, or "unknown" if not found)
 function jo.component.getCategoryNameFromHash(category)
   if not category then return "" end
   return jo.component.data.categoryName[category] or "unknown"
 end
 
--- todo UPDATE DOCUMENTATION
+--- A function to get the head component hash from head index and skin tone
+---@param ped integer (The entity ID)
+---@param headIndex? integer (The head index, defaults to 1)
+---@param skinTone? integer (The skin tone, defaults to 1)
+---@return string (The head component hash string)
 function jo.component.getHeadFromSkinTone(ped, headIndex, skinTone)
   local ped = ped or PlayerPedId()
   local sex = "M"
@@ -1057,7 +1091,11 @@ function jo.component.getHeadFromSkinTone(ped, headIndex, skinTone)
   return ("CLOTHING_ITEM_%s_HEAD_%03d_V_%03d"):format(sex, headIndex or 1, skinTone or 1)
 end
 
--- todo UPDATE DOCUMENTATION
+--- A function to get the lower body component hash from bodies index and skin tone
+---@param ped integer|string (The entity ID or model name)
+---@param bodiesIndex? integer (The bodies index, defaults to 1)
+---@param skinTone? integer (The skin tone, defaults to 1)
+---@return string (The lower body component hash string)
 function jo.component.getBodiesLowerFromSkinTone(ped, bodiesIndex, skinTone)
   local ped = ped or PlayerPedId()
   local sex = "M"
@@ -1069,7 +1107,11 @@ function jo.component.getBodiesLowerFromSkinTone(ped, bodiesIndex, skinTone)
   return ("CLOTHING_ITEM_%s_BODIES_LOWER_%03d_V_%03d"):format(sex, bodiesIndex or 1, skinTone or 1)
 end
 
--- todo UPDATE DOCUMENTATION
+--- A function to get the upper body component hash from bodies index and skin tone
+---@param ped integer|string (The entity ID or model name)
+---@param bodiesIndex? integer (The bodies index, defaults to 1)
+---@param skinTone? integer (The skin tone, defaults to 1)
+---@return string (The upper body component hash string)
 function jo.component.getBodiesUpperFromSkinTone(ped, bodiesIndex, skinTone)
   local ped = ped or PlayerPedId()
   local sex = "M"
@@ -1081,7 +1123,10 @@ function jo.component.getBodiesUpperFromSkinTone(ped, bodiesIndex, skinTone)
   return ("CLOTHING_ITEM_%s_BODIES_UPPER_%03d_V_%03d"):format(sex, bodiesIndex or 1, skinTone or 1)
 end
 
--- todo UPDATE DOCUMENTATION
+--- A function to get the eyes component hash from an index
+---@param ped integer|string (The entity ID or model name)
+---@param index? integer (The eyes index, defaults to 1)
+---@return string (The eyes component hash string)
 function jo.component.getEyesFromIndex(ped, index)
   local ped = ped or PlayerPedId()
   local sex = "M"
@@ -1093,7 +1138,10 @@ function jo.component.getEyesFromIndex(ped, index)
   return ("CLOTHING_ITEM_%s_EYES_001_TINT_%03d"):format(sex, index or 1)
 end
 
--- todo UPDATE DOCUMENTATION
+--- A function to get the teeth component hash from an index
+---@param ped integer|string (The entity ID or model name)
+---@param index? integer (The teeth index, defaults to 1)
+---@return string (The teeth component hash string)
 function jo.component.getTeethFromIndex(ped, index)
   local ped = ped or PlayerPedId()
   local sex = "M"
