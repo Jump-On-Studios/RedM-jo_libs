@@ -335,8 +335,9 @@ local function GetShopItemComponentAtIndex(ped, index)
   return componentHash
 end
 
--- todo FIND A WAY TO DOCUMENT jo.component.waitPedLoaded without breaking retrocompatibility
-local function waitReadyPed(ped)
+--- A function to wait the refresh of ped
+--- @param ped integer (The entity ID)
+function jo.component.waitPedLoaded(ped)
   Wait(30)
   local isReady = jo.waiter.exec(function() return IsPedReadyToRender(ped) end)
   if not isReady then
@@ -344,7 +345,6 @@ local function waitReadyPed(ped)
     return
   end
 end
-jo.component.waitPedLoaded = waitReadyPed
 
 local function isValidValue(value)
   return value and value ~= 0 and value ~= -1 and value ~= 1
@@ -513,9 +513,9 @@ end
 local function reapplyCached(ped)
   if not jo.cache.component.color[ped] then return end
   delays["refresh" .. ped] = jo.timeout.delay("jo_libs:component:reapplyCachedColor" .. ped,
-    function() waitReadyPed(ped) end, function()
+    function() jo.component.waitPedLoaded(ped) end, function()
       refreshPed(ped)
-      waitReadyPed(ped)
+      jo.component.waitPedLoaded(ped)
       reapplyComponentStats(ped)
       reapplyComponentsColor(ped)
       resetCachedPed(ped)
@@ -727,7 +727,7 @@ function jo.component.applySkin(ped, skin)
   applyDefaultBodyParts(ped)
 
   jo.component.refreshPed(ped)
-  waitReadyPed(ped)
+  jo.component.waitPedLoaded(ped)
 
   dprint("start apply default body components")
 
@@ -751,7 +751,7 @@ function jo.component.applySkin(ped, skin)
   end
 
   jo.component.refreshPed(ped)
-  waitReadyPed(ped)
+  jo.component.waitPedLoaded(ped)
 
   dprint("apply expression")
   for expression, value in pairs(skin.expressions) do
@@ -763,7 +763,7 @@ function jo.component.applySkin(ped, skin)
 
   jo.component.refreshPed(ped)
   dprint("wait refresh")
-  waitReadyPed(ped)
+  jo.component.waitPedLoaded(ped)
 
   local eyes = skin.eyesHash or jo.component.getEyesFromIndex(ped, skin.eyesIndex)
   jo.component.apply(ped, "eyes", eyes)
@@ -776,7 +776,7 @@ function jo.component.applySkin(ped, skin)
     jo.component.apply(ped, "beards_complete", skin.beards_complete)
   end
 
-  waitReadyPed(ped)
+  jo.component.waitPedLoaded(ped)
 
   for category, overlay in pairs(skin.overlays or {}) do
     if type(overlay) == "table" then
@@ -801,7 +801,7 @@ function jo.component.applySkin(ped, skin)
   SetPedScale(ped, skin.bodyScale)
   dprint("done create ped")
 
-  waitReadyPed(ped)
+  jo.component.waitPedLoaded(ped)
 end
 
 --* -----------
