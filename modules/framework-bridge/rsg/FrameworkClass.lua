@@ -239,6 +239,8 @@ end
 
 local function getFrameworkValueFromStandard(category, data)
   if not fromFrameworkToStandard[category] then return false end
+  if type(fromFrameworkToStandard[category]) ~= "table" then return false end
+  if table.type(fromFrameworkToStandard[category]) ~= "hash" then return false end
   return table.find(fromFrameworkToStandard[category], function(value)
     return table.isEgal(value.standard, data, false, true, true)
   end)
@@ -663,7 +665,6 @@ function FrameworkClass:standardizeSkinInternal(skin)
 end
 
 function FrameworkClass:revertSkinInternal(standard)
-  print(json.encode(standard, { indent = true }))
   local reverted = {}
 
   local function increase(value)
@@ -765,17 +766,6 @@ function FrameworkClass:revertSkinInternal(standard)
       standard.overlays.ageing.id = nil
       standard.overlays.ageing.opacity = nil
     end
-  end
-  if standard.overlays.head then
-    reverted.headtabble_t = standard.overlays.head.id
-    reverted.headtabble_id = standard.overlays.head.palette
-    reverted.headtabble_op = revertPercent(standard.overlays.head.opacity)
-    reverted.headtabble_c1 = standard.overlays.head.tint0
-
-    standard.overlays.head.id = nil
-    standard.overlays.head.palette = nil
-    standard.overlays.head.opacity = nil
-    standard.overlays.head.tint0 = nil
   end
   if standard.overlays.beard then
     reverted.beardstabble_t = standard.overlays.beard.id

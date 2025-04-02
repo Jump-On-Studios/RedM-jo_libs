@@ -166,31 +166,28 @@ jo.component.data.wearableStates = {
 jo.component.wearableStates = jo.component.data.wearableStates --deprecated name
 
 jo.component.data.palettes = {
-  "metaped_tint_makeup",
-  "metaped_tint_skirt_clean",
-  "metaped_tint_hat_worn",
-  "metaped_tint_swatch_002",
-  "metaped_tint_hat_clean",
-  "metaped_tint_swatch_003",
-  "metaped_tint_generic_clean",
-  "metaped_tint_hat_weathered",
-  "metaped_tint_combined",
-  "metaped_tint_horse_leather",
   "metaped_tint_animal",
-  "metaped_tint_swatch_001",
-  "metaped_tint_horse",
+  "metaped_tint_combined",
+  "metaped_tint_combined_leather",
+  "metaped_tint_combined_leather",
   "metaped_tint_eye",
   "metaped_tint_generic",
-  "metaped_tint_generic_worn",
-  "metaped_tint_skirt_weathered",
-  "metaped_tint_swatch_000",
-  "metaped_tint_leather",
-  "metaped_tint_mpadv",
-  "metaped_tint_skirt_worn",
-  "metaped_tint_hair",
-  "metaped_tint_combined_leather",
+  "metaped_tint_generic_clean",
   "metaped_tint_generic_weathered",
+  "metaped_tint_generic_worn",
+  "metaped_tint_hair",
   "metaped_tint_hat",
+  "metaped_tint_hat_clean",
+  "metaped_tint_hat_weathered",
+  "metaped_tint_hat_worn",
+  "metaped_tint_horse",
+  "metaped_tint_horse_leather",
+  "metaped_tint_leather",
+  "metaped_tint_makeup",
+  "metaped_tint_mpadv",
+  "metaped_tint_skirt_clean",
+  "metaped_tint_skirt_weathered",
+  "metaped_tint_skirt_worn",
 }
 jo.component.palettes = jo.component.data.palettes --deprecated name
 
@@ -331,12 +328,12 @@ end
 
 ---@return any data formatted table for component data
 local function formatComponentData(_data)
-  data = table.copy(_data)
+  local data = table.copy(_data)
   if type(data) ~= "table" then
     data = { hash = data }
   end
   if type(data.hash) == "table" then data = data.hash end --for VORP
-  if data.hash == 0 then
+  if data.hash == 0 or data.hash == false then
     data.remove = true
   end
   data.hash = isValidValue(data.hash) and data.hash or false
@@ -361,6 +358,7 @@ end
 jo.component.getBaseLayer = getBaseLayer
 
 local function convertToMetaTag(ped, data)
+  data = table.copy(data)
   --restrict to hats & masks
   if not data.hash then return data end
   if data.albedo then return data end
@@ -442,7 +440,7 @@ local function addCachedComponent(ped, index, category, hash, drawable, albedo, 
 end
 
 ---@param ped integer the entity ID
-local function putInCacheCurrentComponent(ped)
+local function initCachePedComponents(ped)
   if jo.cache.component.color[ped] then return jo.cache.component.color[ped] end
   local numComponent = GetNumComponentsInPed(ped)
   if not numComponent then return end -- No component detected on the ped
@@ -550,7 +548,7 @@ function jo.component.apply(ped, category, data)
     end
   end
 
-  putInCacheCurrentComponent(ped)
+  initCachePedComponents(ped)
 
   resetCachedColor(ped, categoryHash)
 
@@ -741,7 +739,7 @@ end
 ---@param state any
 function jo.component.setWearableState(ped, category, hash, state)
   Entity(ped).state:set("wearableState:" .. category, state)
-  putInCacheCurrentComponent(ped)
+  initCachePedComponents(ped)
   local data = formatComponentData(hash) or {}
   if not data.hash then
     data.hash = jo.component.getComponentEquiped(jo.me, category)
@@ -900,18 +898,20 @@ function jo.component.getComponentEquiped(ped, category)
   if not IsMetaPedUsingComponent(ped, categoryHash) then
     return false
   end
-  local equiped = jo.component.getCategoriesEquiped(ped)
+
+  local equiped = initCachePedComponents(ped)
+  resetCachedPed(ped)
 
   if equiped?[categoryHash] then
     local index = equiped[categoryHash].index
-    return GetShopItemComponentAtIndex(ped, index)
+    return GetShopItemComponentAtIndex(ped, index), equiped[categoryHash]
   else
-    return false
+    return false, false
   end
 end
 
 function jo.component.getComponentsEquiped(ped)
-  local component = putInCacheCurrentComponent(ped) or {}
+  local component = initCachePedComponents(ped) or {}
   resetCachedPed(ped)
   return component
 end

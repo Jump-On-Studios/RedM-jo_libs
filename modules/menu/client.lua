@@ -38,7 +38,8 @@ local disabledKeys = {
 }
 
 local function updateSliderCurrentValue(item)
-  for _, slider in pairs(item.sliders) do
+  for i = 1, #item.sliders do
+    local slider = item.sliders[i]
     if slider.type == "grid" then
       slider.value = {}
       slider.value[1] = slider.values[1] and math.floor(slider.values[1].current * 1000) / 1000 or nil
@@ -125,6 +126,7 @@ function jo.menu.updateItem(id, index, key, value) menus[id]:updateItem(index, k
 
 function MenuClass:refresh()
   local datas = table.clearForNui(self)
+  datas.currentIndex = nil
   SendNUIMessage({
     event = "updateMenuData",
     menu = self.id,
@@ -160,10 +162,11 @@ function MenuClass:sort(first, last)
   if first == 1 and last == #self.items then
     sortedTable = self.items
   else
-    local index = 1
     for i = first, last do
-      sortedTable[index] = self.items[i]
-      index += 1
+      table.insert(sortedTable, self.items[i])
+      if i == self.currentIndex then
+        sortedTable[#sortedTable].isCurrentIndex = true
+      end
     end
   end
   table.sort(sortedTable, sortFunc)
@@ -172,30 +175,43 @@ function MenuClass:sort(first, last)
     self.items[i] = sortedTable[i - first + 1]
   end
 
-  for i, item in pairs(self.items) do
-    item.index = i
+  for i = 1, #self.items do
+    self.items[i].index = i
+    if self.items[i].isCurrentIndex then
+      self.currentIndex = i
+      self.items[i].iscurrentIndex = nil
+    end
   end
 end
 function jo.menu.sort(id, first, last) menus[id]:sort(first, last) end
 
-function MenuClass:send(reset)
-  local datas = table.clearForNui(self)
-  if reset == nil then
-    reset = true
+function MenuClass:send()
+  if self.sentToNUI then
+    return error("Menu already sent, please use menu:refresh(): " .. self.id)
   end
+  local datas = table.clearForNui(self)
   SendNUIMessage({
     event = "updateMenu",
-    reset = reset,
     menu = datas
   })
+  self.sentToNUI = true
   if currentData.menu == self.id then
     currentData.item = self.items[currentData.index]
   end
 end
-function jo.menu.send(id, reset) menus[id]:send(reset) end
+function jo.menu.send(id) menus[id]:send() end
 
 function MenuClass:use(keepHistoric, resetMenu)
   jo.menu.setCurrentMenu(self.id, keepHistoric, resetMenu)
+end
+
+function MenuClass:setCurrentIndex(index)
+  self.currentIndex = index
+  SendNUIMessage({
+    event = "setCurrentIndex",
+    menu = self.id,
+    index = index
+  })
 end
 
 ---@param id string Unique ID of the menu
@@ -214,7 +230,7 @@ function jo.menu.create(id, data)
   end
   menus[id] = table.merge(table.copy(MenuClass), data)
   menus[id].id = id
-  menus[id]:send()
+  -- menus[id]:send()
   return menus[id]
 end
 
@@ -377,8 +393,8 @@ end
 RegisterNUICallback("click", function(data, cb)
   cb("ok")
 
-  if not menus[data.menu] then return end
-  if not menus[data.menu].items[data.item.index] then return end
+  if not menus[data.menu] then return eprint("Menu doesn't exist", data.menu) end
+  if not menus[data.menu].items[data.item.index] then return eprint("Item doesn't exist", data.item.index) end
 
   jo.menu.fireEvent(jo.menu.getCurrentItem(), "onClick")
 end)
@@ -430,7 +446,7 @@ local function menuNUIChange(data)
 
   currentData.menu = data.menu
   currentData.index = data.item.index
-  -- menus[data.menu].currentItem = data.item.index
+  -- menus[data.menu].currentIndex = data.item.index
   menus[data.menu].items[data.item.index] = table.merge(menus[data.menu].items[data.item.index], data.item)
   currentData.item = menus[data.menu].items[data.item.index]
 

@@ -138,6 +138,8 @@ function jo.entity.create(model, coords, heading, networked, fadeDuration)
 	return entity
 end
 
+--- Source: https://github.com/citizenfx/lua/blob/luaglm-dev/cfx/libs/scripts/examples/scripting_gta.lua
+--- Credits to gottfriedleibniz
 local glm = require "glm"
 
 local glm_rad = glm.rad

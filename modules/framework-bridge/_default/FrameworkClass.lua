@@ -288,7 +288,7 @@ end
 ---@param standard table standard skin data
 ---@return table skin framework skin data
 function FrameworkClass:revertSkinInternal(standard)
-  return {}
+  return standard
 end
 
 ---A function to standardize the clothes data
