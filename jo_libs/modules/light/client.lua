@@ -1,16 +1,16 @@
 jo.light = {}
 local lightActives = {}
 
-jo.require('table')
-jo.require('math')
-jo.require('timeout')
+jo.require("table")
+jo.require("math")
+jo.require("timeout")
 
 ---@class Light : table Light class
 local LightClass = {
   id = 1,
-  coords = vec3(0,0,0),
-  targetCoords = vec3(0,0,0),
-  rgb = {255, 160, 122},
+  coords = vec3(0, 0, 0),
+  targetCoords = vec3(0, 0, 0),
+  rgb = { 255, 160, 122 },
   range = 10.0,
   intensity = 0.0,
   targetIntensity = 1.0,
@@ -26,6 +26,7 @@ local function deleteLight(id)
   end
 end
 
+--- Marks a light for deletion and starts fading it out
 function LightClass:delete()
   self.deleted = true
   self:setIntensity(0)
@@ -34,14 +35,20 @@ function LightClass:delete()
   end
 end
 
+--- Sets new target coordinates for the light
+---@param coords vector3 (The new target position)
 function LightClass:setCoords(coords)
   self.targetCoords = coords
 end
 
+--- Sets new target intensity for the light
+---@param intensity float (The new target intensity from 0.0 to 1.0)
 function LightClass:setIntensity(intensity)
   self.targetIntensity = intensity * 1.0
 end
 
+--- Updates the light properties based on elapsed time
+---@param deltaTime float (Time elapsed since last update in ms)
 function LightClass:update(deltaTime)
   if self.intensity ~= self.targetIntensity then
     if not self.ease or self.ease == 0 then
@@ -62,7 +69,7 @@ function LightClass:update(deltaTime)
       local x = math.lerp(self.coords.x, self.targetCoords.x, t)
       local y = math.lerp(self.coords.y, self.targetCoords.y, t)
       local z = math.lerp(self.coords.z, self.targetCoords.z, t)
-      self.coords = vec3(x,y,z)
+      self.coords = vec3(x, y, z)
       if #(self.coords - self.targetCoords) < 0.01 then
         self.coords = self.targetCoords
       end
@@ -70,7 +77,14 @@ function LightClass:update(deltaTime)
   end
 end
 
-function jo.light.create(coords,intensity,rgb,range,ease)
+--- Creates a new light with the given properties
+---@param coords vector3 (The position where the light will be created)
+---@param intensity? float (The light intensity from 0.0 to 1.0 - default:1.0)
+---@param rgb? table (RGB color values as a table {r,g,b} - default:`{255, 160, 122}`)
+---@param range? float (The range/radius of the light - default:10.0)
+---@param ease? float (Transition time in milliseconds - default:1000)
+---@return LightClass (The created light object)
+function jo.light.create(coords, intensity, rgb, range, ease)
   local light = table.copy(LightClass)
   light.coords = coords
   light.targetCoords = coords
@@ -84,22 +98,23 @@ function jo.light.create(coords,intensity,rgb,range,ease)
     light.intensity = light.targetIntensity
   end
 
-  table.insert(lightActives,light)
+  table.insert(lightActives, light)
 
   light.id = #lightActives
   return light
 end
 
 CreateThread(function()
-  local deltaTime,oldTime,counter = 0,GetGameTimer(),0
+  local deltaTime, oldTime, counter = 0, GetGameTimer(), 0
   while true do
     deltaTime = GetGameTimer() - oldTime
     oldTime = GetGameTimer()
     counter = 0
-    for _,light in pairs (lightActives) do
+    for _, light in pairs(lightActives) do
       counter += 1
       light:update(deltaTime)
-      DrawLightWithRange(light.coords.x,light.coords.y,light.coords.z,light.rgb[1], light.rgb[2], light.rgb[3], light.range, light.intensity)
+      DrawLightWithRange(light.coords.x, light.coords.y, light.coords.z, light.rgb[1], light.rgb[2], light.rgb[3],
+        light.range, light.intensity)
       if light.deleted and light.intensity == 0 then
         deleteLight(light.id)
       end
