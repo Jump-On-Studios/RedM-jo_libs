@@ -1,6 +1,9 @@
 jo.nui = {}
 local nuiLoaded = {}
 
+--- Loads a NUI interface
+---@param uiName string (The name of the NUI to load)
+---@param url string (The URL of the NUI to load)
 function jo.nui.load(uiName, url)
   if GetResourceMetadata(GetCurrentResourceName(), "ui_page") ~= "nui://jo_libs/nui/index.html" then
     return eprint('You have to use "nui://jo_libs/nui/index.html" as your main ui_page in the fxmanifest.lua')
@@ -17,6 +20,8 @@ function jo.nui.load(uiName, url)
   })
 end
 
+--- Forces focus on a specific NUI interface
+---@param uiName string (The name of the NUI to focus on)
 function jo.nui.forceFocus(uiName)
   if not nuiLoaded[uiName] then return eprint("This nui is not loaded:", uiName) end
   SendNUIMessage({
@@ -25,6 +30,7 @@ function jo.nui.forceFocus(uiName)
   })
 end
 
+--- Resets the focus from any NUI interface
 function jo.nui.resetFocus()
   SendNUIMessage({
     action = "jo_nui_reset_focus"
