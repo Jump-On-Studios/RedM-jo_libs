@@ -62,7 +62,7 @@ function jo.versionChecker.checkUpdate()
     --   framework = urlencode(jo.framework:get())
     -- end
 
-    local link = ("https://dashboard.jumpon-studios.com/api/checkVersion?package=%d&server_name=%s&framework=%s"):format(packageID, serverName, framework or "")
+    local link = ("https://dashboard.jumpon-studios.com/api/checkVersion?package=%d&current_version=%s&server_name=%s&framework=%s"):format(packageID, currentVersion, serverName, framework or "")
     PerformHttpRequest(link, function(errorCode, resultData, resultHeaders, errorData)
       Wait(1000)
       if killed then return end

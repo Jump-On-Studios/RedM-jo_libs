@@ -1054,7 +1054,9 @@ function FrameworkClass:updateUserClothesInternal(source, clothes)
   local newClothes = {}
   for category, value in pairs(clothes) do
     newClothes[category] = value
-    newClothes[category].comp = GetValue(value?.hash, 0)
+    if type(value) == "table" then
+      newClothes[category].comp = GetValue(value?.hash, 0)
+    end
   end
   local user = self.UserClass:get(source)
   local tints = UnJson(user.data.comptTints)
