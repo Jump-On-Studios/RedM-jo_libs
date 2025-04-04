@@ -1,3 +1,5 @@
+-- todo enhance parser to allow parsing this file
+
 local type = type
 local setmetatable = setmetatable
 local getmetatable = getmetatable
