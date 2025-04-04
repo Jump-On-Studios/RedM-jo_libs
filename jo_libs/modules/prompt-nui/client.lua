@@ -28,6 +28,10 @@ local keysFired = {}
 local createdGroupsAmount = 0
 local currentGroupVisible = nil
 
+-- * =============================================================================
+-- * HELPERS
+-- * =============================================================================
+
 -- Listens for key press and release events for a specified key.
 -- Updates the keysPressed and keysFired tables based on the key state,
 -- and sends an NUI message indicating whether the key was pressed or released.
