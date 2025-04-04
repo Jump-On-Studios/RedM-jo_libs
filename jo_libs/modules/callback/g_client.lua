@@ -1,4 +1,3 @@
--- todo fix this file generation
 local nextRequestId = 0
 local responseCallback = {}
 local registeredCallback = {}
@@ -10,10 +9,10 @@ local insert = table.insert
 
 jo.callback = {}
 
---- Function to check if a variable is a callable function.
---- Checks both direct functions and tables with __call metamethod.
----@param cb any (The variable to check)
----@return boolean (True if the variable is a function or callable, false otherwise)
+-- Function to check if a variable is a callable function.
+-- Checks both direct functions and tables with __call metamethod.
+--@param cb any (The variable to check)
+--@return boolean (True if the variable is a function or callable, false otherwise)
 local function isAFunction(cb)
   local cbType = type(cb)
 
@@ -23,7 +22,7 @@ local function isAFunction(cb)
   return false
 end
 
---- Register a callback on the client side.
+--- A function to register a client callback
 ---@param name string (The name of the callback event)
 ---@param cb function (The function executed when the callback is triggered)
 function jo.callback.register(name, cb)
@@ -42,7 +41,7 @@ AddEventHandler("onResourceStop", function(resource)
   end
 end)
 
---- Trigger a callback on the server.
+--- A function to trigger a server callback
 ---@param name string (Name of the callback event)
 ---@param cb function (Function to receive the result of the event)
 ---@param ...? mixed (The list of parameters to send to the callback event)
@@ -75,17 +74,17 @@ end
 jo.triggerServerCallback = jo.callback.triggerServer
 
 
---- Execute a registered callback by name.
---- Internal function that runs the callback and returns its results.
----@param name string (The name of the registered callback to execute)
----@param ...? any (Parameters to pass to the callback)
----@return any (Return values from the executed callback)
+-- Execute a registered callback by name.
+-- Internal function that runs the callback and returns its results.
+--@param name string (The name of the registered callback to execute)
+--@param ...? any (Parameters to pass to the callback)
+--@return any (Return values from the executed callback)
 local function executeCallback(name, ...)
   if not registeredCallback[name] then return false, eprint(("No callback for: %s"):format(name)) end
   return registeredCallback[name].cb(...)
 end
 
---- Trigger a callback on the client.
+--- A function to trigger a client callback
 ---@param name string (The name of the callback event)
 ---@param cb function (Function to receive the result of the event)
 ---@param ...? mixed (The list of parameters to send to the callback event)
