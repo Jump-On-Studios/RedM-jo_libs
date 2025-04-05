@@ -23,7 +23,7 @@ table.overwrite = function(t1, t2, addDuplicateNumbers)
   if not t1 then t1 = {} end
   if type(t2) ~= "table" then return t1 end  -- Evita erro ao tentar iterar `nil`
 
-  addDuplicateNumbers = addDuplicateNumbers ~= false  -- Padrão: somar números
+  addDuplicateNumbers = addDuplicateNumbers or false  -- Padrão: somar números
 
   for k, v2 in pairs(t2) do
       local v1 = t1[k]
