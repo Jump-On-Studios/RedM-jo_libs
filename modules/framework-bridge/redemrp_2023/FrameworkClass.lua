@@ -533,6 +533,7 @@ function FrameworkClass:standardizeSkinInternal(skin)
   skin.freckles_t = nil
   skin.freckles_op = nil
 
+
   standard.overlays.lipstick = skin.lipsticks_t and {
     id = 0,
     sheetGrid = decrease(skin.lipsticks_t),

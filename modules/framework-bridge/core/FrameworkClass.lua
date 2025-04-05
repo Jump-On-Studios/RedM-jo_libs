@@ -269,6 +269,8 @@ end
 
 local function getFrameworkValueFromStandard(category, data)
   if not fromFrameworkToStandard[category] then return false end
+  if type(fromFrameworkToStandard[category]) ~= "table" then return false end
+  if table.type(fromFrameworkToStandard[category]) ~= "hash" then return false end
   return table.find(fromFrameworkToStandard[category], function(value)
     return table.isEgal(value.standard, data, false, true, true)
   end)
@@ -814,19 +816,44 @@ function FrameworkClass:revertSkinInternal(standard)
     end
   end
   if standard.overlays.lipstick then
-    reverted.lipsticks_t = increase(standard.overlays.lipstick.sheetGrid)
-    reverted.lipsticks_id = standard.overlays.lipstick.palette
-    reverted.lipsticks_c1 = standard.overlays.lipstick.tint0
-    reverted.lipsticks_c2 = standard.overlays.lipstick.tint1
-    reverted.lipsticks_c3 = standard.overlays.lipstick.tint2
-    reverted.lipsticks_op = revertPercent(standard.overlays.lipstick.opacity)
-    standard.overlays.lipstick.sheetGrid = nil
-    standard.overlays.lipstick.palette = nil
-    standard.overlays.lipstick.tint0 = nil
-    standard.overlays.lipstick.tint1 = nil
-    standard.overlays.lipstick.tint2 = nil
-    standard.overlays.lipstick.opacity = nil
+    local _, tx_id = getFrameworkValueFromStandard("ov_lipsticks", standard.overlays.lipstick)
+
+    if tx_id then
+      print('tx_id', tx_id)
+      reverted.lipsticks_t = increase(standard.overlays.lipstick.sheetGrid)
+      reverted.lipsticks_id = standard.overlays.lipstick.palette
+      reverted.lipsticks_c1 = standard.overlays.lipstick.tint0
+      reverted.lipsticks_c2 = standard.overlays.lipstick.tint1
+      reverted.lipsticks_c3 = standard.overlays.lipstick.tint2
+      reverted.lipsticks_op = revertPercent(standard.overlays.lipstick.opacity)
+      standard.overlays.lipstick.sheetGrid = nil
+      standard.overlays.lipstick.palette = nil
+      standard.overlays.lipstick.tint0 = nil
+      standard.overlays.lipstick.tint1 = nil
+      standard.overlays.lipstick.tint2 = nil
+      standard.overlays.lipstick.opacity = nil
+    end
   end
+
+  -- if standard.overlays.lipstick then
+  --   local _, tx_id = getFrameworkValueFromStandard("ov_lipsticks", standard.overlays.lipstick)
+  --   if tx_id then
+  --     reverted.lipsticks_visibility = 1
+  --     reverted.lipsticks_tx_id = tx_id
+  --     reverted.lipsticks_palette_id = increase(standard.overlays.lipstick.sheetGrid)
+  --     reverted.lipsticks_palette_color_primary = standard.overlays.lipstick.tint0
+  --     reverted.lipsticks_palette_color_secondary = standard.overlays.lipstick.tint1
+  --     reverted.lipsticks_palette_color_tertiary = standard.overlays.lipstick.tint2
+  --     reverted.lipsticks_opacity = standard.overlays.lipstick.opacity
+  --     standard.overlays.lipstick.id = nil
+  --     standard.overlays.lipstick.sheetGrid = nil
+  --     standard.overlays.lipstick.tint0 = nil
+  --     standard.overlays.lipstick.tint1 = nil
+  --     standard.overlays.lipstick.tint2 = nil
+  --     standard.overlays.lipstick.opacity = nil
+  --   end
+  -- end
+
   if standard.overlays.moles then
     local _, id = getFrameworkValueFromStandard("ov_moles", standard.overlays.moles)
     if id then

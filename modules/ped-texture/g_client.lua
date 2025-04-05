@@ -375,6 +375,7 @@ local function convertDataLayer(ped, layerName, data)
         data.palette = paletteIdentifier
       end
     end
+    print("layerName = " .. layerName .. " data.palette = " .. tostring(data.palette))
     data.normal = data.albedo .. "_nm"
     data.material = data.albedo .. "_ab"
   end
