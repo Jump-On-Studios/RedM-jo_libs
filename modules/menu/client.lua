@@ -447,7 +447,7 @@ local function menuNUIChange(data)
   currentData.menu = data.menu
   currentData.index = data.item.index
   -- menus[data.menu].currentIndex = data.item.index
-  menus[data.menu].items[data.item.index] = table.merge(menus[data.menu].items[data.item.index], data.item)
+  menus[data.menu].items[data.item.index] = table.overwrite(menus[data.menu].items[data.item.index], data.item)
   currentData.item = menus[data.menu].items[data.item.index]
 
   updateSliderCurrentValue(currentData.item)
