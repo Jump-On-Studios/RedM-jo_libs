@@ -18,7 +18,7 @@ function UserClass:get(source)
   self.__index = self
   self.source = tonumber(source)
 
-  local data = Core.GetCharacterFromPlayerId(self.source)
+  local data = Core.GetUserFromPlayerId(self.source)
   if not data then
     return false, eprint("User doesn't exist. source:", self.source)
   end
