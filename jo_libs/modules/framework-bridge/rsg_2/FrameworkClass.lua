@@ -11,8 +11,6 @@ FrameworkClass.inv = Inventory
 -- VARIABLES
 -------------
 
-local inventoriesCreated = {}
-
 -------------
 -- INVENTORY
 -------------
@@ -31,27 +29,17 @@ function FrameworkClass:registerUseItem(item, closeAfterUsed, callback)
 end
 
 function FrameworkClass:createInventory(id, name, invConfig)
-  inventoriesCreated[id] = {
-    id = id,
-    name = name,
-    config = invConfig,
-    inventory = {}
+  local config = {
+    label = name,
+    maxweight = invConfig.maxWeight and (invConfig.maxWeight * 1000), --convert kg to g
+    slots = invConfig.maxSlots
   }
-  -------------
-  -- RSG Inventory is defined in g, not kg
-  -------------
-  if inventoriesCreated[id].config.maxWeight then
-    inventoriesCreated[id].config.maxWeight *= 1000
-  end
+
+  Inventory:CreateInventory(id, config)
 end
 
 function FrameworkClass:openInventory(source, id)
-  local data = {
-    label = config.name,
-    maxweight = config.invConfig.maxWeight,
-    slots = config.invConfig.maxSlots
-  }
-  Inventory:OpenInventory(source, id, data)
+  Inventory:OpenInventory(source, id)
 end
 
 function FrameworkClass:addItemInInventory(source, invId, item, quantity, metadata, needWait)
