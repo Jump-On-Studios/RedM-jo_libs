@@ -226,6 +226,33 @@ local fromFrameworkToStandard = {
     [15] = { id = 0xB494A903, standard = { id = 014 } },
     [16] = { id = 0xC6EE4DB6, standard = { id = 015 } },
   },
+  ov_palette = {
+    [1] = { standard = { palette = "metaped_tint_makeup", hash = 0x3F6E70FF } },
+    [2] = { standard = { palette = "metaped_tint_skirt_clean", hash = 0x0105607B } },
+    [3] = { standard = { palette = "metaped_tint_hat_worn", hash = 0x17CBCC83 } },
+    [4] = { standard = { palette = "metaped_tint_swatch_002", hash = 0x29F81B2A } },
+    [5] = { standard = { palette = "metaped_tint_hat_clean", hash = 0x3385C5DB } },
+    [6] = { standard = { palette = "metaped_tint_swatch_003", hash = 0x37CD36D4 } },
+    [7] = { standard = { palette = "metaped_tint_generic_clean", hash = 0x4101ED87 } },
+    [8] = { standard = { palette = "metaped_tint_hat_weathered", hash = 0x63838A81 } },
+    [9] = { standard = { palette = "metaped_tint_combined", hash = 0x6765BC15 } },
+    [10] = { standard = { palette = "metaped_tint_horse_leather", hash = 0x8BA18876 } },
+    [11] = { standard = { palette = "metaped_tint_animal", hash = 0x9AC34F34 } },
+    [12] = { standard = { palette = "metaped_tint_swatch_001", hash = 0x9E4803A0 } },
+    [13] = { standard = { palette = "metaped_tint_horse", hash = 0xA4041CEF } },
+    [14] = { standard = { palette = "metaped_tint_eye", hash = 0xA4CFABD0 } },
+    [15] = { standard = { palette = "metaped_tint_generic", hash = 0xAA65D8A3 } },
+    [16] = { standard = { palette = "metaped_tint_generic_worn", hash = 0xB562025C } },
+    [17] = { standard = { palette = "metaped_tint_skirt_weathered", hash = 0xB9E7F722 } },
+    [18] = { standard = { palette = "metaped_tint_swatch_000", hash = 0xBBF43EF8 } },
+    [19] = { standard = { palette = "metaped_tint_leather", hash = 0xD1476963 } },
+    [20] = { standard = { palette = "metaped_tint_mpadv", hash = 0xD799E1C2 } },
+    [21] = { standard = { palette = "metaped_tint_skirt_worn", hash = 0xDC6BC93B } },
+    [22] = { standard = { palette = "metaped_tint_hair", hash = 0xDFB1F64C } },
+    [23] = { standard = { palette = "metaped_tint_combined_leather", hash = 0xF509C745 } },
+    [24] = { standard = { palette = "metaped_tint_generic_weathered", hash = 0xF93DB0C8 } },
+    [25] = { standard = { palette = "metaped_tint_hat", hash = 0xFB71527B } },
+  }
 }
 
 local function getStandardValuefromFramework(category, id)
@@ -559,7 +586,7 @@ function jo.framework:standardizeSkinInternal(skin)
 
   standard.overlays.blush = skin.blush_t and {
     id = getStandardValuefromFramework("ov_blush", skin.blush_t)?.id or 0,
-    palette = skin.blush_id,
+    palette = getStandardValuefromFramework("ov_palette", skin.blush_id)?.palette or skin.blush_id,
     tint0 = skin.blush_c1,
     opacity = self:convertToPercent(skin.blush_op)
   }
@@ -573,7 +600,7 @@ function jo.framework:standardizeSkinInternal(skin)
     return {
       id = standardEyebrow?.id or 0,
       sexe = standardEyebrow?.sexe or "m",
-      palette = skin.eyebrows_id,
+      palette = getStandardValuefromFramework("ov_palette", skin.eyebrows_id)?.palette or skin.eyebrows_id,
       tint0 = skin.eyebrows_c1,
       opacity = self:convertToPercent(skin.eyebrows_op)
     }
@@ -585,8 +612,8 @@ function jo.framework:standardizeSkinInternal(skin)
 
   standard.overlays.eyeliner = skin.eyeliners_t and {
     id = 0,
-    sheetGrid = decrease(skin.eyeliners_t),
-    palette = skin.eyeliners_id,
+    sheetGrid = skin.eyeliners_t,
+    palette = getStandardValuefromFramework("ov_palette", skin.eyeliners_id)?.palette or skin.eyeliners_id,
     tint0 = skin.eyeliners_c1,
     opacity = self:convertToPercent(skin.eyeliners_op)
   }
@@ -597,8 +624,8 @@ function jo.framework:standardizeSkinInternal(skin)
 
   standard.overlays.eyeshadow = skin.shadows_t and {
     id = 0,
-    sheetGrid = decrease(skin.shadows_t),
-    palette = skin.shadows_id,
+    sheetGrid = skin.shadows_t,
+    palette = getStandardValuefromFramework("ov_palette", skin.shadows_id)?.palette or skin.shadows_id,
     tint0 = skin.shadows_c1,
     opacity = self:convertToPercent(skin.shadows_op)
   }
@@ -616,8 +643,8 @@ function jo.framework:standardizeSkinInternal(skin)
 
   standard.overlays.lipstick = skin.lipsticks_t and {
     id = 0,
-    sheetGrid = decrease(skin.lipsticks_t),
-    palette = skin.lipsticks_id,
+    sheetGrid = skin.lipsticks_t,
+    palette = getStandardValuefromFramework("ov_palette", skin.lipsticks_id)?.palette or skin.lipsticks_id,
     tint0 = skin.lipsticks_c1,
     tint1 = skin.lipsticks_c2,
     opacity = self:convertToPercent(skin.lipsticks_op)
@@ -773,7 +800,8 @@ function jo.framework:revertSkinInternal(standard)
     local _, id = getFrameworkValueFromStandard("ov_blush", standard.overlays.blush)
     if id then
       reverted.blush_t = id
-      reverted.blush_id = standard.overlays.blush.palette
+      local _, palette_id = getFrameworkValueFromStandard("ov_palette", standard.overlays.blush)
+      reverted.blush_id = palette_id or standard.overlays.blush.palette
       reverted.blush_c1 = standard.overlays.blush.tint0
       reverted.blush_op = revertPercent(standard.overlays.blush.opacity)
       standard.overlays.blush.id = nil
@@ -786,7 +814,8 @@ function jo.framework:revertSkinInternal(standard)
     local _, id = getFrameworkValueFromStandard("ov_eyebrows", standard.overlays.eyebrow)
     if id then
       reverted.eyebrows_t = id
-      reverted.eyebrows_id = standard.overlays.eyebrow.palette
+      local _, palette_id = getFrameworkValueFromStandard("ov_palette", standard.overlays.eyebrow)
+      reverted.eyebrows_id = palette_id or standard.overlays.eyebrow.palette
       reverted.eyebrows_c1 = standard.overlays.eyebrow.tint0
       reverted.eyebrows_op = revertPercent(standard.overlays.eyebrow.opacity)
       standard.overlays.eyebrow.id = nil
@@ -797,8 +826,9 @@ function jo.framework:revertSkinInternal(standard)
     end
   end
   if standard.overlays.eyeliner then
-    reverted.eyeliners_t = increase(standard.overlays.eyeliner.sheetGrid)
-    reverted.eyeliners_id = standard.overlays.eyeliner.palette
+    reverted.eyeliners_t = standard.overlays.eyeliner.sheetGrid
+    local _, palette_id = getFrameworkValueFromStandard("ov_palette", standard.overlays.eyeliner)
+    reverted.eyeliners_id = palette_id or standard.overlays.eyeliner.palette
     reverted.eyeliners_c1 = standard.overlays.eyeliner.tint0
     reverted.eyeliners_op = revertPercent(standard.overlays.eyeliner.opacity)
     standard.overlays.eyeliner.sheetGrid = nil
@@ -807,8 +837,9 @@ function jo.framework:revertSkinInternal(standard)
     standard.overlays.eyeliner.opacity = nil
   end
   if standard.overlays.eyeshadow then
-    reverted.shadows_t = increase(standard.overlays.eyeshadow.sheetGrid)
-    reverted.shadows_id = standard.overlays.eyeshadow.palette
+    reverted.shadows_t = standard.overlays.eyeshadow.sheetGrid
+    local _, palette_id = getFrameworkValueFromStandard("ov_palette", standard.overlays.eyeshadow)
+    reverted.shadows_id = palette_id or standard.overlays.eyeshadow.palette
     reverted.shadows_c1 = standard.overlays.eyeshadow.tint0
     reverted.shadows_c2 = standard.overlays.eyeshadow.tint1
     reverted.shadows_c3 = standard.overlays.eyeshadow.tint2
@@ -830,8 +861,9 @@ function jo.framework:revertSkinInternal(standard)
     end
   end
   if standard.overlays.lipstick then
-    reverted.lipsticks_t = increase(standard.overlays.lipstick.sheetGrid)
-    reverted.lipsticks_id = standard.overlays.lipstick.palette
+    reverted.lipsticks_t = standard.overlays.lipstick.sheetGrid
+    local _, palette_id = getFrameworkValueFromStandard("ov_palette", standard.overlays.lipstick)
+    reverted.lipsticks_id = palette_id or standard.overlays.lipstick.palette
     reverted.lipsticks_c1 = standard.overlays.lipstick.tint0
     reverted.lipsticks_c2 = standard.overlays.lipstick.tint1
     reverted.lipsticks_c3 = standard.overlays.lipstick.tint2
