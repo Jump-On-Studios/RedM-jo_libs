@@ -66,7 +66,7 @@ function jo.versionChecker.checkUpdate()
     PerformHttpRequest(link, function(errorCode, resultData, resultHeaders, errorData)
       Wait(1000)
       if killed then return end
-      if errorCode ~= 200 then
+      if errorCode ~= 200 or not resultData then
         return print("^3" .. myResource .. ": version checker API is offline. Impossible to check your version.^0")
       end
       resultData = json.decode(resultData)
