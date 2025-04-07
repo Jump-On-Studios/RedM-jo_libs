@@ -86,27 +86,27 @@ local function detectFramework()
             local currentVersion = GetValue(GetResourceMetadata(resource, "version", 0), 1)
             local compare = currentVersion:compareVersionWith(version)
             if value:find("<=") then
-              if not compare <= 0 then
+              if not (compare <= 0) then
                 rightFramework = false
                 break
               end
             elseif value:find(">=") then
-              if not compare >= 0 then
+              if not (compare >= 0) then
                 rightFramework = false
                 break
               end
             elseif value:find("=") then
-              if not compare == 0 then
+              if not (compare == 0) then
                 rightFramework = false
                 break
               end
             elseif value:find("<") then
-              if not compare < 0 then
+              if not (compare < 0) then
                 rightFramework = false
                 break
               end
             elseif value:find(">") then
-              if not compare > 0 then
+              if not (compare > 0) then
                 rightFramework = false
                 break
               end
