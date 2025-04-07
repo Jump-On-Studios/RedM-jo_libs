@@ -19,7 +19,7 @@ local alias = {
   pedTexture = "ped-texture",
   gameEvents = "game-events",
   triggerEvent = "trigger-event",
-  promptNui="prompt-nui"
+  promptNui = "prompt-nui"
 }
 
 local function getAlias(module)
@@ -290,7 +290,7 @@ for i = 1, #modules do
     CreateExport("registerFilter", jo.hook.registerFilter)
     CreateExport("RegisterFilter", jo.hook.RegisterFilter)
   elseif name == "versionChecker" and context == "server" then
-    CreateExport("GetScriptVersion", jo.versionChecker.GetScriptVersion)
+    -- CreateExport("GetScriptVersion", jo.versionChecker.GetScriptVersion)
     CreateExport("StopAddon", jo.versionChecker.stopAddon)
   end
 end
