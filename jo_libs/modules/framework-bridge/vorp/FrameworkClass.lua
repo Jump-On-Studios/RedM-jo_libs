@@ -260,10 +260,10 @@ end
 function FrameworkClass:registerUseItem(item, closeAfterUsed, callback)
   CreateThread(function()
     if (closeAfterUsed == nil) then closeAfterUsed = true end
-    local isExist = Inventory:getItemDB(item)
-    if not isExist then
-      return eprint(item .. " < item does not exist in the database")
-    end
+    -- local isExist = Inventory:getItemDB(item)
+    -- if not isExist then
+    --   return eprint(item .. " < item does not exist in the database")
+    -- end
     Inventory:registerUsableItem(item, function(data)
       if closeAfterUsed then
         Inventory:closeInventory(data.source)
