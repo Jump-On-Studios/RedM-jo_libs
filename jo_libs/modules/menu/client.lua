@@ -17,7 +17,7 @@ local menus = {}
 jo.menu.listeners = {}
 local nuiShow = false
 local timeoutClose = nil
-local radarAlreadyHidden = false
+local currentMinimapType = GetMinimapType()
 local clockStart = GetGameTimer()
 local currentData = {}
 local previousData = {}
@@ -322,19 +322,17 @@ function jo.menu.show(show, keepInput, hideRadar, animation, hideCursor)
       loopMenu()
     end
     if show then
-      radarAlreadyHidden = IsRadarHidden()
-    end
-    if not radarAlreadyHidden and hideRadar then
-      DisplayRadar(not show)
+      currentMinimapType = GetMinimapType()
+      SetMinimapType(0)
+    else
+      SetMinimapType(currentMinimapType)
     end
   end)
 end
 
 jo.stopped(function()
   if jo.menu.isOpen() then
-    if not radarAlreadyHidden then
-      DisplayRadar(true)
-    end
+    SetMinimapType(currentMinimapType)
   end
 end)
 

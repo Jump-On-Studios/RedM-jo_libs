@@ -28,13 +28,13 @@ local supportedFrameworks = {
   },
   {
     id = "rsg",
-    name = "RSG V1 RedM Framework",
+    name = "RSG V1 Framework",
     folder = "rsg",
     resources = { "rsg-core<2.0.0" },
   },
   {
     id = "rsg",
-    name = "RSG V2 RedM Framework",
+    name = "RSG V2 Framework",
     folder = "rsg_2",
     resources = { "rsg-core>=2.0.0" },
   },
