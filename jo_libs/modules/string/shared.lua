@@ -32,7 +32,9 @@ function string:convertVersion()
   return converted
 end
 
--- Returns -1 if the version is older, 0 if it's the same and 1 if it's more recent
+--- Compare two version strings
+--- @param version string (The string version to compare to)
+--- @return integer ( `-1` if the version is older, `0` if it's the same and `1` if it's more recent)
 function string:compareVersionWith(version)
   if not self then return -1 end
   if not version then return 1 end
@@ -74,6 +76,8 @@ function string:compareVersionWith(version)
   return 0
 end
 
+--- Remove whitespace from both ends of a string
+---@return string (The trimmed string)
 function string:trim()
   if not self then return "" end
   return self:match("^%s*(.-)%s*$")

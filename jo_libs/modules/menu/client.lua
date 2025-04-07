@@ -296,6 +296,8 @@ function MenuClass:use(keepHistoric, resetMenu)
   jo.menu.setCurrentMenu(self.id, keepHistoric, resetMenu)
 end
 
+--- Change the current active item index
+--- @param index integer (The item index to switch to)
 function MenuClass:setCurrentIndex(index)
   self.currentIndex = index
   SendNUIMessage({
@@ -305,8 +307,9 @@ function MenuClass:setCurrentIndex(index)
   })
 end
 
----@param id string Unique ID of the menu
----@param data? MenuClass
+--- Create a new menu
+---@param id string (Unique ID of the menu)
+---@param data? table (Menu configuration data)
 --- data.title string (The big title of the menu  ![The menu title](https://docs.jumpon-studios.com/images/previews/menu/bigTitle.jpg))
 --- data.subtitle string (The subtitle of the menu  ![The subtitle](https://docs.jumpon-studios.com/images/previews/menu/subtitle.jpg))
 --- data.numberOnScreen? integer (Maximum number of items visibles at the same time <br> default : 8)
