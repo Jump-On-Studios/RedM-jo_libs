@@ -3,9 +3,7 @@
 -------------
 local QRCore = exports["qr-core"]:GetCoreObject()
 
-local FrameworkClass = {
-  core = QRCore
-}
+jo.framework.core = QRCore
 -------------
 -- VARIABLES
 -------------
@@ -24,7 +22,7 @@ local inventories = {}
 ---@param amount integer amount to use
 ---@param meta table metadata of the item
 ---@param remove boolean if removed after used
-function FrameworkClass:canUseItem(source, item, amount, meta, remove)
+function jo.framework:canUseItem(source, item, amount, meta, remove)
   local Player = self.UserClass:get(source)
   local itemData = Player.data.Functions.GetItemByName(item)
   if itemData and itemData.amount >= amount then
@@ -40,7 +38,7 @@ end
 ---@param callback function function fired when the item is used
 ---@param closeAfterUsed boolean if inventory needs to be closes
 ---@return boolean
-function FrameworkClass:registerUseItem(item, closeAfterUsed, callback)
+function jo.framework:registerUseItem(item, closeAfterUsed, callback)
   closeAfterUsed = GetValue(closeAfterUsed, true)
   local isAdded = QRCore.Functions.AddItem(item, nil)
   if isAdded then
@@ -60,7 +58,7 @@ end
 ---@param quantity integer quantity
 ---@param meta table metadata of the item
 ---@return boolean
-function FrameworkClass:giveItem(source, item, quantity, meta)
+function jo.framework:giveItem(source, item, quantity, meta)
   local Player = self.UserClass:get(source)
   return Player.data.Functions.AddItem(item, quantity, false, meta)
 end
@@ -69,7 +67,7 @@ end
 ---@param name string name of the inventory
 ---@param invConfig table Configuration of the inventory
 ---@return boolean
-function FrameworkClass:createInventory(invName, name, invConfig)
+function jo.framework:createInventory(invName, name, invConfig)
   inventories[invName] = {
     invName = invName,
     name = name,
@@ -80,14 +78,14 @@ end
 
 ---@param invName string unique ID of the inventory
 ---@return boolean
-function FrameworkClass:removeInventory(invName)
+function jo.framework:removeInventory(invName)
   return false
 end
 
 ---@param source integer sourceIdentifier
 ---@param invName string name of the inventory
 ---@return boolean
-function FrameworkClass:openInventory(source, invName)
+function jo.framework:openInventory(source, invName)
   local invConfig = inventories[invName].invConfig
   TriggerClientEvent(GetCurrentResourceName() .. ":client:openInventory", source, invName, invConfig)
   return true
@@ -99,13 +97,13 @@ end
 ---@param metadata table metadata of the item
 ---@param needWait? boolean wait after the adding
 ---@return boolean
-function FrameworkClass:addItemInInventory(source, invId, item, quantity, metadata, needWait)
+function jo.framework:addItemInInventory(source, invId, item, quantity, metadata, needWait)
   return false
 end
 
 ---@param invId string name of the inventory
 ---@return table
-function FrameworkClass:getItemsFromInventory(invId)
+function jo.framework:getItemsFromInventory(invId)
   --[[ item structure
   {
     metadata = {},
@@ -127,38 +125,38 @@ end
 ---A function to standardize the skin data
 ---@param skin table skin data with framework keys
 ---@return table skin skin data with standard keys
-function FrameworkClass:standardizeSkinInternal(skin)
+function jo.framework:standardizeSkinInternal(skin)
   return skin
 end
 
 ---A function to reversed the skin data
 ---@param standard table standard skin data
 ---@return table skin framework skin data
-function FrameworkClass:revertSkinInternal(standard)
+function jo.framework:revertSkinInternal(standard)
   return standard
 end
 
 ---A function to standardize the clothes data
 ---@param clothes table standard clothes data
 ---@return table clothes framework clothes data
-function FrameworkClass:standardizeClothesInternal(clothes)
+function jo.framework:standardizeClothesInternal(clothes)
   return clothes
 end
 
 ---A function to revert a standardize clothes table
 ---@param standard table clothes with standard keys
 ---@return table clothes clothes with framework keys
-function FrameworkClass:revertClothesInternal(standard)
+function jo.framework:revertClothesInternal(standard)
   return standard
 end
 
-function FrameworkClass:getUserClothesInternal(source)
+function jo.framework:getUserClothesInternal(source)
   local user = self:getUserIdentifiers(source)
   local clothes = MySQL.scalar.await("SELECT clothes FROM playerclothe WHERE citizenid=?", { user.identifier })
   return UnJson(clothes)
 end
 
-function FrameworkClass:updateUserClothesInternal(source, clothes)
+function jo.framework:updateUserClothesInternal(source, clothes)
   local identifiers = self:getUserIdentifiers(source)
   MySQL.scalar("SELECT clothes FROM playerclothe WHERE citizenid=?", { identifiers.identifier }, function(oldClothes)
     local decoded = UnJson(oldClothes)
@@ -168,17 +166,14 @@ function FrameworkClass:updateUserClothesInternal(source, clothes)
   return true
 end
 
-function FrameworkClass:getUserSkinInternal(source)
+function jo.framework:getUserSkinInternal(source)
   return {}
 end
 
-function FrameworkClass:updateUserSkinInternal(source, skin, overwrite)
+function jo.framework:updateUserSkinInternal(source, skin, overwrite)
   return {}
 end
 
-function FrameworkClass:createUser(source, data, spawnCoordinate, isDead)
+function jo.framework:createUser(source, data, spawnCoordinate, isDead)
   return {}
 end
-
-
-return FrameworkClass

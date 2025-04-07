@@ -4,10 +4,8 @@
 local Inventory = exports.vorp_inventory
 local Core = exports.vorp_core:GetCore()
 
-local FrameworkClass = {
-  core = Core,
-  inv = Inventory
-}
+jo.framework.core = Core
+jo.framework.inv = Inventory
 
 -------------
 -- VARIABLES
@@ -246,7 +244,7 @@ end
 -- INVENTORY
 -------------
 
-function FrameworkClass:canUseItem(source, item, amount, meta, remove)
+function jo.framework:canUseItem(source, item, amount, meta, remove)
   local count = Inventory:getItemCount(source, nil, item, meta)
   if count >= amount then
     if remove then
@@ -257,7 +255,7 @@ function FrameworkClass:canUseItem(source, item, amount, meta, remove)
   return false
 end
 
-function FrameworkClass:registerUseItem(item, closeAfterUsed, callback)
+function jo.framework:registerUseItem(item, closeAfterUsed, callback)
   CreateThread(function()
     if (closeAfterUsed == nil) then closeAfterUsed = true end
     -- local isExist = Inventory:getItemDB(item)
@@ -273,14 +271,14 @@ function FrameworkClass:registerUseItem(item, closeAfterUsed, callback)
   end)
 end
 
-function FrameworkClass:giveItem(source, item, quantity, meta)
+function jo.framework:giveItem(source, item, quantity, meta)
   if Inventory:canCarryItem(source, item, quantity) then
     return Inventory:addItem(source, item, quantity, meta)
   end
   return false
 end
 
-function FrameworkClass:createInventory(id, name, invConfig)
+function jo.framework:createInventory(id, name, invConfig)
   inventoriesCreated[id] = {
     id = id,
     name = name,
@@ -303,18 +301,18 @@ function FrameworkClass:createInventory(id, name, invConfig)
   return inventoriesCreated[id].inventory
 end
 
-function FrameworkClass:removeInventory(id)
+function jo.framework:removeInventory(id)
   Inventory:removeInventory(id)
 end
 
-function FrameworkClass:openInventory(source, id)
+function jo.framework:openInventory(source, id)
   if not Inventory:isCustomInventoryRegistered(id) then
     return false, eprint(("This custom inventory doesn't exist: %s. You can create it with `jo.framework:createInventory()`."):format(tostring(id)))
   end
   return Inventory:openInventory(source, id)
 end
 
-function FrameworkClass:addItemInInventory(source, id, item, quantity, metadata)
+function jo.framework:addItemInInventory(source, id, item, quantity, metadata)
   local user = self.UserClass:get(source)
   local charIdentifier = user.data.charIdentifier
 
@@ -329,7 +327,7 @@ function FrameworkClass:addItemInInventory(source, id, item, quantity, metadata)
   return Inventory:addItemsToCustomInventory(id, items, charIdentifier)
 end
 
-function FrameworkClass:getItemsFromInventory(invId)
+function jo.framework:getItemsFromInventory(invId)
   local invItems = Inventory:getCustomInventoryItems(invId)
 
   local items = {}
@@ -348,7 +346,7 @@ end
 -- SKIN & CLOTHES
 -------------
 
-function FrameworkClass:standardizeSkinInternal(skin)
+function jo.framework:standardizeSkinInternal(skin)
   local standard = {}
 
   local function decrease(value)
@@ -646,7 +644,7 @@ function FrameworkClass:standardizeSkinInternal(skin)
   return standard
 end
 
-function FrameworkClass:revertSkinInternal(standard)
+function jo.framework:revertSkinInternal(standard)
   local reverted = {}
 
   local function increase(value)
@@ -942,7 +940,7 @@ function FrameworkClass:revertSkinInternal(standard)
   return reverted
 end
 
-function FrameworkClass:standardizeClothesInternal(clothes)
+function jo.framework:standardizeClothesInternal(clothes)
   local standard = {
     accessories = table.extract(clothes, "Accessories"),
     armor = table.extract(clothes, "Armor"),
@@ -986,7 +984,7 @@ function FrameworkClass:standardizeClothesInternal(clothes)
   return standard
 end
 
-function FrameworkClass:revertClothesInternal(standard)
+function jo.framework:revertClothesInternal(standard)
   local reverted = {
     Accessories = table.extract(standard, "accessories"),
     Armor = table.extract(standard, "armor"),
@@ -1030,7 +1028,7 @@ function FrameworkClass:revertClothesInternal(standard)
   return reverted
 end
 
-function FrameworkClass:getUserClothesInternal(source)
+function jo.framework:getUserClothesInternal(source)
   local clothes = {}
 
   local user = self.UserClass:get(source)
@@ -1050,7 +1048,7 @@ function FrameworkClass:getUserClothesInternal(source)
   return clothes
 end
 
-function FrameworkClass:updateUserClothesInternal(source, clothes)
+function jo.framework:updateUserClothesInternal(source, clothes)
   local newClothes = {}
   for category, value in pairs(clothes) do
     newClothes[category] = value
@@ -1089,13 +1087,13 @@ function FrameworkClass:updateUserClothesInternal(source, clothes)
   user.data.updateCompTints(json.encode(tints))
 end
 
-function FrameworkClass:getUserSkinInternal(source)
+function jo.framework:getUserSkinInternal(source)
   local user = self.UserClass:get(source)
   if not user then return {} end
   return UnJson(user.data.skin)
 end
 
-function FrameworkClass:updateUserSkinInternal(source, skin, overwrite)
+function jo.framework:updateUserSkinInternal(source, skin, overwrite)
   for cat, data in pairs(skin) do
     if cat == "Teeth" then
       self:updateUserClothesInternal(source, { Teeth = { hash = self:extractComponentHashIfAlone(data) } })
@@ -1109,7 +1107,7 @@ function FrameworkClass:updateUserSkinInternal(source, skin, overwrite)
   end
 end
 
-function FrameworkClass:createUser(source, data, spawnCoordinate, isDead)
+function jo.framework:createUser(source, data, spawnCoordinate, isDead)
   if isDead == nil then isDead = false end
   spawnCoordinate = GetValue(spawnCoordinate, vec4(2537.684, -1278.066, 49.218, 42.520))
   data = GetValue(data, {})
@@ -1135,5 +1133,3 @@ function FrameworkClass:createUser(source, data, spawnCoordinate, isDead)
     TriggerEvent("vorp_NewCharacter", source)
   end)
 end
-
-return FrameworkClass

@@ -2,12 +2,8 @@
 -- FRAMEWORK CLASS
 -------------
 local RSGCore = exports["rsg-core"]:GetCoreObject()
-local Inventory
 
-local FrameworkClass = {
-  core = RSGCore,
-  inv = {}
-}
+jo.framework.core = RSGCore
 
 -------------
 -- VARIABLES
@@ -250,7 +246,7 @@ end
 -- INVENTORY
 -------------
 
-function FrameworkClass:canUseItem(source, item, amount, meta, remove)
+function jo.framework:canUseItem(source, item, amount, meta, remove)
   local Player = self.UserClass:get(source)
   local itemData = Player.data.Functions.GetItemByName(item)
   if itemData and itemData.amount >= amount then
@@ -261,7 +257,7 @@ function FrameworkClass:canUseItem(source, item, amount, meta, remove)
   end
 end
 
-function FrameworkClass:registerUseItem(item, closeAfterUsed, callback)
+function jo.framework:registerUseItem(item, closeAfterUsed, callback)
   local isAdded = RSGCore.Functions.AddItem(item, nil)
   if isAdded then
     return eprint(item .. " < item does not exist in the core configuration")
@@ -274,12 +270,12 @@ function FrameworkClass:registerUseItem(item, closeAfterUsed, callback)
   end)
 end
 
-function FrameworkClass:giveItem(source, item, quantity, meta)
+function jo.framework:giveItem(source, item, quantity, meta)
   local Player = self.UserClass:get(source)
   return Player.data.Functions.AddItem(item, quantity, false, meta)
 end
 
-function FrameworkClass:createInventory(id, name, invConfig)
+function jo.framework:createInventory(id, name, invConfig)
   inventoriesCreated[id] = {
     id = id,
     name = name,
@@ -294,14 +290,14 @@ function FrameworkClass:createInventory(id, name, invConfig)
   end
 end
 
-function FrameworkClass:openInventory(source, id)
+function jo.framework:openInventory(source, id)
   local config = inventoriesCreated[id]
 
   TriggerClientEvent(GetCurrentResourceName() .. ":client:openInventory", source, id, config)
   return
 end
 
-function FrameworkClass:addItemInInventory(source, invId, item, quantity, metadata, needWait)
+function jo.framework:addItemInInventory(source, invId, item, quantity, metadata, needWait)
   local waiter = promise.new()
   MySQL.scalar("SELECT items FROM stashitems WHERE stash = ?", { invId }, function(items)
     items = UnJson(items)
@@ -336,7 +332,7 @@ function FrameworkClass:addItemInInventory(source, invId, item, quantity, metada
   end)
 end
 
-function FrameworkClass:getItemsFromInventory(invId)
+function jo.framework:getItemsFromInventory(invId)
   local items = {}
 
   local invItems = MySQL.scalar.await("SELECT items FROM stashitems WHERE stash = ?", { invId })
@@ -358,7 +354,7 @@ end
 ---A function to standardize the clothes data
 ---@param clothes table standard clothes data
 ---@return table clothes framework clothes data
-function FrameworkClass:standardizeClothesInternal(clothes)
+function jo.framework:standardizeClothesInternal(clothes)
   local standard = {}
 
   standard.boot_accessories = table.extract(clothes, "boot_accessories")
@@ -406,7 +402,7 @@ function FrameworkClass:standardizeClothesInternal(clothes)
   return standard
 end
 
-function FrameworkClass:revertClothesInternal(standard)
+function jo.framework:revertClothesInternal(standard)
   local clothes = {}
 
   clothes.boot_accessories = table.extract(standard, "boot_accessories")
@@ -457,7 +453,7 @@ end
 ---A function to standardize the skin data
 ---@param skin table skin data with framework keys
 ---@return table skin skin data with standard keys
-function FrameworkClass:standardizeSkinInternal(skin)
+function jo.framework:standardizeSkinInternal(skin)
   local standard = {}
 
   local function decrease(value)
@@ -664,7 +660,7 @@ function FrameworkClass:standardizeSkinInternal(skin)
   return standard
 end
 
-function FrameworkClass:revertSkinInternal(standard)
+function jo.framework:revertSkinInternal(standard)
   local reverted = {}
 
   local function increase(value)
@@ -878,13 +874,13 @@ function FrameworkClass:revertSkinInternal(standard)
   return reverted
 end
 
-function FrameworkClass:getUserClothesInternal(source)
+function jo.framework:getUserClothesInternal(source)
   local user = self:getUserIdentifiers(source)
   local clothes = MySQL.scalar.await("SELECT clothes FROM playerskins WHERE citizenid=?", { user.identifier })
   return UnJson(clothes)
 end
 
-function FrameworkClass:updateUserClothesInternal(source, clothes)
+function jo.framework:updateUserClothesInternal(source, clothes)
   local identifiers = self:getUserIdentifiers(source)
   MySQL.scalar("SELECT clothes FROM playerskins WHERE citizenid=? ", { identifiers.identifier }, function(oldClothes)
     local decoded = UnJson(oldClothes)
@@ -893,7 +889,7 @@ function FrameworkClass:updateUserClothesInternal(source, clothes)
   end)
 end
 
-function FrameworkClass:getUserSkinInternal(source)
+function jo.framework:getUserSkinInternal(source)
   local user = self.UserClass:get(source)
   local identifiers = user:getIdentifiers()
 
@@ -902,7 +898,7 @@ function FrameworkClass:getUserSkinInternal(source)
   return UnJson(skin)
 end
 
-function FrameworkClass:updateUserSkinInternal(source, skin, overwrite)
+function jo.framework:updateUserSkinInternal(source, skin, overwrite)
   local identifiers = self:getUserIdentifiers(source)
   if overwrite then
     MySQL.update("UPDATE playerskins SET skin=? WHERE citizenid=?", { json.encode(skin), identifiers.identifier })
@@ -915,7 +911,7 @@ function FrameworkClass:updateUserSkinInternal(source, skin, overwrite)
   end
 end
 
-function FrameworkClass:createUser(source, data, spawnCoordinate, isDead)
+function jo.framework:createUser(source, data, spawnCoordinate, isDead)
   if isDead == nil then isDead = false end
   spawnCoordinate = GetValue(spawnCoordinate, vec4(2537.684, -1278.066, 49.218, 42.520))
   data = GetValue(data, {})
@@ -938,6 +934,3 @@ end
 -------------
 -- END SKIN & CLOTHES
 -------------
-
-
-return FrameworkClass

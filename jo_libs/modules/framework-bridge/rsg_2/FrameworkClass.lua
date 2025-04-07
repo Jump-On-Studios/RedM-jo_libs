@@ -4,8 +4,8 @@
 local RSGCore = exports["rsg-core"]:GetCoreObject()
 local Inventory = exports["rsg-inventory"]
 
-local FrameworkClass = jo.file.load("framework-bridge.rsg.FrameworkClass")
-FrameworkClass.inv = Inventory
+jo.file.load("framework-bridge.rsg.FrameworkClass")
+jo.framework.inv = Inventory
 
 -------------
 -- VARIABLES
@@ -15,7 +15,7 @@ FrameworkClass.inv = Inventory
 -- INVENTORY
 -------------
 
-function FrameworkClass:registerUseItem(item, closeAfterUsed, callback)
+function jo.framework:registerUseItem(item, closeAfterUsed, callback)
   local isAdded = RSGCore.Functions.AddItem(item, nil)
   if isAdded then
     return eprint(item .. " < item does not exist in the core configuration")
@@ -28,7 +28,7 @@ function FrameworkClass:registerUseItem(item, closeAfterUsed, callback)
   end)
 end
 
-function FrameworkClass:createInventory(id, name, invConfig)
+function jo.framework:createInventory(id, name, invConfig)
   local config = {
     label = name,
     maxweight = invConfig.maxWeight and (invConfig.maxWeight * 1000), --convert kg to g
@@ -38,16 +38,16 @@ function FrameworkClass:createInventory(id, name, invConfig)
   Inventory:CreateInventory(id, config)
 end
 
-function FrameworkClass:openInventory(source, id)
+function jo.framework:openInventory(source, id)
   Inventory:OpenInventory(source, id)
 end
 
-function FrameworkClass:addItemInInventory(source, invId, item, quantity, metadata, needWait)
+function jo.framework:addItemInInventory(source, invId, item, quantity, metadata, needWait)
   Inventory:CreateInventory(invId)
   return Inventory:AddItem(invId, item, quantity, false, metadata)
 end
 
-function FrameworkClass:getItemsFromInventory(invId)
+function jo.framework:getItemsFromInventory(invId)
   local inventory = GetValue(Inventory:GetInventory(invId), { items = {} })
   for i = 1, #inventory.items do
     items[i] = {
@@ -57,5 +57,3 @@ function FrameworkClass:getItemsFromInventory(invId)
     }
   end
 end
-
-return FrameworkClass
