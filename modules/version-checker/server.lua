@@ -66,7 +66,7 @@ function jo.versionChecker.checkUpdate()
     PerformHttpRequest(link, function(errorCode, resultData, resultHeaders, errorData)
       Wait(1000)
       if killed then return end
-      if errorCode ~= 200 then
+      if errorCode ~= 200 or not resultData then
         return print("^3" .. myResource .. ": version checker API is offline. Impossible to check your version.^0")
       end
       resultData = json.decode(resultData)
@@ -100,9 +100,9 @@ function jo.versionChecker.checkUpdate()
         if GetResourceState(script) ~= "started" then
           eprint(script .. " is missing !")
         else
-          local currentVersion = exports[script]:GetScriptVersion()
-          if currentVersion:compareVersionWith(minVersion) < 0 then
-            eprint(script .. " requires an update^0: Required version: " .. minVersion .. ", Your version: " .. currentVersion)
+          local scriptVersion = GetResourceMetadata(script, "version", 0) or "1.0.0"
+          if scriptVersion:compareVersionWith(minVersion) < 0 then
+            eprint(script .. " requires an update^0: Required version: " .. minVersion .. ", Your version: " .. scriptVersion)
             eprint("Resource stopped")
             killed = true
             return TriggerEvent("jo_libs:kill:resource", GetCurrentResourceName())

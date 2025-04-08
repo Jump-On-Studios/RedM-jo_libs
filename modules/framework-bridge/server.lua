@@ -1,6 +1,8 @@
 jo.require("table")
 jo.require("string")
 
+jo.framework = {}
+
 local supportedFrameworks = {
   {
     id = "VORP",
@@ -28,13 +30,13 @@ local supportedFrameworks = {
   },
   {
     id = "rsg",
-    name = "RSG V1 RedM Framework",
+    name = "RSG V1 Framework",
     folder = "rsg",
     resources = { "rsg-core<2.0.0" },
   },
   {
     id = "rsg",
-    name = "RSG V2 RedM Framework",
+    name = "RSG V2 Framework",
     folder = "rsg_2",
     resources = { "rsg-core>=2.0.0" },
   },
@@ -92,27 +94,27 @@ local function detectFramework()
             local currentVersion = GetValue(GetResourceMetadata(resource, "version", 0), 1)
             local compare = currentVersion:compareVersionWith(version)
             if value:find("<=") then
-              if not compare <= 0 then
+              if not (compare <= 0) then
                 rightFramework = false
                 break
               end
             elseif value:find(">=") then
-              if not compare >= 0 then
+              if not (compare >= 0) then
                 rightFramework = false
                 break
               end
             elseif value:find("=") then
-              if not compare == 0 then
+              if not (compare == 0) then
                 rightFramework = false
                 break
               end
             elseif value:find("<") then
-              if not compare < 0 then
+              if not (compare < 0) then
                 rightFramework = false
                 break
               end
             elseif value:find(">") then
-              if not compare > 0 then
+              if not (compare > 0) then
                 rightFramework = false
                 break
               end
@@ -162,14 +164,13 @@ end
 -- LOAD FRAMEWORK
 -------------
 
-local FrameworkClass = {}
 local UserClass = {}
 
 local userFile = ("framework-bridge.%s.UserClass"):format(frameworkDetected.folder)
 local frameworkFile = ("framework-bridge.%s.FrameworkClass"):format(frameworkDetected.folder)
 
 UserClass = jo.file.load(userFile)
-FrameworkClass = jo.file.load(frameworkFile)
+jo.file.load(frameworkFile)
 
 -------------
 -- END LOAD FRAMEWORK
@@ -206,40 +207,40 @@ function UserClass:giveGold(amount)
 end
 
 ---@return string name the framework name
-function FrameworkClass:get()
+function jo.framework:get()
   return frameworkDetected.id
 end
 
 ---@param name string Name of the framework
 ---@return boolean rightName `true` if it's the right framework
-function FrameworkClass:is(name)
+function jo.framework:is(name)
   return self:get() == name
 end
 
 ---@param source integer source ID
 ---@return table UserClass
-function FrameworkClass:getUser(source)
+function jo.framework:getUser(source)
   local user = UserClass:get(source)
   return user
 end
 
 ---@param source integer source ID
 ---@return table identifiers
-function FrameworkClass:getUserIdentifiers(source)
+function jo.framework:getUserIdentifiers(source)
   local user = UserClass:get(source)
   return user:getIdentifiers()
 end
 
 ---@param source integer source ID
 ---@return string job Player's job
-function FrameworkClass:getJob(source)
+function jo.framework:getJob(source)
   local user = UserClass:get(source)
   return user:getJob()
 end
 
 ---@param source integer source ID
 ---@return string name Player's name
-function FrameworkClass:getRPName(source)
+function jo.framework:getRPName(source)
   local user = UserClass:get(source)
   return user:getRPName()
 end
@@ -249,7 +250,7 @@ end
 ---@param moneyType? integer 0: money, 1: gold, 2: rol (default: 0)
 ---@param removeIfCan? boolean remove the move if the player has enough (default: false)
 ---@return boolean removed `true` if the money is removed
-function FrameworkClass:canUserBuy(source, amount, moneyType, removeIfCan)
+function jo.framework:canUserBuy(source, amount, moneyType, removeIfCan)
   local user = UserClass:get(source)
   return user:canBuy(amount, moneyType, removeIfCan)
 end
@@ -257,7 +258,7 @@ end
 ---@param source integer
 ---@param amount number
 ---@param moneyType? integer 0: money, 1: gold, 2: rol (default: 0)
-function FrameworkClass:addMoney(source, amount, moneyType)
+function jo.framework:addMoney(source, amount, moneyType)
   local user = UserClass:get(source)
   return user:addMoney(amount, moneyType)
 end
@@ -265,7 +266,7 @@ end
 ---@param source integer
 ---@param amount number
 ---@param moneyType? integer 0: money, 1: gold, 2: rol (default: 0)
-function FrameworkClass:removeMoney(source, amount, moneyType)
+function jo.framework:removeMoney(source, amount, moneyType)
   local user = UserClass:get(source)
   return user:removeMoney(amount, moneyType)
 end
@@ -275,12 +276,12 @@ end
 ---@param quantity integer quantity
 ---@param meta table metadata of the item
 ---@return boolean
-function FrameworkClass:removeItem(source, item, quantity, meta)
+function jo.framework:removeItem(source, item, quantity, meta)
   return self:canUseItem(source, item, quantity, meta, true)
 end
 
 
-function FrameworkClass:convertToPercent(value)
+function jo.framework:convertToPercent(value)
   value = tonumber(value)
   if not value then return 0 end
   if value > 1 or value < -1 then
@@ -351,7 +352,7 @@ local function clearClothesTable(clothesList)
 end
 
 
-function FrameworkClass:extractComponentHashIfAlone(data)
+function jo.framework:extractComponentHashIfAlone(data)
   if type(data) ~= "table" then return data end
   if table.count(data) > 1 then return data end
   if not data.hash then return data end
@@ -359,7 +360,7 @@ function FrameworkClass:extractComponentHashIfAlone(data)
 end
 
 
-function FrameworkClass:standardizeClothes(clothes)
+function jo.framework:standardizeClothes(clothes)
   clothes = table.copy(clothes)
   local standard = self:standardizeClothesInternal(clothes)
 
@@ -375,7 +376,7 @@ function FrameworkClass:standardizeClothes(clothes)
   return standard
 end
 
-function FrameworkClass:revertClothes(standard)
+function jo.framework:revertClothes(standard)
   standard = table.copy(standard)
   local clothes = self:revertClothesInternal(standard)
 
@@ -389,7 +390,7 @@ function FrameworkClass:revertClothes(standard)
   return clothes
 end
 
-function FrameworkClass:standardizeSkin(skin)
+function jo.framework:standardizeSkin(skin)
   skin = table.copy(skin)
   local standard = self:standardizeSkinInternal(skin)
 
@@ -423,7 +424,7 @@ function FrameworkClass:standardizeSkin(skin)
   return standard
 end
 
-function FrameworkClass:revertSkin(standard)
+function jo.framework:revertSkin(standard)
   standard = table.copy(standard)
   local skin = self:revertSkinInternal(standard)
 
@@ -453,7 +454,7 @@ function FrameworkClass:revertSkin(standard)
   return skin
 end
 
-function FrameworkClass:updateUserClothes(source, _clothes, value)
+function jo.framework:updateUserClothes(source, _clothes, value)
   if value then
     _clothes = { [_clothes] = formatComponentData(value) }
   end
@@ -461,13 +462,13 @@ function FrameworkClass:updateUserClothes(source, _clothes, value)
   self:updateUserClothesInternal(source, clothes)
 end
 
-function FrameworkClass:getUserClothes(source)
+function jo.framework:getUserClothes(source)
   local clothes = self:getUserClothesInternal(source)
   if table.isEmpty(clothes) then return {} end
   return self:standardizeClothes(clothes)
 end
 
-function FrameworkClass:getUserSkin(source)
+function jo.framework:getUserSkin(source)
   local skin = self:getUserSkinInternal(source)
 
   local skinStandardized = self:standardizeSkin(skin)
@@ -482,7 +483,7 @@ function FrameworkClass:getUserSkin(source)
   return skinStandardized
 end
 
-function FrameworkClass:updateUserSkin(...)
+function jo.framework:updateUserSkin(...)
   local args = { ... }
   local source, _skin, overwrite = args[1], {}, false
 
@@ -514,8 +515,7 @@ if jo.file.isExist(userFile) then
 end
 
 if jo.file.isExist(frameworkFile) then
-  local frameworkClass = jo.file.load(frameworkFile)
-  table.merge(FrameworkClass, frameworkClass)
+  jo.file.load(frameworkFile)
 end
 
 -------------
@@ -526,7 +526,6 @@ end
 -- INIT jo VALUES
 -------------
 
-jo.framework = FrameworkClass
 jo.framework.UserClass = UserClass
 
 -------------

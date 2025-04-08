@@ -276,7 +276,7 @@ local function getFrameworkValueFromStandard(category, data)
   end)
 end
 
-function FrameworkClass:canUseItem(source, item, amount, meta, remove)
+function jo.framework:canUseItem(source, item, amount, meta, remove)
 	local character = Core.GetCharacterFromPlayerId(source)
 	local itemData = exports.inventory:GetItem(source, item, nil, false)
 	if itemData and itemData.count >= amount then
@@ -289,7 +289,7 @@ function FrameworkClass:canUseItem(source, item, amount, meta, remove)
 	end
 end
 
-function FrameworkClass:registerUseItem(item, closeAfterUsed, callback)
+function jo.framework:registerUseItem(item, closeAfterUsed, callback)
   Core.RegisterUsableItem(item, function(source, item)
       local character = Core.GetCharacterFromPlayerId(source)
       if character then
@@ -302,15 +302,15 @@ function FrameworkClass:registerUseItem(item, closeAfterUsed, callback)
   end)
 end
 
-function FrameworkClass:giveItem(source, item, amount, metadata)
+function jo.framework:giveItem(source, item, amount, metadata)
   return exports.inventory:AddItem(source, item, amount, metadata)
 end
 
-function FrameworkClass:createInventory(id, name, invConfig)
+function jo.framework:createInventory(id, name, invConfig)
 
 end
 
-function FrameworkClass:standardizeClothesInternal(clothes)
+function jo.framework:standardizeClothesInternal(clothes)
   local standard = {}
 
   standard.boot_accessories = table.extract(clothes, "boot_accessories")
@@ -359,7 +359,7 @@ function FrameworkClass:standardizeClothesInternal(clothes)
 end
 
 
-function FrameworkClass:revertClothesInternal(standard)
+function jo.framework:revertClothesInternal(standard)
   local clothes = {}
 
   clothes.boot_accessories = table.extract(standard, "boot_accessories")
@@ -407,7 +407,7 @@ function FrameworkClass:revertClothesInternal(standard)
   return clothes
 end
 
-function FrameworkClass:standardizeSkinInternal(skin)
+function jo.framework:standardizeSkinInternal(skin)
   -- print('standardizeSkinInternal', json.encode(skin, { indent = true }))
 
   local standard = {}
@@ -630,7 +630,7 @@ function FrameworkClass:standardizeSkinInternal(skin)
 end
 
 
-function FrameworkClass:revertSkinInternal(standard)
+function jo.framework:revertSkinInternal(standard)
   local reverted = {}
 
   local function increase(value)
@@ -885,7 +885,7 @@ function FrameworkClass:revertSkinInternal(standard)
   return reverted
 end
 
-function FrameworkClass:getUserClothesInternal(source)
+function jo.framework:getUserClothesInternal(source)
   local character = Core.GetCharacterFromPlayerId(source)
 
   local clothes = MySQL.scalar.await("SELECT clothes FROM characters_outfit WHERE ownerId=?", { character.id })
@@ -895,7 +895,7 @@ function FrameworkClass:getUserClothesInternal(source)
   return decoded
 end
 
-function FrameworkClass:updateUserClothesInternal(source, clothes)
+function jo.framework:updateUserClothesInternal(source, clothes)
   local character = Core.GetCharacterFromPlayerId(source)
 
   MySQL.scalar("SELECT clothes FROM characters_outfit WHERE ownerId=? ", { character.id }, function(oldClothes)
@@ -906,7 +906,7 @@ function FrameworkClass:updateUserClothesInternal(source, clothes)
 end
 
 
-function FrameworkClass:getUserSkinInternal(source)
+function jo.framework:getUserSkinInternal(source)
   local character = Core.GetCharacterFromPlayerId(source)
 
   local skin = MySQL.scalar.await("SELECT skin FROM characters_appearance WHERE characterId=?", { character.id })
@@ -914,7 +914,7 @@ function FrameworkClass:getUserSkinInternal(source)
   return UnJson(skin)
 end
 
-function FrameworkClass:updateUserSkinInternal(source, skin, overwrite)
+function jo.framework:updateUserSkinInternal(source, skin, overwrite)
   local character = Core.GetCharacterFromPlayerId(source)
   
   if overwrite then
@@ -928,7 +928,7 @@ function FrameworkClass:updateUserSkinInternal(source, skin, overwrite)
   end
 end
 
-function FrameworkClass:createUser(source, data, spawnCoordinate, isDead)
+function jo.framework:createUser(source, data, spawnCoordinate, isDead)
   print('createUser', source, data, spawnCoordinate, isDead)
 end
 
