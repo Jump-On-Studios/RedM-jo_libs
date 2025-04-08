@@ -166,33 +166,29 @@ jo.component.data.wearableStates = {
 jo.component.wearableStates = jo.component.data.wearableStates --deprecated name
 
 jo.component.data.palettes = {
-  "metaped_tint_makeup",
-  "metaped_tint_skirt_clean",
-  "metaped_tint_hat_worn",
-  "metaped_tint_swatch_002",
-  "metaped_tint_hat_clean",
-  "metaped_tint_swatch_003",
-  "metaped_tint_generic_clean",
-  "metaped_tint_hat_weathered",
-  "metaped_tint_combined",
-  "metaped_tint_horse_leather",
   "metaped_tint_animal",
-  "metaped_tint_swatch_001",
-  "metaped_tint_horse",
+  "metaped_tint_combined",
+  "metaped_tint_combined_leather",
+  "metaped_tint_combined_leather",
   "metaped_tint_eye",
   "metaped_tint_generic",
-  "metaped_tint_generic_worn",
-  "metaped_tint_skirt_weathered",
-  "metaped_tint_swatch_000",
-  "metaped_tint_leather",
-  "metaped_tint_mpadv",
-  "metaped_tint_skirt_worn",
-  "metaped_tint_hair",
-  "metaped_tint_combined_leather",
+  "metaped_tint_generic_clean",
   "metaped_tint_generic_weathered",
-  "metaped_tint_hat"
+  "metaped_tint_generic_worn",
+  "metaped_tint_hair",
+  "metaped_tint_hat",
+  "metaped_tint_hat_clean",
+  "metaped_tint_hat_weathered",
+  "metaped_tint_hat_worn",
+  "metaped_tint_horse",
+  "metaped_tint_horse_leather",
+  "metaped_tint_leather",
+  "metaped_tint_makeup",
+  "metaped_tint_mpadv",
+  "metaped_tint_skirt_clean",
+  "metaped_tint_skirt_weathered",
+  "metaped_tint_skirt_worn",
 }
-
 jo.component.palettes = jo.component.data.palettes --deprecated name
 
 jo.component.data.expressions = {

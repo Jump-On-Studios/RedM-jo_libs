@@ -369,12 +369,6 @@ local function convertDataLayer(ped, layerName, data)
     if not data.palette and category == "heads" then
       data.palette = "metaped_tint_makeup"
     end
-    if data.palette and tonumber(data.palette) then
-      local paletteIdentifier = jo.component.palettes[data.palette]
-      if paletteIdentifier then
-        data.palette = paletteIdentifier
-      end
-    end
     data.normal = data.albedo .. "_nm"
     data.material = data.albedo .. "_ab"
   end
