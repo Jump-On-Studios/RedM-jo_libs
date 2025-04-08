@@ -3,7 +3,7 @@ jo.animation = {}
 jo.animation.easeIn = 4.0
 jo.animation.easeOut = -4.
 
---- Load the dictionnary of animation (test)
+--- Load the dictionnary of animation
 ---@param dict string (The dictionnary of the animation)
 ---@param waiter? boolean (If need to wait the loading to end the function - default:false)
 function jo.animation.load(dict, waiter)

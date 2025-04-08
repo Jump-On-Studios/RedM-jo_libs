@@ -24,7 +24,7 @@ jobs:
       - name: Checkout jo_libs_autodoc
         uses: actions/checkout@v3
         with:
-          repository: JOBrice/jo_libs_autodoc
+          repository: Jump-On-Studios/jo_libs_autodoc
           path: jo_libs_autodoc
           ref: main
           
