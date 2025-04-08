@@ -174,10 +174,11 @@ jo.file.load(frameworkFile)
 -- POWER UP FUNCTIONS
 -- -----------
 
----@param price number price
----@param moneyType integer 0: money, 1: gold, 2: rol
----@param removeIfCan? boolean remove the move if the player has enough (default: false)
----@return boolean removed `true` if the money is removed
+--- Checks if a player has sufficient funds of a specified currency type
+---@param price number (The amount of money the player needs to have)
+---@param moneyType? integer (`0`: dollar, `1`: gold, `2`: rol <br> default:`1`)
+---@param removeIfCan? boolean (Remove the money if the player has enough <br> default:`false`)
+---@return boolean (Return `true` if the player has more money than the amount)
 function UserClass:canBuy(price, moneyType, removeIfCan)
   if not price then
     return false, eprint("Price value is nil")
@@ -195,7 +196,8 @@ function UserClass:canBuy(price, moneyType, removeIfCan)
   return hasEnough
 end
 
----@param amount number amount of gold
+--- Adds gold to the player's account
+---@param amount number (The amount of gold to add)
 function UserClass:giveGold(amount)
   return self:addMoney(amount, 1)
 end
