@@ -822,14 +822,10 @@ function jo.framework:revertSkinInternal(standard)
     local _, palette_id = getFrameworkValueFromStandard("ov_palette", standard.overlays.eyeshadow)
     reverted.shadows_id = palette_id or standard.overlays.eyeshadow.palette
     reverted.shadows_c1 = standard.overlays.eyeshadow.tint0
-    reverted.shadows_c2 = standard.overlays.eyeshadow.tint1
-    reverted.shadows_c3 = standard.overlays.eyeshadow.tint2
     reverted.shadows_op = revertPercent(standard.overlays.eyeshadow.opacity)
     standard.overlays.eyeshadow.sheetGrid = nil
     standard.overlays.eyeshadow.palette = nil
     standard.overlays.eyeshadow.tint0 = nil
-    standard.overlays.eyeshadow.tint1 = nil
-    standard.overlays.eyeshadow.tint2 = nil
     standard.overlays.eyeshadow.opacity = nil
   end
   if standard.overlays.freckles then
