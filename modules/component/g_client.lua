@@ -719,14 +719,15 @@ function jo.component.applySkin(ped, skin)
   end
 
   waitReadyPed(ped)
+  
+  SetPedScale(ped, skin.bodyScale)
+
+  waitReadyPed(ped)
 
   if jo.isModuleLoaded("pedTexture") then
     jo.pedTexture.overwriteCategory(ped, "heads", skin.overlays, true)
   end
-  
-  Wait(100)
 
-  SetPedScale(ped, skin.bodyScale)
   dprint("done create ped")
 
   waitReadyPed(ped)
