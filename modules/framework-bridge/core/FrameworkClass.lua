@@ -430,8 +430,6 @@ function jo.framework:revertClothesInternal(standard)
 end
 
 function jo.framework:standardizeSkinInternal(skin)
-  -- print('standardizeSkinInternal', json.encode(skin, { indent = true }))
-
   local standard = {}
 
   local function decrease(value)
@@ -640,6 +638,70 @@ function jo.framework:standardizeSkinInternal(skin)
   skin.spots_t = nil
   skin.spots_op = nil
 
+  standard.overlays.acne = skin.acne_visibility and {
+    id = getStandardValuefromFramework("ov_acne", skin.acne_tx_id)?.id or 0,
+    opacity = self:convertToPercent(skin.acne_opacity)
+  }
+  skin.acne_tx_id = nil
+  skin.acne_opacity = nil
+  skin.acne_visibility = nil
+
+  standard.overlays.grime = skin.grime_visibility and {
+    id = getStandardValuefromFramework("ov_grime", skin.grime_tx_id)?.id or 0,
+    opacity = self:convertToPercent(skin.grime_opacity)
+  }
+  skin.grime_tx_id = nil
+  skin.grime_opacity = nil
+  skin.grime_visibility = nil
+
+  standard.overlays.complex = skin.complex_visibility and {
+    id = getStandardValuefromFramework("ov_complex", skin.complex_tx_id)?.id or 0,
+    opacity = self:convertToPercent(skin.complex_opacity)
+  }
+  skin.complex_tx_id = nil
+  skin.complex_opacity = nil
+  skin.complex_visibility = nil
+
+  standard.overlays.disc = skin.disc_visibility and {
+    id = getStandardValuefromFramework("ov_disc", skin.disc_tx_id)?.id or 0,
+    opacity = self:convertToPercent(skin.disc_opacity)
+  }
+  skin.disc_tx_id = nil
+  skin.disc_opacity = nil
+  skin.disc_visibility = nil
+
+  standard.overlays.foundation = skin.foundation_visibility and {
+    id = getStandardValuefromFramework("ov_foundation", skin.foundation_tx_id)?.id or 0,
+    tint0 = skin.foundation_palette_color_primary,
+    tint1 = skin.foundation_palette_color_secondary,
+    tint2 = skin.foundation_palette_color_tertiary,
+    sheetGrid = decrease(skin.foundation_palette_id),
+    opacity = self:convertToPercent(skin.foundation_opacity)
+  }
+  skin.foundation_tx_id = nil
+  skin.foundation_palette_color_primary = nil
+  skin.foundation_palette_color_secondary = nil
+  skin.foundation_palette_color_tertiary = nil
+  skin.foundation_palette_id = nil
+  skin.foundation_opacity = nil
+  skin.foundation_visibility = nil
+
+  standard.overlays.masks = skin.paintedmasks_visibility and {
+    id = getStandardValuefromFramework("ov_paintedmasks", skin.paintedmasks_tx_id)?.id or 0,
+    tint0 = skin.paintedmasks_palette_color_primary,
+    tint1 = skin.paintedmasks_palette_color_secondary,
+    tint2 = skin.paintedmasks_palette_color_tertiary,
+    sheetGrid = decrease(skin.paintedmasks_palette_id),
+    opacity = self:convertToPercent(skin.paintedmasks_opacity)
+  }
+  skin.paintedmasks_tx_id = nil
+  skin.paintedmasks_palette_color_primary = nil
+  skin.paintedmasks_palette_color_secondary = nil
+  skin.paintedmasks_palette_color_tertiary = nil
+  skin.paintedmasks_palette_id = nil
+  skin.paintedmasks_opacity = nil
+  skin.paintedmasks_visibility = nil
+
   -- standard.overlays.acne = {},
   -- standard.overlays.foundation = {},
   -- standard.overlays.grime = {},
@@ -759,18 +821,6 @@ function jo.framework:revertSkinInternal(standard)
     end
   end
   
-  if standard.overlays.hair then
-    local _, tx_id = getFrameworkValueFromStandard("ov_hair", standard.overlays.hair)
-    if tx_id then
-      reverted.hair_visibility = 1
-      reverted.hair_tx_id = tx_id
-      reverted.hair_color_primary = standard.overlays.hair.tint0
-      reverted.hair_opacity = standard.overlays.hair.opacity
-      standard.overlays.hair.id = nil
-      standard.overlays.hair.tint0 = nil
-      standard.overlays.hair.opacity = nil
-    end
-  end
   if standard.overlays.beard then
     reverted.beardstabble_t = standard.overlays.beard.id
     reverted.beardstabble_op = revertPercent(standard.overlays.beard.opacity)
@@ -877,6 +927,76 @@ function jo.framework:revertSkinInternal(standard)
       reverted.spots_op = revertPercent(standard.overlays.spots.opacity)
       standard.overlays.spots.id = nil
       standard.overlays.spots.opacity = nil
+    end
+  end
+  if standard.overlays.acne then
+    local _, tx_id = getFrameworkValueFromStandard("ov_acne", standard.overlays.acne)
+    if tx_id then
+      reverted.acne_visibility = 1
+      reverted.acne_tx_id = tx_id
+      reverted.acne_opacity = standard.overlays.acne.opacity
+      standard.overlays.acne.id = nil
+      standard.overlays.acne.opacity = nil
+    end
+  end
+  if standard.overlays.grime then
+    local _, tx_id = getFrameworkValueFromStandard("ov_grime", standard.overlays.grime)
+    if tx_id then
+      reverted.grime_visibility = 1
+      reverted.grime_tx_id = tx_id
+      reverted.grime_opacity = standard.overlays.grime.opacity
+      standard.overlays.grime.id = nil
+      standard.overlays.grime.opacity = nil
+    end
+  end
+  if standard.overlays.hair then
+    local _, tx_id = getFrameworkValueFromStandard("ov_hair", standard.overlays.hair)
+    if tx_id then
+      reverted.hair_visibility = 1
+      reverted.hair_tx_id = tx_id
+      reverted.hair_color_primary = standard.overlays.hair.tint0
+      reverted.hair_opacity = standard.overlays.hair.opacity
+      standard.overlays.hair.id = nil
+      standard.overlays.hair.tint0 = nil
+      standard.overlays.hair.opacity = nil
+    end
+  end
+  if standard.overlays.complex then
+    local _, tx_id = getFrameworkValueFromStandard("ov_complex", standard.overlays.complex)
+    if tx_id then
+      reverted.complex_visibility = 1
+      reverted.complex_tx_id = tx_id
+      reverted.complex_opacity = standard.overlays.complex.opacity
+      standard.overlays.complex.id = nil
+      standard.overlays.complex.opacity = nil
+    end
+  end
+  if standard.overlays.disc then
+    local _, tx_id = getFrameworkValueFromStandard("ov_disc", standard.overlays.disc)
+    if tx_id then
+      reverted.disc_visibility = 1
+      reverted.disc_tx_id = tx_id
+      reverted.disc_opacity = standard.overlays.disc.opacity
+      standard.overlays.disc.id = nil
+      standard.overlays.disc.opacity = nil
+    end
+  end
+  if standard.overlays.foundation then
+    local _, tx_id = getFrameworkValueFromStandard("ov_foundation", standard.overlays.foundation)
+    if tx_id then
+      reverted.foundation_visibility = 1
+      reverted.foundation_tx_id = tx_id
+      reverted.foundation_palette_color_primary = standard.overlays.foundation.tint0
+      reverted.foundation_palette_color_secondary = standard.overlays.foundation.tint1
+      reverted.foundation_palette_color_tertiary = standard.overlays.foundation.tint2
+      reverted.foundation_palette_id = increase(standard.overlays.foundation.sheetGrid)
+      reverted.foundation_opacity = standard.overlays.foundation.opacity
+      standard.overlays.foundation.id = nil
+      standard.overlays.foundation.tint0 = nil
+      standard.overlays.foundation.tint1 = nil
+      standard.overlays.foundation.tint2 = nil
+      standard.overlays.foundation.sheetGrid = nil
+      standard.overlays.foundation.opacity = nil
     end
   end
 
