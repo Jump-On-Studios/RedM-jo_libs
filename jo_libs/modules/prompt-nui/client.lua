@@ -340,7 +340,7 @@ end
 -- * =============================================================================
 
 --- Creates a new prompt group with a specified title and optional position.
---- @param title string (The title for the new prompt group.)
+--- @param title string|boolean (The title for the new prompt group. Set to `false` to have no title)
 --- @param position? string (The screen position for the group. <br> Allowed values are : `"bottom-right"`,`"center-right"`,`"top-right"`,`"bottom-left"`,`"center-left"`,`"top-left"` <br> default : `"bottom-right"`)
 --- @return GroupClass (A new instance of a prompt group.)
 function jo.promptNui.createGroup(title, position)
