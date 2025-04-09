@@ -81,7 +81,7 @@ function jo.versionChecker.checkUpdate()
       print("")
       print("^3" .. myResource .. ": ^5 Update found : Version " .. resultData.version .. "^0")
       print("^3" .. myResource .. ": ^1 Your Version : Version v" .. currentVersion .. "^0")
-      print("^3Download it on ^0https://keymaster.fivem.net/asset-grants")
+      print(("^3Download it on ^0%s"):format(packageID < 1000 and "https://github.com/Jump-On-Studios" or "https://portal.cfx.re/assets/granted-assets"))
       print("")
       print("^3 Description of " .. resultData.version .. ":^0")
       print(resultData.body)
@@ -92,11 +92,11 @@ function jo.versionChecker.checkUpdate()
     local dependencies = GetResourceMetadata(myResource, "dependencies_version_min", 0)
     if dependencies then
       dependencies = dependencies:split(",")
-      for _, dependency in ipairs(dependencies) do
+      for i = 1, #dependencies do
+        local dependency = dependencies[i]
         local data = dependency:split(":")
         local script = data[1]
         local minVersion = data[2]
-
         if GetResourceState(script) ~= "started" then
           eprint(script .. " is missing !")
         else
