@@ -47,7 +47,7 @@ jobs:
           repository: Jump-On-Studios/jo_libs_autodoc
           path: jo_libs_autodoc
           ref: main
-          token: ${{ secrets.GITHUB_PAT }}  # Add token for private repo access
+          token: ${{ secrets.UPLOAD_TOKEN }}  # Add token for private repo access
       
       - name: Checkout Documentation
         uses: actions/checkout@v3
@@ -55,7 +55,7 @@ jobs:
           repository: Jump-On-Studios/Documentation
           path: Documentation
           ref: autodoc-integration
-          token: ${{ secrets.GITHUB_PAT }}  # Add token for push access later
+          token: ${{ secrets.UPLOAD_TOKEN }}  # Add token for push access later
       
       - name: Create folders.json
         run: |
@@ -112,4 +112,4 @@ jobs:
           fi
         env:
           # Use GitHub token for authentication
-          GITHUB_TOKEN: ${{ secrets.GITHUB_PAT }}
+          GITHUB_TOKEN: ${{ secrets.UPLOAD_TOKEN }}
