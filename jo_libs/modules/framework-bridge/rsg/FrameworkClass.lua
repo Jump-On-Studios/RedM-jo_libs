@@ -320,7 +320,7 @@ end
 function jo.framework:openInventory(source, id)
   local config = inventoriesCreated[id]
 
-  TriggerClientEvent(GetCurrentResourceName() .. ":client:openInventory", source, id, config)
+  TriggerClientEvent("jo_libs:client:openInventory", source, id, config)
   return
 end
 
