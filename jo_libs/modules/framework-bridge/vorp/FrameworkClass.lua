@@ -328,7 +328,7 @@ function jo.framework:addItemInInventory(source, id, item, quantity, metadata)
 end
 
 function jo.framework:getItemsFromInventory(invId)
-  local invItems = Inventory:getCustomInventoryItems(invId)
+  local invItems = Inventory:getCustomInventoryItems(invId) or {}
 
   local items = {}
   for i = 1, #invItems do
