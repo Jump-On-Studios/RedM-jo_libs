@@ -12,7 +12,7 @@ local userFile = jo.framework:loadFile("UserClass")
 if userFile then
   table.merge(UserClass, userFile)
 end
-jo.framework:loadFile("frameworkClass")
+jo.framework:loadFile("FrameworkClass")
 
 -------------
 -- END LOAD FRAMEWORK
@@ -353,7 +353,7 @@ if userFile then
   table.merge(UserClass, userClass)
 end
 
-jo.framework:loadFile("_custom", "frameworkClass")
+jo.framework:loadFile("_custom", "FrameworkClass")
 
 jo.framework:loadFile("server")
 jo.framework:loadFile("_custom", "server")
