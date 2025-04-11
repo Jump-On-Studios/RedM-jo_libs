@@ -502,7 +502,7 @@ function jo.pedTexture.refreshAll(ped)
   end
 end
 
-function jo.pedTexture.overwriteCategory(ped, category, overlays, forceRemove)
+function jo.pedTexture.overwriteBodyPart(ped, category, overlays, forceRemove)
   forceRemove = forceRemove or false
   pedsTextures[ped] = pedsTextures[ped] or Entity(ped).state["jo_pedTexture"] or { [category] = {} }
   if pedsTextures[ped][category] or forceRemove then
@@ -521,6 +521,7 @@ function jo.pedTexture.overwriteCategory(ped, category, overlays, forceRemove)
     jo.pedTexture.apply(ped, layername, layer)
   end
 end
+jo.pedTexture.overwriteCategory = jo.pedTexture.overwriteBodyPart
 
 function jo.pedTexture.getAll(ped)
   local layers = {}
