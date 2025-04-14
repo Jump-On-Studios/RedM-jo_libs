@@ -1070,7 +1070,7 @@ function jo.framework:updateUserClothesInternal(source, clothes)
             palette = GetValue(value.palette, 0),
           }
         end
-        if value.state then
+        if value.state and tints[category][value.hash] then
           tints[category][value.hash] = GetValue(tints[category][value.hash], {})
           tints[category][value.hash].state = value.state
         end
