@@ -778,6 +778,8 @@ function jo.component.applySkin(ped, skin)
 
   jo.component.waitPedLoaded(ped)
 
+  SetPedScale(ped, skin.bodyScale)
+
   for category, overlay in pairs(skin.overlays or {}) do
     if type(overlay) == "table" then
       local default = {
@@ -796,12 +798,9 @@ function jo.component.applySkin(ped, skin)
     jo.pedTexture.overwriteBodyPart(ped, "heads", skin.overlays, true)
   end
 
-  Wait(100)
-
-  SetPedScale(ped, skin.bodyScale)
-  dprint("done create ped")
-
   jo.component.waitPedLoaded(ped)
+
+  dprint("done create ped")
 end
 
 --* -----------

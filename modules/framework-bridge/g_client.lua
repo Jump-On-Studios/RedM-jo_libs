@@ -2,6 +2,7 @@ jo.require("framework-bridge")
 
 jo.framework:loadFile("g_client")
 jo.framework:loadFile("_custom", "g_client")
+jo.require('component')
 
 RegisterNetEvent("jo_libs:client:applySkinAndClothes", function(ped, skin, clothes)
   ped = ped or PlayerPedId()
