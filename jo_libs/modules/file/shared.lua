@@ -5,14 +5,6 @@ local function convertModName(modname)
   local resource = ""
 
   if modpath:sub(1, 1) == "@" then
-    function splitString(input, delimiter)
-      local result = {}
-      for match in (input .. delimiter):gmatch("(.-)" .. delimiter) do
-        table.insert(result, match)
-      end
-      return result
-    end
-
     for match in (modpath .. "/"):gmatch("(.-)" .. "/") do
       resource = match:sub(2)
       break
@@ -32,34 +24,47 @@ function jo.file.load(modname)
   if type(modname) ~= "string" then return end
   dprint(modname, "~orange~: Start loading")
 
-  local resource, modpath = convertModName(modname)
+  local file, resource, modpath = jo.file.read(modname)
 
-  local file = LoadResourceFile(resource, ("%s.lua"):format(modpath))
-
-  if file then
-    local fn, err = load(file, ("@@%s/%s.lua"):format(resource, modpath))
-
-    if not fn or err then
-      return error(("\n^1Error loading file (%s): %s^0"):format(modname, err), 3)
-    end
-
-    dprint(modname, "~green~: Loaded")
-
-    local success, result = pcall(fn)
-
-    if not success then return false, eprint("Error loading: " .. modname) end
-    return result
-  else
+  if not file then
     return false, eprint(modname, ": Impossible to load. File doesn't exist.")
   end
+
+  local fn, err = load(file, ("@@%s/%s.lua"):format(resource, modpath))
+
+  if not fn or err then
+    return error(("\n^1Error loading file (%s): %s^0"):format(modname, err), 3)
+  end
+
+  dprint(modname, "~green~: Loaded")
+
+  local success, result = pcall(fn)
+
+  if not success then return false, eprint("Error loading: " .. modname) end
+  return result
+end
+
+--- Read a file and return it if it's exist or `false`. The function accept one or two arguments. 
+--- One argument: the filepath
+--- Two argument: the resource AND the filepath
+---@param ... string (path of the file)
+---@return file|boolean, resource|string, modpath|string
+function jo.file.read(...)
+  local args = { ... }
+  local resource, modpath
+  if args[2] then
+    resource, modpath = args[1], args[2]
+  else
+    resource, modpath = convertModName(args[1])
+  end
+  local file = LoadResourceFile(resource, ("%s.lua"):format(modpath))
+
+  return file or false, resource, modpath
 end
 
 --- Checks if a file exists
 ---@param modname string (The file location)
 ---@return boolean (Returns `true` if the file exists, `false` otherwise)
-function jo.file.isExist(modname)
-  local resource, modpath = convertModName(modname)
-  local file = LoadResourceFile(resource, ("%s.lua"):format(modpath))
-
-  return file and true or false
+function jo.file.isExist(...)
+  return jo.file.read(...) and true or false
 end

@@ -87,7 +87,7 @@ end
 ---@return boolean
 function jo.framework:openInventory(source, invName)
   local invConfig = inventories[invName].invConfig
-  TriggerClientEvent(GetCurrentResourceName() .. ":client:openInventory", source, invName, invConfig)
+  TriggerClientEvent("jo_libs:client:openInventory", source, invName, invConfig)
   return true
 end
 

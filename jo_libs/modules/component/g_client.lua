@@ -792,8 +792,8 @@ function jo.component.applySkin(ped, skin)
       overlay = table.merge(default, overlay)
     end
   end
-  if jo.isModuleLoaded("pedTexture") then
-    jo.pedTexture.overwriteCategory(ped, "heads", skin.overlays, true)
+  if jo.isModuleLoaded("pedTexture") and NetworkGetEntityIsNetworked(ped) then
+    jo.pedTexture.overwriteBodyPart(ped, "heads", skin.overlays, true)
   end
 
   Wait(100)

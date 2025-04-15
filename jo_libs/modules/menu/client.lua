@@ -517,6 +517,13 @@ function jo.menu.forceBack()
   SendNUIMessage({ event = "menuBack" })
 end
 
+function jo.menu.playAudio(sound)
+  SendNUIMessage({
+    event = "startAudio",
+    sound = sound
+  })
+end
+
 -------------
 -- NUI
 -------------

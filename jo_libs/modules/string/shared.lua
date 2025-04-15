@@ -22,7 +22,6 @@ function string:convertVersion()
   local converted = 0
   if type(self) == "string" then
     local array = self:split("%.")
-    log(array)
     local multiplicator = 1
     for i = #array, 1, -1 do
       converted = converted + multiplicator * (tonumber(array[i]) or 0)

@@ -528,12 +528,12 @@ function jo.pedTexture.refreshAll(ped)
   end
 end
 
---- A function to overwrite all the layers of category
+--- A function to overwrite all the layers of a body part
 --- @param ped integer (The entity ID)
 --- @param category string (The category of the texture)
 --- @param overlays object (The list of layers)
 --- @param forceRemove? boolean (Whether to force remove existing textures even if the category doesn't exist <br> default: false)
-function jo.pedTexture.overwriteCategory(ped, category, overlays, forceRemove)
+function jo.pedTexture.overwriteBodyPart(ped, category, overlays, forceRemove)
   forceRemove = forceRemove or false
   pedsTextures[ped] = pedsTextures[ped] or Entity(ped).state["jo_pedTexture"] or { [category] = {} }
   if pedsTextures[ped][category] or forceRemove then
@@ -552,6 +552,7 @@ function jo.pedTexture.overwriteCategory(ped, category, overlays, forceRemove)
     jo.pedTexture.apply(ped, layername, layer)
   end
 end
+jo.pedTexture.overwriteCategory = jo.pedTexture.overwriteBodyPart
 
 --- Return the list of layers in all categories
 ---@param ped integer (The entity ID)
