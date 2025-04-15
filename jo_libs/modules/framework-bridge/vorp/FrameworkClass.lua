@@ -307,7 +307,9 @@ end
 
 function jo.framework:openInventory(source, id)
   if not Inventory:isCustomInventoryRegistered(id) then
-    return false, eprint(("This custom inventory doesn't exist: %s. You can create it with `jo.framework:createInventory()`."):format(tostring(id)))
+    return false,
+        eprint(("This custom inventory doesn't exist: %s. You can create it with `jo.framework:createInventory()`.")
+          :format(tostring(id)))
   end
   return Inventory:openInventory(source, id)
 end
@@ -1125,5 +1127,11 @@ function jo.framework:createUser(source, data, spawnCoordinate, isDead)
   TriggerClientEvent("vorp:initCharacter", source, spawnCoordinate.xyz, spawnCoordinate.w, isDead)
   SetTimeout(3000, function()
     TriggerEvent("vorp_NewCharacter", source)
+  end)
+end
+
+function jo.framework:onCharacterSelected(cb)
+  AddEventHandler("vorp:SelectedCharacter", function(source)
+    cb(source)
   end)
 end

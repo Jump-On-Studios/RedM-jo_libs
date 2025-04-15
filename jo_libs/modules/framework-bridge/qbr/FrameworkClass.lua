@@ -185,7 +185,8 @@ end
 
 function jo.framework:getUserClothesInternal(source)
   local user = self:getUserIdentifiers(source)
-  local clothes = MySQL.scalar.await("SELECT clothes FROM playerskins WHERE citizenid=? AND active=1", { user.identifier })
+  local clothes = MySQL.scalar.await("SELECT clothes FROM playerskins WHERE citizenid=? AND active=1",
+    { user.identifier })
   return UnJson(clothes)
 end
 
@@ -222,4 +223,12 @@ end
 
 function jo.framework:createUser(source, data, spawnCoordinate, isDead)
   return {}
+end
+
+function jo.framework:onCharacterSelected(cb)
+  AddEventHandler("qbr-multicharacter:server:loadUserData", function()
+    local source = source
+    Wait(1000)
+    cb(source)
+  end)
 end
