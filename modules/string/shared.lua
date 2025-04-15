@@ -1,14 +1,22 @@
----@param str stringlib
----@return string str String with first letter in uppercase
+-- todo add usePostProcess=false
+
+--- Return the string with the first letter in uppercase
+---@return string (Return the string with the first letter in uppercase)
 function string:firstToUpper()
   if not self then return "" end
   return (self:gsub("^%l", string.upper))
 end
 
+--- Split a string into parts based on a delimiter
+---@param delimiter string (The character(s) to split the string on)
+---@param pieces? number (The maximum number of pieces to split into)
+---@return table (Array of string parts)
 function string:split(delimiter, pieces)
   return { string.strsplit(delimiter, self, pieces) }
 end
 
+--- Convert a version string (like "1.2.3") to a numeric value
+---@return number (The converted numeric version)
 function string:convertVersion()
   if not self then return 1 end
   local converted = 0
@@ -23,7 +31,9 @@ function string:convertVersion()
   return converted
 end
 
--- Returns -1 if the version is older, 0 if it's the same and 1 if it's more recent
+--- Compare two version strings
+--- @param version string (The string version to compare to)
+--- @return integer ( `-1` if the version is older, `0` if it's the same and `1` if it's more recent)
 function string:compareVersionWith(version)
   if not self then return -1 end
   if not version then return 1 end
@@ -65,11 +75,15 @@ function string:compareVersionWith(version)
   return 0
 end
 
+--- Remove whitespace from both ends of a string
+---@return string (The trimmed string)
 function string:trim()
   if not self then return "" end
   return self:match("^%s*(.-)%s*$")
 end
 
+--- Convert a hexadecimal string to a number, handling signed values
+---@return number (The converted numeric value)
 function string:toHex()
   local number = tonumber(self:sub(3), 16) -- Convertit la chaîne hexadécimale en nombre
   if not number then return self end

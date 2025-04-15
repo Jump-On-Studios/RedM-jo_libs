@@ -1,5 +1,7 @@
 jo.framework = {}
 
+jo.require("string")
+
 local supportedFrameworks = {
   {
     id = "VORP",
@@ -48,12 +50,6 @@ local supportedFrameworks = {
     name = "RPX Framework",
     folder = "rpx",
     resources = { "rpx-core" }
-  },
-  {
-    id = "core",
-    name = "Custom Framework",
-    folder = "core",
-    resources = { "core" },
   }
 }
 
@@ -156,6 +152,10 @@ for i = 1, #frameworkDetected.resources do
       Wait(1000)
     end
   end
+end
+
+function jo.framework:getFrameworkDetected()
+  return frameworkDetected
 end
 
 function jo.framework:loadFile(...)

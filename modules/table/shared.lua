@@ -3,9 +3,10 @@ local setmetatable = setmetatable
 local getmetatable = getmetatable
 local pairs = pairs
 
----@param orig  table Table to deep copy
----@return table
-table.copy = function(orig)
+--- Deep copies a table. Unlike "=", it doesn't keep the link between both tables.
+---@param orig table (The table you want to copy)
+---@return table (The copy of the table)
+function table.copy(orig)
   if type(orig) ~= "table" then
     return orig
   end
@@ -45,10 +46,11 @@ table.overwrite = function(t1, t2, addDuplicateNumbers)
   return t1
 end
 
----@param t1 table
----@param t2 table
----@return table
-table.merge = function(t1, t2)
+--- Merges two tables together.
+---@param t1 table (The main table)
+---@param t2 table (The table to merge)
+---@return table (The merged table. If the same key exists in both tables, only the value of t2 is kept)
+function table.merge(t1, t2)
   t1 = t1 or {}
   if not t2 then return t1 end
   for k, v in pairs(t2 or {}) do
@@ -65,7 +67,11 @@ table.merge = function(t1, t2)
   return t1
 end
 
-table.mergeAfter = function(t1, t2)
+--- Merges the values of the second table sequentially into the first table.
+---@param t1 table (The target table to merge into)
+---@param t2 table (The table whose values will be appended)
+---@return table (The merged table with values from t2 added at the end of t1)
+function table.mergeAfter(t1, t2)
   t1 = t1 or {}
   if not t2 then return t1 end
   for _, v in pairs(t2 or {}) do
@@ -74,18 +80,20 @@ table.mergeAfter = function(t1, t2)
   return t1
 end
 
----@param _table table
----@return boolean
-table.isEmpty = function(_table)
+--- Checks if a table is empty.
+---@param _table table (The table to check)
+---@return boolean (Returns true if the table is empty)
+function table.isEmpty(_table)
   for _ in pairs(_table or {}) do
     return false
   end
   return true
 end
 
----@param _table table
----@return integer
-table.count = function(_table)
+--- Counts the number of values inside a table.
+---@param _table table (The table to count elements in)
+---@return integer (The number of values inside the table)
+function table.count(_table)
   local counter = 0
   for _ in pairs(_table or {}) do
     counter += 1
@@ -93,11 +101,12 @@ table.count = function(_table)
   return counter
 end
 
----@param t table the table to filter
----@param filterIter function the function to filter the table
----@param keepKeyAssociation boolean keep the table keys (default false)
----@return table out the filtered table
-table.filter = function(t, filterIter, keepKeyAssociation)
+--- Filters a table based on a callback function.
+---@param t table (The table to filter)
+---@param filterIter function (A function to execute for each element in the table. Should return `true` to keep the element. Called with (element, key, originalTable))
+---@param keepKeyAssociation? boolean (Keep the original table keys instead of creating a sequential table <br> default:`false`)
+---@return table (The filtered table)
+function table.filter(t, filterIter, keepKeyAssociation)
   local out = {}
   if keepKeyAssociation == nil then keepKeyAssociation = false end
   for k, v in pairs(t) do
@@ -112,10 +121,11 @@ table.filter = function(t, filterIter, keepKeyAssociation)
   return out
 end
 
----@param t table the table to map
----@param func function the function to map the table
----@return table new_table the mapped table
-table.map = function(t, func)
+--- Creates a new table populated with the results of calling a function on every element.
+---@param t table (The table to map)
+---@param func function (A function to transform each element. Called with (element, key, originalTable))
+---@return table (The new mapped table)
+function table.map(t, func)
   local new_table = {}
   for i, v in pairs(t or {}) do
     new_table[i] = func(v, i, t)
@@ -123,11 +133,11 @@ table.map = function(t, func)
   return table.copy(new_table)
 end
 
----@param t table the table to search in
----@param func function the function to test the value
----@return any value the found table
----@return any value the key of the value
-table.find = function(t, func)
+--- Returns the first element in the table that satisfies the provided function.
+---@param t table (The table to search in)
+---@param func function (A function to test each element. Should return `true` when found. Called with (element, key, originalTable))
+---@return any,any (The found value or `false` if not found , The key of the found value)
+function table.find(t, func)
   for i, v in pairs(t or {}) do
     if func(v, i, t) then
       return v, i
@@ -136,9 +146,10 @@ table.find = function(t, func)
   return false
 end
 
----@param t table the table to clean
----@return table new_table the table without functions
-table.clearForNui = function(t)
+--- Returns a copy of the table with all function values removed.
+---@param t table (The table to clean)
+---@return table (The table without function values)
+function table.clearForNui(t)
   local new_table = {}
   for key, data in pairs(t) do
     if type(data) == "function" then
@@ -151,13 +162,14 @@ table.clearForNui = function(t)
   return new_table
 end
 
-
----@param table1 table first table to compare
----@param table2 table second table to compare
----@param strict? boolean  if all keys should be in both table (default: true)
----@param canMissInTable1? any if table2 keys can miss in table1 (default: false)
----@param canMissInTable2? any if table1 keys can miss in table2 (default: false)
-table.isEgal = function(table1, table2, strict, canMissInTable1, canMissInTable2)
+--- Compares two tables for equality.
+---@param table1 table (First table to compare)
+---@param table2 table (Second table to compare)
+---@param strict? boolean (If all keys should be in both tables <br> default:`true`)
+---@param canMissInTable1? boolean (If table2 keys can miss in table1 <br> default:`false`)
+---@param canMissInTable2? boolean (If table1 keys can miss in table2 <br> default:`false`)
+---@return boolean (Returns `true` if tables are equal according to specified parameters)
+function table.isEgal(table1, table2, strict, canMissInTable1, canMissInTable2)
   strict = strict ~= false                   -- strict est par défaut true, sauf si explicitement mis à false
   canMissInTable1 = canMissInTable1 or false -- par défaut false
   canMissInTable2 = canMissInTable2 or false -- par défaut false
@@ -187,11 +199,11 @@ table.isEgal = function(table1, table2, strict, canMissInTable1, canMissInTable2
   return true
 end
 
----@param t table the table to get the value
----@param key any the key to get the value
----@return any value the value of the key
-table.extract = function(t, key)
-  if not t then return nil end
+--- Extracts a value from a table by key and removes that key from the table.
+---@param t table (The table to extract from)
+---@param key any (The key to extract)
+---@return any (The extracted value)
+function table.extract(t, key)
   local value = type(t[key]) == "table" and table.copy(t[key]) or t[key]
   t[key] = nil
   return value

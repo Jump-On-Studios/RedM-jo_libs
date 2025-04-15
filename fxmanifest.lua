@@ -1,6 +1,6 @@
 author "JUMP ON studios : https://jumpon-studios.com"
 documentation "https://docs.jumpon-studios.com"
-version "2.0.0.beta.5"
+version "2.0.0.beta.6"
 package_id "1"
 
 fx_version "adamant"
@@ -12,7 +12,14 @@ lua54 "yes"
 
 files {
 	"init.lua",
-	"modules/**.lua",
+	--All client side files
+	"modules/**/*shared.lua",
+	"modules/**/*client.lua",
+	"modules/component/clothesList.lua",
+	"modules/component/horseComponents.lua",
+	"modules/game-events/data.lua",
+	"modules/raw-keys/vk_azerty.lua",
+	"modules/raw-keys/vk_qwerty.lua",
 	--OLD MENU
 	"html/dist/**.html",
 	"html/dist/**.js",

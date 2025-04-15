@@ -73,8 +73,8 @@ local function pointEntity()
     needUpdateCamNUI = true
 end
 
---- Initializes UI focus, camera, and other misc
---- @param bool boolean
+-- Initializes UI focus, camera, and other misc
+-- @param bool boolean
 local function showNUI(bool)
     if bool then
         SetNuiFocus(true, true)
@@ -125,14 +125,14 @@ local function showNUI(bool)
     gizmoActive = bool
 end
 
---- Disables controls, Radar, and Player Firing
+-- Disables controls, Radar, and Player Firing
 local function disableControls()
     DisableControlAction(0, `INPUT_ATTACK`, true)
 end
 
---- Get the normal value of a control(s) used for movement & rotation
---- @param control number | table
---- @return number
+-- Get the normal value of a control(s) used for movement & rotation
+-- @param control number | table
+-- @return number
 local function getSmartControlNormal(control, control2)
     if control2 then
         local normal1 = GetDisabledControlNormal(0, control)
@@ -143,7 +143,7 @@ local function getSmartControlNormal(control, control2)
     return GetDisabledControlNormal(0, control)
 end
 
---- Handle camera rotations
+-- Handle camera rotations
 local function rotations()
     if focusEntity then return end
     local newX
@@ -168,7 +168,7 @@ local function rotations()
     end
 end
 
---- Handle camera movement
+-- Handle camera movement
 local function movement()
     local moveX = getSmartControlNormal(config.keys.moveX)                        -- Left & Right
     local moveY = getSmartControlNormal(config.keys.moveY)                        -- Forward & Backward
@@ -207,7 +207,7 @@ local function movement()
     end
 end
 
---- Hanndle camera controls (movement & rotation)
+-- Handle camera controls (movement & rotation)
 local function camControls()
     rotations()
     movement()
@@ -232,11 +232,19 @@ local function refreshSpeedPrompt()
     jo.prompt.editKeyLabel(groupName, config.keys.cameraSpeedUp, ("Camera speed: x%.3f"):format(movementSpeed))
 end
 
---- Setup Gizmo
---- @param entity number
---- @param cfg table | nil
---- @param allowPlace function | nil
---- @return table | nil
+--- Setup a gizmo interface to move an entity in 3D space
+--- Allows for precise positioning and rotation of entities through a visual interface
+--- Uses a camera system for better manipulation when enabled
+---@param entity integer (The entity to move)
+---@param cfg? table (Configuration options to override [defaults](#default-configuration))
+--- cfg.enableCam boolean (Enable/disable camera feature - default based on config)
+--- cfg.maxDistance number (Max distance the entity can be moved from starting position - default based on config)
+--- cfg.maxCamDistance number (Max distance the camera can be moved from player - default based on config)
+--- cfg.minY number (Min Y value from starting position for camera - default based on config)
+--- cfg.maxY number (Max Y value from starting position for camera - default based on config)
+--- cfg.movementSpeed number (Movement speed for camera - default based on config)
+---@param allowPlace? function (Optional callback to validate placement - receives proposed position as parameter)
+---@return table|nil (Returns entity position and rotation data when completed, nil if already active)
 function jo.gizmo.moveEntity(entity, cfg, allowPlace)
     if gizmoActive then return eprint("Gizmo is already started") end
     if not entity then return end
@@ -291,11 +299,13 @@ function jo.gizmo.moveEntity(entity, cfg, allowPlace)
 
 
     jo.prompt.create(groupName, "Cancel", config.keys.cancel)
+    jo.prompt.create(groupName, "Confirm", config.keys.confirm)
     jo.prompt.create(groupName, "Switch to Rotate Mode", config.keys.switchMode)
     jo.prompt.create(groupName, "Snap to Ground", config.keys.snapToGround)
     jo.prompt.create(groupName, "Finish", config.keys.enter)
     jo.prompt.create(groupName, "Free cam", config.keys.focusEntity)
-    jo.prompt.create(groupName, ("Camera speed: x%.3f"):format(movementSpeed), { config.keys.cameraSpeedUp, config.keys.cameraSpeedDown })
+    jo.prompt.create(groupName, ("Camera speed: x%.3f"):format(movementSpeed),
+        { config.keys.cameraSpeedUp, config.keys.cameraSpeedDown })
 
     if (cam) then
         jo.prompt.create(groupName, "Move L/R", config.keys.moveX)
@@ -312,7 +322,8 @@ function jo.gizmo.moveEntity(entity, cfg, allowPlace)
                 action = "SetGizmoMode",
                 data = mode
             })
-            jo.prompt.editKeyLabel(groupName, config.keys.switchMode, mode == "translate" and "Switch to Rotate mode" or "Switch to Translate mode")
+            jo.prompt.editKeyLabel(groupName, config.keys.switchMode,
+                mode == "translate" and "Switch to Rotate mode" or "Switch to Translate mode")
         end
 
         if jo.prompt.isCompleted(groupName, config.keys.snapToGround) then
@@ -349,7 +360,7 @@ function jo.gizmo.moveEntity(entity, cfg, allowPlace)
             needUpdateCamNUI = true
         end
 
-        if jo.prompt.isCompleted(groupName, config.keys.enter) then
+        if jo.prompt.isCompleted(groupName, config.keys.confirm) then
             local coords = GetEntityCoords(entity)
             responseData = {
                 entity = entity,
@@ -386,13 +397,14 @@ function jo.gizmo.moveEntity(entity, cfg, allowPlace)
     return responseData
 end
 
+--- Cancels the currently active gizmo interface
 function jo.gizmo.cancel()
     showNUI(false)
 end
 
---- Register NUI Callback for updating entity position and rotation
---- @param data table
---- @param cb function
+-- Register NUI Callback for updating entity position and rotation
+-- @param data table
+-- @param cb function
 RegisterNUICallback("gizmo:UpdateEntity", function(data, cb)
     local entity = data.handle
     local position = data.position

@@ -1,5 +1,4 @@
 jo.require("framework-bridge")
-jo.require("waiter")
 
 jo.framework:loadFile("g_client")
 jo.framework:loadFile("_custom", "g_client")
