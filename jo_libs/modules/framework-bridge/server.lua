@@ -50,7 +50,7 @@ end
 
 ---@return string name the framework name
 function jo.framework:get()
-  return frameworkDetected.id
+  return jo.framework:getFrameworkDetected().id
 end
 
 ---@param name string Name of the framework

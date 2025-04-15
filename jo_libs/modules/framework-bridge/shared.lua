@@ -152,6 +152,10 @@ for i = 1, #frameworkDetected.resources do
   end
 end
 
+function jo.framework:getFrameworkDetected()
+  return frameworkDetected
+end
+
 function jo.framework:loadFile(...)
   local args = { ... }
   local folder = args[2] and args[1] or frameworkDetected.folder
