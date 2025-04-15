@@ -75,8 +75,10 @@ function GetValue(value, default)
 end
 
 local function isModuleLoaded(name, needLocal)
+  needLocal = GetValue(needLocal, true)
   if needLocal and not moduleLocal[name] then return false end
   if moduleInLoading[name] then return true end
+  if moduleLocal[name] then return true end
   return false
 end
 
@@ -219,7 +221,7 @@ end
 -------------
 
 function jo.require(name, needLocal)
-  if needLocal == nil then needLocal = true end
+  needLocal = GetValue(needLocal, true)
   name = getAlias(name)
   if isModuleLoaded(name, needLocal) then return end
   return loadModule(name, needLocal)
@@ -227,6 +229,7 @@ end
 
 if resourceName == "jo_libs" then
   exports("loadGlobalModule", function(name)
+    while not jo.libLoaded do Wait(0) end
     jo.require(name, false)
     return true
   end)
