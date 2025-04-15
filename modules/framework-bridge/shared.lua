@@ -50,6 +50,12 @@ local supportedFrameworks = {
     name = "RPX Framework",
     folder = "rpx",
     resources = { "rpx-core" }
+  },
+  {
+    id = "core",
+    name = "Core Framework",
+    folder = "core",
+    resources = { "core" },
   }
 }
 
