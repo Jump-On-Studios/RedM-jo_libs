@@ -440,7 +440,7 @@ end
 ---@param tint1 integer
 ---@param tint2 integer
 local function addCachedComponent(ped, index, category, hash, drawable, albedo, normal, material, palette, tint0, tint1,
-                                  tint2)
+    tint2)
   category = GetHashFromString(category)
   if not jo.cache.component.color[ped] then jo.cache.component.color[ped] = {} end
   jo.cache.component.color[ped][category] = {
@@ -792,7 +792,7 @@ function jo.component.applySkin(ped, skin)
       overlay = table.merge(default, overlay)
     end
   end
-  if jo.isModuleLoaded("pedTexture") and NetworkGetEntityIsNetworked(ped) then
+  if jo.isModuleLoaded("pedTexture", false) and NetworkGetEntityIsNetworked(ped) then
     jo.pedTexture.overwriteBodyPart(ped, "heads", skin.overlays, true)
   end
 
