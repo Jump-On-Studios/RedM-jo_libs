@@ -1,5 +1,7 @@
 jo.framework = {}
 
+jo.require("string")
+
 local supportedFrameworks = {
   {
     id = "VORP",
