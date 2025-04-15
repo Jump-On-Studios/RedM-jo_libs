@@ -76,7 +76,6 @@ end
 
 local function isModuleLoaded(name, needLocal)
   needLocal = GetValue(needLocal, true)
-  print(name, needLocal, moduleLoaded[name], moduleInLoading[name])
   if needLocal and not (moduleLoaded[name] == "local") then return false end
   if moduleInLoading[name] then return true end
   if moduleLoaded[name] then return true end
