@@ -44,11 +44,11 @@ function jo.file.load(modname)
   return result
 end
 
---- Read a file and return it if it's exist or `false`. The function accept one or two arguments. 
+--- Read a file and return it if it's exist or `false`. The function accept one or two arguments.
 --- One argument: the filepath
 --- Two argument: the resource AND the filepath
 ---@param ... string (path of the file)
----@return file|boolean, resource|string, modpath|string
+---@return file|boolean,resource|string,modpath|string
 function jo.file.read(...)
   local args = { ... }
   local resource, modpath
