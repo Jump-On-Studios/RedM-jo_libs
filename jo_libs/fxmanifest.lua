@@ -12,7 +12,14 @@ lua54 "yes"
 
 files {
 	"init.lua",
-	"modules/**.lua",
+	--All client side files
+	"modules/**/*shared.lua",
+	"modules/**/*client.lua",
+	"modules/component/clothesList.lua",
+	"modules/component/horseComponents.lua",
+	"modules/game-events/data.lua",
+	"modules/raw-keys/vk_azerty.lua",
+	"modules/raw-keys/vk_qwerty.lua",
 	--OLD MENU
 	"html/dist/**.html",
 	"html/dist/**.js",
