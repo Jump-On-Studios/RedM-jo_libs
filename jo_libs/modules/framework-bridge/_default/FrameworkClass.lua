@@ -1,70 +1,83 @@
--------------
+-- -----------
 -- FRAMEWORK CLASS
--------------
+-- -----------
 
--------------
+-- -----------
 -- INVENTORY
--------------
+-- -----------
 
----@param source integer source ID
----@param item string name of the item
----@param amount integer amount to use
----@param meta table metadata of the item
----@param remove boolean if removed after used
+--- Checks if a player has the required quantity of a specific item in their inventory and optionally removes it
+---@param source integer (The source ID of the player)
+---@param item string (The name of the item need to use)
+---@param amount integer (The quantity of the item)
+---@param meta? table (The metadata of the item)
+---@param remove? boolean (If the item has to be removed <br> default:`false`)
+---@return boolean (Return `true` if the player has enough quantity of the item)
 function jo.framework:canUseItem(source, item, amount, meta, remove)
   return false
 end
 
----@param item string name of the item
----@param callback function function fired when the item is used
----@param closeAfterUsed boolean if inventory needs to be closes
----@return boolean
+--- Registers an item as usable and attaches a callback function that executes when the item is used
+---@param item string (The name of the item)
+---@param closeAfterUsed? boolean (If the inventory needs to be closed after using the item <br> default:`true`)
+---@param callback function (The function fired after use the item <br> 1st argument: source <br> 2nd argument: metadata of the item)
 function jo.framework:registerUseItem(item, closeAfterUsed, callback)
   return false
 end
 
----@param source integer source ID
----@param item string name of the item
----@param quantity integer quantity
----@param meta table metadata of the item
----@return boolean
+--- Adds an item to a player's inventory with optional metadata
+---@param source integer (The source ID of the player)
+---@param item string (The name of the item)
+---@param quantity integer (The amount of the item to give)
+---@param meta? table (The metadata of the item)
+---@return boolean (Return `true` if the item is successfully given)
 function jo.framework:giveItem(source, item, quantity, meta)
   return false
 end
 
----@param invName string unique ID of the inventory
----@param name string name of the inventory
----@param invConfig table Configuration of the inventory
----@return boolean
+--- Creates a custom inventory with configurable slots, weight limits, and item restrictions
+---@param invName string (Unique id of the inventory)
+---@param name string (Label of the inventory)
+---@param invConfig table (Configuration of the inventory)
+--- invConfig.maxSlots integer (Max slot of the inventory)
+--- invConfig.maxWeight float (Max weight of the inventory)
+--- invConfig.acceptWeapons? boolean (Whether the inventory accepts weapons)
+--- invConfig.shared? boolean (If the inventory is shared between players)
+--- invConfig.ignoreStackLimit? boolean (If the inventory can overcoming stack limits)
+--- invConfig.whitelist? table (Restrict the list of items that can be put in the inventory)
+--- invConfig.whitelist[..].item string (Name of the whitelisted item)
+--- invConfig.whitelist[..].limit integer (Stack limit of this item)
 function jo.framework:createInventory(invName, name, invConfig)
   return false
 end
 
----@param invName string unique ID of the inventory
----@return boolean
+--- Removes an inventory from the *server cache*, useful for reloading inventory data from the database
+---@param invName string (Unique id of the inventory)
 function jo.framework:removeInventory(invName)
   return false
 end
 
----@param source integer sourceIdentifier
----@param invName string name of the inventory
----@return boolean
+--- Opens a specific inventory
+---@param source integer (The source ID of the player)
+---@param invName string (The unique ID of the inventory)
 function jo.framework:openInventory(source, invName)
   return false
 end
 
----@param invId string unique ID of the inventory
----@param item string name of the item
----@param quantity integer quantity
----@param metadata table metadata of the item
----@param needWait? boolean wait after the adding
----@return boolean
+--- Adds a specific item to a custom inventory with optional metadata and wait parameter
+---@param source integer (The source ID of the player)
+---@param invId string (The unique ID of the inventory)
+---@param item string (The name of the item)
+---@param quantity integer (The quantity of the item)
+---@param metadata? table (The metadata of the item)
+---@param needWait? boolean (If need to wait after the SQL insertion <br> default:`false`)
 function jo.framework:addItemInInventory(source, invId, item, quantity, metadata, needWait)
   return false
 end
 
----@param invId string name of the inventory
----@return table
+--- Retrieves all items from a specific inventory with their quantities and metadata
+---@param invId string (The unique ID of the inventory)
+---@return table (Return the list of items with structure : <br> `item.amount` : *integer* - The amount of the item<br> `item.id` : *integer* - The id of the item<br>`item.item` : *string* - The name of the item<br>`item.metadata` : *table* - The metadata of the item<br>)
 function jo.framework:getItemsFromInventory(invId)
   --[[ item structure
   {
@@ -76,17 +89,18 @@ function jo.framework:getItemsFromInventory(invId)
   return {}
 end
 
--------------
+-- -----------
 -- END INVENTORY
--------------
+-- -----------
 
--------------
+-- -----------
 -- SKIN & CLOTHES
--------------
+-- -----------
 
 ---A function to standardize the skin data
 ---@param skin table skin data with framework keys
 ---@return table skin skin data with standard keys
+---@autodoc:config ignore:true
 function jo.framework:standardizeSkinInternal(skin)
   local standard = {}
 
@@ -282,6 +296,7 @@ end
 ---A function to reversed the skin data
 ---@param standard table standard skin data
 ---@return table skin framework skin data
+---@autodoc:config ignore:true
 function jo.framework:revertSkinInternal(standard)
   return standard
 end
@@ -289,6 +304,7 @@ end
 ---A function to standardize the clothes data
 ---@param clothes table standard clothes data
 ---@return table clothes framework clothes data
+---@autodoc:config ignore:true
 function jo.framework:standardizeClothesInternal(clothes)
   local standard = {
     accessories = table.extract(clothes, "Accessories"),
@@ -336,26 +352,37 @@ end
 ---A function to revert a standardize clothes table
 ---@param standard table clothes with standard keys
 ---@return table clothes clothes with framework keys
+---@autodoc:config ignore:true
 function jo.framework:revertClothesInternal(standard)
   return {}
 end
 
+---@autodoc:config ignore:true
 function jo.framework:getUserClothesInternal(source)
   return {}
 end
 
+---@autodoc:config ignore:true
 function jo.framework:updateUserClothesInternal(source, clothes)
   return {}
 end
 
+---@autodoc:config ignore:true
 function jo.framework:getUserSkinInternal(source)
   return {}
 end
 
+---@autodoc:config ignore:true
 function jo.framework:updateUserSkinInternal(source, skin, overwrite)
   return {}
 end
 
+--- Creates a new player in the framework with specified data and spawn information
+---@param source integer (The source ID of the player)
+---@param data table (The user data to create)
+---@param spawnCoordinate vector (The spawn location for the player)
+---@param isDead? boolean (Whether the player starts as dead)
+---@return table (Return the newly created user data)
 function jo.framework:createUser(source, data, spawnCoordinate, isDead)
   return {}
 end

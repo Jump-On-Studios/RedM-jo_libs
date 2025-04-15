@@ -1,16 +1,18 @@
 jo.hook = {}
 
 if not table.filter then
-  jo.require('table')
+  jo.require("table")
 end
 
 -------------
 -- Actions
 -------------
 local listActions = {}
----@param name string the name of the action
----@param fct function the function called
----@param priority? integer the priority of the action
+
+--- Register a function to an action hook
+---@param name string (The name of the action)
+---@param fct function (The function called)
+---@param priority? integer (The priority of the action)
 function jo.hook.registerAction(name, fct, priority)
   if not listActions[name] then listActions[name] = {} end
   local pos = 1
@@ -28,10 +30,12 @@ function jo.hook.registerAction(name, fct, priority)
     resource = GetInvokingResource() or GetCurrentResourceName()
   })
 end
-exports('registerAction', jo.hook.registerAction)
 
----@param name string the name of the action
----@param ...? any
+exports("registerAction", jo.hook.registerAction)
+
+--- Calls the functions that have been added to an action hook
+---@param name string (The name of the action)
+---@param ...? any (Additional arguments which are passed on the functions hooked.)
 function jo.hook.doActions(name, ...)
   if not listActions[name] then return end
   for _, action in ipairs(listActions[name]) do
@@ -43,9 +47,11 @@ end
 -- Filters
 -------------
 local listFilters = {}
----@param name string the name of the filter
----@param fct function the function called
----@param priority? integer the priority of the filter
+
+--- Register a function to a filter hook
+---@param name string (The name of the filter)
+---@param fct function (The function called)
+---@param priority? integer (The priority of the filter)
 function jo.hook.registerFilter(name, fct, priority)
   if not listFilters[name] then listFilters[name] = {} end
   local pos = 1
@@ -64,9 +70,10 @@ function jo.hook.registerFilter(name, fct, priority)
   })
 end
 
----@param name string the name of the filter
----@param value any the value to filter
----@param ...? any
+--- Calls the functions that have been added to a filter hook
+---@param name string (The name of the filter)
+---@param value any (The value to filter)
+---@param ...? any (Additional arguments which are passed on the functions hooked.)
 function jo.hook.applyFilters(name, value, ...)
   if not listFilters[name] then return value end
   for _, filter in ipairs(listFilters[name]) do
@@ -79,7 +86,7 @@ function jo.hook.applyFilters(name, value, ...)
 end
 
 --------------
--- DEPRECIATED
+-- DEPRECATED
 -------------
 function jo.hook.RegisterFilter(...)
   jo.hook.registerFilter(...)
@@ -88,6 +95,7 @@ function jo.hook.RegisterFilter(...)
     oprint('RegisterFilter with "R" in uppercase is depreciated. Use registerFilter with "r" in lowercase !')
   end)
 end
+
 function jo.hook.RegisterAction(...)
   jo.hook.registerAction(...)
   CreateThread(function()
@@ -99,7 +107,7 @@ end
 -------------
 -- CLEAR Filters & Actions when script stopped
 -------------
-AddEventHandler('onResourceStop', function(resourceName)
+AddEventHandler("onResourceStop", function(resourceName)
   local currentResource = GetCurrentResourceName()
 
   if currentResource == resourceName then return end
@@ -118,7 +126,7 @@ AddEventHandler('onResourceStop', function(resourceName)
   end
 
   if removed > 0 then
-    print(('%d filters removed before stop %s in %s'):format(removed, resourceName, GetCurrentResourceName()))
+    print(("%d filters removed before stop %s in %s"):format(removed, resourceName, GetCurrentResourceName()))
   end
 
   removed = 0
@@ -135,7 +143,6 @@ AddEventHandler('onResourceStop', function(resourceName)
   end
 
   if removed > 0 then
-    print(('%d actions removed before stop %s in %s'):format(removed, resourceName, GetCurrentResourceName()))
+    print(("%d actions removed before stop %s in %s"):format(removed, resourceName, GetCurrentResourceName()))
   end
 end)
-

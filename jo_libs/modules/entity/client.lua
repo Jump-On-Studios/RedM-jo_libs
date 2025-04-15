@@ -10,7 +10,8 @@ jo.stopped(function()
 	end
 end)
 
----@param entity integer
+--- Request control of an entity and wait until it's granted
+---@param entity integer (The entity ID to request control of)
 function jo.entity.requestControl(entity)
 	while not NetworkHasControlOfEntity(entity) do
 		NetworkRequestControlOfEntity(entity)
@@ -18,15 +19,17 @@ function jo.entity.requestControl(entity)
 	end
 end
 
----@param entity integer
+--- Delete an entity if it exists
+---@param entity integer (The entity ID to delete)
 function jo.entity.delete(entity)
 	if not DoesEntityExist(entity) then return end
 	DeleteEntity(entity)
 	Entities[entity] = nil
 end
 
----@param entity integer
----@param duration? integer (optional) integer fade in ms. default (1000)
+--- Fade out an entity and then delete it
+---@param entity integer (The entity ID to fade and delete)
+---@param duration? integer (Duration of the fade effect in ms <br> default:1000)
 function jo.entity.fadeAndDelete(entity, duration)
 	duration = duration or 1000
 	if not DoesEntityExist(entity) then return end
@@ -36,8 +39,9 @@ function jo.entity.fadeAndDelete(entity, duration)
 	jo.entity.delete(entity)
 end
 
----@param entity integer
----@param duration? integer duration in ms. default (1000)
+--- Fade in an entity from transparent to fully visible
+---@param entity integer (The entity ID to fade in)
+---@param duration? integer (Duration of the fade effect in ms <br> default:1000)
 function jo.entity.fadeIn(entity, duration)
 	duration = duration or 1000
 	if not DoesEntityExist(entity) then return end
@@ -59,8 +63,9 @@ function jo.entity.fadeIn(entity, duration)
 	end
 end
 
----@param entity integer
----@param duration? integer duration in ms. default (1000)
+--- Fade out an entity from visible to transparent
+---@param entity integer (The entity ID to fade out)
+---@param duration? integer (Duration of the fade effect in ms - default:1000)
 function jo.entity.fadeOut(entity, duration)
 	duration = duration or 1000
 	local startTime = GetGameTimer()
@@ -90,11 +95,13 @@ function jo.entity.fadeOut(entity, duration)
 	end
 end
 
----@param model string
----@param coords vec3
----@param heading float
----@param networked boolean
----@param fadeDuration integer duration of the fade in ms
+--- Create a new entity at specified location
+---@param model string (The model name of the entity to create)
+---@param coords vector3 (The coordinates where the entity will be created)
+---@param heading number (The heading direction for the entity)
+---@param networked? boolean (Whether the entity should be networked <br> default: `false`)
+---@param fadeDuration? integer (Duration of the fade-in effect in ms <br> default: `0`)
+---@return integer (The created entity ID)
 function jo.entity.create(model, coords, heading, networked, fadeDuration)
 	networked = networked or false
 	fadeDuration = fadeDuration or 0
@@ -160,8 +167,8 @@ function ScreenPositionToCameraRay(screenX, screenY)
 		q * glm_up,
 		glm_rad(camFov),
 		screenRatio,
-		0.10000,       -- GetFinalRenderedCamNearClip(),
-		1000.0,        -- GetFinalRenderedCamFarClip(),
+		0.10000,   -- GetFinalRenderedCamNearClip(),
+		1000.0,    -- GetFinalRenderedCamFarClip(),
 		screenX * 2 - 1, -- scale mouse coordinates from [0, 1] to [-1, 1]
 		screenY * 2 - 1
 	)
@@ -181,6 +188,11 @@ local function screenToWorld(distance, flags, toIgnore)
 	return hit, endCoords, surfaceNormal, entityHit
 end
 
+--- Create an entity that follows the mouse cursor for placement
+---@param model string (The model name of the entity to create)
+---@param keepEntity? boolean (Whether to keep the entity after placement <br> default:true)
+---@param networked? boolean (Whether the entity should be networked <br> default:false)
+---@return integer,vector3,number (The created entity ID, final position, final heading)
 function jo.entity.createWithMouse(model, keepEntity, networked)
 	networked = networked or false
 	if keepEntity == nil then keepEntity = true end

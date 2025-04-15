@@ -1,9 +1,9 @@
 jo.require("table")
 jo.require("string")
 
--------------
+-- -----------
 -- LOAD FRAMEWORK
--------------
+-- -----------
 
 
 local UserClass = {}
@@ -14,18 +14,19 @@ if userFile then
 end
 jo.framework:loadFile("FrameworkClass")
 
--------------
+-- -----------
 -- END LOAD FRAMEWORK
--------------
+-- -----------
 
--------------
+-- -----------
 -- POWER UP FUNCTIONS
--------------
+-- -----------
 
----@param price number price
----@param moneyType integer 0: money, 1: gold, 2: rol
----@param removeIfCan? boolean remove the move if the player has enough (default: false)
----@return boolean removed `true` if the money is removed
+--- Checks if a player has sufficient funds of a specified currency type
+---@param price number (The amount of money the player needs to have)
+---@param moneyType? integer (`0`: dollar, `1`: gold, `2`: rol <br> default:`1`)
+---@param removeIfCan? boolean (Remove the money if the player has enough <br> default:`false`)
+---@return boolean (Return `true` if the player has more money than the amount)
 function UserClass:canBuy(price, moneyType, removeIfCan)
   if not price then
     return false, eprint("Price value is nil")
@@ -43,86 +44,101 @@ function UserClass:canBuy(price, moneyType, removeIfCan)
   return hasEnough
 end
 
----@param amount number amount of gold
+--- Adds gold to the player's account
+---@param amount number (The amount of gold to add)
 function UserClass:giveGold(amount)
   return self:addMoney(amount, 1)
 end
 
----@return string name the framework name
+--- Returns the name of the current active framework being used
+---@return string (Return the name of the current framework : <br> `"VORP"` or `"RedEM"` or `"RedEM2023"` or `"qbr"` or `"rsg"` or `"qr"` or `"rpx"`)
 function jo.framework:get()
   return jo.framework:getFrameworkDetected().id
 end
 
----@param name string Name of the framework
----@return boolean rightName `true` if it's the right framework
+--- Compares the current framework with a specified framework name
+---@param name string (The name of the framework to check against <br> Supported frameworks : <br> `"VORP"` or `"RedEM"` or `"RedEM2023"` or `"qbr"` or `"rsg"` or `"qr"` or `"rpx"`)
+---@return boolean (Return `true` if the current framework matches the name)
 function jo.framework:is(name)
   return self:get() == name
 end
 
----@param source integer source ID
----@return table UserClass
+--- Retrieves a player's full UserClass object containing all player data and methods
+---@param source integer (The source ID of the player)
+---@return UserClass (Return a User class object containing player data and methods)
 function jo.framework:getUser(source)
   local user = UserClass:get(source)
   return user
 end
 
----@param source integer source ID
----@return table identifiers
+--- Retrieves all identifiers associated with a player <br> Shortcut for [UserClass:getIdentifiers()](./user#userclass-getidentifiers) method
+---@param source integer (The source ID of the player)
+---@return table (Return the player's identifiers <br> `identifiers.identifier` - Unique identifier of the player <br> `identifiers.charid` - Unique id of the player)
 function jo.framework:getUserIdentifiers(source)
   local user = UserClass:get(source)
   return user:getIdentifiers()
 end
 
----@param source integer source ID
----@return string job Player's job
+--- Returns the current job assigned to a player
+---@param source integer (The source ID of the player)
+---@return string (Return the job name of the player)
 function jo.framework:getJob(source)
   local user = UserClass:get(source)
   return user:getJob()
 end
 
----@param source integer source ID
----@return string name Player's name
+--- Returns the roleplay name (first and last name) of the player
+---@param source integer (The source ID of the player)
+---@return string (Return the formatted first and last name of the player)
 function jo.framework:getRPName(source)
   local user = UserClass:get(source)
   return user:getRPName()
 end
 
----@param source integer
----@param amount number
----@param moneyType? integer 0: money, 1: gold, 2: rol (default: 0)
----@param removeIfCan? boolean remove the move if the player has enough (default: false)
----@return boolean removed `true` if the money is removed
+--- Checks if a player has sufficient funds of a specified currency type
+---@param source integer (The source ID of the player)
+---@param amount number (The amount of money the player needs to have)
+---@param moneyType? integer (`0`: dollar, `1`: gold, `2`: rol <br> default:`1`)
+---@param removeIfCan? boolean (Remove the money if the player has enough <br> default:`false`)
+---@return boolean (Return `true` if the player has more money than the amount)
 function jo.framework:canUserBuy(source, amount, moneyType, removeIfCan)
   local user = UserClass:get(source)
   return user:canBuy(amount, moneyType, removeIfCan)
 end
 
----@param source integer
----@param amount number
----@param moneyType? integer 0: money, 1: gold, 2: rol (default: 0)
+--- Adds money to a player
+---@param source integer (The source ID of the player)
+---@param amount number (The amount of money to add)
+---@param moneyType? integer (`0`: dollar, `1`: gold, `2`: rol <br> default:`0`)
+---@return boolean (Return `true` if the money is successfully added)
 function jo.framework:addMoney(source, amount, moneyType)
   local user = UserClass:get(source)
   return user:addMoney(amount, moneyType)
 end
 
----@param source integer
----@param amount number
----@param moneyType? integer 0: money, 1: gold, 2: rol (default: 0)
+--- Removes money from a player's account
+---@param source integer (The source ID of the player)
+---@param amount number (The amount of money to remove)
+---@param moneyType? integer (`0`: dollar, `1`: gold, `2`: rol <br> default:`0`)
+---@return boolean (Return `true` if the money is successfully removed)
 function jo.framework:removeMoney(source, amount, moneyType)
   local user = UserClass:get(source)
   return user:removeMoney(amount, moneyType)
 end
 
----@param source integer source ID
----@param item string name of the item
----@param quantity integer quantity
----@param meta table metadata of the item
----@return boolean
+--- Removes an item from a player's inventory if they have enough quantity
+---@param source integer (The source ID of the player)
+---@param item string (The name of the item to remove)
+---@param quantity integer (The quantity of the item to remove)
+---@param meta? table (The metadata of the item)
+---@return boolean (Return `true` if the item is successfully removed)
 function jo.framework:removeItem(source, item, quantity, meta)
   return self:canUseItem(source, item, quantity, meta, true)
 end
 
-
+--- Converts a value to a percentage (between 0-1) whether input is in percentage or decimal form
+---@param value number (The value to convert to percentage)
+---@return number (Return the value as a decimal between -1 and 1)
 function jo.framework:convertToPercent(value)
   value = tonumber(value)
   if not value then return 0 end
@@ -193,7 +209,9 @@ local function clearClothesTable(clothesList)
   return clothesList
 end
 
-
+--- Extracts the component hash from a data table if it's the only property
+---@param data table (The component data to process)
+---@return any (Return the hash if it's the only property, otherwise return the original data)
 function jo.framework:extractComponentHashIfAlone(data)
   if type(data) ~= "table" then return data end
   if table.count(data) > 1 then return data end
@@ -201,7 +219,9 @@ function jo.framework:extractComponentHashIfAlone(data)
   return data.hash
 end
 
-
+--- Converts framework-specific clothing data to a standardized format
+---@param clothes table (The framework-specific clothes data)
+---@return table (Return clothes data with standardized keys and structure)
 function jo.framework:standardizeClothes(clothes)
   clothes = table.copy(clothes)
   local standard = self:standardizeClothesInternal(clothes)
@@ -218,6 +238,9 @@ function jo.framework:standardizeClothes(clothes)
   return standard
 end
 
+--- Converts standardized clothing data back to framework-specific format
+---@param standard table (The standardized clothes data)
+---@return table (Return clothes data with framework-specific keys)
 function jo.framework:revertClothes(standard)
   standard = table.copy(standard)
   local clothes = self:revertClothesInternal(standard)
@@ -232,6 +255,9 @@ function jo.framework:revertClothes(standard)
   return clothes
 end
 
+--- Converts framework-specific skin data to a standardized format
+---@param skin table (The framework-specific skin data)
+---@return table (Return skin data with standardized keys for components, overlays, and expressions)
 function jo.framework:standardizeSkin(skin)
   skin = table.copy(skin)
   local standard = self:standardizeSkinInternal(skin)
@@ -266,6 +292,9 @@ function jo.framework:standardizeSkin(skin)
   return standard
 end
 
+--- Converts standardized skin data back to framework-specific format
+---@param standard table (The standardized skin data)
+---@return table (Return skin data with framework-specific keys)
 function jo.framework:revertSkin(standard)
   standard = table.copy(standard)
   local skin = self:revertSkinInternal(standard)
@@ -296,6 +325,13 @@ function jo.framework:revertSkin(standard)
   return skin
 end
 
+--- Save new clothes.
+--- The function has two ways to work:
+--- - With 2 arguments to save multiple clothes
+--- - With 3 arguments to save one piece of clothing
+---@param source integer (The source ID of the player)
+---@param _clothes table (The list of clothes to apply or the category name)
+---@param value? table (The clothing data if updating a single category)
 function jo.framework:updateUserClothes(source, _clothes, value)
   if value then
     _clothes = { [_clothes] = formatComponentData(value) }
@@ -304,12 +340,18 @@ function jo.framework:updateUserClothes(source, _clothes, value)
   self:updateUserClothesInternal(source, clothes)
 end
 
+--- Retrieves a player's clothing data with standardized category names
+---@param source integer (The source ID of the player)
+---@return table (Return the list of clothes with standardized categories and properties)
 function jo.framework:getUserClothes(source)
   local clothes = self:getUserClothesInternal(source)
   if table.isEmpty(clothes) then return {} end
   return self:standardizeClothes(clothes)
 end
 
+--- Retrieves a player's skin data with standardized properties and formatting
+---@param source integer (The source ID of the player)
+---@return table (Return the skin data)
 function jo.framework:getUserSkin(source)
   local skin = self:getUserSkinInternal(source)
 
@@ -325,6 +367,15 @@ function jo.framework:getUserSkin(source)
   return skinStandardized
 end
 
+--- Save new skin values.
+--- The function has two ways to work:
+--- - With 3 arguments to save multiple skin data
+--- - With 4 arguments to save only one skin data
+---@param source integer (The source ID of the player)
+---@param skinData table (The list of skin data with category for key and skin data for value)
+---@param category string (The category of the skin data)
+---@param data table (The skin data)
+---@param overwrite? boolean (If `true`, the new value overwrites the previous skin. Else, it's merged)
 function jo.framework:updateUserSkin(...)
   local args = { ... }
   local source, _skin, overwrite = args[1], {}, false
@@ -341,13 +392,13 @@ function jo.framework:updateUserSkin(...)
   self:updateUserSkinInternal(source, skin, overwrite)
 end
 
--------------
+-- -----------
 -- END POWER UP FUNCTIONS
--------------
+-- -----------
 
--------------
+-- -----------
 -- LOAD CUSTOM FUNCTIONS
--------------
+-- -----------
 userFile = jo.framework:loadFile("_custom", "UserClass")
 if userFile then
   table.merge(UserClass, userClass)
@@ -358,16 +409,16 @@ jo.framework:loadFile("_custom", "FrameworkClass")
 jo.framework:loadFile("server")
 jo.framework:loadFile("_custom", "server")
 
--------------
+-- -----------
 -- END LOAD CUSTOM FUNCTIONS
--------------
+-- -----------
 
--------------
+-- -----------
 -- INIT jo VALUES
--------------
+-- -----------
 
 jo.framework.UserClass = UserClass
 
--------------
+-- -----------
 -- END INIT jo VALUES
--------------
+-- -----------

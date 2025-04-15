@@ -1,7 +1,7 @@
 jo.date = {}
 
-
----@return integer time the current time in ms
+--- A function to get the current time
+---@return integer (The current time in ms)
 function jo.date.now()
   if IsDuplicityVersion() then
     return os.time() * 1000
@@ -9,6 +9,14 @@ function jo.date.now()
   return GetGameTimer()
 end
 
+--- A function to convert a time in ms to a readable string
+--- @param ms integer (The duration in ms)
+--- @param lang? table (The list of translatable strings <br> Use `false` to disable)
+--- lang.ms string ("ms")
+--- lang.s string ("s")
+--- lang.h string ("h")
+--- lang.d string ("d")
+--- lang.s string ("s")
 function jo.date.convertMsToInterval(ms, lang)
   lang = lang or {
     ms = "ms",

@@ -1,5 +1,7 @@
 jo.require("table")
 
+-- todo document this file
+
 function log(...)
   local args = { ... }
   for i = 1, #args do

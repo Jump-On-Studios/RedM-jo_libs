@@ -17,8 +17,9 @@ local function convertModName(modname)
   return resource, modpath
 end
 
----@param modname string file location
----@return any
+--- Loads and executes a Lua file
+---@param modname string (The file location)
+---@return any (The result of the executed file, or `false` if there was an error)
 function jo.file.load(modname)
   if type(modname) ~= "string" then return end
   dprint(modname, "~orange~: Start loading")
@@ -43,6 +44,11 @@ function jo.file.load(modname)
   return result
 end
 
+--- Read a file and return it if it's exist or `false`. The function accept one or two arguments. 
+--- One argument: the filepath
+--- Two argument: the resource AND the filepath
+---@param ... string (path of the file)
+---@return file|boolean, resource|string, modpath|string
 function jo.file.read(...)
   local args = { ... }
   local resource, modpath
@@ -56,6 +62,9 @@ function jo.file.read(...)
   return file or false, resource, modpath
 end
 
+--- Checks if a file exists
+---@param modname string (The file location)
+---@return boolean (Returns `true` if the file exists, `false` otherwise)
 function jo.file.isExist(...)
   return jo.file.read(...) and true or false
 end
