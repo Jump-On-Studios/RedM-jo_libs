@@ -1059,7 +1059,7 @@ function jo.framework:updateUserClothesInternal(source, clothes)
   local user = self.UserClass:get(source)
   local tints = UnJson(user.data.comptTints)
   for category, value in pairs(clothes) do
-    if type(value) == "table" and value.hash ~= 0 then
+    if type(value) == "table" and GetValue(value?.hash, 0) ~= 0 then
       local tint = {}
       tint.state = value.state
       if value.palette and value.palette ~= 0 then
