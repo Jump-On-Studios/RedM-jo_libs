@@ -9,7 +9,7 @@ local function noFunction() end
 local LoadResourceFile = LoadResourceFile
 local context = IsDuplicityVersion() and "server" or "client"
 local moduleInLoading = {}
-local moduleLocal = {}
+local moduleLoaded = {}
 local globalModuleLoaded = {}
 
 local alias = {
@@ -76,9 +76,9 @@ end
 
 local function isModuleLoaded(name, needLocal)
   needLocal = GetValue(needLocal, true)
-  if needLocal and not moduleLocal[name] then return false end
+  if needLocal and not (moduleLoaded[name] == "local") then return false end
   if moduleInLoading[name] then return true end
-  if moduleLocal[name] then return true end
+  if moduleLoaded[name] then return true end
   return false
 end
 
@@ -120,10 +120,9 @@ local function loadModule(name, needLocal)
 
   moduleInLoading[folder] = true
   moduleInLoading[name] = true
-  if needLocal then
-    moduleLocal[folder] = true
-    moduleLocal[name] = true
-  end
+  moduleLoaded[folder] = needLocal and "local" or "global"
+  moduleLoaded[name] = needLocal and "local" or "global"
+
 
   loadGlobalModule(name)
 

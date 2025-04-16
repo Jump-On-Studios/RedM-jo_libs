@@ -5,13 +5,16 @@ jo.framework:loadFile("_custom", "g_client")
 
 RegisterNetEvent("jo_libs:client:applySkinAndClothes", function(ped, skin, clothes)
   ped = ped or PlayerPedId()
-  if not (jo.isModuleLoaded("component")) then
-    return dprint("NO NEED skin")
+  if not (jo.isModuleLoaded("component", false)) then
+    return dprint("NO NEED skin. Component module is not")
   end
+  print("WAITS")
   jo.component.waitPedLoaded(ped)
+  print("DELAY")
   jo.timeout.delay("jo_libs:client:applySkinAndClothes:" .. ped, 100, function()
     jo.hook.doActions("jo_libs:applySkinAndClothes:before", ped, skin, clothes)
 
+    log("GOOOOO")
     jo.component.applySkin(ped, skin)
     jo.component.applyComponents(ped, clothes)
 
@@ -22,7 +25,7 @@ RegisterNetEvent("jo_libs:client:applySkinAndClothes", function(ped, skin, cloth
 end)
 
 RegisterNetEvent("jo_libs:client:applySkin", function(ped, skin)
-  if not (jo.isModuleLoaded("component")) then
+  if not (jo.isModuleLoaded("component", false)) then
     return
   end
   ped = ped or PlayerPedId()
@@ -36,7 +39,7 @@ RegisterNetEvent("jo_libs:client:applySkin", function(ped, skin)
 end)
 
 RegisterNetEvent("jo_libs:client:applyClothes", function(ped, clothes)
-  if not (jo.isModuleLoaded("component")) then
+  if not (jo.isModuleLoaded("component", false)) then
     return
   end
   ped = ped or PlayerPedId()
