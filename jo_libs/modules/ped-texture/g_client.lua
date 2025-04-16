@@ -450,6 +450,7 @@ local function updateAllPedTexture(ped, category)
       currentUpdate += 1
       if currentUpdate > maxForceUpdate then return end
       log("redo updateAllPedTexture")
+      Wait(200)
       return updateAllPedTexture(ped, category)
     end
 
@@ -477,6 +478,7 @@ local function updateAllPedTexture(ped, category)
       currentUpdate += 1
       if currentUpdate > maxForceUpdate then return end
       log("redo updateAllPedTexture")
+      Wait(200)
       return updateAllPedTexture(ped, category)
     end
 
