@@ -3,9 +3,12 @@ jo.pedTexture = {}
 jo.require("utils")
 jo.require("table")
 jo.require("timeout")
+jo.require("waiter")
 
 local pedsTextures = {}
 local delays = {}
+local maxForceUpdate = 5
+local currentUpdate = 0
 
 local function AddTextureLayer(...) return Citizen.InvokeNative(0x86BB5FF45F193A02, ...) end
 local function ApplyTextureOnPed(...) return Citizen.InvokeNative(0x0B46E25761519058, ...) end
@@ -421,6 +424,7 @@ end
 
 local function updateAllPedTexture(ped, category)
   delays["updatePedTexture" .. ped] = jo.timeout.delay("updatePedTexture" .. ped, 200, function()
+    log("updateAllPedTexture", currentUpdate)
     dprint("REFRESH Ped Texture", json.encode(pedsTextures[ped]))
     if pedsTextures[ped][category].textureId ~= nil then
       ClearPedTexture(pedsTextures[ped][category].textureId)
@@ -437,9 +441,20 @@ local function updateAllPedTexture(ped, category)
     if (textureId == -1) then
       return print("IMPOSSIBLE TO APPLY THE TEXTURES")
     end
-    log("textureId", textureId)
-    pedsTextures[ped][category].textureId = textureId
+    log("wait texture Valid", textureId)
+    local isValid = jo.utils.waiter(function() return not IsTextureValid(textureId) end)
+    log("resultWaiter", resultWaiter, IsTextureValid(textureId))
 
+    if not isValid then
+      log("texture not valid")
+      ReleaseTexture(textureId)
+      currentUpdate += 1
+      if currentUpdate > maxForceUpdate then return end
+      log("redo updateAllPedTexture")
+      return updateAllPedTexture(ped, category)
+    end
+
+    pedsTextures[ped][category].textureId = textureId
     for c = 1, #jo.pedTexture.ordersToApply[category] do
       local name = jo.pedTexture.ordersToApply[category][c]
       local layer = pedsTextures[ped][category].layers[name]
@@ -453,28 +468,20 @@ local function updateAllPedTexture(ped, category)
         applyLayer(textureId, name, layer)
       end
     end
-    log("wait texture Valid")
-    jo.utils.waiter(function() return not IsTextureValid(textureId) end)
-    log("texture valid")
 
-    if IsTextureValid(textureId) then
-      log("Texture is valid => Apply")
-      ApplyTextureOnPed(ped, GetHashFromString(category), textureId)
-      log("refresh")
-      UpdatePedTexture(textureId)
-      _updatePedVariation(ped)
-      Entity(ped).state:set("jo_pedTexture", pedsTextures[ped])
-      CreateThread(function()
-        log("New Thread for release")
-        local textureId = textureId
-        jo.utils.waiter(function() return IsPedReadyToRender(ped) end)
-        log("texture released")
-        ReleaseTexture(textureId)
-      end)
-    else
-      log("texture not valid")
+    log("Texture is valid => Apply")
+    ApplyTextureOnPed(ped, GetHashFromString(category), textureId)
+    log("refresh")
+    UpdatePedTexture(textureId)
+    _updatePedVariation(ped)
+    Entity(ped).state:set("jo_pedTexture", pedsTextures[ped])
+    CreateThread(function()
+      log("New Thread for release")
+      local textureId = textureId
+      jo.utils.waiter(function() return IsPedReadyToRender(ped) end)
+      log("texture released")
       ReleaseTexture(textureId)
-    end
+    end)
   end)
 end
 
@@ -523,7 +530,7 @@ function jo.pedTexture.apply(ped, layerName, _data)
   end
 
   log("=>", pedsTextures[ped][category].layers[layerName])
-
+  currentUpdate = 1
   updateAllPedTexture(ped, category)
 end
 
