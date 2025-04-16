@@ -31,10 +31,8 @@ local function SetTextureLayerSheetGridIndex(...) return Citizen.InvokeNative(0x
 local function SetTextureLayerTint(...) return Citizen.InvokeNative(0x2DF59FFE6FFD6044, ...) end
 local function UpdatePedTexture(...) return Citizen.InvokeNative(0x92DAABA2C1C10B0E, ...) end
 local function N_0x704C908E9C405136(...) return Citizen.InvokeNative(0x704C908E9C405136, ...) end
-local function UpdatePedVariation(ped)
-  return Citizen.InvokeNative(0xCC8CA3E88256E58F, ped, false, true, true, true,
-    false)
-end
+local function UpdatePedVariation(ped) return Citizen.InvokeNative(0xCC8CA3E88256E58F, ped, false, true, true, true, false) end
+local CreateThreadNow = Citizen.CreateThreadNow
 local function _updatePedVariation(ped)
   N_0x704C908E9C405136(ped)
   return UpdatePedVariation(ped)
@@ -423,6 +421,7 @@ local function applyLayer(textureId, name, layer)
 end
 
 local function updateAllPedTexture(ped, category)
+  jo.utils.waiter(function() return IsPedReadyToRender(ped) end)
   delays["updatePedTexture" .. ped] = jo.timeout.delay("updatePedTexture" .. ped, 200, function()
     log("updateAllPedTexture", currentUpdate)
     dprint("REFRESH Ped Texture", json.encode(pedsTextures[ped]))
@@ -443,7 +442,7 @@ local function updateAllPedTexture(ped, category)
     end
     log("wait texture Valid", textureId)
     local isValid = jo.utils.waiter(function() return not IsTextureValid(textureId) end)
-    log("resultWaiter", resultWaiter, IsTextureValid(textureId))
+    log("resultWaiter", isValid, IsTextureValid(textureId))
 
     if not isValid then
       log("texture not valid")
@@ -531,7 +530,9 @@ function jo.pedTexture.apply(ped, layerName, _data)
 
   log("=>", pedsTextures[ped][category].layers[layerName])
   currentUpdate = 1
-  updateAllPedTexture(ped, category)
+  CreateThreadNow(function()
+    updateAllPedTexture(ped, category)
+  end)
 end
 
 --- A function to remove a texture
