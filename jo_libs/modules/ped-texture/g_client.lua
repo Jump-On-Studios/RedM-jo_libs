@@ -468,6 +468,18 @@ local function updateAllPedTexture(ped, category)
       end
     end
 
+    isValid = jo.utils.waiter(function() return not IsTextureValid(textureId) end)
+    log("resultWaiter 2", isValid, IsTextureValid(textureId))
+
+    if not isValid then
+      log("texture not valid")
+      ReleaseTexture(textureId)
+      currentUpdate += 1
+      if currentUpdate > maxForceUpdate then return end
+      log("redo updateAllPedTexture")
+      return updateAllPedTexture(ped, category)
+    end
+
     log("Texture is valid => Apply")
     ApplyTextureOnPed(ped, GetHashFromString(category), textureId)
     log("refresh")
