@@ -2,12 +2,11 @@ jo.require("framework-bridge")
 
 jo.framework:loadFile("g_client")
 jo.framework:loadFile("_custom", "g_client")
-jo.require('component')
 
 RegisterNetEvent("jo_libs:client:applySkinAndClothes", function(ped, skin, clothes)
   ped = ped or PlayerPedId()
-  if not (jo.isModuleLoaded("component")) then
-    return dprint("NO NEED skin")
+  if not (jo.isModuleLoaded("component", false)) then
+    return dprint("NO NEED skin. Component module is not")
   end
   jo.component.waitPedLoaded(ped)
   jo.timeout.delay("jo_libs:client:applySkinAndClothes:" .. ped, 100, function()
@@ -23,7 +22,7 @@ RegisterNetEvent("jo_libs:client:applySkinAndClothes", function(ped, skin, cloth
 end)
 
 RegisterNetEvent("jo_libs:client:applySkin", function(ped, skin)
-  if not (jo.isModuleLoaded("component")) then
+  if not (jo.isModuleLoaded("component", false)) then
     return
   end
   ped = ped or PlayerPedId()
@@ -37,7 +36,7 @@ RegisterNetEvent("jo_libs:client:applySkin", function(ped, skin)
 end)
 
 RegisterNetEvent("jo_libs:client:applyClothes", function(ped, clothes)
-  if not (jo.isModuleLoaded("component")) then
+  if not (jo.isModuleLoaded("component", false)) then
     return
   end
   ped = ped or PlayerPedId()
