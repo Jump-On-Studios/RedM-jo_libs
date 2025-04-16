@@ -8,13 +8,10 @@ RegisterNetEvent("jo_libs:client:applySkinAndClothes", function(ped, skin, cloth
   if not (jo.isModuleLoaded("component", false)) then
     return dprint("NO NEED skin. Component module is not")
   end
-  print("WAITS")
   jo.component.waitPedLoaded(ped)
-  print("DELAY")
   jo.timeout.delay("jo_libs:client:applySkinAndClothes:" .. ped, 100, function()
     jo.hook.doActions("jo_libs:applySkinAndClothes:before", ped, skin, clothes)
 
-    log("GOOOOO")
     jo.component.applySkin(ped, skin)
     jo.component.applyComponents(ped, clothes)
 
