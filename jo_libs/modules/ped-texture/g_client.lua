@@ -391,7 +391,6 @@ local function convertDataLayer(ped, layerName, data)
 end
 
 local function applyLayer(textureId, name, layer)
-  log("applyLayer", textureId, name, layer)
   if not layer then return end
   local albedo = GetHashFromString(layer.albedo)
   local normal = GetHashFromString(layer.normal)
@@ -408,8 +407,6 @@ local function applyLayer(textureId, name, layer)
   then
     blendType = 1
   end
-  log(textureId, albedo, normal, material, layer.blendType or blendType,
-    (layer.opacity or 1.0) * 1.0, layer.sheetGrid or 0)
   local layerIndex = AddTextureLayer(textureId, albedo, normal, material, layer.blendType or blendType,
     (layer.opacity or 1.0) * 1.0, layer.sheetGrid or 0)
   if blendType == 0 and layer.palette then
@@ -420,39 +417,48 @@ local function applyLayer(textureId, name, layer)
   SetTextureLayerAlpha(textureId, layerIndex, (layer.opacity or 1.0) * 1.0)
 end
 
+local function checkIfTextureValid(textureId)
+  if textureId == -1 then
+    return false, eprint("Impossible to get the texture", textureId)
+  end
+  local isValid = jo.utils.waiter(function() return not IsTextureValid(textureId) end)
+  if not isValid then
+    ReleaseTexture(textureId)
+    dprint("The texture is not valid", textureId)
+  end
+  return isValid
+end
+
 local function updateAllPedTexture(ped, category)
   jo.utils.waiter(function() return IsPedReadyToRender(ped) end)
   delays["updatePedTexture" .. ped] = jo.timeout.delay("updatePedTexture" .. ped, 200, function()
-    log("updateAllPedTexture", currentUpdate)
-    dprint("REFRESH Ped Texture", json.encode(pedsTextures[ped]))
+    dprint("updateAllPedTexture(), try number:", currentUpdate, json.encode(pedsTextures[ped]))
     if pedsTextures[ped][category].textureId ~= nil then
       ClearPedTexture(pedsTextures[ped][category].textureId)
-      log("texture cleared")
+      dprint("Old texture cleared")
     end
     local index = GetComponentIndexByCategory(ped, category)
-    log("index", index)
     local _, albedo, normal, material = GetMetaPedAssetGuids(ped, index)
     if albedo == 0 then
-      log("albedo = 0")
+      dprint("Impossible to get the ped albedo")
       return
     end
     local textureId = RequestTexture(albedo, normal, material)
-    if (textureId == -1) then
-      return print("IMPOSSIBLE TO APPLY THE TEXTURES")
-    end
-    log("wait texture Valid", textureId)
-    local isValid = jo.utils.waiter(function() return not IsTextureValid(textureId) end)
-    log("resultWaiter", isValid, IsTextureValid(textureId))
 
-    if not isValid then
-      log("texture not valid")
-      ReleaseTexture(textureId)
+    if not checkIfTextureValid(textureId) then
+      dprint("Ped texture ID is not valid", textureId)
       currentUpdate += 1
-      if currentUpdate > maxForceUpdate then return end
-      log("redo updateAllPedTexture")
+      if currentUpdate > maxForceUpdate then
+        dprint("Impossible to apply the ped Texture. Max try attempts", currentUpdate)
+        return
+      end
       Wait(200)
+      dprint("Restart the updateAllPedTexture() function")
       return updateAllPedTexture(ped, category)
     end
+
+    dprint("Add layers to texture:", textureId)
+    dprint(json.encode(pedsTextures[ped][category]))
 
     pedsTextures[ped][category].textureId = textureId
     for c = 1, #jo.pedTexture.ordersToApply[category] do
@@ -460,39 +466,34 @@ local function updateAllPedTexture(ped, category)
       local layer = pedsTextures[ped][category].layers[name]
       if table.type(layer) == "array" then
         for i = 1, #layer do
-          log("apply", name, layer[i])
           applyLayer(textureId, name, layer[i])
         end
       else
-        log("apply", name, layer)
         applyLayer(textureId, name, layer)
       end
     end
 
-    isValid = jo.utils.waiter(function() return not IsTextureValid(textureId) end)
-    log("resultWaiter 2", isValid, IsTextureValid(textureId))
-
-    if not isValid then
-      log("texture not valid")
-      ReleaseTexture(textureId)
+    if not checkIfTextureValid(textureId) then
+      dprint("Ped texture ID is not valid anymore after apply layers", textureId)
       currentUpdate += 1
-      if currentUpdate > maxForceUpdate then return end
-      log("redo updateAllPedTexture")
+      if currentUpdate > maxForceUpdate then
+        dprint("Impossible to apply the ped Texture. Max try attempts", currentUpdate)
+        return
+      end
       Wait(200)
+      dprint("Restart the updateAllPedTexture() function")
       return updateAllPedTexture(ped, category)
     end
 
-    log("Texture is valid => Apply")
+    dprint("Apply the ped texture", textureId)
     ApplyTextureOnPed(ped, GetHashFromString(category), textureId)
-    log("refresh")
     UpdatePedTexture(textureId)
     _updatePedVariation(ped)
     Entity(ped).state:set("jo_pedTexture", pedsTextures[ped])
     CreateThread(function()
-      log("New Thread for release")
       local textureId = textureId
       jo.utils.waiter(function() return IsPedReadyToRender(ped) end)
-      log("texture released")
+      dprint("Release the ped texture", textureId)
       ReleaseTexture(textureId)
     end)
   end)
@@ -516,8 +517,10 @@ function jo.pedTexture.apply(ped, layerName, _data)
     return dprint("ERROR: RedM doesn't allow editing of texture on a local entity")
   end
   local data = table.copy(_data or {})
-  log("===================")
-  log("jo.pedTexture.apply", PlayerPedId(), ped, layerName, data)
+  dprint("Apply pedTexture")
+  dprint("Ped:", ped)
+  dprint("layername:", layerName)
+  dprint("data", data)
   local category = jo.pedTexture.categories[layerName]
   if not category then
     return print("No texture category for layer: " .. layerName)
@@ -542,7 +545,6 @@ function jo.pedTexture.apply(ped, layerName, _data)
     end
   end
 
-  log("=>", pedsTextures[ped][category].layers[layerName])
   currentUpdate = 1
   CreateThreadNow(function()
     updateAllPedTexture(ped, category)
@@ -559,8 +561,7 @@ end
 --- A function to refresh the ped texture
 ---@param ped integer (The entity ID)
 function jo.pedTexture.refreshAll(ped)
-  log("----------------------")
-  log("jo.pedTexture.refreshAll")
+  dprint("Refresh all ped texture", ped)
   pedsTextures[ped] = pedsTextures[ped] or Entity(ped).state["jo_pedTexture"] or {}
   if table.count(pedsTextures[ped]) == 0 then return end
 
@@ -580,8 +581,7 @@ end
 --- @param overlays object (The list of layers)
 --- @param forceRemove? boolean (Whether to force remove existing textures even if the category doesn't exist <br> default: false)
 function jo.pedTexture.overwriteBodyPart(ped, category, overlays, forceRemove)
-  log("--------------------------")
-  log("jo.pedTexture.overwriteBodyPart", ped, category, overlays, forceRemove)
+  dprint("overwriteBodyPart", ped, category, overlays, forceRemove)
   forceRemove = forceRemove or false
   pedsTextures[ped] = pedsTextures[ped] or Entity(ped).state["jo_pedTexture"] or { [category] = {} }
   if pedsTextures[ped][category] or forceRemove then
