@@ -307,9 +307,7 @@ end
 
 function jo.framework:openInventory(source, id)
   if not Inventory:isCustomInventoryRegistered(id) then
-    return false,
-        eprint(("This custom inventory doesn't exist: %s. You can create it with `jo.framework:createInventory()`.")
-          :format(tostring(id)))
+    return false, eprint(("This custom inventory doesn't exist: %s. You can create it with `jo.framework:createInventory()`."):format(tostring(id)))
   end
   return Inventory:openInventory(source, id)
 end

@@ -589,16 +589,13 @@ function jo.framework:revertSkinInternal(standard)
   end
 
   reverted.sex = standard.model == "mp_female" and 2 or 1
-  _, reverted.body_size = table.find(fromFrameworkToStandard.bodies,
-    function(value) return value == standard.bodiesIndex end)
+  _, reverted.body_size = table.find(fromFrameworkToStandard.bodies, function(value) return value == standard.bodiesIndex end)
   standard.bodiesIndex = nil
   reverted.eyes_color = table.extract(standard, "eyesIndex")
-  _, reverted.head = table.find(fromFrameworkToStandard.heads[standard.model],
-    function(value) return value == standard.headIndex end)
+  _, reverted.head = table.find(fromFrameworkToStandard.heads[standard.model], function(value) return value == standard.headIndex end)
   reverted.head = GetValue(reverted.head, standard.headIndex) * 6
   standard.headIndex = nil
-  _, reverted.skin_tone = table.find(fromFrameworkToStandard.skin_tone,
-    function(value, i) return value == standard.skinTone end)
+  _, reverted.skin_tone = table.find(fromFrameworkToStandard.skin_tone, function(value, i) return value == standard.skinTone end)
   standard.skinTone = nil
   reverted.teeth = table.extract(standard, "teethIndex")
   reverted.hair = table.extract(standard, "hair")
@@ -646,13 +643,11 @@ function jo.framework:revertSkinInternal(standard)
   reverted.lower_lip_width = revertPercent(table.extract(standard.expressions, "lowerLipWidth"))
   reverted.mouth_corner_left_depth = revertPercent(table.extract(standard.expressions, "mouthConerLeftDepth"))
   reverted.mouth_corner_left_height = revertPercent(table.extract(standard.expressions, "mouthConerLeftHeight"))
-  reverted.mouth_corner_left_lips_distance = revertPercent(table.extract(standard.expressions,
-    "mouthConerLeftLipsDistance"))
+  reverted.mouth_corner_left_lips_distance = revertPercent(table.extract(standard.expressions, "mouthConerLeftLipsDistance"))
   reverted.mouth_corner_left_width = revertPercent(table.extract(standard.expressions, "mouthConerLeftWidth"))
   reverted.mouth_corner_right_depth = revertPercent(table.extract(standard.expressions, "mouthConerRightDepth"))
   reverted.mouth_corner_right_height = revertPercent(table.extract(standard.expressions, "mouthConerRightHeight"))
-  reverted.mouth_corner_right_lips_distance = revertPercent(table.extract(standard.expressions,
-    "mouthConerRightLipsDistance"))
+  reverted.mouth_corner_right_lips_distance = revertPercent(table.extract(standard.expressions, "mouthConerRightLipsDistance"))
   reverted.mouth_corner_right_width = revertPercent(table.extract(standard.expressions, "mouthConerRightWidth"))
   reverted.mouth_depth = revertPercent(table.extract(standard.expressions, "mouthDepth"))
   reverted.mouth_width = revertPercent(table.extract(standard.expressions, "mouthWidth"))
@@ -903,20 +898,19 @@ end
 
 function jo.framework:updateUserClothesInternal(source, clothes)
   local identifiers = self:getUserIdentifiers(source)
-  MySQL.scalar("SELECT clothes FROM clothes WHERE identifier=? AND charid=?;",
-    { identifiers.identifier, identifiers.charid }, function(oldClothes)
-      local decoded = UnJson(oldClothes)
-      table.merge(decoded, clothes)
-      local SQL = "UPDATE clothes SET clothes=@clothes WHERE identifier=@identifier AND charid=@charid"
-      if not oldClothes then
-        SQL = "INSERT INTO clothes VALUES(NULL,@identifier,@charid,@clothes)"
-      end
-      MySQL.update(SQL, {
-        identifier = identifiers.identifier,
-        charid = identifiers.charid,
-        clothes = json.encode(decoded)
-      })
-    end)
+  MySQL.scalar("SELECT clothes FROM clothes WHERE identifier=? AND charid=?;", { identifiers.identifier, identifiers.charid }, function(oldClothes)
+    local decoded = UnJson(oldClothes)
+    table.merge(decoded, clothes)
+    local SQL = "UPDATE clothes SET clothes=@clothes WHERE identifier=@identifier AND charid=@charid"
+    if not oldClothes then
+      SQL = "INSERT INTO clothes VALUES(NULL,@identifier,@charid,@clothes)"
+    end
+    MySQL.update(SQL, {
+      identifier = identifiers.identifier,
+      charid = identifiers.charid,
+      clothes = json.encode(decoded)
+    })
+  end)
 end
 
 function jo.framework:getUserSkinInternal(source)
@@ -924,29 +918,27 @@ function jo.framework:getUserSkinInternal(source)
   local skin = {}
   if not user then return {} end
   local identifiers = user:getIdentifiers()
-  skin = MySQL.scalar.await("SELECT skin FROM skins WHERE identifier=? AND charid=?;",
-    { identifiers.identifier, identifiers.charid })
+  skin = MySQL.scalar.await("SELECT skin FROM skins WHERE identifier=? AND charid=?;", { identifiers.identifier, identifiers.charid })
   return UnJson(skin)
 end
 
 function jo.framework:updateUserSkinInternal(source, skin, overwrite)
   local identifiers = self:getUserIdentifiers(source)
-  MySQL.scalar("SELECT skin FROM skins WHERE identifier=? AND charid=?", { identifiers.identifier, identifiers.charid },
-    function(oldSkin)
-      if not oldSkin then
-        MySQL.insert("INSERT INTO skins VALUES (NULL, ?,?,?)",
-          { identifiers.identifier, identifiers.charid, json.encode(skin) })
+  MySQL.scalar("SELECT skin FROM skins WHERE identifier=? AND charid=?", { identifiers.identifier, identifiers.charid }, function(oldSkin)
+    if not oldSkin then
+      MySQL.insert("INSERT INTO skins VALUES (NULL, ?,?,?)",
+        { identifiers.identifier, identifiers.charid, json.encode(skin) })
+    else
+      local decoded = UnJson(oldSkin)
+      if overwrite then
+        decoded = skin
       else
-        local decoded = UnJson(oldSkin)
-        if overwrite then
-          decoded = skin
-        else
-          table.merge(decoded, skin)
-        end
-        MySQL.update("UPDATE skins SET skin=? WHERE identifier=? AND charid=?",
-          { json.encode(decoded), identifiers.identifier, identifiers.charid })
+        table.merge(decoded, skin)
       end
-    end)
+      MySQL.update("UPDATE skins SET skin=? WHERE identifier=? AND charid=?",
+        { json.encode(decoded), identifiers.identifier, identifiers.charid })
+    end
+  end)
 end
 
 function jo.framework:createUser(source, data, spawnCoordinate, isDead)

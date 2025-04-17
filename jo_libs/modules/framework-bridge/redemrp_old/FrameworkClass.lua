@@ -144,15 +144,13 @@ end
 
 function jo.framework:getUserClothesInternal(source)
   local user = self:getUserIdentifiers(source)
-  local clothes = MySQL.scalar.await("SELECT clothes FROM clothes WHERE identifier=? AND charid=?;",
-    { user.identifier, user.charid })
+  local clothes = MySQL.scalar.await("SELECT clothes FROM clothes WHERE identifier=? AND charid=?;", { user.identifier, user.charid })
   return UnJson(clothes)
 end
 
 function jo.framework:updateUserClothesInternal(source, clothes)
   local identifiers = self:getUserIdentifiers(source)
-  MySQL.scalar("SELECT clothes FROM clothes WHERE identifier=? AND charid=?;",
-    { identifiers.identifier, identifiers.charid }, function(oldClothes)
+  MySQL.scalar("SELECT clothes FROM clothes WHERE identifier=? AND charid=?;", { identifiers.identifier, identifiers.charid }, function(oldClothes)
     local decoded = UnJson(oldClothes)
     table.merge(decoded, clothes)
     local SQL = "UPDATE clothes SET clothes=@clothes WHERE identifier=@identifier AND charid=@charid"
@@ -172,30 +170,28 @@ function jo.framework:getUserSkinInternal(source)
   local user = self.UserClass:get(source)
   if not user then return {} end
   local identifiers = user:getIdentifiers()
-  local skin = MySQL.scalar.await("SELECT skin FROM skins WHERE identifier=? AND charid=?;",
-    { identifiers.identifier, identifiers.charid })
+  local skin = MySQL.scalar.await("SELECT skin FROM skins WHERE identifier=? AND charid=?;", { identifiers.identifier, identifiers.charid })
 
   return UnJson(skin)
 end
 
 function jo.framework:updateUserSkinInternal(source, skin, overwrite)
   local identifiers = self:getUserIdentifiers(source)
-  MySQL.scalar("SELECT skin FROM skins WHERE identifier=? AND charid=?", { identifiers.identifier, identifiers.charid },
-    function(oldSkin)
-      if not oldSkin then
-        MySQL.insert("INSERT INTO skins VALUES (NULL, ?,?,?)",
-          { identifiers.identifier, identifiers.charid, json.encode(skin) })
+  MySQL.scalar("SELECT skin FROM skins WHERE identifier=? AND charid=?", { identifiers.identifier, identifiers.charid }, function(oldSkin)
+    if not oldSkin then
+      MySQL.insert("INSERT INTO skins VALUES (NULL, ?,?,?)",
+        { identifiers.identifier, identifiers.charid, json.encode(skin) })
+    else
+      local decoded = UnJson(oldSkin)
+      if overwrite then
+        decoded = skin
       else
-        local decoded = UnJson(oldSkin)
-        if overwrite then
-          decoded = skin
-        else
-          table.merge(decoded, skin)
-        end
-        MySQL.update("UPDATE skins SET skin=? WHERE identifier=? AND charid=?",
-          { json.encode(decoded), identifiers.identifier, identifiers.charid })
+        table.merge(decoded, skin)
       end
-    end)
+      MySQL.update("UPDATE skins SET skin=? WHERE identifier=? AND charid=?",
+        { json.encode(decoded), identifiers.identifier, identifiers.charid })
+    end
+  end)
 end
 
 function jo.framework:createUser(source, data, spawnCoordinate, isDead)

@@ -700,16 +700,13 @@ function jo.framework:revertSkinInternal(standard)
   end
 
   reverted.sex = standard.model == "mp_female" and 2 or 1
-  _, reverted.body_size = table.find(fromFrameworkToStandard.bodies,
-    function(value) return value == standard.bodiesIndex end)
+  _, reverted.body_size = table.find(fromFrameworkToStandard.bodies, function(value) return value == standard.bodiesIndex end)
   standard.bodiesIndex = nil
   reverted.eyes_color = table.extract(standard, "eyesIndex")
-  _, reverted.head = table.find(fromFrameworkToStandard.heads[standard.model],
-    function(value) return value == standard.headIndex end)
+  _, reverted.head = table.find(fromFrameworkToStandard.heads[standard.model], function(value) return value == standard.headIndex end)
   reverted.head = GetValue(reverted.head, standard.headIndex) * 6
   standard.headIndex = nil
-  _, reverted.skin_tone = table.find(fromFrameworkToStandard.skin_tone,
-    function(value, i) return value == standard.skinTone end)
+  _, reverted.skin_tone = table.find(fromFrameworkToStandard.skin_tone, function(value, i) return value == standard.skinTone end)
   standard.skinTone = nil
   reverted.teeth = table.extract(standard, "teethIndex")
   reverted.hair = table.extract(standard, "hair")
@@ -757,13 +754,11 @@ function jo.framework:revertSkinInternal(standard)
   reverted.lower_lip_width = revertPercent(table.extract(standard.expressions, "lowerLipWidth"))
   reverted.mouth_corner_left_depth = revertPercent(table.extract(standard.expressions, "mouthConerLeftDepth"))
   reverted.mouth_corner_left_height = revertPercent(table.extract(standard.expressions, "mouthConerLeftHeight"))
-  reverted.mouth_corner_left_lips_distance = revertPercent(table.extract(standard.expressions,
-    "mouthConerLeftLipsDistance"))
+  reverted.mouth_corner_left_lips_distance = revertPercent(table.extract(standard.expressions, "mouthConerLeftLipsDistance"))
   reverted.mouth_corner_left_width = revertPercent(table.extract(standard.expressions, "mouthConerLeftWidth"))
   reverted.mouth_corner_right_depth = revertPercent(table.extract(standard.expressions, "mouthConerRightDepth"))
   reverted.mouth_corner_right_height = revertPercent(table.extract(standard.expressions, "mouthConerRightHeight"))
-  reverted.mouth_corner_right_lips_distance = revertPercent(table.extract(standard.expressions,
-    "mouthConerRightLipsDistance"))
+  reverted.mouth_corner_right_lips_distance = revertPercent(table.extract(standard.expressions, "mouthConerRightLipsDistance"))
   reverted.mouth_corner_right_width = revertPercent(table.extract(standard.expressions, "mouthConerRightWidth"))
   reverted.mouth_depth = revertPercent(table.extract(standard.expressions, "mouthDepth"))
   reverted.mouth_width = revertPercent(table.extract(standard.expressions, "mouthWidth"))
