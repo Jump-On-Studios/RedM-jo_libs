@@ -53,8 +53,11 @@ function TimeoutClass:execute()
   if not self.canceled then
     self:clear()
     self.cb(table.unpack(self.args))
+    self = nil
+    return true
   end
   self = nil
+  return false
 end
 
 --- Change the callback function of the timeout

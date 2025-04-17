@@ -173,7 +173,13 @@ local jo = setmetatable({
   name = jo_libs,
   resourceName = resourceName,
   context = context,
-  cache = {}
+  cache = {},
+  isServerSide = function()
+    return context == "server"
+  end,
+  isClientSide = function()
+    return context == "client"
+  end
 }, {
   __index = call,
   __call = noFunction

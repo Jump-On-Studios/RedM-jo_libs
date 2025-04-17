@@ -1,26 +1,14 @@
 jo.debugger = {}
 
---- Returns the current time in microseconds.
----@return number (Current time in microseconds)
 local function now()
   return os and os.microtime() or GetGameTimer() * 1000
 end
 
---- Measures the performance of a callback function execution.
----@param title? string (Title for the performance measurement - default:"")
----@param cb function (The callback function to measure)
----@return number (Duration in microseconds)
-function jo.debugger.perfomance(title, cb)
+jo.debugger.perfomance = function(title, cb)
   return jo.debugger.perfomanceRepeat(title, 1, cb)
 end
 
---- Measures the average performance of multiple executions of a callback function.
----@param title? string (Title for the performance measurement - default:"")
----@param numberRepeat? integer (Number of times to repeat the measurement - default:1)
----@param cb function (The callback function to measure)
----@param waitBetweenRepeat? integer (Time to wait between repetitions in ms - default:nil)
----@return number (Average duration in microseconds)
-function jo.debugger.perfomanceRepeat(title, numberRepeat, cb, waitBetweenRepeat)
+jo.debugger.perfomanceRepeat = function(title, numberRepeat, cb, waitBetweenRepeat)
   local sumDuration = 0
   title = title or ""
   numberRepeat = math.max(numberRepeat or 1, 1)
