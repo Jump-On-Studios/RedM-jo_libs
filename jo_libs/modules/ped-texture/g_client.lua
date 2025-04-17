@@ -430,6 +430,9 @@ local function checkIfTextureValid(textureId)
 end
 
 local function updateAllPedTexture(ped, category)
+  if IsScreenFadedOut() or IsLoadingScreenVisible() then
+    Wait(2000)
+  end
   delays["updatePedTexture" .. ped] = jo.timeout.delay("updatePedTexture" .. ped, 200, function()
     dprint("updateAllPedTexture(), try number:", currentUpdate, json.encode(pedsTextures[ped]))
     GetNumberOfMicrosecondsSinceLastCall()
