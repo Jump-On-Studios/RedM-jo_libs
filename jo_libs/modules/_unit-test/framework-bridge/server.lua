@@ -22,7 +22,7 @@ function TESTS.skin()
   }
 
   --Load framework data
-  jo.file.load(("_unit-test.framework-bridge.%s.server_data"):format(jo.framework:get()))
+  jo.file.load(("_unit-test.framework-bridge.%s.server_data"):format(jo.framework:getFrameworkDetected().folder))
 
   -------------
   -- SKIN TEST
