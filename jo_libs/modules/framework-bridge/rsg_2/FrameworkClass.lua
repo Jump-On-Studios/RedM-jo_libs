@@ -48,12 +48,14 @@ function jo.framework:addItemInInventory(source, invId, item, quantity, metadata
 end
 
 function jo.framework:getItemsFromInventory(invId)
-  local inventory = GetValue(Inventory:GetInventory(invId), { items = {} })
-  for i = 1, #inventory.items do
-    items[i] = {
-      metadata = inventory.items[i].info,
-      amount = inventory.items[i].amount,
-      item = inventory.items[i].name
-    }
+  local inventory = Inventory:GetInventory(invId) or { items = {} }
+  local items = {}
+  for _, item in pairs(inventory.items) do
+    table.insert(items, {
+      metadata = item.info,
+      amount = item.amount,
+      item = item.name
+    })
   end
+  return items
 end
