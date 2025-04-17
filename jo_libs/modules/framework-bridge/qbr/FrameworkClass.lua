@@ -185,8 +185,7 @@ end
 
 function jo.framework:getUserClothesInternal(source)
   local user = self:getUserIdentifiers(source)
-  local clothes = MySQL.scalar.await("SELECT clothes FROM playerskins WHERE citizenid=? AND active=1",
-    { user.identifier })
+  local clothes = MySQL.scalar.await("SELECT clothes FROM playerskins WHERE citizenid=? AND active=1", { user.identifier })
   return UnJson(clothes)
 end
 
