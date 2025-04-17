@@ -1,5 +1,4 @@
-RegisterNetEvent("qr-clothes:ApplyClothes")
-AddEventHandler("qr-clothes:ApplyClothes", function(clothes, ped, skin)
+RegisterNetEvent("qr-clothes:ApplyClothes", function(clothes, ped, skin)
   ped = ped or PlayerPedId()
   TriggerServerEvent("jo_libs:server:applySkinAndClothes", ped, skin, clothes)
 end)

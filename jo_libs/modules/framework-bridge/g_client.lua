@@ -31,6 +31,8 @@ RegisterNetEvent("jo_libs:client:applySkin", function(ped, skin)
 
     jo.component.applySkin(ped, skin)
 
+    jo.component.refreshPed(ped)
+
     jo.hook.doActions("jo_libs:applySkinAndClothes:after", ped, skin)
   end)
 end)
@@ -44,6 +46,8 @@ RegisterNetEvent("jo_libs:client:applyClothes", function(ped, clothes)
     jo.hook.doActions("jo_libs:applyClothes:before", ped, clothes)
 
     jo.component.applyComponents(ped, clothes)
+
+    jo.component.refreshPed(ped)
 
     jo.hook.doActions("jo_libs:applyClothes:after", ped, clothes)
   end)
