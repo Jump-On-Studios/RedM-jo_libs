@@ -891,8 +891,7 @@ end
 
 function jo.framework:getUserClothesInternal(source)
   local user = self:getUserIdentifiers(source)
-  local clothes = MySQL.scalar.await("SELECT clothes FROM clothes WHERE identifier=? AND charid=?;",
-    { user.identifier, user.charid })
+  local clothes = MySQL.scalar.await("SELECT clothes FROM clothes WHERE identifier=? AND charid=?;", { user.identifier, user.charid })
   return UnJson(clothes)
 end
 
@@ -926,8 +925,7 @@ function jo.framework:updateUserSkinInternal(source, skin, overwrite)
   local identifiers = self:getUserIdentifiers(source)
   MySQL.scalar("SELECT skin FROM skins WHERE identifier=? AND charid=?", { identifiers.identifier, identifiers.charid }, function(oldSkin)
     if not oldSkin then
-      MySQL.insert("INSERT INTO skins VALUES (NULL, ?,?,?)",
-        { identifiers.identifier, identifiers.charid, json.encode(skin) })
+      MySQL.insert("INSERT INTO skins VALUES (NULL, ?,?,?)", { identifiers.identifier, identifiers.charid, json.encode(skin) })
     else
       local decoded = UnJson(oldSkin)
       if overwrite then
@@ -935,8 +933,7 @@ function jo.framework:updateUserSkinInternal(source, skin, overwrite)
       else
         table.merge(decoded, skin)
       end
-      MySQL.update("UPDATE skins SET skin=? WHERE identifier=? AND charid=?",
-        { json.encode(decoded), identifiers.identifier, identifiers.charid })
+      MySQL.update("UPDATE skins SET skin=? WHERE identifier=? AND charid=?", { json.encode(decoded), identifiers.identifier, identifiers.charid })
     end
   end)
 end
