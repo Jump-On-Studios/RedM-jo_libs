@@ -421,7 +421,7 @@ local function checkIfTextureValid(textureId)
   if textureId == -1 then
     return false, eprint("Impossible to get the texture", textureId)
   end
-  local isValid = jo.utils.waiter(function() return not IsTextureValid(textureId) end)
+  local isValid = jo.waiter.exec(function() return IsTextureValid(textureId) end)
   if not isValid then
     ReleaseTexture(textureId)
     dprint("The texture is not valid", textureId)
@@ -430,9 +430,14 @@ local function checkIfTextureValid(textureId)
 end
 
 local function updateAllPedTexture(ped, category)
-  jo.utils.waiter(function() return IsPedReadyToRender(ped) end)
   delays["updatePedTexture" .. ped] = jo.timeout.delay("updatePedTexture" .. ped, 200, function()
     dprint("updateAllPedTexture(), try number:", currentUpdate, json.encode(pedsTextures[ped]))
+    GetNumberOfMicrosecondsSinceLastCall()
+    dprint("Wait ped ready")
+    jo.waiter.exec(function()
+      return IsPedReadyToRender(ped)
+    end)
+    dprint(("Ped ready in %.4fms"):format(GetNumberOfMicrosecondsSinceLastCall() / 1000))
     if pedsTextures[ped][category].textureId ~= nil then
       ClearPedTexture(pedsTextures[ped][category].textureId)
       dprint("Old texture cleared")
@@ -473,6 +478,8 @@ local function updateAllPedTexture(ped, category)
       end
     end
 
+    Wait(0)
+
     if not checkIfTextureValid(textureId) then
       dprint("Ped texture ID is not valid anymore after apply layers", textureId)
       currentUpdate += 1
@@ -492,7 +499,7 @@ local function updateAllPedTexture(ped, category)
     Entity(ped).state:set("jo_pedTexture", pedsTextures[ped])
     CreateThread(function()
       local textureId = textureId
-      jo.utils.waiter(function() return IsPedReadyToRender(ped) end)
+      jo.waiter.exec(function() return IsPedReadyToRender(ped) end)
       dprint("Release the ped texture", textureId)
       ReleaseTexture(textureId)
     end)
@@ -523,7 +530,7 @@ function jo.pedTexture.apply(ped, layerName, _data)
   dprint("data", data)
   local category = jo.pedTexture.categories[layerName]
   if not category then
-    return print("No texture category for layer: " .. layerName)
+    return eprint("No texture category for layer: " .. layerName)
   end
   pedsTextures[ped] = pedsTextures[ped] or Entity(ped).state["jo_pedTexture"] or {}
   pedsTextures[ped][category] = pedsTextures[ped][category] or { layers = {} }
@@ -572,6 +579,13 @@ function jo.pedTexture.refreshAll(ped)
   end
   if delays["updatePedTexture" .. ped] then
     delays["updatePedTexture" .. ped]:execute()
+  end
+end
+
+--- A function to apply now the ped texture modification
+function jo.pedTexture.refreshNow(ped)
+  if delays["updatePedTexture" .. ped]:execute() then
+    dprint("No texture to apply for this ped", ped)
   end
 end
 

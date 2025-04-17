@@ -562,24 +562,24 @@ end
 --- A function to apply a component on the ped
 ---@param ped integer (The entity ID)
 ---@param category string|integer (The component category)
----@param data table (The component data)
---- data.hash integer (The component hash)
---- data.palette? string|integer (The color palette of the component)
---- data.tint0? integer (The first color number)
---- data.tint1? integer (The second color number)
---- data.tint2? integer (The third color number)
---- data.drawable? integer (The drawable value)
---- data.albedo? integer (The albedo value)
---- data.normal? integer (The normal value)
---- data.material? integer (The material value)
-function jo.component.apply(ped, category, data)
-  data = formatComponentData(data)
+---@param _data table (The component data)
+--- _data.hash integer (The component hash)
+--- _data.palette? string|integer (The color palette of the component)
+--- _data.tint0? integer (The first color number)
+--- _data.tint1? integer (The second color number)
+--- _data.tint2? integer (The third color number)
+--- _data.drawable? integer (The drawable value)
+--- _data.albedo? integer (The albedo value)
+--- _data.normal? integer (The normal value)
+--- _data.material? integer (The material value)
+function jo.component.apply(ped, category, _data)
+  data = formatComponentData(_data)
 
   local categoryHash = GetHashFromString(category)
   local isMp = true
 
   if not data then
-    return dprint("Wrong component data structure")
+    return dprint("Wrong component data structure", ped, category, json.encode(_data))
   end
 
   if data.hash and not data.remove then
