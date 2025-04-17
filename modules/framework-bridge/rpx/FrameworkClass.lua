@@ -200,3 +200,10 @@ end
 function jo.framework:createUser(source, data, spawnCoordinate, isDead)
   return {}
 end
+
+function jo.framework:onCharacterSelected(cb)
+  AddEventHandler("SERVER:MultiCharacter:SelectCharacter", function()
+    local source = source
+    cb(source)
+  end)
+end

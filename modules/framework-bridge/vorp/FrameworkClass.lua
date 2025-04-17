@@ -335,7 +335,7 @@ function jo.framework:getItemsFromInventory(invId)
     items[i] = {
       id = invItems[i].id,
       amount = invItems[i].amount,
-      item = invItems[i].item,
+      item = invItems[i].name,
       metadata = invItems[i].metadata
     }
   end
@@ -1125,5 +1125,11 @@ function jo.framework:createUser(source, data, spawnCoordinate, isDead)
   TriggerClientEvent("vorp:initCharacter", source, spawnCoordinate.xyz, spawnCoordinate.w, isDead)
   SetTimeout(3000, function()
     TriggerEvent("vorp_NewCharacter", source)
+  end)
+end
+
+function jo.framework:onCharacterSelected(cb)
+  AddEventHandler("vorp:SelectedCharacter", function(source)
+    cb(source)
   end)
 end

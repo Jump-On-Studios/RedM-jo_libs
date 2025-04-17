@@ -18,7 +18,6 @@ jo.menu.listeners = {}
 local nuiShow = false
 local timeoutClose = nil
 local currentMinimapType = GetMinimapType()
-local currentMinimapType = GetMinimapType()
 local clockStart = GetGameTimer()
 local currentData = {}
 local previousData = {}

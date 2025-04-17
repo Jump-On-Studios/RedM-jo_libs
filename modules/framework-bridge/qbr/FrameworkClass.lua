@@ -223,3 +223,11 @@ end
 function jo.framework:createUser(source, data, spawnCoordinate, isDead)
   return {}
 end
+
+function jo.framework:onCharacterSelected(cb)
+  AddEventHandler("qbr-multicharacter:server:loadUserData", function()
+    local source = source
+    Wait(1000)
+    cb(source)
+  end)
+end
