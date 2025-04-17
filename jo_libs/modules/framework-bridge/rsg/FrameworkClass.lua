@@ -966,3 +966,11 @@ end
 -------------
 -- END SKIN & CLOTHES
 -------------
+
+
+function jo.framework:onCharacterSelected(cb)
+  AddEventHandler("RSGCore:Server:OnPlayerLoaded", function()
+    local source = source
+    cb(source)
+  end)
+end

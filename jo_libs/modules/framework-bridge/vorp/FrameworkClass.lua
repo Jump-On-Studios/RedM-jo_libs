@@ -1127,3 +1127,9 @@ function jo.framework:createUser(source, data, spawnCoordinate, isDead)
     TriggerEvent("vorp_NewCharacter", source)
   end)
 end
+
+function jo.framework:onCharacterSelected(cb)
+  AddEventHandler("vorp:SelectedCharacter", function(source)
+    cb(source)
+  end)
+end
