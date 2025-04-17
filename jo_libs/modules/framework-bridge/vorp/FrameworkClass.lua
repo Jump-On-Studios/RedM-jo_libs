@@ -335,7 +335,7 @@ function jo.framework:getItemsFromInventory(invId)
     items[i] = {
       id = invItems[i].id,
       amount = invItems[i].amount,
-      item = invItems[i].item,
+      item = invItems[i].name,
       metadata = invItems[i].metadata
     }
   end
