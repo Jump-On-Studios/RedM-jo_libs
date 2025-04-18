@@ -13,32 +13,40 @@ export function initGroup() {
         prompts: [
           [
             {
-              label:
-                ' <img src="https://raw.githubusercontent.com/BryceCanyonCounty/rdr3-nativedb-data/master/blips/images/blip_ambient_horse.png" /> <span style="color:red">Press Prompt</span>',
-              keyboardKeys: ['E'],
-              visible: true,
-            },
-            {
               label: 'Hold Prompt',
               keyboardKeys: ['M'],
               holdTime: 1000,
               visible: true,
             },
             {
-              label: 'CTRL Prompt',
-              keyboardKeys: ['LCONTROL'],
-              visible: true,
-            },
-            {
               label: 'SPACE Prompt',
               keyboardKeys: ['SPACE'],
               visible: true,
-              disabled: true,
             },
             {
-              label: 'NOT VISIBLE PROMPT',
-              keyboardKeys: ['N'],
-              visible: false,
+              label: 'ENTER Prompt',
+              keyboardKeys: ['ENTER'],
+              visible: true,
+            },
+            {
+              label: 'PAGE UP Prompt',
+              keyboardKeys: ['PAGEUP'],
+              visible: true,
+            },
+            {
+              label: 'PAGE DOWN Prompt',
+              keyboardKeys: ['PAGEDOWN'],
+              visible: true,
+            },
+            {
+              label: 'HOME Prompt',
+              keyboardKeys: ['HOME'],
+              visible: true,
+            },
+            {
+              label: 'Backspace Prompt',
+              keyboardKeys: ['BACKSPACE'],
+              visible: true,
             },
           ],
           [

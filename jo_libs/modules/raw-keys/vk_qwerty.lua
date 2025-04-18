@@ -7,6 +7,7 @@ vk_qwerty = {
     XBUTTON2 = 0x06,
     -- 0x07: Reserved
     BACK = 0x08,
+    ["BACKSPACE"] = 0x08,
     TAB = 0x09,
     -- 0x0A-0x0B: Reserved
     CLEAR = 0x0C,
