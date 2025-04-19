@@ -79,7 +79,7 @@ local function showNUI(bool)
     if bool then
         SetNuiFocus(true, true)
         SetNuiFocusKeepInput(true)
-
+        jo.nui.forceFocus("jo_gizmo")
         if enableCam then
             local coords = GetGameplayCamCoord()
             local rot = GetGameplayCamRot(2)
