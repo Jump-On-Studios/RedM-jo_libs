@@ -204,7 +204,14 @@ end
 local function clearClothesTable(clothesList)
   if not clothesList then return {} end
   for cat, data in pairs(clothesList) do
-    clothesList[cat] = formatComponentData(data)
+    local clothes = formatComponentData(data)
+    if clothes and (not clothes.palette or clothes.palette == 0) then
+      clothes.palette = nil
+      clothes.tint0 = nil
+      clothes.tint1 = nil
+      clothes.tint2 = nil
+    end
+    clothesList[cat] = clothes
   end
   return clothesList
 end
