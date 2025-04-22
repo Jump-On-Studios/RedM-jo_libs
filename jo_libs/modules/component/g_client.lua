@@ -361,9 +361,9 @@ local function formatComponentData(_data)
   if data.hash == 0 or data.hash == false then
     data.remove = true
   end
-  data.hash = isValidValue(data.hash) and data.hash or false
-  data.drawable = isValidValue(data.drawable) and data.drawable or false
-  data.palette = isValidValue(data.palette) and data.palette or false
+  data.hash = isValidValue(data.hash) and data.hash or nil
+  data.drawable = isValidValue(data.drawable) and data.drawable or nil
+  data.palette = isValidValue(data.palette) and data.palette or nil
 
   if not data.hash and not data.drawable and not data.palette and not data.remove then
     return false
@@ -371,32 +371,19 @@ local function formatComponentData(_data)
   return data
 end
 
-CreateThread(function()
-  local data = ParseddataRqFilloutHash(641005680)
-end)
-
 local function getBaseLayer(ped, hash)
-  local request = RequestMetaPedComponent(GetMetaPedType(ped), hash, 0, 1, 1)
-  print("request", request)
-  print("isvalud", IsMetaPedAssetValid(request))
-  print("isLoaded", HasMetaPedAssetLoaded(request))
-  print(GetGameTimer())
-  while not HasMetaPedAssetLoaded(request) do
-    log("Wait", hash, request)
-    Wait(1000)
-  end
-  print(GetGameTimer())
-  print("isLoaded", HasMetaPedAssetLoaded(request), hash,
-    GetMetaPedType(ped), jo.component.isMpComponent(ped, hash))
-  Wait(1000)
+  -- local request = RequestMetaPedComponent(GetMetaPedType(ped), hash, 0, 1, 1)
+  -- while not HasMetaPedAssetLoaded(request) do
+  --   Wait(0)
+  -- end
   local drawable, albedo, normal, material, palette, tint0, tint1, tint2 = GetShopItemBaseLayers(hash,
-    GetMetaPedType(ped), jo.component.isMpComponent(ped, hash), 1)
+    GetMetaPedType(ped), jo.component.isMpComponent(ped, hash))
   if drawable == 0 or drawable == 1 then drawable = nil end
   if albedo == 0 then albedo = nil end
   if normal == 0 then normal = nil end
   if material == 0 then material = nil end
   if palette == 0 then palette = nil end
-  ReleaseMetaPedAssetRequest(request)
+  -- ReleaseMetaPedAssetRequest(request)
   return drawable, albedo, normal, material, palette, tint0, tint1, tint2
 end
 jo.component.getBaseLayer = getBaseLayer
@@ -593,7 +580,7 @@ end
 --- _data.normal? integer (The normal value)
 --- _data.material? integer (The material value)
 function jo.component.apply(ped, category, _data)
-  data = formatComponentData(_data)
+  local data = formatComponentData(_data)
 
   local categoryHash = GetHashFromString(category)
   local isMp = true
@@ -637,7 +624,6 @@ function jo.component.apply(ped, category, _data)
     --switch shop item to metatag to allow component mix
     if category == "hats" or category == "masks" or data.albedo then
       data = convertToMetaTag(ped, data)
-      log("====>", data)
     end
 
     if data.hash and data.hash ~= 0 then
