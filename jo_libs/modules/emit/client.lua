@@ -1,22 +1,30 @@
 jo.emit = {}
 
-local msgpack_pack_payload = msgpack.pack_payload
-local bps = GetConvarInt("jo_libs:emit:bps", 5000)
+local eventsInProgress = {}
+
+local msgpack_pack_args = msgpack.pack_args
+local emitBps = GetConvarInt("jo_libs:emit:bps", 20000)
 
 AddConvarChangeListener("jo_libs:emit:bps", function(value)
   bprint("New bit/s for emit module: ", value)
-  bps = tonumber(value)
+  emitBps = tonumber(value)
 end)
 
+--- A function to update the bit/s of emit module
+---@param bps integer (bit/s)
+function jo.emit.updateBps(bps)
+  emitBps = tonumber(bps)
+end
+
 local function triggerServerLatent(eventName, ...)
-  local payload = msgpack_pack_payload(...)
+  local payload = msgpack_pack_args(...)
   local payloadLen = #payload
 
-  TriggerLatentServerEventInternal(eventName, payload, payloadLen, bps)
+  TriggerLatentServerEventInternal(eventName, payload, payloadLen, emitBps)
 end
 
 local function triggerServer(name, ...)
-  local payload = msgpack_pack_payload(...)
+  local payload = msgpack_pack_args(...)
   local payloadLen = #payload
 
   TriggerServerEventInternal(name, payload, payloadLen)
@@ -27,3 +35,17 @@ jo.emit.triggerServer = setmetatable({
 }, {
   __call = triggerServer
 })
+
+function jo.emit.isEventInProgress(eventName)
+  return eventsInProgress[eventName] or nil
+end
+
+RegisterNetEvent("jo_libs:client:emit:start", function(eventName)
+  local handler
+  local time = GetGameTimer()
+  handler = AddEventHandler(eventName, function()
+    eventsInProgress[eventName] = nil
+    RemoveEventHandler(handler)
+    dprint(("Emit: %s takes %dms"):format(eventName, GetGameTimer() - time))
+  end)
+end)
