@@ -37,6 +37,20 @@ local disabledKeys = {
   `INPUT_FRONTEND_PAUSE_ALTERNATE`,
 }
 
+local function updateSliderCurrentValue(item)
+  for _, slider in pairs(item.sliders) do
+    if slider.type == "grid" then
+      slider.value = {}
+      slider.value[1] = slider.values[1] and math.floor(slider.values[1].current * 1000) / 1000 or nil
+      slider.value[2] = slider.values[2] and math.floor(slider.values[2].current * 1000) / 1000 or nil
+    elseif slider.type == "palette" then
+      slider.value = slider.current
+    else
+      slider.value = slider.values[slider.current]
+    end
+  end
+end
+
 ---@class MenuClass : table Menu class
 ---@field id string Menu Unique ID
 ---@field title string Menu Title
@@ -90,6 +104,7 @@ function MenuClass:addItem(p, item)
   end
   item = table.merge(table.copy(MenuItem), item)
   item.index = p
+  updateSliderCurrentValue(item)
   table.insert(self.items, p, item)
   return item
 end
@@ -419,17 +434,7 @@ local function menuNUIChange(data)
   menus[data.menu].items[data.item.index] = table.overwrite(menus[data.menu].items[data.item.index], data.item)
   currentData.item = menus[data.menu].items[data.item.index]
 
-  for _, slider in pairs(currentData.item.sliders) do
-    if slider.type == "grid" then
-      slider.value = {}
-      slider.value[1] = slider.values[1] and math.floor(slider.values[1].current * 1000) / 1000 or nil
-      slider.value[2] = slider.values[2] and math.floor(slider.values[2].current * 1000) / 1000 or nil
-    elseif slider.type == "palette" then
-      slider.value = slider.current
-    else
-      slider.value = slider.values[slider.current]
-    end
-  end
+  updateSliderCurrentValue(currentData.item)
 
   local oldButton = false
   if previousData.menu then
