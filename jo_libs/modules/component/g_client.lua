@@ -272,7 +272,7 @@ local function SetTextureOutfitTints(ped, category, palette, tint0, tint1, tint2
   return invokeNative(0x4EFC1F8FF1AD94DE, ped, GetHashFromString(category), GetHashFromString(palette), tint0, tint1,
     tint2)
 end
-local function N_0xAAB86462966168CE(ped) return invokeNative(0xAAB86462966168CE, ped, true) end
+local function SetActiveMetaPedComponentsUpdated(ped) return invokeNative(0xAAB86462966168CE, ped, true) end
 local function N_0x704C908E9C405136(ped) return invokeNative(0x704C908E9C405136, ped) end
 local function GetShopItemBaseLayers(hash, metapedType, isMp)
   return invokeNative(0x63342C50EC115CE8,
@@ -283,6 +283,7 @@ end
 local function UpdatePedVariation(ped) return invokeNative(0xCC8CA3E88256E58F, ped, false, true, true, true, false) end
 local function IsPedReadyToRender(...) return invokeNative(0xA0BC8FAED8CFEB3C, ...) end
 local function IsThisModelAHorse(...) return invokeNative(0x772A1969F649E902, ...) == 1 end
+local function HasMetaPedAssetLoaded(...) return invokeNative(0xB0B2C6D170B0E8E5, ...) == 1 end
 local function ApplyShopItemToPed(ped, hash, immediatly, isMp, p4)
   return invokeNative(0xD3A7B003ED343FD9, ped,
     GetHashFromString(hash), immediatly, isMp, p4)
@@ -306,7 +307,7 @@ local function SetMetaPedTag(ped, drawable, albedo, normal, material, palette, t
 end
 
 local function refreshPed(ped)
-  N_0xAAB86462966168CE(ped)
+  SetActiveMetaPedComponentsUpdated(ped)
   UpdatePedVariation(ped)
   N_0x704C908E9C405136(ped)
 end
@@ -370,14 +371,32 @@ local function formatComponentData(_data)
   return data
 end
 
+CreateThread(function()
+  local data = ParseddataRqFilloutHash(641005680)
+end)
+
 local function getBaseLayer(ped, hash)
-  local drawable, albedo, normal, material, palette, tint0, tint1, tint2 = GetShopItemBaseLayers(hash,
+  local request = RequestMetaPedComponent(GetMetaPedType(ped), hash, 0, 1, 1)
+  print("request", request)
+  print("isvalud", IsMetaPedAssetValid(request))
+  print("isLoaded", HasMetaPedAssetLoaded(request))
+  print(GetGameTimer())
+  while not HasMetaPedAssetLoaded(request) do
+    log("Wait", hash, request)
+    Wait(1000)
+  end
+  print(GetGameTimer())
+  print("isLoaded", HasMetaPedAssetLoaded(request), hash,
     GetMetaPedType(ped), jo.component.isMpComponent(ped, hash))
+  Wait(1000)
+  local drawable, albedo, normal, material, palette, tint0, tint1, tint2 = GetShopItemBaseLayers(hash,
+    GetMetaPedType(ped), jo.component.isMpComponent(ped, hash), 1)
   if drawable == 0 or drawable == 1 then drawable = nil end
   if albedo == 0 then albedo = nil end
   if normal == 0 then normal = nil end
   if material == 0 then material = nil end
   if palette == 0 then palette = nil end
+  ReleaseMetaPedAssetRequest(request)
   return drawable, albedo, normal, material, palette, tint0, tint1, tint2
 end
 jo.component.getBaseLayer = getBaseLayer
@@ -387,6 +406,7 @@ local function convertToMetaTag(ped, data)
   --restrict to hats & masks
   if not data.hash then return data end
   if data.albedo then return data end
+
   local drawable, albedo, normal, material, palette, tint0, tint1, tint2 = getBaseLayer(ped, data.hash)
   data.drawable = data.drawable or drawable or data.hash or 0
   data.albedo = data.albedo or albedo or 0
@@ -617,6 +637,7 @@ function jo.component.apply(ped, category, _data)
     --switch shop item to metatag to allow component mix
     if category == "hats" or category == "masks" or data.albedo then
       data = convertToMetaTag(ped, data)
+      log("====>", data)
     end
 
     if data.hash and data.hash ~= 0 then
