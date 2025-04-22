@@ -272,7 +272,7 @@ local function SetTextureOutfitTints(ped, category, palette, tint0, tint1, tint2
   return invokeNative(0x4EFC1F8FF1AD94DE, ped, GetHashFromString(category), GetHashFromString(palette), tint0, tint1,
     tint2)
 end
-local function N_0xAAB86462966168CE(ped) return invokeNative(0xAAB86462966168CE, ped, true) end
+local function SetActiveMetaPedComponentsUpdated(ped) return invokeNative(0xAAB86462966168CE, ped, true) end
 local function N_0x704C908E9C405136(ped) return invokeNative(0x704C908E9C405136, ped) end
 local function GetShopItemBaseLayers(hash, metapedType, isMp)
   return invokeNative(0x63342C50EC115CE8,
@@ -283,6 +283,7 @@ end
 local function UpdatePedVariation(ped) return invokeNative(0xCC8CA3E88256E58F, ped, false, true, true, true, false) end
 local function IsPedReadyToRender(...) return invokeNative(0xA0BC8FAED8CFEB3C, ...) end
 local function IsThisModelAHorse(...) return invokeNative(0x772A1969F649E902, ...) == 1 end
+local function HasMetaPedAssetLoaded(...) return invokeNative(0xB0B2C6D170B0E8E5, ...) == 1 end
 local function ApplyShopItemToPed(ped, hash, immediatly, isMp, p4)
   return invokeNative(0xD3A7B003ED343FD9, ped,
     GetHashFromString(hash), immediatly, isMp, p4)
@@ -306,7 +307,7 @@ local function SetMetaPedTag(ped, drawable, albedo, normal, material, palette, t
 end
 
 local function refreshPed(ped)
-  N_0xAAB86462966168CE(ped)
+  SetActiveMetaPedComponentsUpdated(ped)
   UpdatePedVariation(ped)
   N_0x704C908E9C405136(ped)
 end
@@ -360,9 +361,9 @@ local function formatComponentData(_data)
   if data.hash == 0 or data.hash == false then
     data.remove = true
   end
-  data.hash = isValidValue(data.hash) and data.hash or false
-  data.drawable = isValidValue(data.drawable) and data.drawable or false
-  data.palette = isValidValue(data.palette) and data.palette or false
+  data.hash = isValidValue(data.hash) and data.hash or nil
+  data.drawable = isValidValue(data.drawable) and data.drawable or nil
+  data.palette = isValidValue(data.palette) and data.palette or nil
 
   if not data.hash and not data.drawable and not data.palette and not data.remove then
     return false
@@ -371,6 +372,10 @@ local function formatComponentData(_data)
 end
 
 local function getBaseLayer(ped, hash)
+  -- local request = RequestMetaPedComponent(GetMetaPedType(ped), hash, 0, 1, 1)
+  -- while not HasMetaPedAssetLoaded(request) do
+  --   Wait(0)
+  -- end
   local drawable, albedo, normal, material, palette, tint0, tint1, tint2 = GetShopItemBaseLayers(hash,
     GetMetaPedType(ped), jo.component.isMpComponent(ped, hash))
   if drawable == 0 or drawable == 1 then drawable = nil end
@@ -378,6 +383,7 @@ local function getBaseLayer(ped, hash)
   if normal == 0 then normal = nil end
   if material == 0 then material = nil end
   if palette == 0 then palette = nil end
+  -- ReleaseMetaPedAssetRequest(request)
   return drawable, albedo, normal, material, palette, tint0, tint1, tint2
 end
 jo.component.getBaseLayer = getBaseLayer
@@ -387,6 +393,7 @@ local function convertToMetaTag(ped, data)
   --restrict to hats & masks
   if not data.hash then return data end
   if data.albedo then return data end
+
   local drawable, albedo, normal, material, palette, tint0, tint1, tint2 = getBaseLayer(ped, data.hash)
   data.drawable = data.drawable or drawable or data.hash or 0
   data.albedo = data.albedo or albedo or 0
@@ -573,7 +580,7 @@ end
 --- _data.normal? integer (The normal value)
 --- _data.material? integer (The material value)
 function jo.component.apply(ped, category, _data)
-  data = formatComponentData(_data)
+  local data = formatComponentData(_data)
 
   local categoryHash = GetHashFromString(category)
   local isMp = true
@@ -1154,6 +1161,22 @@ function jo.component.getTeethFromIndex(ped, index)
     sex = IsPedMale(ped) and "M" or "F"
   end
   return ("CLOTHING_ITEM_%s_TEETH_%03d"):format(sex, index or 1)
+end
+
+--- A function to get the list of clothes sorted by sex and category
+---@return table clothes_list_sorted
+function jo.component.getFullPedComponentList()
+  if clothes_list_sorted then return clothes_list_sorted end
+  jo.file.load("component.clothesList")
+  return clothes_list_sorted
+end
+
+--- A function to get the list of horse's components sorted by category
+---@return table HorseComponents
+function jo.component.getFullHorseComponentList()
+  if HorseComponents then return HorseComponents end
+  jo.file.load("component.HorseComponents")
+  return HorseComponents
 end
 
 exports("jo_component_get", function()
