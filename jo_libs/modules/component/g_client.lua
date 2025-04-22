@@ -1177,6 +1177,22 @@ function jo.component.getTeethFromIndex(ped, index)
   return ("CLOTHING_ITEM_%s_TEETH_%03d"):format(sex, index or 1)
 end
 
+--- A function to get the list of clothes sorted by sex and category
+---@return table clothes_list_sorted
+function jo.component.getFullPedComponentList()
+  if clothes_list_sorted then return clothes_list_sorted end
+  jo.file.load("component.clothesList")
+  return clothes_list_sorted
+end
+
+--- A function to get the list of horse's components sorted by category
+---@return table HorseComponents
+function jo.component.getFullHorseComponentList()
+  if HorseComponents then return HorseComponents end
+  jo.file.load("component.HorseComponents")
+  return HorseComponents
+end
+
 exports("jo_component_get", function()
   return jo.component
 end)
