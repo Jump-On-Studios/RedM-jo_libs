@@ -18,8 +18,8 @@ end
 
 --- A function to trigger the server with limited bandwith
 ---@alias jo.emit.triggerServer.latent function
----@param eventName string the event name
----@param ... any other arguments
+---@param eventName string (The event name)
+---@param ... any (Other arguments)
 local function triggerServerLatent(eventName, ...)
   local payload = msgpack_pack_args(...)
   local payloadLen = #payload
@@ -29,8 +29,8 @@ end
 
 --- A function to trigger the server
 ---@alias jo.emit.triggerServer function
----@param eventName the event name
----@param ... any other arguments
+---@param eventName string (The event name)
+---@param ... any (Other arguments)
 local function triggerServer(eventName, ...)
   local payload = msgpack_pack_args(...)
   local payloadLen = #payload
