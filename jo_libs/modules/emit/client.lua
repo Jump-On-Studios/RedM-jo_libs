@@ -16,6 +16,10 @@ function jo.emit.updateBps(bps)
   emitBps = tonumber(bps)
 end
 
+--- A function to trigger the server with limited bandwith
+---@alias jo.emit.triggerServer.latent function
+---@param eventName string the event name
+---@param ... any other arguments
 local function triggerServerLatent(eventName, ...)
   local payload = msgpack_pack_args(...)
   local payloadLen = #payload
@@ -23,11 +27,15 @@ local function triggerServerLatent(eventName, ...)
   TriggerLatentServerEventInternal(eventName, payload, payloadLen, emitBps)
 end
 
-local function triggerServer(name, ...)
+--- A function to trigger the server
+---@alias jo.emit.triggerServer function
+---@param eventName the event name
+---@param ... any other arguments
+local function triggerServer(eventName, ...)
   local payload = msgpack_pack_args(...)
   local payloadLen = #payload
 
-  TriggerServerEventInternal(name, payload, payloadLen)
+  TriggerServerEventInternal(eventName, payload, payloadLen)
 end
 
 jo.emit.triggerServer = setmetatable({
