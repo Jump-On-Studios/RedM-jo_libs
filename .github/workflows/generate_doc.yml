@@ -56,7 +56,7 @@ jobs:
         with:
           repository: Jump-On-Studios/Documentation
           path: Documentation
-          ref: autodoc-integration
+          ref: main
           token: ${{ secrets.UPLOAD_TOKEN }}  # Add token for push access later
       
       - name: Create folders.json
