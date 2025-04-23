@@ -139,6 +139,7 @@ end
 --- Converts a value to a percentage (between 0-1) whether input is in percentage or decimal form
 ---@param value number (The value to convert to percentage)
 ---@return number (Return the value as a decimal between -1 and 1)
+---@autodoc:config ignore:true
 function jo.framework:convertToPercent(value)
   value = tonumber(value)
   if not value then return 0 end
@@ -219,6 +220,7 @@ end
 --- Extracts the component hash from a data table if it's the only property
 ---@param data table (The component data to process)
 ---@return any (Return the hash if it's the only property, otherwise return the original data)
+---@autodoc:config ignore:true
 function jo.framework:extractComponentHashIfAlone(data)
   if type(data) ~= "table" then return data end
   if table.count(data) > 1 then return data end

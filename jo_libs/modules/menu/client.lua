@@ -517,6 +517,8 @@ function jo.menu.forceBack()
   SendNUIMessage({ event = "menuBack" })
 end
 
+--- A function to play a NUI sound
+---@param sound string sound name from nui/menu/sounds folder
 function jo.menu.playAudio(sound)
   SendNUIMessage({
     event = "startAudio",
