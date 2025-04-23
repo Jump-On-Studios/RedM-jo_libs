@@ -517,6 +517,8 @@ function jo.menu.forceBack()
   SendNUIMessage({ event = "menuBack" })
 end
 
+--- A function to play a NUI sound
+---@param sound string sound name from nui/menu/sounds folder
 function jo.menu.playAudio(sound)
   SendNUIMessage({
     event = "startAudio",
@@ -591,7 +593,7 @@ local function menuNUIChange(data)
   currentData.menu = data.menu
   currentData.index = data.item.index
   -- menus[data.menu].currentIndex = data.item.index
-  menus[data.menu].items[data.item.index] = table.overwrite(menus[data.menu].items[data.item.index], data.item)
+  menus[data.menu].items[data.item.index] = table.merge(menus[data.menu].items[data.item.index], data.item)
   currentData.item = menus[data.menu].items[data.item.index]
 
   updateSliderCurrentValue(currentData.item)

@@ -43,7 +43,7 @@ end)
 
 --- A function to trigger a server callback
 ---@param name string (Name of the callback event)
----@param cb function (Function to receive the result of the event)
+---@param cb? function (Function to receive the result of the event)
 ---@param ...? mixed (The list of parameters to send to the callback event)
 function jo.callback.triggerServer(name, cb, ...)
   local cbType = isAFunction(cb) and "function" or "other"
@@ -86,7 +86,7 @@ end
 
 --- A function to trigger a client callback
 ---@param name string (The name of the callback event)
----@param cb function (Function to receive the result of the event)
+---@param cb? function|nil (Function to receive the result of the event)
 ---@param ...? mixed (The list of parameters to send to the callback event)
 function jo.callback.triggerClient(name, cb, ...)
   if not registeredCallback[name] then return false, eprint("No client callback for:", name) end

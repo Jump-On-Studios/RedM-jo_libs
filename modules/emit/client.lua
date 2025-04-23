@@ -3,7 +3,7 @@ jo.emit = {}
 local eventsInProgress = {}
 
 local msgpack_pack_args = msgpack.pack_args
-local emitBps = GetConvarInt("jo_libs:emit:bps", 20000)
+local emitBps = GetConvarInt("jo_libs:emit:bps", 20000) --Default bit/s for latent events
 
 AddConvarChangeListener("jo_libs:emit:bps", function(value)
   bprint("New bit/s for emit module: ", value)
@@ -44,6 +44,8 @@ jo.emit.triggerServer = setmetatable({
   __call = triggerServer
 })
 
+--- A function to check if an event is currently getting data with emit module
+---@param eventName string the event name
 function jo.emit.isEventInProgress(eventName)
   return eventsInProgress[eventName] or nil
 end
