@@ -22,7 +22,9 @@ name: Update Documentation
 
 on:
   push:
-    branches: [documentation-update]
+    branches:
+      - main
+      - v2.0.0
     paths:
       - '**/*.lua'  # Only trigger on Lua file changes
   workflow_dispatch:  # Allow manual triggering
@@ -108,7 +110,7 @@ jobs:
             echo "No changes to commit"
           else
             git commit -m "Update documentation from Jump-On-Studios/RedM-jo_libs@${GITHUB_SHA}"
-            git push origin autodoc-integration
+            git push origin main
           fi
         env:
           # Use GitHub token for authentication
