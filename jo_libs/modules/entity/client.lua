@@ -174,18 +174,38 @@ function ScreenPositionToCameraRay(screenX, screenY)
 	)
 end
 
-local function screenToWorld(distance, flags, toIgnore)
+local function screenToWorld(distance, flags, toIgnore, mouseX, mouseY)
 	distance = distance or 100
 	flags = flags or (1|2|8|16)
 	toIgnore = toIgnore or PlayerPedId()
+	mouseX = mouseX or 0.5 -- Default to screen center if not provided
+	mouseY = mouseY or 0.5 -- Default to screen center if not provided
 
 	-- Create a ray from the camera origin that extends through the mouse cursor
-	local r_pos, r_dir = ScreenPositionToCameraRay(0.5, 0.5)
+	local r_pos, r_dir = ScreenPositionToCameraRay(mouseX, mouseY)
 	local b = r_pos + distance * r_dir
 	local rayHandle = StartShapeTestRay(r_pos, b, flags, toIgnore, 0)
-	-- local rayHandle = StartExpensiveSynchronousShapeTestLosProbe(cam3DPos, direction, 1|2|8|16, toIgnore, 0)
 	local a, hit, endCoords, surfaceNormal, entityHit = GetShapeTestResult(rayHandle)
 	return hit, endCoords, surfaceNormal, entityHit
+end
+
+
+--- Raycast from the camera through the mouse cursor position and return what was hit
+--- Must be called each frames
+---@param distance? number (Maximum raycast distance <br> default:100)
+---@param flags? integer (Flags for the raycast <br> default:(1|2|8|16))
+---@param toIgnore? integer (Entity to ignore in the raycast <br> default:PlayerPedId())
+---@return boolean,vector3,integer (Hit status, hit coordinates, hit entity)
+function jo.entity.selectWithMouse(distance, flags, toIgnore)
+	-- SetMouseCursorThisFrame()
+	jo.utils.loadGameData("l_016e22bcpp", true)
+	DrawSprite("l_016e22bcpp", "bullet_normal", 0.5, 0.5)
+
+	local mouseX, mouseY               = GetDisabledControlNormal(0, `INPUT_CURSOR_X`), GetDisabledControlNormal(0, `INPUT_CURSOR_Y`)
+
+	local hit, endCoords, _, entityHit = screenToWorld(distance, flags, toIgnore, mouseX, mouseY)
+
+	return hit, endCoords, entityHit
 end
 
 --- Create an entity that follows the mouse cursor for placement
