@@ -62,7 +62,7 @@ end
 
 --- Retrieves a player's full UserClass object containing all player data and methods
 ---@param source integer (The source ID of the player)
----@return jo.framework.UserClass (Return a User class object containing player data and methods)
+---@return UserClass (Return a User class object containing player data and methods)
 function jo.framework:getUser(source)
   local user = jo.framework.UserClass:get(source)
   return user
