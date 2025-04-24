@@ -61,8 +61,9 @@ end
 
 
 local function detectFramework()
-  if GetConvar("jo_libs:framework", "false") ~= "false" then
-    return GetConvar("jo_libs:framework", "false")
+  local frameworkConvarValue = GetConvar("jo_libs:framework", "false") -- Force the framework
+  if frameworkConvarValue ~= "false" then
+    return frameworkConvarValue
   end
 
   local frameworkDetected
