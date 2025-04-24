@@ -31,29 +31,35 @@ function UiFeedPostTwoTextShard(...)
   return Citizen.InvokeNative(0xA6F4216AB10EB08E, ...)
 end
 
-RegisterNetEvent(GetCurrentResourceName() .. ":client:notif", function(text, dict, icon, color, duration, soundset_ref, soundset_name)
-  jo.notif.right(text, dict, icon, color, duration, soundset_ref, soundset_name)
-end)
+RegisterNetEvent(GetCurrentResourceName() .. ":client:notif",
+  function(text, dict, icon, color, duration, soundset_ref, soundset_name)
+    jo.notif.right(text, dict, icon, color, duration, soundset_ref, soundset_name)
+  end)
 
----@param text string the text of the notification
+--- A function to display a successful notification
+---@param text string (The text of the notification)
+---@return boolean (Always return `true`)
 function jo.notif.rightSuccess(text)
   jo.notif.right(text, "hud_textures", "check", "COLOR_GREEN")
   return true
 end
 
----@param text string the text of the notification
+--- A function to display an error notification
+---@param text string (The text of the notification)
+---@return boolean (Always return `false`)
 function jo.notif.rightError(text)
   jo.notif.right(text, "menu_textures", "cross", "COLOR_RED", nil, nil, "Transaction_Negative")
   return false
 end
 
----@param text string The text of the notification
----@param dict string The dictonnary of the icon
----@param icon string he name of the icon
----@param color? string The color of the text
----@param duration? integer The duration of the notification in ms
----@param soundset_ref? string The dictionnary of the soundset
----@param soundset_name? string The name of the soundset
+--- Notification on the right with icon, color and sound
+---@param text string (The text of the notification)
+---@param dict string (The dictionnary of the icon)
+---@param icon string (The name of the icon)
+---@param color? string (The color of the text <br> default : "COLOR_WHITE")
+---@param duration? integer (The duration of the notification in ms <br> default: 3000)
+---@param soundset_ref? string (The dictionnary of the soundset <br> default : "Transaction_Feed_Sounds")
+---@param soundset_name? string (The name of the soundset <br> default : "Transaction_Positive")
 function jo.notif.right(text, dict, icon, color, duration, soundset_ref, soundset_name)
   local message = {
     type = "notificationRight",
@@ -87,18 +93,20 @@ function jo.notif.right(text, dict, icon, color, duration, soundset_ref, soundse
   UiFeedPostSampleToastRight(struct1:Buffer(), struct2:Buffer(), 1)
 end
 
-RegisterNetEvent(GetCurrentResourceName() .. ":client:notifLeft", function(title, subTitle, dict, icon, color, duration, soundset_ref, soundset_name)
-  jo.notif.left(title, subTitle, dict, icon, color, duration, soundset_ref, soundset_name)
-end)
+RegisterNetEvent(GetCurrentResourceName() .. ":client:notifLeft",
+  function(title, subTitle, dict, icon, color, duration, soundset_ref, soundset_name)
+    jo.notif.left(title, subTitle, dict, icon, color, duration, soundset_ref, soundset_name)
+  end)
 
----@param title string the title of the notification
----@param text string The text of the notification
----@param dict string The dictonnary of the icon
----@param icon string he name of the icon
----@param color? string The color of the text
----@param duration? integer The duration of the notification in ms
----@param soundset_ref? string The dictionnary of the soundset
----@param soundset_name? string The name of the soundset
+--- Notification on the left with title, icon, color and sound
+---@param title string (The title of the notification)
+---@param text string (The text of the notification)
+---@param dict string (The dictionnary of the icon)
+---@param icon string (The name of the icon)
+---@param color? string (The color of the text <br> default : "COLOR_WHITE")
+---@param duration? integer (The duration of the notification in ms <br> default: 3000)
+---@param soundset_ref? string (The dictionnary of the soundset <br> default : "Transaction_Feed_Sounds")
+---@param soundset_name? string (The name of the soundset <br> default : "Transaction_Positive")
 function jo.notif.left(title, text, dict, icon, color, duration, soundset_ref, soundset_name)
   local message = {
     type = "notificationLeft",
@@ -132,11 +140,10 @@ function jo.notif.left(title, text, dict, icon, color, duration, soundset_ref, s
   UiFeedPostSampleToast(struct1:Buffer(), struct2:Buffer(), 1, 1)
 end
 
-
-
----@param title string the title of the notification
----@param subtitle string The text of the notification
----@param duration? integer The duration of the notification in ms
+--- Notification on the top with big title and subtitle (native mission start/end)
+---@param title string (The title of the notification)
+---@param subtitle string (The text of the notification)
+---@param duration? integer (The duration of the notification in ms <br> default : 3000)
 function jo.notif.simpleTop(title, subtitle, duration)
   local structConfig = DataView.ArrayBuffer(8 * 7)
   structConfig:SetInt32(8 * 0, tonumber(duration or 3000))

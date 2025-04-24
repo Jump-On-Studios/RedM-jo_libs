@@ -18,8 +18,9 @@ local function isAFunction(cb)
   return false
 end
 
----@param name string the name of the event
----@param cb function
+--- A function to register a server callback
+---@param name string (The name of the callback event)
+---@param cb function (The function executed when the callback is triggered <br> ⚠️ `source` is always the first argument)
 function jo.callback.register(name, cb)
   if registeredCallback[name] then return eprint("Callback already registered:", name) end
   registeredCallback[name] = {
@@ -36,9 +37,11 @@ AddEventHandler("onResourceStop", function(resource)
   end
 end)
 
----@param name string Name of the callback event
----@param cb function return of the event
----@param ...? any
+--- A function to trigger a client callback
+---@param name string (The name of the callback event)
+---@param source integer (The source of the client to trigger)
+---@param cb? function (Function to receive the result of the event)
+---@param ...? mixed (The list of parameters to send to the callback event)
 function jo.callback.triggerClient(name, source, cb, ...)
   if not GetPlayerIdentifier(source) then
     return eprint("Callback Module: Player is not connected - source: " .. source)
@@ -59,7 +62,8 @@ function jo.callback.triggerClient(name, source, cb, ...)
   end
 
 
-  TriggerClientEvent("jo_libs:triggerCallback", source, name, currentRequestId, GetInvokingResource() or "unknown", unpack(args))
+  TriggerClientEvent("jo_libs:triggerCallback", source, name, currentRequestId, GetInvokingResource() or "unknown",
+    unpack(args))
 
   nextRequestId = nextRequestId < 65535 and nextRequestId + 1 or 0
   if cbType == "function" then
@@ -73,6 +77,10 @@ local function executeCallback(name, ...)
   return registeredCallback[name].cb(...)
 end
 
+--- A function to trigger a server callback
+---@param name string (Name of the callback event)
+---@param cb? function (Function to receive the result of the event)
+---@param ...? mixed (The list of parameters to send to the callback event)
 function jo.callback.triggerServer(name, cb, ...)
   if not registeredCallback[name] then return false, eprint("No server callback for:", name) end
 
@@ -90,7 +98,10 @@ function jo.callback.triggerServer(name, cb, ...)
 end
 
 RegisterServerEvent("jo_libs:responseCallback", function(requestId, fromRessource, ...)
-  if not responseCallback[requestId] then return eprint(("No callback response for: %d - Called from: %d"):format(requestId, fromRessource)) end
+  if not responseCallback[requestId] then
+    return eprint(("No callback response for: %d - Called from: %d"):format(
+      requestId, fromRessource))
+  end
   if isAFunction(responseCallback[requestId]) then
     responseCallback[requestId](...)
   else

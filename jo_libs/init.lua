@@ -9,7 +9,7 @@ local function noFunction() end
 local LoadResourceFile = LoadResourceFile
 local context = IsDuplicityVersion() and "server" or "client"
 local moduleInLoading = {}
-local moduleLocal = {}
+local moduleLoaded = {}
 local globalModuleLoaded = {}
 
 local alias = {
@@ -19,6 +19,7 @@ local alias = {
   pedTexture = "ped-texture",
   gameEvents = "game-events",
   triggerEvent = "trigger-event",
+  promptNui = "prompt-nui"
 }
 
 local function getAlias(module)
@@ -59,10 +60,25 @@ function UnJson(value)
   return value
 end
 
+---Set a default value if the value is nil
+---@param value any your value
+---@param default any the default value
+---@return any
+function GetValue(value, default)
+  if default == nil then
+    return value
+  end
+  if default == false then
+    return value or false
+  end
+  return value == nil and default or value
+end
+
 local function isModuleLoaded(name, needLocal)
-  if needLocal and not moduleLocal[name] then return false end
+  needLocal = GetValue(needLocal, true)
+  if needLocal and not (moduleLoaded[name] == "local") then return false end
   if moduleInLoading[name] then return true end
-  if rawget(jo, name) then return true end
+  if moduleLoaded[name] then return true end
   return false
 end
 
@@ -77,22 +93,38 @@ local function doesScopedFilesRequired(name)
   return resourceName ~= "jo_libs" or table.find(modules, function(_name) return _name == name end)
 end
 
-local function loadModule(self, name, needLocal)
+local function readAndLoadFile(path)
+  local file = LoadResourceFile("jo_libs", path)
+  if not file then
+    return false
+  end
+
+  local fn, err = load(file, ("@@jo_libs/%s.lua"):format(path))
+
+  if not fn or err then
+    return false, error(("\n^1Error importing module (%s):\n^1%s^0"):format(path, err), 3)
+  end
+
+  local success, err = pcall(fn)
+
+  if not success then
+    return false, error(("\n^1Error importing module (%s):\n^1%s^0"):format(path, err), 3)
+  end
+  return success
+end
+
+local function loadModule(name, needLocal)
   if needLocal == nil then needLocal = true end
   local folder = alias[name] or name
   local dir = ("modules/%s"):format(folder)
-  local file = ""
 
   moduleInLoading[folder] = true
   moduleInLoading[name] = true
-  if needLocal then
-    moduleLocal[folder] = true
-    moduleLocal[name] = true
-  end
+  moduleLoaded[folder] = needLocal and "local" or "global"
+  moduleLoaded[name] = needLocal and "local" or "global"
+
 
   loadGlobalModule(name)
-
-  self[name] = noFunction
 
   --load files in the right order
   for _, fileName in ipairs({ "shared", "context" }) do
@@ -101,40 +133,25 @@ local function loadModule(self, name, needLocal)
     local link = ("%s/%s.lua"):format(dir, fileName)
     --load scoped files
     if needLocal or doesScopedFilesRequired(name) then
-      local tempFile = LoadResourceFile("jo_libs", link)
-      if tempFile then
-        file = file .. tempFile
-      end
+      readAndLoadFile(link)
     end
     --load global files inside jo_libs
-    local globalLink = ("%s/%s.lua"):format(dir, "g_" .. fileName)
-    if resourceName == "jo_libs" and not globalModuleLoaded[globalLink] then
-      globalModuleLoaded[globalLink] = true
-      local tempFile = LoadResourceFile("jo_libs", globalLink)
-      if tempFile then
-        file = file .. tempFile
+    if resourceName == "jo_libs" then
+      local globalLink = ("%s/%s.lua"):format(dir, "g_" .. fileName)
+      if not globalModuleLoaded[globalLink] then
+        globalModuleLoaded[globalLink] = true
+        readAndLoadFile(globalLink)
       end
     end
-  end
-
-  if file then
-    local fn, err = load(file, ("@@jo_libs/%s/%s.lua"):format(dir, context))
-
-    if not fn or err then
-      return error(("\n^1Error importing module (%s): %s^0"):format(dir, err), 3)
-    end
-
-    local result = fn()
-    self[name] = result or self[name] or noFunction
   end
 
   moduleInLoading[name] = nil
   moduleInLoading[folder] = nil
 
-  return self[name]
+  return true
 end
 
-local function call(self, name, ...)
+local function call(_, name, ...)
   if not name then return noFunction end
   if type(name) ~= "string" then return noFunction() end
   name = getAlias(name)
@@ -142,13 +159,12 @@ local function call(self, name, ...)
   local module = rawget(jo, name)
 
   if not module then
-    -- self[name] = noFunction
-    module = loadModule(self, name)
+    loadModule(name)
   end
 
   while moduleInLoading[name] do Wait(0) end
 
-  return module
+  return rawget(jo, name)
 end
 
 local jo = setmetatable({
@@ -157,7 +173,13 @@ local jo = setmetatable({
   name = jo_libs,
   resourceName = resourceName,
   context = context,
-  cache = {}
+  cache = {},
+  isServerSide = function()
+    return context == "server"
+  end,
+  isClientSide = function()
+    return context == "client"
+  end
 }, {
   __index = call,
   __call = noFunction
@@ -170,7 +192,7 @@ function jo.waitLibLoading()
 end
 
 function jo.isModuleLoaded(name, needLocal)
-  local name = getAlias(name)
+  name = getAlias(name)
   return isModuleLoaded(name, needLocal)
 end
 
@@ -204,15 +226,15 @@ end
 -------------
 
 function jo.require(name, needLocal)
-  if needLocal == nil then needLocal = true end
+  needLocal = GetValue(needLocal, true)
   name = getAlias(name)
   if isModuleLoaded(name, needLocal) then return end
-  local module = loadModule(jo, name, needLocal)
-  if type(module) == "function" then pcall(module) end
+  return loadModule(name, needLocal)
 end
 
 if resourceName == "jo_libs" then
   exports("loadGlobalModule", function(name)
+    while not jo.libLoaded do Wait(0) end
     jo.require(name, false)
     return true
   end)
@@ -252,7 +274,7 @@ local function CreateExport(name, cb)
 end
 
 --Sort module by priority
-local priorityModules = { table = 1, print = 2, file = 3, hook = 4, framework = 5 }
+local priorityModules = { table = 1, print = 2, file = 3, hook = 4 }
 table.sort(modules, function(a, b)
   local prioA = priorityModules[a]
   local prioB = priorityModules[b]
@@ -275,7 +297,7 @@ for i = 1, #modules do
     CreateExport("registerFilter", jo.hook.registerFilter)
     CreateExport("RegisterFilter", jo.hook.RegisterFilter)
   elseif name == "versionChecker" and context == "server" then
-    CreateExport("GetScriptVersion", jo.versionChecker.GetScriptVersion)
+    -- CreateExport("GetScriptVersion", jo.versionChecker.GetScriptVersion)
     CreateExport("StopAddon", jo.versionChecker.stopAddon)
   end
 end

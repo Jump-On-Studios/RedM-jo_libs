@@ -1,5 +1,10 @@
 jo.promise = {}
 
+--- Creates a new Promise that wraps a callback function
+--- This utility transforms callback-style functions into Promise-returning functions
+---@param cb function (The callback function to be wrapped in a Promise)
+---@param ... mixed (Arguments to pass to the callback function)
+---@return ... (The resolved values from the Promise)
 function jo.promise.new(cb, ...)
   local waiter = promise.new()
   local resolver = function(...)
@@ -20,4 +25,3 @@ function jo.promise.new(cb, ...)
   cb(table.unpack(args))
   return table.unpack(Citizen.Await(waiter))
 end
-

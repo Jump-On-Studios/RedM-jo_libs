@@ -9,11 +9,12 @@ local function getTime()
   end
 end
 
----@param condition function the condition to stop the loop
----@param executable function function to execute after each test
----@param loopSpeed integer the wait between each test in ms
----@param maxDuration integer the max duration to wait in ms
----@return boolean result true if the condition is down or false
+--- Execute a function repeatedly until a condition is met or a timeout occurs.
+---@param condition function (The condition to stop the loop)
+---@param executable? function (Function to execute after each test)
+---@param loopSpeed? integer (The wait between each test in ms <br> default:0)
+---@param maxDuration? integer (The max duration to wait in ms <br> default:5000)
+---@return boolean (True if the condition was met, false if timeout occurred)
 function jo.waiter.exec(condition, executable, loopSpeed, maxDuration)
   maxDuration = maxDuration or 5000
   loopSpeed = loopSpeed or 0

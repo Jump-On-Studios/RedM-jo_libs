@@ -3,15 +3,24 @@ jo.pedTexture = {}
 jo.require("utils")
 jo.require("table")
 jo.require("timeout")
+jo.require("waiter")
 
 local pedsTextures = {}
 local delays = {}
+local maxForceUpdate = 5
+local currentUpdate = 0
 
 local function AddTextureLayer(...) return Citizen.InvokeNative(0x86BB5FF45F193A02, ...) end
 local function ApplyTextureOnPed(...) return Citizen.InvokeNative(0x0B46E25761519058, ...) end
 local function ClearPedTexture(...) return Citizen.InvokeNative(0xB63B9178D0F58D82, ...) end
-local function GetCategoryOfComponentAtIndex(ped, componentIndex) return Citizen.InvokeNative(0x9b90842304c938a7, ped, componentIndex, 0, Citizen.ResultAsInteger()) end
-local function GetMetaPedAssetGuids(ped, index) return Citizen.InvokeNative(0xA9C28516A6DC9D56, ped, index, Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt()) end
+local function GetCategoryOfComponentAtIndex(ped, componentIndex)
+  return Citizen.InvokeNative(0x9b90842304c938a7, ped,
+    componentIndex, 0, Citizen.ResultAsInteger())
+end
+local function GetMetaPedAssetGuids(ped, index)
+  return Citizen.InvokeNative(0xA9C28516A6DC9D56, ped, index,
+    Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt())
+end
 local function GetNumComponentsInPed(ped) return Citizen.InvokeNative(0x90403E8107B60E81, ped) end
 local function IsTextureValid(...) return Citizen.InvokeNative(0x31DC8D3F216D8509, ...) end
 local function ReleaseTexture(...) return Citizen.InvokeNative(0x6BEFAA907B076859, ...) end
@@ -23,6 +32,7 @@ local function SetTextureLayerTint(...) return Citizen.InvokeNative(0x2DF59FFE6F
 local function UpdatePedTexture(...) return Citizen.InvokeNative(0x92DAABA2C1C10B0E, ...) end
 local function N_0x704C908E9C405136(...) return Citizen.InvokeNative(0x704C908E9C405136, ...) end
 local function UpdatePedVariation(ped) return Citizen.InvokeNative(0xCC8CA3E88256E58F, ped, false, true, true, true, false) end
+local CreateThreadNow = Citizen.CreateThreadNow
 local function _updatePedVariation(ped)
   N_0x704C908E9C405136(ped)
   return UpdatePedVariation(ped)
@@ -334,9 +344,13 @@ jo.pedTexture.ordersToApply = {
   }
 }
 
----@param isMale boolean
----@param category string
----@param data table
+--- A function to get the hashname of a texture
+---@param isMale boolean (`true` if the texture is for a male, `false` otherwise)
+---@param category string (The layername of the texture)
+---@param data table (The texture data <br> ⚠️ Can be either a `number` representing the texture ID or a `table` with detailed configuration)
+--- data.albedo string (The albedo of the texture)
+--- data.sexe? string (The sex of the texture, used for eyebrow category <br> default: based on isMale)
+---@return string (Return the hashname of the texture for this ID)
 function jo.pedTexture.getOverlayAssetFromId(isMale, category, data)
   if type(data) == "number" then
     data = { id = data }
@@ -393,7 +407,8 @@ local function applyLayer(textureId, name, layer)
   then
     blendType = 1
   end
-  local layerIndex = AddTextureLayer(textureId, albedo, normal, material, layer.blendType or blendType, (layer.opacity or 1.0) * 1.0, layer.sheetGrid or 0)
+  local layerIndex = AddTextureLayer(textureId, albedo, normal, material, layer.blendType or blendType,
+    (layer.opacity or 1.0) * 1.0, layer.sheetGrid or 0)
   if blendType == 0 and layer.palette then
     SetTextureLayerPallete(textureId, layerIndex, GetHashFromString(layer.palette))
     SetTextureLayerTint(textureId, layerIndex, layer.tint0 or 0, layer.tint1 or 0, layer.tint2 or 0)
@@ -402,24 +417,60 @@ local function applyLayer(textureId, name, layer)
   SetTextureLayerAlpha(textureId, layerIndex, (layer.opacity or 1.0) * 1.0)
 end
 
+local function checkIfTextureValid(textureId)
+  if textureId == -1 then
+    return false, eprint("Impossible to get the texture", textureId)
+  end
+  local isValid = jo.waiter.exec(function() return IsTextureValid(textureId) end)
+  if not isValid then
+    ReleaseTexture(textureId)
+    dprint("The texture is not valid", textureId)
+  end
+  return isValid
+end
+
 local function updateAllPedTexture(ped, category)
+  if IsScreenFadedOut() or IsLoadingScreenVisible() then
+    Wait(2000)
+  end
   delays["updatePedTexture" .. ped] = jo.timeout.delay("updatePedTexture" .. ped, 200, function()
-    dprint("REFRESH Ped Texture", json.encode(pedsTextures[ped]))
+    dprint("updateAllPedTexture(), try number:", currentUpdate, json.encode(pedsTextures[ped]))
+    GetNumberOfMicrosecondsSinceLastCall()
+    dprint("Wait ped ready")
+    jo.waiter.exec(function()
+      return IsPedReadyToRender(ped)
+    end)
+    dprint(("Ped ready in %.4fms"):format(GetNumberOfMicrosecondsSinceLastCall() / 1000))
     if pedsTextures[ped][category].textureId ~= nil then
       ClearPedTexture(pedsTextures[ped][category].textureId)
+      dprint("Old texture cleared")
     end
     local index = GetComponentIndexByCategory(ped, category)
     local _, albedo, normal, material = GetMetaPedAssetGuids(ped, index)
     if albedo == 0 then
+      dprint("Impossible to get the ped albedo")
       return
     end
     local textureId = RequestTexture(albedo, normal, material)
-    if (textureId == -1) then
-      return print("IMPOSSIBLE TO APPLY THE TEXTURES")
-    end
-    pedsTextures[ped][category].textureId = textureId
 
-    for _, name in ipairs(jo.pedTexture.ordersToApply[category]) do
+    if not checkIfTextureValid(textureId) then
+      dprint("Ped texture ID is not valid", textureId)
+      currentUpdate += 1
+      if currentUpdate > maxForceUpdate then
+        dprint("Impossible to apply the ped Texture. Max try attempts", currentUpdate)
+        return
+      end
+      Wait(200)
+      dprint("Restart the updateAllPedTexture() function")
+      return updateAllPedTexture(ped, category)
+    end
+
+    dprint("Add layers to texture:", textureId)
+    dprint(json.encode(pedsTextures[ped][category]))
+
+    pedsTextures[ped][category].textureId = textureId
+    for c = 1, #jo.pedTexture.ordersToApply[category] do
+      local name = jo.pedTexture.ordersToApply[category][c]
       local layer = pedsTextures[ped][category].layers[name]
       if table.type(layer) == "array" then
         for i = 1, #layer do
@@ -429,35 +480,60 @@ local function updateAllPedTexture(ped, category)
         applyLayer(textureId, name, layer)
       end
     end
-    jo.utils.waiter(function() return not IsTextureValid(textureId) end)
 
-    if IsTextureValid(textureId) then
-      ApplyTextureOnPed(ped, GetHashFromString(category), textureId)
-      UpdatePedTexture(textureId)
-      _updatePedVariation(ped)
-      Entity(ped).state:set("jo_pedTexture", pedsTextures[ped])
-      CreateThread(function()
-        local textureId = textureId
-        jo.utils.waiter(function() return IsPedReadyToRender(ped) end)
-        ReleaseTexture(textureId)
-      end)
-    else
-      ReleaseTexture(textureId)
+    Wait(0)
+
+    if not checkIfTextureValid(textureId) then
+      dprint("Ped texture ID is not valid anymore after apply layers", textureId)
+      currentUpdate += 1
+      if currentUpdate > maxForceUpdate then
+        dprint("Impossible to apply the ped Texture. Max try attempts", currentUpdate)
+        return
+      end
+      Wait(200)
+      dprint("Restart the updateAllPedTexture() function")
+      return updateAllPedTexture(ped, category)
     end
+
+    dprint("Apply the ped texture", textureId)
+    ApplyTextureOnPed(ped, GetHashFromString(category), textureId)
+    UpdatePedTexture(textureId)
+    _updatePedVariation(ped)
+    Entity(ped).state:set("jo_pedTexture", pedsTextures[ped])
+    CreateThread(function()
+      local textureId = textureId
+      jo.waiter.exec(function() return IsPedReadyToRender(ped) end)
+      dprint("Release the ped texture", textureId)
+      ReleaseTexture(textureId)
+    end)
   end)
 end
 
----@param ped integer
----@param layerName string
----@param _data table
+--- A function to apply texture on a specific ped
+---@param ped integer (The entity ID)
+---@param layerName string (The layername of the texture)
+---@param _data table (The data of the texture)
+--- _data.id integer (The ID of the texture <br> OR)
+--- _data.albedo string (The albedo of the texture)
+--- _data.sheetGrid? integer (The sheet grid of the texture <br> default: 0)
+--- _data.opacity? number (The opacity of the texture <br> default: 1.0)
+--- _data.blendType? integer (The blend type of the texture <br> default: 1)
+--- _data.palette? string|integer (The palette of the colors <br> default: "metaped_tint_makeup")
+--- _data.tint0? string|integer (The first color)
+--- _data.tint1? string|integer (The second color)
+--- _data.tint2? string|integer (The third color)
 function jo.pedTexture.apply(ped, layerName, _data)
   if not NetworkGetEntityIsNetworked(ped) then
     return dprint("ERROR: RedM doesn't allow editing of texture on a local entity")
   end
   local data = table.copy(_data or {})
+  dprint("Apply pedTexture")
+  dprint("Ped:", ped)
+  dprint("layername:", layerName)
+  dprint("data", data)
   local category = jo.pedTexture.categories[layerName]
   if not category then
-    return print("No texture category for layer: " .. layerName)
+    return eprint("No texture category for layer: " .. layerName)
   end
   pedsTextures[ped] = pedsTextures[ped] or Entity(ped).state["jo_pedTexture"] or {}
   pedsTextures[ped][category] = pedsTextures[ped][category] or { layers = {} }
@@ -465,7 +541,8 @@ function jo.pedTexture.apply(ped, layerName, _data)
 
   if table.type(data) == "array" then
     pedsTextures[ped][category].layers[layerName] = {}
-    for _, d in pairs(data) do
+    for i = 1, #data do
+      local d = data[i]
       local convertedData = convertDataLayer(ped, layerName, d)
       if convertedData.albedo then
         table.insert(pedsTextures[ped][category].layers[layerName], convertedData)
@@ -478,17 +555,23 @@ function jo.pedTexture.apply(ped, layerName, _data)
     end
   end
 
-  updateAllPedTexture(ped, category)
+  currentUpdate = 1
+  CreateThreadNow(function()
+    updateAllPedTexture(ped, category)
+  end)
 end
 
----@param ped integer
----@param layerName string
+--- A function to remove a texture
+---@param ped integer (The entity ID)
+---@param layerName string (The layer name of the texture)
 function jo.pedTexture.remove(ped, layerName)
   jo.pedTexture.apply(ped, layerName, {})
 end
 
----@param ped integer
+--- A function to refresh the ped texture
+---@param ped integer (The entity ID)
 function jo.pedTexture.refreshAll(ped)
+  dprint("Refresh all ped texture", ped)
   pedsTextures[ped] = pedsTextures[ped] or Entity(ped).state["jo_pedTexture"] or {}
   if table.count(pedsTextures[ped]) == 0 then return end
 
@@ -502,7 +585,20 @@ function jo.pedTexture.refreshAll(ped)
   end
 end
 
-function jo.pedTexture.overwriteCategory(ped, category, overlays, forceRemove)
+--- A function to apply now the ped texture modification
+function jo.pedTexture.refreshNow(ped)
+  if delays["updatePedTexture" .. ped]:execute() then
+    dprint("No texture to apply for this ped", ped)
+  end
+end
+
+--- A function to overwrite all the layers of a body part
+--- @param ped integer (The entity ID)
+--- @param category string (The category of the texture)
+--- @param overlays object (The list of layers)
+--- @param forceRemove? boolean (Whether to force remove existing textures even if the category doesn't exist <br> default: false)
+function jo.pedTexture.overwriteBodyPart(ped, category, overlays, forceRemove)
+  dprint("overwriteBodyPart", ped, category, overlays, forceRemove)
   forceRemove = forceRemove or false
   pedsTextures[ped] = pedsTextures[ped] or Entity(ped).state["jo_pedTexture"] or { [category] = {} }
   if pedsTextures[ped][category] or forceRemove then
@@ -521,7 +617,11 @@ function jo.pedTexture.overwriteCategory(ped, category, overlays, forceRemove)
     jo.pedTexture.apply(ped, layername, layer)
   end
 end
+jo.pedTexture.overwriteCategory = jo.pedTexture.overwriteBodyPart
 
+--- Return the list of layers in all categories
+---@param ped integer (The entity ID)
+---@return object (Return the list of layer apply on the ped)
 function jo.pedTexture.getAll(ped)
   local layers = {}
   pedsTextures[ped] = pedsTextures[ped] or Entity(ped).state["jo_pedTexture"] or {}

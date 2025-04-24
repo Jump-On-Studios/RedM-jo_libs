@@ -1,0 +1,117 @@
+# Workflow d'automatisation de la génération de documentation
+# ------------------------------------------------------------------------------
+# Ce workflow permet de générer automatiquement la documentation pour jo_libs.
+# 
+# Fonctionnement:
+# 1. Le workflow est déclenché soit manuellement, soit par un push sur la branche "documentation-update"
+#    qui modifie des fichiers .lua
+# 2. Le workflow récupère (checkout) trois dépôts différents:
+#    - jo_libs (le code source à documenter)
+#    - jo_libs_autodoc (les scripts de génération de documentation)
+#    - Documentation (le dépôt où la documentation générée sera stockée)
+# 3. Un fichier de configuration "folders.json" est créé pour indiquer aux scripts
+#    où se trouvent les modules source et où enregistrer la documentation
+# 4. Python est installé et configuré
+# 5. Les scripts de génération de documentation sont exécutés:
+#    - generate_vitepress_docs.py: génère la documentation au format Markdown pour VitePress
+#    - check_missing_examples.py: vérifie s'il manque des exemples dans la documentation
+# 6. Les modifications sont commitées et poussées vers la branche "autodoc-integration"
+#    du dépôt Documentation, ce qui déclenchera ses propres workflows
+
+name: Update Documentation
+
+on:
+  push:
+    branches:
+      - main
+      - v2.0.0
+    paths:
+      - '**/*.lua'  # Only trigger on Lua file changes
+  workflow_dispatch:  # Allow manual triggering
+
+env:
+  PYTHON_VERSION: '3.10'
+
+jobs:
+  update-docs:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout jo_libs
+        uses: actions/checkout@v3
+        with:
+          path: jo_libs
+          fetch-depth: 0
+      
+      - name: Checkout jo_libs_autodoc
+        uses: actions/checkout@v3
+        with:
+          repository: Jump-On-Studios/jo_libs_autodoc
+          path: jo_libs_autodoc
+          ref: main
+          token: ${{ secrets.UPLOAD_TOKEN }}  # Add token for private repo access
+      
+      - name: Checkout Documentation
+        uses: actions/checkout@v3
+        with:
+          repository: Jump-On-Studios/Documentation
+          path: Documentation
+          ref: main
+          token: ${{ secrets.UPLOAD_TOKEN }}  # Add token for push access later
+      
+      - name: Create folders.json
+        run: |
+          cat > jo_libs_autodoc/folders.json << 'EOF'
+          {
+            "jo_libs_modules_directory_path": "../jo_libs/jo_libs/modules",
+            "vitepress_modules_directory_path": "../Documentation/docs/jo_libs/modules"
+          }
+          EOF
+      
+      - name: List created folders
+        run: |
+          echo "Root directory:"
+          ls -la
+          
+          echo -e "\nContent of jo_libs:"
+          ls -la jo_libs
+          
+          echo -e "\nContent of jo_libs_autodoc:"
+          ls -la jo_libs_autodoc
+          
+          echo -e "\nContent of Documentation:"
+          ls -la Documentation
+      
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      
+      - name: Run documentation generator
+        run: |
+          cd jo_libs_autodoc
+          python generate_vitepress_docs.py
+      
+      - name: Run missing examples report
+        run: |
+          cd jo_libs_autodoc
+          python check_missing_examples.py
+      
+      - name: Commit and push changes to Documentation
+        run: |
+          cd Documentation
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+          git add .
+          
+          # Only commit if there are changes
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Update documentation from Jump-On-Studios/RedM-jo_libs@${GITHUB_SHA}"
+            git push origin main
+          fi
+        env:
+          # Use GitHub token for authentication
+          GITHUB_TOKEN: ${{ secrets.UPLOAD_TOKEN }}
