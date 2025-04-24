@@ -2,12 +2,10 @@
 -- USER CLASS
 -------------
 
-UserClass = UserClass or {}
-
 ---@param source integer the player ID
 ---@return table user User data
-function UserClass:get(source)
-  self = table.copy(UserClass)
+function jo.framework.UserClass:get(source)
+  self = table.copy(jo.framework.UserClass)
   self.source = tonumber(source)
   local user = promise.new()
   TriggerEvent("redemrp:getPlayerFromId", self.source, function(_user)
@@ -19,7 +17,7 @@ end
 
 ---@param moneyType integer 0: money, 1: gold, 2: rol
 ---@return number
-function UserClass:getMoney(moneyType)
+function jo.framework.UserClass:getMoney(moneyType)
   moneyType = GetValue(moneyType, 0)
   if moneyType == 0 then
     return self.data.getMoney()
@@ -36,7 +34,7 @@ end
 ---@param amount number amount to remove
 ---@param moneyType integer 0: money, 1: gold, 2: rol
 ---@return boolean `true` if the money removed
-function UserClass:removeMoney(amount, moneyType)
+function jo.framework.UserClass:removeMoney(amount, moneyType)
   moneyType = GetValue(moneyType, 0)
   if moneyType == 0 then
     return self.data.removeMoney(amount)
@@ -52,7 +50,7 @@ end
 ---@param amount number amount to remove
 ---@param moneyType integer 0: money, 1: gold, 2: rol
 ---@return boolean `true` if the money added
-function UserClass:addMoney(amount, moneyType)
+function jo.framework.UserClass:addMoney(amount, moneyType)
   moneyType = GetValue(moneyType, 0)
   if moneyType == 0 then
     return self.data.addMoney(amount)
@@ -66,7 +64,7 @@ function UserClass:addMoney(amount, moneyType)
 end
 
 ---@return table identifiers player's identifiers
-function UserClass:getIdentifiers()
+function jo.framework.UserClass:getIdentifiers()
   return {
     identifier = self.data.getIdentifier(),
     charid = self.data.getSessionVar("charid")
@@ -74,13 +72,11 @@ function UserClass:getIdentifiers()
 end
 
 ---@return string job player's job
-function UserClass:getJob()
+function jo.framework.UserClass:getJob()
   return self.data.getJob()
 end
 
 ---@return string name player's name
-function UserClass:getRPName()
+function jo.framework.UserClass:getRPName()
   return ("%s %s"):format(GetValue(self.data.firstname, ""), GetValue(self.data.lastname, ""))
 end
-
-return UserClass

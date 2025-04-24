@@ -5,13 +5,9 @@ jo.require("string")
 -- LOAD FRAMEWORK
 -- -----------
 
+jo.framework.UserClass = {}
 
-local UserClass = {}
-
-local userFile = jo.framework:loadFile("UserClass")
-if userFile then
-  table.merge(UserClass, userFile)
-end
+jo.framework:loadFile("UserClass")
 jo.framework:loadFile("FrameworkClass")
 
 -- -----------
@@ -27,7 +23,7 @@ jo.framework:loadFile("FrameworkClass")
 ---@param moneyType? integer (`0`: dollar, `1`: gold, `2`: rol <br> default:`1`)
 ---@param removeIfCan? boolean (Remove the money if the player has enough <br> default:`false`)
 ---@return boolean (Return `true` if the player has more money than the amount)
-function UserClass:canBuy(price, moneyType, removeIfCan)
+function jo.framework.UserClass:canBuy(price, moneyType, removeIfCan)
   if not price then
     return false, eprint("Price value is nil")
   end
@@ -46,7 +42,7 @@ end
 
 --- Adds gold to the player's account
 ---@param amount number (The amount of gold to add)
-function UserClass:giveGold(amount)
+function jo.framework.UserClass:giveGold(amount)
   return self:addMoney(amount, 1)
 end
 
@@ -65,17 +61,17 @@ end
 
 --- Retrieves a player's full UserClass object containing all player data and methods
 ---@param source integer (The source ID of the player)
----@return UserClass (Return a User class object containing player data and methods)
+---@return jo.framework.UserClass (Return a User class object containing player data and methods)
 function jo.framework:getUser(source)
-  local user = UserClass:get(source)
+  local user = jo.framework.UserClass:get(source)
   return user
 end
 
---- Retrieves all identifiers associated with a player <br> Shortcut for [UserClass:getIdentifiers()](./user#userclass-getidentifiers) method
+--- Retrieves all identifiers associated with a player <br> Shortcut for [jo.framework.UserClass:getIdentifiers()](./user#jo.framework.UserClass-getidentifiers) method
 ---@param source integer (The source ID of the player)
 ---@return table (Return the player's identifiers <br> `identifiers.identifier` - Unique identifier of the player <br> `identifiers.charid` - Unique id of the player)
 function jo.framework:getUserIdentifiers(source)
-  local user = UserClass:get(source)
+  local user = jo.framework.UserClass:get(source)
   return user:getIdentifiers()
 end
 
@@ -83,7 +79,7 @@ end
 ---@param source integer (The source ID of the player)
 ---@return string (Return the job name of the player)
 function jo.framework:getJob(source)
-  local user = UserClass:get(source)
+  local user = jo.framework.UserClass:get(source)
   return user:getJob()
 end
 
@@ -91,7 +87,7 @@ end
 ---@param source integer (The source ID of the player)
 ---@return string (Return the formatted first and last name of the player)
 function jo.framework:getRPName(source)
-  local user = UserClass:get(source)
+  local user = jo.framework.UserClass:get(source)
   return user:getRPName()
 end
 
@@ -102,7 +98,7 @@ end
 ---@param removeIfCan? boolean (Remove the money if the player has enough <br> default:`false`)
 ---@return boolean (Return `true` if the player has more money than the amount)
 function jo.framework:canUserBuy(source, amount, moneyType, removeIfCan)
-  local user = UserClass:get(source)
+  local user = jo.framework.UserClass:get(source)
   return user:canBuy(amount, moneyType, removeIfCan)
 end
 
@@ -112,7 +108,7 @@ end
 ---@param moneyType? integer (`0`: dollar, `1`: gold, `2`: rol <br> default:`0`)
 ---@return boolean (Return `true` if the money is successfully added)
 function jo.framework:addMoney(source, amount, moneyType)
-  local user = UserClass:get(source)
+  local user = jo.framework.UserClass:get(source)
   return user:addMoney(amount, moneyType)
 end
 
@@ -122,7 +118,7 @@ end
 ---@param moneyType? integer (`0`: dollar, `1`: gold, `2`: rol <br> default:`0`)
 ---@return boolean (Return `true` if the money is successfully removed)
 function jo.framework:removeMoney(source, amount, moneyType)
-  local user = UserClass:get(source)
+  local user = jo.framework.UserClass:get(source)
   return user:removeMoney(amount, moneyType)
 end
 
@@ -408,11 +404,7 @@ end
 -- -----------
 -- LOAD CUSTOM FUNCTIONS
 -- -----------
-userFile = jo.framework:loadFile("_custom", "UserClass")
-if userFile then
-  table.merge(UserClass, userClass)
-end
-
+jo.framework:loadFile("_custom", "UserClass")
 jo.framework:loadFile("_custom", "FrameworkClass")
 
 jo.framework:loadFile("server")
@@ -420,14 +412,4 @@ jo.framework:loadFile("_custom", "server")
 
 -- -----------
 -- END LOAD CUSTOM FUNCTIONS
--- -----------
-
--- -----------
--- INIT jo VALUES
--- -----------
-
-jo.framework.UserClass = UserClass
-
--- -----------
--- END INIT jo VALUES
 -- -----------
