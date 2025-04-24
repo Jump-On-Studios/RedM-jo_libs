@@ -8,7 +8,7 @@ local UserClass = {}
 
 ---@param source integer Player server ID
 ---@return any user UserClass if the user exists
-function UserClass:get(source)
+function jo.framework.UserClass:get(source)
   if not tonumber(source) then
     return false, eprint("UserClass:get() -> source value is wrong:", GetValue(source, "nil"))
   end
@@ -29,7 +29,7 @@ end
 
 ---@param moneyType number
 ---@return number
-function UserClass:getMoney(moneyType)
+function jo.framework.UserClass:getMoney(moneyType)
   local character = Core.GetCharacterFromPlayerId(self.source)
   local user = Core.GetUserFromPlayerId(self.source)
 
@@ -44,20 +44,20 @@ function UserClass:getMoney(moneyType)
   return resultTypes[moneyType] or 0
 end
 
-function UserClass:addMoney(source, amount, moneyType)
+function jo.framework.UserClass:addMoney(source, amount, moneyType)
   local character = Core.GetCharacterFromPlayerId(source)
   local user = Core.GetUserFromPlayerId(source)
   if moneyType == 0 and (character.addMoney(amount)) or (moneyType == 1 and user.addGold(amount)) or 0 then end
 end
 
 
-function UserClass:removeMoney(amount, moneyType)
+function jo.framework.UserClass:removeMoney(amount, moneyType)
   local character = Core.GetCharacterFromPlayerId(self.source)
   local user = Core.GetUserFromPlayerId(self.source)
   if moneyType == 0 and (character.removeMoney(amount)) or (moneyType == 1 and user.removeGold(amount)) or 0 then end
 end
 
-function UserClass:getIdentifiers()
+function jo.framework.UserClass:getIdentifiers()
   local character = Core.GetCharacterFromPlayerId(self.source)
     local user = Core.GetUserFromPlayerId(self.source)
 
@@ -67,7 +67,7 @@ function UserClass:getIdentifiers()
     }
 end
 
-function UserClass:getJob()
+function jo.framework.UserClass:getJob()
   local character = Core.GetCharacterFromPlayerId(self.source)
   local jobs = table.map(character?.roles, function(v, i)
       return v.group.name
@@ -76,7 +76,7 @@ function UserClass:getJob()
   return jobs
 end
 
-function UserClass:getRPName()
+function jo.framework.UserClass:getRPName()
   local character = Core.GetCharacterFromPlayerId(self.source)
   return character.getName()
 end

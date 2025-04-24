@@ -22,27 +22,27 @@ end
 -- =============================================================================
 
 local config = {
-    enableCam = GetConvarBool("jo_libs:gizmo:enableCam", true),                 -- Enable/Disable camera feature
-    maxDistance = GetConvarInt("jo_libs:gizmo:maxDistance", 100),               -- Max disatnce the gizmo can be moved from the starting position (set to false to disable)
-    maxCamDistance = GetConvarInt("jo_libs:gizmo:maxCamDistance", 80),          -- Max distance the camera can be moved from the player
-    minY = GetConvarInt("jo_libs:gizmo:minY", -40),                             -- Min Y value from starting position for camera
-    maxY = GetConvarInt("jo_libs:gizmo:maxY", 40),                              -- Max Y value starting position for camera
-    movementSpeed = GetConvarFloat("jo_libs:gizmo:movementSpeed", 0.1),         -- Movement speed for camera
-    maxMovementSpeed = GetConvarFloat("jo_libs:gizmo:maxMovementSpeed", 0.2),   --Max movement speed for camera
-    minMovementSpeed = GetConvarFloat("jo_libs:gizmo:minMovementSpeed", 0.001), --min movement speed for camera
-    movementSpeedIncrement = GetConvarFloat("jo_libs:gizmo:movementSpeedIncrement", 0.01),
+    enableCam = GetConvarBool("jo_libs:gizmo:enableCam", true),                                           -- Enable/Disable camera feature
+    maxDistance = GetConvarInt("jo_libs:gizmo:maxDistance", 100),                                         -- Maximum distance entity can be moved from starting position (set to false to disable)
+    maxCamDistance = GetConvarInt("jo_libs:gizmo:maxCamDistance", 80),                                    -- Maximum distance camera can be moved from player
+    minY = GetConvarInt("jo_libs:gizmo:minY", -40),                                                       -- Minimum Y value for camera rotation
+    maxY = GetConvarInt("jo_libs:gizmo:maxY", 40),                                                        -- Maximum Y value for camera rotation
+    movementSpeed = GetConvarFloat("jo_libs:gizmo:movementSpeed", 0.1),                                   -- Default movement speed for camera
+    maxMovementSpeed = GetConvarFloat("jo_libs:gizmo:maxMovementSpeed", 0.2),                             -- Maximum movement speed for camera
+    minMovementSpeed = GetConvarFloat("jo_libs:gizmo:minMovementSpeed", 0.001),                           -- Minimum movement speed for camera
+    movementSpeedIncrement = GetConvarFloat("jo_libs:gizmo:movementSpeedIncrement", 0.01),                -- Increment value when adjusting camera speed
     keys = {
-        moveX = GetConvarInt("jo_libs:gizmo:keys:moveX", `INPUT_SCRIPTED_FLY_LR`),                        --W_S
-        moveY = GetConvarInt("jo_libs:gizmo:keys:moveY", `INPUT_SCRIPTED_FLY_UD`),                        --A-D
-        moveUp = GetConvarInt("jo_libs:gizmo:keys:moveUp", `INPUT_FRONTEND_X`),                           --Q
-        moveDown = GetConvarInt("jo_libs:gizmo:keys:moveDown", `INPUT_FRONTEND_RUP`),                     --E
-        cancel = GetConvarInt("jo_libs:gizmo:keys:cancel", `INPUT_GAME_MENU_TAB_RIGHT_SECONDARY`),        --X
-        switchMode = GetConvarInt("jo_libs:gizmo:keys:switchMode", `INPUT_RELOAD`),                       --R
-        snapToGround = GetConvarInt("jo_libs:gizmo:keys:snapToGround", `INPUT_INTERACT_OPTION1`),         --G
-        confirm = GetConvarInt("jo_libs:gizmo:keys:confirm", `INPUT_FRONTEND_ACCEPT`),                    --ENTER
-        focusEntity = GetConvarInt("jo_libs:gizmo:keys:focusEntity", `INPUT_SHOP_SPECIAL`),               --F
-        cameraSpeedUp = GetConvarInt("jo_libs:gizmo:keys:cameraSpeedUp", `INPUT_SELECT_PREV_WEAPON`),     --Scroll UP
-        cameraSpeedDown = GetConvarInt("jo_libs:gizmo:keys:cameraSpeedDown", `INPUT_SELECT_NEXT_WEAPON`), --Scroll UP
+        moveX = GetConvarInt("jo_libs:gizmo:keys:moveX", `INPUT_SCRIPTED_FLY_LR`),                        -- Move left/right
+        moveY = GetConvarInt("jo_libs:gizmo:keys:moveY", `INPUT_SCRIPTED_FLY_UD`),                        -- Move forward/backward
+        moveUp = GetConvarInt("jo_libs:gizmo:keys:moveUp", `INPUT_FRONTEND_X`),                           -- Move up
+        moveDown = GetConvarInt("jo_libs:gizmo:keys:moveDown", `INPUT_FRONTEND_RUP`),                     -- Move down
+        cancel = GetConvarInt("jo_libs:gizmo:keys:cancel", `INPUT_GAME_MENU_TAB_RIGHT_SECONDARY`),        -- Cancel operation
+        switchMode = GetConvarInt("jo_libs:gizmo:keys:switchMode", `INPUT_RELOAD`),                       -- Switch between translate/rotate modes
+        snapToGround = GetConvarInt("jo_libs:gizmo:keys:snapToGround", `INPUT_INTERACT_OPTION1`),         -- Snap entity to ground
+        confirm = GetConvarInt("jo_libs:gizmo:keys:confirm", `INPUT_FRONTEND_ACCEPT`),                    -- Confirm placement
+        focusEntity = GetConvarInt("jo_libs:gizmo:keys:focusEntity", `INPUT_SHOP_SPECIAL`),               -- Toggle focus on entity
+        cameraSpeedUp = GetConvarInt("jo_libs:gizmo:keys:cameraSpeedUp", `INPUT_SELECT_PREV_WEAPON`),     -- Increase camera speed
+        cameraSpeedDown = GetConvarInt("jo_libs:gizmo:keys:cameraSpeedDown", `INPUT_SELECT_NEXT_WEAPON`), -- Decrease camera speed
     }
 }
 
@@ -79,7 +79,7 @@ local function showNUI(bool)
     if bool then
         SetNuiFocus(true, true)
         SetNuiFocusKeepInput(true)
-        jo.nui.forceFocus("jo_gizmo")
+
         if enableCam then
             local coords = GetGameplayCamCoord()
             local rot = GetGameplayCamRot(2)

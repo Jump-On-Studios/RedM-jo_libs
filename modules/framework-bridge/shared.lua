@@ -1,3 +1,4 @@
+---@class FrameworkClass
 jo.framework = {}
 
 jo.require("string")
@@ -50,12 +51,6 @@ local supportedFrameworks = {
     name = "RPX Framework",
     folder = "rpx",
     resources = { "rpx-core" }
-  },
-  {
-    id = "core",
-    name = "Core Framework",
-    folder = "core",
-    resources = { "core" },
   }
 }
 
@@ -67,8 +62,9 @@ end
 
 
 local function detectFramework()
-  if GetConvar("jo_libs:framework", "false") ~= "false" then
-    return GetConvar("jo_libs:framework", "false")
+  local frameworkConvarValue = GetConvar("jo_libs:framework", "false") -- Force the framework
+  if frameworkConvarValue ~= "false" then
+    return frameworkConvarValue
   end
 
   local frameworkDetected
@@ -160,10 +156,12 @@ for i = 1, #frameworkDetected.resources do
   end
 end
 
+---@autodoc:config ignore:true
 function jo.framework:getFrameworkDetected()
   return frameworkDetected
 end
 
+---@autodoc:config ignore:true
 function jo.framework:loadFile(...)
   local args = { ... }
   local folder = args[2] and args[1] or frameworkDetected.folder
