@@ -1,3 +1,4 @@
+---@class FrameworkClass
 jo.framework = {}
 
 jo.require("string")

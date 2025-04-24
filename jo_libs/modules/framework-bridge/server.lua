@@ -5,6 +5,7 @@ jo.require("string")
 -- LOAD FRAMEWORK
 -- -----------
 
+---@class UserClass
 jo.framework.UserClass = {}
 
 jo.framework:loadFile("UserClass")

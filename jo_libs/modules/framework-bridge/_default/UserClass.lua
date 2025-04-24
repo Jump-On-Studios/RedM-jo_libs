@@ -4,7 +4,7 @@
 
 --- Creates and returns a new User instance for the specified player
 ---@param source integer (The source ID of the player)
----@return jo.framework.UserClass (Return a User class object containing player data and methods)
+---@return UserClass (Return a User class object containing player data and methods)
 function jo.framework.UserClass:get(source)
   self = table.copy(jo.framework.UserClass)
   self.source = tonumber(source)
