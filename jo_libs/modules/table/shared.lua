@@ -4,20 +4,20 @@ local getmetatable = getmetatable
 local pairs = pairs
 
 --- Deep copies a table. Unlike "=", it doesn't keep the link between both tables.
----@param orig table (The table you want to copy)
+---@param t table (The table you want to copy)
 ---@return table (The copy of the table)
-function table.copy(orig)
-  if type(orig) ~= "table" then
-    return orig
+function table.copy(t)
+  if type(t) ~= "table" then
+    return t
   end
 
-  local copy = table.clone(orig)
-  for orig_key, orig_value in pairs(orig) do
-    if type(orig_value) == "table" then
-      copy[orig_key] = table.copy(orig_value)
+  local copy = table.clone(t)
+  for k, v in pairs(t) do
+    if type(v) == "table" then
+      copy[k] = table.copy(v)
     end
   end
-  return setmetatable(copy, getmetatable(orig))
+  return setmetatable(copy, getmetatable(t))
 end
 
 --- Merges two tables together.
@@ -55,21 +55,25 @@ function table.mergeAfter(t1, t2)
 end
 
 --- Checks if a table is empty.
----@param _table table (The table to check)
+---@param t table (The table to check)
 ---@return boolean (Returns true if the table is empty)
-function table.isEmpty(_table)
-  for _ in pairs(_table or {}) do
+function table.isEmpty(t)
+  for _ in pairs(t or {}) do
     return false
   end
   return true
 end
 
 --- Counts the number of values inside a table.
----@param _table table (The table to count elements in)
+---@param t table (The table to count elements in)
 ---@return integer (The number of values inside the table)
-function table.count(_table)
+function table.count(t)
+  if not t then return 0 end
+  if type(t) ~= "table" then return error(("t is not a table. Type: %s"):format(type(t))) end
+  local n = #t
+  if n > 0 then return n end
   local counter = 0
-  for _ in pairs(_table or {}) do
+  for _ in pairs(t) do
     counter += 1
   end
   return counter
