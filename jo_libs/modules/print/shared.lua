@@ -2,16 +2,6 @@ jo.require("table")
 
 -- todo document this file
 
-function log(...)
-  local args = { ... }
-  for i = 1, #args do
-    if type(args[i]) == "table" then
-      args[i] = json.encode(args[i], { indent = true })
-    end
-  end
-  print(table.unpack(args))
-end
-
 local colors = {
   red = {
     start = "^1",
@@ -61,10 +51,34 @@ local function convertColor(args)
   end
 end
 
-function printWithColor(...)
+local function printWithColor(...)
   local args = { ... }
   convertColor(args)
+  for i = 1, #args do
+    if type(args[i]) == "string" then
+      local _, count = args[i]:gsub("%%[%d%.]*[sdf]", "")
+      if count > 0 then
+        local formatValues = table.slice(args, i + 1, i + count)
+        if #formatValues <= count then
+          args[i] = args[i]:format(table.unpack(formatValues))
+          for c = 1, count do
+            table.remove(args, i + 1)
+          end
+        end
+      end
+    end
+  end
   print(table.unpack(args))
+end
+
+function log(...)
+  local args = { ... }
+  for i = 1, #args do
+    if type(args[i]) == "table" then
+      args[i] = json.encode(args[i], { indent = true })
+    end
+  end
+  printWithColor(table.unpack(args))
 end
 
 local function addColor(args, color)
