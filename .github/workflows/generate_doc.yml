@@ -61,7 +61,7 @@ jobs:
       
       - name: Create folders.json
         run: |
-          cat > jo_libs_autodoc/folders.json << 'EOF'
+          cat > jo_libs_autodoc/config/folders.json << 'EOF'
           {
             "jo_libs_modules_directory_path": "../jo_libs/jo_libs/modules",
             "vitepress_modules_directory_path": "../Documentation/docs/jo_libs/modules"
@@ -78,6 +78,9 @@ jobs:
           
           echo -e "\nContent of jo_libs_autodoc:"
           ls -la jo_libs_autodoc
+
+          echo -e "\nContent of jo_libs_autodoc/config:"
+          ls -la jo_libs_autodoc/config
           
           echo -e "\nContent of Documentation:"
           ls -la Documentation
@@ -91,12 +94,12 @@ jobs:
       - name: Run documentation generator
         run: |
           cd jo_libs_autodoc
-          python generate_vitepress_docs.py
+          python scripts/generate_docs.py
       
       - name: Run missing examples report
         run: |
           cd jo_libs_autodoc
-          python check_missing_examples.py
+          python scripts/check_missing_examples.py
       
       - name: Commit and push changes to Documentation
         run: |
