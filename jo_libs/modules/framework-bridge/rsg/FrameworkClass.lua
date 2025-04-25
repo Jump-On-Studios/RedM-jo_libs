@@ -944,15 +944,18 @@ function jo.framework:updateUserSkinInternal(source, skin, overwrite)
 end
 
 function jo.framework:createUser(source, data, spawnCoordinate, isDead)
-  if isDead == nil then isDead = false end
+  isDead = GetValue(isDead, false)
   spawnCoordinate = GetValue(spawnCoordinate, vec4(2537.684, -1278.066, 49.218, 42.520))
   data = GetValue(data, {})
   data.firstname = GetValue(data.firstname, "")
   data.lastname = GetValue(data.lastname, "")
   data.skin = self:revertSkin(data.skin)
   data.comps = self:revertClothes(data.comps)
+  local license = GetPlayerIdentifierByType(source, "license")
+  local cid = MySQL.scalar.await("SELECT COUNT(1) from players WHERE license = ?", { license }) + 1
   local convertData = {
     source = source,
+    cid = cid,
     charinfo = {
       firstname = GetValue(data.firstname, ""),
       lastname = data.lastname,
