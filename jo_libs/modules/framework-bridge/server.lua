@@ -302,17 +302,7 @@ end
 ---@param standard table (The standardized skin data)
 ---@return table (Return skin data with framework-specific keys)
 function jo.framework:revertSkin(standard)
-  jo.require("component")
   standard = table.copy(standard)
-
-  if standard.headIndex then
-    standard.headHash = jo.component.getHeadFromSkinTone(standard.model, standard.headIndex, standard.skinTone)
-    standard.headIndex = nil
-  end
-  if standard.eyesIndex then
-    standard.eyesHash = jo.component.getEyesFromIndex(standard.model, standard.eyesIndex)
-    standard.eyesIndex = nil
-  end
 
   local skin = self:revertSkinInternal(standard)
 

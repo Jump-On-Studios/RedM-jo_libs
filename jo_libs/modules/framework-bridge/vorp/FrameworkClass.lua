@@ -645,27 +645,43 @@ function jo.framework:standardizeSkinInternal(skin)
 end
 
 function jo.framework:revertSkinInternal(standard)
+  jo.require("component")
+
+
+  if standard.eyesIndex then
+    standard.eyesIndex = nil
+  end
+
+
   local reverted = {}
 
   local function increase(value)
     return GetValue(value, 0) + 1
   end
 
-  reverted.sex = table.extract(standard, "model")
-  reverted.HeadType = table.extract(standard, "headHash")
+  if standard.headIndex then
+    reverted.HeadType = jo.component.getHeadFromSkinTone(standard.model, table.extract(standard, "headIndex"), standard.skinTone)
+  else
+    reverted.HeadType = table.extract(standard, "headHash")
+  end
   reverted.Torso = standard.bodyUpperHash
   reverted.BodyType = standard.bodyUpperHash
   standard.bodyUpperHash = nil
   reverted.Legs = standard.bodyLowerHash
   reverted.LegsType = standard.bodyLowerHash
   standard.bodyLowerHash = nil
-  reverted.Eyes = table.extract(standard, "eyesHash")
+  if standard.eyesIndex then
+    reverted.Eyes = jo.component.getEyesFromIndex(standard.model, table.extract(standard, "eyesIndex"))
+  else
+    reverted.Eyes = table.extract(standard, "eyesHash")
+  end
   reverted.Teeth = table.extract(standard, "teethHash")
   reverted.Hair = self:extractComponentHashIfAlone(table.extract(standard, "hair"))
   reverted.Beard = self:extractComponentHashIfAlone(table.extract(standard, "beards_complete"))
   reverted.Body = table.extract(standard, "bodyType")
   reverted.Waist = table.extract(standard, "bodyWeight")
   reverted.Scale = table.extract(standard, "bodyScale")
+  reverted.sex = table.extract(standard, "model")
 
   reverted.ArmsS = table.extract(standard.expressions, "arms")
   reverted.CalvesS = table.extract(standard.expressions, "calves")
