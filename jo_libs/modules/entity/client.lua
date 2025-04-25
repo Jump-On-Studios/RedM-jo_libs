@@ -204,20 +204,14 @@ end
 ---@param distance? number (Maximum raycast distance <br> default:`100`)
 ---@param flags? integer ([Flags](https://docs.fivem.net/natives/?_0x7EE9F5D83DD4F90E) for the raycast <br> default:`16`)
 ---@param toIgnore? integer (Entity to ignore in the raycast <br> default:`PlayerPedId()`)
----@param fixedCamera? boolean (If set to `true`, you'll be able to move the mouse freely, independently from camera, but camera movement will be disabled <br> default:`false`)
 ---@return boolean,vector3,integer (Hit status, hit coordinates, hit entity)
-function jo.entity.selectWithMouse(distance, flags, toIgnore, fixedCamera)
+function jo.entity.selectWithMouse(distance, flags, toIgnore)
 	if not flags then flags = 16 end
-	if fixedCamera then
-		SetMouseCursorThisFrame()
-	else
-		jo.utils.loadGameData("hud_textures", true)
-		DrawSprite("hud_textures", "breadcrumb", 0.5, 0.5, 0.005, 0.0075, 0.0, 255, 255, 255, 240, false)
-	end
 
+	jo.utils.loadGameData("hud_textures", true)
+	DrawSprite("hud_textures", "breadcrumb", 0.5, 0.5, 0.005, 0.0075, 0.0, 255, 255, 255, 240, false)
 	local mouseX, mouseY               = GetDisabledControlNormal(0, `INPUT_CURSOR_X`), GetDisabledControlNormal(0, `INPUT_CURSOR_Y`)
 	local hit, endCoords, _, entityHit = screenToWorld(distance, flags, toIgnore, mouseX, mouseY)
-
 	return hit, endCoords, entityHit
 end
 
