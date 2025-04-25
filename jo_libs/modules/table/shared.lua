@@ -187,4 +187,18 @@ function table.extract(t, key)
   return value
 end
 
+--- Get a part of table with stard and end index
+---@param t table (The table to get from)
+---@param s? integer (The start intex <br> default:`1`)
+---@param e? integer (The end index <br> default:`s`)
+---@return table (The extracted table)
+function table.slice(t, s, e)
+  s = s or 1
+  e = e or s
+  local result = {}
+  -- copie tbl[s..e] vers result[1..]
+  table.move(t, s, e, 1, result)
+  return result
+end
+
 jo.table = {}
