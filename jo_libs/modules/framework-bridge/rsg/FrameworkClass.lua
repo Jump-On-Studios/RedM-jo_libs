@@ -306,7 +306,7 @@ function jo.framework:createInventory(id, name, invConfig)
   inventoriesCreated[id] = {
     id = id,
     name = name,
-    config = invConfig,
+    config = table.copy(invConfig),
     inventory = {}
   }
   -------------
