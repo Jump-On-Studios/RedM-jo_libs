@@ -526,6 +526,26 @@ function jo.menu.playAudio(sound)
   })
 end
 
+--- A function to hide temporary the menu and do action
+---@param cb function (Action executed before show again the menu)
+---@param animation? boolean (Whether to use animation when showing/hiding the menu <br> default: `true`)
+function jo.menu.softHide(cb, animation)
+  animation = GetValue(animation, true)
+  if not cb then return end
+  local keepInput = IsNuiFocusKeepingInput()
+  local hideCursor = false
+
+  SetNuiFocus(false, false)
+  SendNUIMessage({ event = "updateShow", show = false, cancelAnimation = not animation })
+  Wait(500)
+
+  cb()
+
+  SetNuiFocus(true, not hideCursor)
+  SetNuiFocusKeepInput(keepInput)
+  SendNUIMessage({ event = "updateShow", show = true, cancelAnimation = not animation })
+end
+
 -------------
 -- NUI
 -------------
