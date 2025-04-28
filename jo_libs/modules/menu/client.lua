@@ -134,6 +134,13 @@ function MenuClass:addItem(p, item)
   item.index = p
   updateSliderCurrentValue(item)
   table.insert(self.items, p, item)
+  if p < #self.items - 1 then
+    for i = 1, #self.items do
+      if type(self.items[i].index) == "number" then
+        self.items[i].index = i
+      end
+    end
+  end
   return item
 end
 
@@ -536,8 +543,8 @@ function jo.menu.softHide(cb, animation)
   local hideCursor = false
 
   SetNuiFocus(false, false)
+  SetNuiFocusKeepInput(false)
   SendNUIMessage({ event = "updateShow", show = false, cancelAnimation = not animation })
-  Wait(500)
 
   cb()
 
