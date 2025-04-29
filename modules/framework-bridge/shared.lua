@@ -149,7 +149,9 @@ if not frameworkDetected then
   return
 end
 
-bprint(("%s detected"):format(frameworkDetected.name))
+if jo.isServerSide() then
+  bprint(("%s detected"):format(frameworkDetected.name))
+end
 
 for i = 1, #frameworkDetected.resources do
   local resource = frameworkDetected.resources[i]

@@ -52,6 +52,49 @@ local function updateSliderCurrentValue(item)
   end
 end
 
+local function menuNUIChange(data)
+  if not menus[data.menu] then return end
+  if not menus[data.menu].items[data.item.index] then return end
+
+  currentData.menu = data.menu
+  currentData.index = data.item.index
+  -- menus[data.menu].currentIndex = data.item.index
+  menus[data.menu].items[data.item.index] = table.merge(menus[data.menu].items[data.item.index], data.item)
+  currentData.item = menus[data.menu].items[data.item.index]
+
+  updateSliderCurrentValue(currentData.item)
+
+  local oldButton = false
+  if previousData.menu then
+    oldButton = menus[previousData.menu].items[previousData.index]
+  end
+
+  if previousData.menu ~= currentData.menu then
+    if oldButton then
+      jo.menu.fireEvent(oldButton, "onExit")
+      jo.menu.fireEvent(menus[previousData.menu], "onExit")
+    end
+    jo.menu.fireEvent(menus[currentData.menu], "onEnter")
+    jo.menu.fireEvent(currentData.item, "onActive")
+  else
+    if previousData.index ~= currentData.index then
+      if oldButton then
+        jo.menu.fireEvent(oldButton, "onExit")
+      end
+      jo.menu.fireEvent(currentData.item, "onActive")
+    else
+      jo.menu.fireEvent(currentData.item, "onChange")
+    end
+    jo.menu.fireEvent(menus[previousData.menu], "onChange")
+  end
+
+  for _, listener in ipairs(jo.menu.listeners) do
+    listener.cb(currentData)
+  end
+
+  previousData = table.copy(currentData)
+end
+
 ---@class MenuClass : table Menu class
 ---@field id string Menu Unique ID
 ---@field title string Menu Title
@@ -140,6 +183,7 @@ function MenuClass:addItem(p, item)
         self.items[i].index = i
       end
     end
+    menuNUIChange({ menu = self.id, item = { index = self.currentIndex } })
   end
   return item
 end
@@ -421,7 +465,6 @@ function jo.menu.show(show, keepInput, hideRadar, animation, hideCursor)
     animation = animation == nil and true or animation
     hideCursor = hideCursor or false
 
-    LocalPlayer.state:set("menuOpen", show);
     nuiShow = show
     if timeoutClose then
       timeoutClose:clear()
@@ -612,49 +655,6 @@ end
 function jo.menu.fireAllLevelsEvent(eventName, ...)
   jo.menu.fireEvent(jo.menu.getCurrentMenu(), eventName, ...)
   jo.menu.fireEvent(jo.menu.getCurrentItem(), eventName, ...)
-end
-
-local function menuNUIChange(data)
-  if not menus[data.menu] then return end
-  if not menus[data.menu].items[data.item.index] then return end
-
-  currentData.menu = data.menu
-  currentData.index = data.item.index
-  -- menus[data.menu].currentIndex = data.item.index
-  menus[data.menu].items[data.item.index] = table.merge(menus[data.menu].items[data.item.index], data.item)
-  currentData.item = menus[data.menu].items[data.item.index]
-
-  updateSliderCurrentValue(currentData.item)
-
-  local oldButton = false
-  if previousData.menu then
-    oldButton = menus[previousData.menu].items[previousData.index]
-  end
-
-  if previousData.menu ~= currentData.menu then
-    if oldButton then
-      jo.menu.fireEvent(oldButton, "onExit")
-      jo.menu.fireEvent(menus[previousData.menu], "onExit")
-    end
-    jo.menu.fireEvent(menus[currentData.menu], "onEnter")
-    jo.menu.fireEvent(currentData.item, "onActive")
-  else
-    if previousData.index ~= currentData.index then
-      if oldButton then
-        jo.menu.fireEvent(oldButton, "onExit")
-      end
-      jo.menu.fireEvent(currentData.item, "onActive")
-    else
-      jo.menu.fireEvent(currentData.item, "onChange")
-    end
-    jo.menu.fireEvent(menus[previousData.menu], "onChange")
-  end
-
-  for _, listener in ipairs(jo.menu.listeners) do
-    listener.cb(currentData)
-  end
-
-  previousData = table.copy(currentData)
 end
 
 RegisterNUICallback("updatePreview", function(data, cb)

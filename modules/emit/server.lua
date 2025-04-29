@@ -26,7 +26,7 @@ end
 --- A function to trigger a client(s) with a limited bandwith
 ---@alias jo.emit.triggerClient.latent function
 ---@param eventName string (The event name)
----@param source string|table (The player ID or list of players ID)
+---@param source integer|table (The player ID or list of players ID)
 ---@param ... any (Other arguments)
 local function triggerClientLatent(eventName, source, ...)
   local payload = msgpack_pack_args(...)
@@ -52,7 +52,7 @@ end
 --- A function to trigger a client(s)
 ---@alias jo.emit.triggerClient function
 ---@param eventName string (The event name)
----@param source string|table (The player ID or list of players ID)
+---@param source integer|table (The player ID or list of players ID)
 ---@param ... any (Other arguments)
 local function triggerClient(eventName, source, ...)
   local payload = msgpack_pack_args(...)
