@@ -25,7 +25,6 @@ end
 ---@param t2 table (The table to merge)
 ---@return table (The merged table. If the same key exists in both tables, only the value of t2 is kept)
 function table.merge(t1, t2)
-  print("jo libs table.merge")
   t1 = t1 or {}
   if not t2 then return t1 end
   for k, v in pairs(t2 or {}) do
