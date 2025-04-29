@@ -17,33 +17,7 @@ function table.copy(t)
       copy[k] = table.copy(v)
     end
   end
-  return setmetatable(copy, getmetatable(orig))
-end
-
----@param t1 table
----@param t2 table
----@param addDuplicateNumbers boolean?
----@return table
-table.overwrite = function(t1, t2, addDuplicateNumbers)
-  if not t1 then t1 = {} end
-  if type(t2) ~= "table" then return t1 end  -- Evita erro ao tentar iterar `nil`
-
-  addDuplicateNumbers = addDuplicateNumbers or false  -- Padrão: somar números
-
-  for k, v2 in pairs(t2) do
-      local v1 = t1[k]
-      local type1, type2 = type(v1), type(v2)
-
-      if type1 == "table" and type2 == "table" then
-          t1[k] = table.overwrite(v1, v2, addDuplicateNumbers)
-      elseif addDuplicateNumbers and type1 == "number" and type2 == "number" then
-          t1[k] = v1 + v2
-      else
-          t1[k] = v2
-      end
-  end
-
-  return t1
+  return setmetatable(copy, getmetatable(t))
 end
 
 --- Merges two tables together.
@@ -51,6 +25,7 @@ end
 ---@param t2 table (The table to merge)
 ---@return table (The merged table. If the same key exists in both tables, only the value of t2 is kept)
 function table.merge(t1, t2)
+  print("jo libs table.merge")
   t1 = t1 or {}
   if not t2 then return t1 end
   for k, v in pairs(t2 or {}) do

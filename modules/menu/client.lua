@@ -134,6 +134,13 @@ function MenuClass:addItem(p, item)
   item.index = p
   updateSliderCurrentValue(item)
   table.insert(self.items, p, item)
+  if p < #self.items - 1 then
+    for i = 1, #self.items do
+      if type(self.items[i].index) == "number" then
+        self.items[i].index = i
+      end
+    end
+  end
   return item
 end
 
@@ -527,6 +534,26 @@ function jo.menu.playAudio(sound)
   })
 end
 
+--- A function to hide temporary the menu and do action
+---@param cb function (Action executed before show again the menu)
+---@param animation? boolean (Whether to use animation when showing/hiding the menu <br> default: `true`)
+function jo.menu.softHide(cb, animation)
+  animation = GetValue(animation, true)
+  if not cb then return end
+  local keepInput = IsNuiFocusKeepingInput()
+  local hideCursor = false
+
+  SetNuiFocus(false, false)
+  SetNuiFocusKeepInput(false)
+  SendNUIMessage({ event = "updateShow", show = false, cancelAnimation = not animation })
+
+  cb()
+
+  SetNuiFocus(true, not hideCursor)
+  SetNuiFocusKeepInput(keepInput)
+  SendNUIMessage({ event = "updateShow", show = true, cancelAnimation = not animation })
+end
+
 -------------
 -- NUI
 -------------
@@ -594,7 +621,7 @@ local function menuNUIChange(data)
   currentData.menu = data.menu
   currentData.index = data.item.index
   -- menus[data.menu].currentIndex = data.item.index
-  menus[data.menu].items[data.item.index] = table.overwrite(menus[data.menu].items[data.item.index], data.item)
+  menus[data.menu].items[data.item.index] = table.merge(menus[data.menu].items[data.item.index], data.item)
   currentData.item = menus[data.menu].items[data.item.index]
 
   updateSliderCurrentValue(currentData.item)
