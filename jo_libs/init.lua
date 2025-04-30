@@ -266,7 +266,7 @@ end)
 -------------
 -- EXPORTS (prevent call before initializes)
 -------------
-local function CreateExport(name, cb)
+local function createExport(name, cb)
   exports(name, function(...)
     jo.waitLibLoading()
     return cb(...)
@@ -292,13 +292,13 @@ for i = 1, #modules do
   local name = modules[i]
   jo.require(name)
   if name == "hook" then
-    CreateExport("registerAction", jo.hook.registerAction)
-    CreateExport("RegisterAction", jo.hook.RegisterAction)
-    CreateExport("registerFilter", jo.hook.registerFilter)
-    CreateExport("RegisterFilter", jo.hook.RegisterFilter)
+    createExport("registerAction", jo.hook.registerAction)
+    createExport("RegisterAction", jo.hook.RegisterAction)
+    createExport("registerFilter", jo.hook.registerFilter)
+    createExport("RegisterFilter", jo.hook.RegisterFilter)
   elseif name == "versionChecker" and context == "server" then
-    -- CreateExport("GetScriptVersion", jo.versionChecker.GetScriptVersion)
-    CreateExport("StopAddon", jo.versionChecker.stopAddon)
+    -- createExport("GetScriptVersion", jo.versionChecker.GetScriptVersion)
+    createExport("StopAddon", jo.versionChecker.stopAddon)
   end
 end
 jo.libLoaded = true
