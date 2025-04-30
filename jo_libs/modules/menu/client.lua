@@ -459,6 +459,7 @@ end
 ---@param animation? boolean (Whether to use animation when showing/hiding the menu <br> default: `true`)
 ---@param hideCursor? boolean (Whether to hide the cursor <br> default: `false`)
 function jo.menu.show(show, keepInput, hideRadar, animation, hideCursor)
+  if show == nuiShow then return end
   CreateThread(function()
     keepInput = keepInput == nil and true or keepInput
     hideRadar = hideRadar == nil and true or hideRadar
