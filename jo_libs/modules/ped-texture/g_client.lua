@@ -347,9 +347,9 @@ jo.pedTexture.ordersToApply = {
 --- A function to get the hashname of a texture
 ---@param isMale boolean (`true` if the texture is for a male, `false` otherwise)
 ---@param category string (The layername of the texture)
----@param data table (The texture data <br> ⚠️ Can be either a `number` representing the texture ID or a `table` with detailed configuration)
---- data.albedo string (The albedo of the texture)
---- data.sexe? string (The sex of the texture, used for eyebrow category <br> default: based on isMale)
+---@param data table|integer (The texture data <br> ⚠️ Can be either a `number` representing the texture ID or a `table` with detailed configuration)
+--- data.sexe string (The sex of the texture, used for eyebrow category <br> default: based on isMale)
+--- data.id integer (The ID of the texture)
 ---@return string (Return the hashname of the texture for this ID)
 function jo.pedTexture.getOverlayAssetFromId(isMale, category, data)
   if type(data) == "number" then
