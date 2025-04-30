@@ -657,6 +657,59 @@ function jo.menu.fireAllLevelsEvent(eventName, ...)
   jo.menu.fireEvent(jo.menu.getCurrentItem(), eventName, ...)
 end
 
+local function menuNUIChange(data)
+  if not menus[data.menu] then return end
+  if not menus[data.menu].items[data.item.index] then return end
+
+  currentData.menu = data.menu
+  currentData.index = data.item.index
+  -- menus[data.menu].currentItem = data.item.index
+  menus[data.menu].items[data.item.index] = table.overwrite(menus[data.menu].items[data.item.index], data.item)
+  currentData.item = menus[data.menu].items[data.item.index]
+
+  for _, slider in pairs(currentData.item.sliders) do
+    if slider.type == "grid" then
+      slider.value = {}
+      slider.value[1] = slider.values[1] and math.floor(slider.values[1].current * 1000) / 1000 or nil
+      slider.value[2] = slider.values[2] and math.floor(slider.values[2].current * 1000) / 1000 or nil
+    elseif slider.type == "palette" then
+      slider.value = slider.current
+    else
+      slider.value = slider.values[slider.current]
+    end
+  end
+
+  local oldButton = false
+  if previousData.menu then
+    oldButton = menus[previousData.menu].items[previousData.index]
+  end
+
+  if previousData.menu ~= currentData.menu then
+    if oldButton then
+      jo.menu.fireEvent(oldButton, "onExit")
+      jo.menu.fireEvent(menus[previousData.menu], "onExit")
+    end
+    jo.menu.fireEvent(menus[currentData.menu], "onEnter")
+    jo.menu.fireEvent(currentData.item, "onActive")
+  else
+    if previousData.index ~= currentData.index then
+      if oldButton then
+        jo.menu.fireEvent(oldButton, "onExit")
+      end
+      jo.menu.fireEvent(currentData.item, "onActive")
+    else
+      jo.menu.fireEvent(currentData.item, "onChange")
+    end
+    jo.menu.fireEvent(menus[previousData.menu], "onChange")
+  end
+
+  for _, listener in ipairs(jo.menu.listeners) do
+    listener.cb(currentData)
+  end
+
+  previousData = table.copy(currentData)
+end
+
 RegisterNUICallback("updatePreview", function(data, cb)
   cb("ok")
 
