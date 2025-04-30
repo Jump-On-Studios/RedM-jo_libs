@@ -148,7 +148,9 @@ function jo.entity.create(model, coords, ...)
 	SetEntityCoords(entity, coords.xyz)
 	SetEntityHeading(entity, coords.w)
 	if fadeDuration > 0 then
-		jo.entity.fadeIn(entity, fadeDuration)
+		Citizen.CreateThreadNow(function()
+			jo.entity.fadeIn(entity, fadeDuration)
+		end)
 	end
 	Entities[entity] = true
 	return entity
