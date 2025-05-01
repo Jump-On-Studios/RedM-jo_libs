@@ -68,8 +68,8 @@ function printWithColor(...)
 end
 
 local function addColor(args, color)
-  local start = getColorCode(color)
-  local reset = getColorResetCode(color)
+  -- local start = getColorCode(color)
+  -- local reset = getColorResetCode(color)
   for i = 1, #args do
     if type(args[i]) == "string" then
       args[i] = ("~%s~%s"):format(color, args[i])
