@@ -2,6 +2,8 @@ if GetCurrentResourceName() == "jo_libs" then return end
 
 local moveCallbacks = {}
 local numberMoveCallback = 0
+local lastCallDidMoveFunc = 0
+local lastMoveEvent = 0
 
 jo.player = setmetatable({}, {
   __call = function()
@@ -21,6 +23,7 @@ local function addUpdater()
       local key, value = values[i][1], values[i][2]
       jo.player[key] = value
       if key == "coords" and numberMoveCallback > 0 then
+        lastMoveEvent = now
         for c = 1, numberMoveCallback do
           local callback = moveCallbacks[c]
           if (callback.lastExec + callback.interval) < now then
@@ -32,6 +35,14 @@ local function addUpdater()
     end
   end)
 end
+
+jo.ready(addUpdater)
+
+AddEventHandler("onResourceStart", function(resourceName)
+  if resourceName ~= "jo_libs" then return end
+  addUpdater()
+end)
+
 
 --- A function to force the update of module value
 function jo.player.forceUpdate()
@@ -51,12 +62,17 @@ function jo.player.move(cb, interval)
   }
 end
 
-jo.ready(addUpdater)
-
-AddEventHandler("onResourceStart", function(resourceName)
-  if resourceName ~= "jo_libs" then return end
-  addUpdater()
-end)
+--- A function to know if the player moved this the last call of it
+---@return boolean (`true` if the player moved since the last call)
+function jo.player.didMoveSinceLastCall()
+  local now = GetGameTimer()
+  local move = false
+  if lastCallDidMoveFunc < lastMoveEvent then
+    move = true
+  end
+  lastCallDidMoveFunc = now
+  return move
+end
 
 -------------
 -- Shortcut
