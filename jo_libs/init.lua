@@ -212,7 +212,7 @@ local function onReady(cb)
 end
 
 function jo.ready(cb)
-  Citizen.CreateThreadNow(function() onReady(cb) end)
+  CreateThreadNow(function() onReady(cb) end)
 end
 
 function jo.stopped(cb)

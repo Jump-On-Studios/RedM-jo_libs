@@ -69,7 +69,7 @@ function jo.player.move(cb, interval)
   moveCallbacks[numberMoveCallback].inProgress = false
 end
 
---- A function to know if the player moved this the last call of it
+--- A function to know if the player moved since the last called of the function
 ---@return boolean (`true` if the player moved since the last call)
 function jo.player.didMoveSinceLastCall()
   local now = GetGameTimer()

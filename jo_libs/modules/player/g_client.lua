@@ -41,7 +41,7 @@ end)
 
 local function sendUpdate(values)
   if #values == 0 then return end
-  Citizen.CreateThreadNow(function()
+  CreateThreadNow(function()
     for i = 1, #listeners do
       listeners[i].send(values)
     end
