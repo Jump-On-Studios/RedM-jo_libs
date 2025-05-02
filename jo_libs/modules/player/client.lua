@@ -26,9 +26,13 @@ local function addUpdater()
         lastMoveEvent = now
         for c = 1, numberMoveCallback do
           local callback = moveCallbacks[c]
-          if (callback.lastExec + callback.interval) < now then
-            callback.lastExec = now
-            callback.cb()
+          if not callback.inProgress and (callback.lastExec + callback.interval) < now then
+            CreateThreadNow(function()
+              callback.lastExec = now
+              callback.inProgress = true
+              callback.cb()
+              callback.inProgress = false
+            end)
           end
         end
       end
@@ -57,9 +61,12 @@ function jo.player.move(cb, interval)
   numberMoveCallback += 1
   moveCallbacks[numberMoveCallback] = {
     cb = cb,
-    lastExec = 0,
-    interval = interval or 0
+    lastExec = GetGameTimer(),
+    interval = interval or 0,
+    inProgress = true
   }
+  cb()
+  moveCallbacks[numberMoveCallback].inProgress = false
 end
 
 --- A function to know if the player moved this the last call of it
