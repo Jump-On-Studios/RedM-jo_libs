@@ -399,6 +399,13 @@ function jo.menu.delete(id)
   })
 end
 
+--- Check if a menu exist
+---@param id string (the menu ID)
+---@return boolean (Returns `true` if the menu exists)
+function jo.menu.isExist(id)
+  return menus[id] and true or false
+end
+
 --- Check if any menu is currently open
 ---@return boolean (Returns `true` if a menu is open)
 function jo.menu.isOpen()

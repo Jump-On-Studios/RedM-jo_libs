@@ -32,7 +32,6 @@ local function SetTextureLayerTint(...) return Citizen.InvokeNative(0x2DF59FFE6F
 local function UpdatePedTexture(...) return Citizen.InvokeNative(0x92DAABA2C1C10B0E, ...) end
 local function N_0x704C908E9C405136(...) return Citizen.InvokeNative(0x704C908E9C405136, ...) end
 local function UpdatePedVariation(ped) return Citizen.InvokeNative(0xCC8CA3E88256E58F, ped, false, true, true, true, false) end
-local CreateThreadNow = Citizen.CreateThreadNow
 local function _updatePedVariation(ped)
   N_0x704C908E9C405136(ped)
   return UpdatePedVariation(ped)
