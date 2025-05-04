@@ -14,6 +14,7 @@ CreateThread(function()
 end)
 
 local menus = {}
+local menuCreators = {}
 jo.menu.listeners = {}
 local nuiShow = false
 local timeoutClose = nil
@@ -93,6 +94,13 @@ local function menuNUIChange(data)
   end
 
   previousData = table.copy(currentData)
+end
+
+local function missingMenu(id)
+  if not menuCreators[id] then
+    return eprint("The menu is missing: %s", id)
+  end
+  menuCreators[id]()
 end
 
 ---@class MenuClass : table Menu class
@@ -417,6 +425,9 @@ end
 ---@param keepHistoric? boolean (Keep the menu navigation history <br> default: `true`)
 ---@param resetMenu? boolean (Clear and redraw the menu before displaying <br> default: `true`)
 function jo.menu.setCurrentMenu(id, keepHistoric, resetMenu)
+  if not menus[id] then
+    return missingMenu(id)
+  end
   keepHistoric = (keepHistoric == nil) and true or keepHistoric
   resetMenu = (resetMenu == nil) and true or resetMenu
   if not keepHistoric then
@@ -625,6 +636,19 @@ RegisterNUICallback("backMenu", function(data, cb)
 
   jo.menu.fireEvent(menus[data.menu], "onBack")
 end)
+
+RegisterNuiCallback("missingMenu", function(data, cb)
+  cb("ok")
+
+  missingMenu(data.menu)
+end)
+
+--- Register a handler for missing menu error
+---@param id string (The menu ID)
+---@param callback function (The handler function)
+function jo.menu.missingMenuHandler(id, callback)
+  menuCreators[id] = callback
+end
 
 --- Register a callback function for menu change events
 ---@param cb function (The callback function to register)

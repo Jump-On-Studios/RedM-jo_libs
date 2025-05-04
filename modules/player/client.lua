@@ -65,8 +65,10 @@ function jo.player.move(cb, interval)
     interval = interval or 0,
     inProgress = true
   }
-  cb()
-  moveCallbacks[numberMoveCallback].inProgress = false
+  CreateThreadNow(function()
+    cb()
+    moveCallbacks[numberMoveCallback].inProgress = false
+  end)
 end
 
 --- A function to know if the player moved since the last called of the function
