@@ -22,6 +22,7 @@ local currentMinimapType = GetMinimapType()
 local clockStart = GetGameTimer()
 local currentData = {}
 local previousData = {}
+local previousKeepingInput = false
 local NativeSendNUIMessage = SendNUIMessage
 local function SendNUIMessage(data)
   if clockStart == GetGameTimer() then Wait(100) end
@@ -491,9 +492,11 @@ function jo.menu.show(show, keepInput, hideRadar, animation, hideCursor)
     if not nuiShow then
       timeoutClose = jo.timeout.set(150, function()
         SetNuiFocus(false, false)
+        SetNuiFocusKeepInput(previousKeepingInput)
         SendNUIMessage({ event = "updateShow", show = show, cancelAnimation = not animation })
       end)
     else
+      previousKeepingInput = IsNuiFocusKeepingInput()
       SetNuiFocus(true, not hideCursor)
       SetNuiFocusKeepInput(keepInput)
       SendNUIMessage({ event = "updateShow", show = show, cancelAnimation = not animation })
