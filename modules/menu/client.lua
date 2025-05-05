@@ -22,6 +22,7 @@ local currentMinimapType = GetMinimapType()
 local clockStart = GetGameTimer()
 local currentData = {}
 local previousData = {}
+local previousKeepingInput = false
 local NativeSendNUIMessage = SendNUIMessage
 local function SendNUIMessage(data)
   if clockStart == GetGameTimer() then Wait(100) end
@@ -175,11 +176,15 @@ local MenuItem = {
 --- item.onClick? function (Fired when Enter is pressed on the item)
 --- item.onChange? function (Fired when a slider value changes)
 --- item.onExit? function (Fired when the item is exited)
+--- item.onTick? function (Fired every tick)
 ---@return table (The added item)
 function MenuClass:addItem(p, item)
   if item == nil then
     item = p
     p = #self.items + 1
+  end
+  if item.tick then
+    item.onTick = item.tick
   end
   item = table.merge(table.copy(MenuItem), item)
   item.index = p
@@ -376,6 +381,7 @@ end
 --- data.onEnter? function (Fired when the menu is opened)
 --- data.onBack? function (Fired when the backspace/Escape is pressed)
 --- data.onExit? function (Fired when the menu is exited)
+--- data.onTick? function (Fired every tick)
 ---@return MenuClass (The newly created menu object)
 function jo.menu.create(id, data)
   if not id then
@@ -388,6 +394,9 @@ function jo.menu.create(id, data)
       currentData = {}
     end
     menus[id] = nil
+  end
+  if data.tick then
+    data.onTick = data.tick
   end
   menus[id] = table.merge(table.copy(MenuClass), data)
   menus[id].id = id
@@ -460,7 +469,6 @@ local function loopMenu()
           break
         end
       end
-      jo.menu.fireAllLevelsEvent("tick")
       jo.menu.fireAllLevelsEvent("onTick")
       Wait(0)
     end
@@ -491,9 +499,11 @@ function jo.menu.show(show, keepInput, hideRadar, animation, hideCursor)
     if not nuiShow then
       timeoutClose = jo.timeout.set(150, function()
         SetNuiFocus(false, false)
+        SetNuiFocusKeepInput(previousKeepingInput)
         SendNUIMessage({ event = "updateShow", show = show, cancelAnimation = not animation })
       end)
     else
+      previousKeepingInput = IsNuiFocusKeepingInput()
       SetNuiFocus(true, not hideCursor)
       SetNuiFocusKeepInput(keepInput)
       SendNUIMessage({ event = "updateShow", show = show, cancelAnimation = not animation })
