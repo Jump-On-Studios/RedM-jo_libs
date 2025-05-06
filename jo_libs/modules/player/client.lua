@@ -2,7 +2,7 @@ if GetCurrentResourceName() == "jo_libs" then return end
 
 local moveCallbacks = {}
 local numberMoveCallback = 0
-local lastCallDidMoveFunc = 0
+local lastCallDidMoveFunc = {}
 local lastMoveEvent = 0
 
 jo.player = setmetatable({}, {
@@ -73,14 +73,15 @@ function jo.player.move(cb, interval)
 end
 
 --- A function to know if the player moved since the last called of the function
+---@param id string (Unique ID of call)
 ---@return boolean (`true` if the player moved since the last call)
-function jo.player.didMoveSinceLastCall()
+function jo.player.didMoveSinceLastCall(id)
   local now = GetGameTimer()
   local move = false
-  if lastCallDidMoveFunc < lastMoveEvent then
+  if (lastCallDidMoveFunc[id] or 0) <= lastMoveEvent then
     move = true
   end
-  lastCallDidMoveFunc = now
+  lastCallDidMoveFunc[id] = now
   return move
 end
 
