@@ -178,25 +178,50 @@ function ScreenPositionToCameraRay(screenX, screenY)
 		q * glm_up,
 		glm_rad(camFov),
 		screenRatio,
-		0.10000,       -- GetFinalRenderedCamNearClip(),
-		1000.0,        -- GetFinalRenderedCamFarClip(),
+		0.10000,   -- GetFinalRenderedCamNearClip(),
+		1000.0,    -- GetFinalRenderedCamFarClip(),
 		screenX * 2 - 1, -- scale mouse coordinates from [0, 1] to [-1, 1]
 		screenY * 2 - 1
 	)
 end
 
-local function screenToWorld(distance, flags, toIgnore)
+local function screenToWorld(distance, flags, toIgnore, mouseX, mouseY)
 	distance = distance or 100
 	flags = flags or (1|2|8|16)
 	toIgnore = toIgnore or PlayerPedId()
+	mouseX = mouseX or 0.5 -- Default to screen center if not provided
+	mouseY = mouseY or 0.5 -- Default to screen center if not provided
 
 	-- Create a ray from the camera origin that extends through the mouse cursor
-	local r_pos, r_dir = ScreenPositionToCameraRay(0.5, 0.5)
+	local r_pos, r_dir = ScreenPositionToCameraRay(mouseX, mouseY)
 	local b = r_pos + distance * r_dir
 	local rayHandle = StartShapeTestRay(r_pos, b, flags, toIgnore, 0)
-	-- local rayHandle = StartExpensiveSynchronousShapeTestLosProbe(cam3DPos, direction, 1|2|8|16, toIgnore, 0)
 	local a, hit, endCoords, surfaceNormal, entityHit = GetShapeTestResult(rayHandle)
 	return hit, endCoords, surfaceNormal, entityHit
+end
+
+
+local spriteDimensions = nil
+--- Raycast from the camera through the screen center and return what was hit
+--- Displays a small crosshair sprite at screen center
+--- Must be called each frame to render the crosshair
+---@param distance? number (Maximum raycast distance <br> default:`100`)
+---@param flags? integer ([Flags](https://docs.fivem.net/natives/?_0x7EE9F5D83DD4F90E) for the raycast <br> default:`16`)
+---@param toIgnore? integer (Entity to ignore in the raycast <br> default:`PlayerPedId()`)
+---@return boolean,vector3,integer (Hit status, hit coordinates, hit entity)
+function jo.entity.getEntityInCrosshair(distance, flags, toIgnore)
+	if not flags then flags = 16 end
+	if not spriteDimensions then
+		spriteDimensions = {}
+		local width, height = GetCurrentScreenResolution()
+		spriteDimensions.width = 9.6 / width
+		spriteDimensions.height = 8.1 / height
+	end
+
+	jo.utils.loadGameData("hud_textures", true)
+	DrawSprite("hud_textures", "breadcrumb", 0.5, 0.5, spriteDimensions.width, spriteDimensions.height, 0.0, 255, 255, 255, 240, false)
+	local hit, endCoords, _, entityHit = screenToWorld(distance, flags, toIgnore, 0.5, 0.5)
+	return hit, endCoords, entityHit
 end
 
 --- Create an entity that follows the mouse cursor for placement
