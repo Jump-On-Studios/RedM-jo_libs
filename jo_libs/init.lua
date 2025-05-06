@@ -6,6 +6,7 @@ end
 -- GLOBAL VARIABLES
 -------------
 CreateThreadNow = Citizen.CreateThreadNow
+Await = Citizen.Await
 -------------
 -- END GLOBAL VARIABLES
 -------------
