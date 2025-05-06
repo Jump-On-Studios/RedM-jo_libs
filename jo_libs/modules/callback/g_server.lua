@@ -40,9 +40,12 @@ end)
 --- A function to trigger a client callback
 ---@param name string (The name of the callback event)
 ---@param source integer (The source of the client to trigger)
----@param cb function (Function to receive the result of the event)
----@param ...? mixed (The list of parameters to send to the callback event)
+---@param cb? function (Function to receive the result of the event)
+---@param ...? any (The list of parameters to send to the callback event)
 function jo.callback.triggerClient(name, source, cb, ...)
+  if not source then
+    return eprint("Source value is missing in your callback: ", name)
+  end
   if not GetPlayerIdentifier(source) then
     return eprint("Callback Module: Player is not connected - source: " .. source)
   end
@@ -79,7 +82,7 @@ end
 
 --- A function to trigger a server callback
 ---@param name string (Name of the callback event)
----@param cb function (Function to receive the result of the event)
+---@param cb? function (Function to receive the result of the event)
 ---@param ...? mixed (The list of parameters to send to the callback event)
 function jo.callback.triggerServer(name, cb, ...)
   if not registeredCallback[name] then return false, eprint("No server callback for:", name) end

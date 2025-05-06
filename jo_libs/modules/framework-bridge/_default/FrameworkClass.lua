@@ -45,8 +45,8 @@ end
 --- invConfig.shared? boolean (If the inventory is shared between players)
 --- invConfig.ignoreStackLimit? boolean (If the inventory can overcoming stack limits)
 --- invConfig.whitelist? table (Restrict the list of items that can be put in the inventory)
---- invConfig.whitelist[..].item string (Name of the whitelisted item)
---- invConfig.whitelist[..].limit integer (Stack limit of this item)
+--- invConfig.whitelistˌ_x_ˌitem string (Name of the whitelisted item)
+--- invConfig.whitelistˌ_x_ˌlimit integer (Stack limit of this item)
 function jo.framework:createInventory(invName, name, invConfig)
   return false
 end
@@ -383,6 +383,7 @@ end
 ---@param spawnCoordinate vector (The spawn location for the player)
 ---@param isDead? boolean (Whether the player starts as dead)
 ---@return table (Return the newly created user data)
+---@autodoc:config ignore:true
 function jo.framework:createUser(source, data, spawnCoordinate, isDead)
   return {}
 end

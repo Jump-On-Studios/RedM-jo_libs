@@ -14,6 +14,7 @@ CreateThread(function()
 end)
 
 local menus = {}
+local menuCreators = {}
 jo.menu.listeners = {}
 local nuiShow = false
 local timeoutClose = nil
@@ -50,6 +51,56 @@ local function updateSliderCurrentValue(item)
       slider.value = slider.values[slider.current]
     end
   end
+end
+
+local function menuNUIChange(data)
+  if not menus[data.menu] then return end
+  if not menus[data.menu].items[data.item.index] then return end
+
+  currentData.menu = data.menu
+  currentData.index = data.item.index
+  -- menus[data.menu].currentIndex = data.item.index
+  menus[data.menu].items[data.item.index] = table.merge(menus[data.menu].items[data.item.index], data.item)
+  currentData.item = menus[data.menu].items[data.item.index]
+
+  updateSliderCurrentValue(currentData.item)
+
+  local oldButton = false
+  if previousData.menu then
+    oldButton = menus[previousData.menu].items[previousData.index]
+  end
+
+  if previousData.menu ~= currentData.menu then
+    if oldButton then
+      jo.menu.fireEvent(oldButton, "onExit")
+      jo.menu.fireEvent(menus[previousData.menu], "onExit")
+    end
+    jo.menu.fireEvent(menus[currentData.menu], "onEnter")
+    jo.menu.fireEvent(currentData.item, "onActive")
+  else
+    if previousData.index ~= currentData.index then
+      if oldButton then
+        jo.menu.fireEvent(oldButton, "onExit")
+      end
+      jo.menu.fireEvent(currentData.item, "onActive")
+    else
+      jo.menu.fireEvent(currentData.item, "onChange")
+    end
+    jo.menu.fireEvent(menus[previousData.menu], "onChange")
+  end
+
+  for _, listener in ipairs(jo.menu.listeners) do
+    listener.cb(currentData)
+  end
+
+  previousData = table.copy(currentData)
+end
+
+local function missingMenu(id)
+  if not menuCreators[id] then
+    return eprint("The menu is missing: %s", id)
+  end
+  menuCreators[id]()
 end
 
 ---@class MenuClass : table Menu class
@@ -134,6 +185,14 @@ function MenuClass:addItem(p, item)
   item.index = p
   updateSliderCurrentValue(item)
   table.insert(self.items, p, item)
+  if p < #self.items - 1 then
+    for i = 1, #self.items do
+      if type(self.items[i].index) == "number" then
+        self.items[i].index = i
+      end
+    end
+    menuNUIChange({ menu = self.id, item = { index = self.currentIndex } })
+  end
   return item
 end
 
@@ -348,6 +407,13 @@ function jo.menu.delete(id)
   })
 end
 
+--- Check if a menu exist
+---@param id string (the menu ID)
+---@return boolean (Returns `true` if the menu exists)
+function jo.menu.isExist(id)
+  return menus[id] and true or false
+end
+
 --- Check if any menu is currently open
 ---@return boolean (Returns `true` if a menu is open)
 function jo.menu.isOpen()
@@ -359,6 +425,9 @@ end
 ---@param keepHistoric? boolean (Keep the menu navigation history <br> default: `true`)
 ---@param resetMenu? boolean (Clear and redraw the menu before displaying <br> default: `true`)
 function jo.menu.setCurrentMenu(id, keepHistoric, resetMenu)
+  if not menus[id] then
+    return missingMenu(id)
+  end
   keepHistoric = (keepHistoric == nil) and true or keepHistoric
   resetMenu = (resetMenu == nil) and true or resetMenu
   if not keepHistoric then
@@ -408,6 +477,7 @@ end
 ---@param animation? boolean (Whether to use animation when showing/hiding the menu <br> default: `true`)
 ---@param hideCursor? boolean (Whether to hide the cursor <br> default: `false`)
 function jo.menu.show(show, keepInput, hideRadar, animation, hideCursor)
+  if show == nuiShow then return end
   CreateThread(function()
     keepInput = keepInput == nil and true or keepInput
     hideRadar = hideRadar == nil and true or hideRadar
@@ -517,11 +587,33 @@ function jo.menu.forceBack()
   SendNUIMessage({ event = "menuBack" })
 end
 
+--- A function to play a NUI sound
+---@param sound string sound name from nui/menu/sounds folder
 function jo.menu.playAudio(sound)
   SendNUIMessage({
     event = "startAudio",
     sound = sound
   })
+end
+
+--- A function to hide temporary the menu and do action
+---@param cb function (Action executed before show again the menu)
+---@param animation? boolean (Whether to use animation when showing/hiding the menu <br> default: `true`)
+function jo.menu.softHide(cb, animation)
+  animation = GetValue(animation, true)
+  if not cb then return end
+  local keepInput = IsNuiFocusKeepingInput()
+  local hideCursor = false
+
+  SetNuiFocus(false, false)
+  SetNuiFocusKeepInput(false)
+  SendNUIMessage({ event = "updateShow", show = false, cancelAnimation = not animation })
+
+  cb()
+
+  SetNuiFocus(true, not hideCursor)
+  SetNuiFocusKeepInput(keepInput)
+  SendNUIMessage({ event = "updateShow", show = true, cancelAnimation = not animation })
 end
 
 -------------
@@ -544,6 +636,19 @@ RegisterNUICallback("backMenu", function(data, cb)
 
   jo.menu.fireEvent(menus[data.menu], "onBack")
 end)
+
+RegisterNuiCallback("missingMenu", function(data, cb)
+  cb("ok")
+
+  missingMenu(data.menu)
+end)
+
+--- Register a handler for missing menu error
+---@param id string (The menu ID)
+---@param callback function (The handler function)
+function jo.menu.missingMenuHandler(id, callback)
+  menuCreators[id] = callback
+end
 
 --- Register a callback function for menu change events
 ---@param cb function (The callback function to register)
@@ -582,49 +687,6 @@ end
 function jo.menu.fireAllLevelsEvent(eventName, ...)
   jo.menu.fireEvent(jo.menu.getCurrentMenu(), eventName, ...)
   jo.menu.fireEvent(jo.menu.getCurrentItem(), eventName, ...)
-end
-
-local function menuNUIChange(data)
-  if not menus[data.menu] then return end
-  if not menus[data.menu].items[data.item.index] then return end
-
-  currentData.menu = data.menu
-  currentData.index = data.item.index
-  -- menus[data.menu].currentIndex = data.item.index
-  menus[data.menu].items[data.item.index] = table.merge(menus[data.menu].items[data.item.index], data.item)
-  currentData.item = menus[data.menu].items[data.item.index]
-
-  updateSliderCurrentValue(currentData.item)
-
-  local oldButton = false
-  if previousData.menu then
-    oldButton = menus[previousData.menu].items[previousData.index]
-  end
-
-  if previousData.menu ~= currentData.menu then
-    if oldButton then
-      jo.menu.fireEvent(oldButton, "onExit")
-      jo.menu.fireEvent(menus[previousData.menu], "onExit")
-    end
-    jo.menu.fireEvent(menus[currentData.menu], "onEnter")
-    jo.menu.fireEvent(currentData.item, "onActive")
-  else
-    if previousData.index ~= currentData.index then
-      if oldButton then
-        jo.menu.fireEvent(oldButton, "onExit")
-      end
-      jo.menu.fireEvent(currentData.item, "onActive")
-    else
-      jo.menu.fireEvent(currentData.item, "onChange")
-    end
-    jo.menu.fireEvent(menus[previousData.menu], "onChange")
-  end
-
-  for _, listener in ipairs(jo.menu.listeners) do
-    listener.cb(currentData)
-  end
-
-  previousData = table.copy(currentData)
 end
 
 RegisterNUICallback("updatePreview", function(data, cb)

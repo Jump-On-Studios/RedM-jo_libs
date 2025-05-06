@@ -93,4 +93,15 @@ function string:toHex()
   return number
 end
 
+--- Convert a integer|number to a spaced number
+---@param number integer|number (The number to convert)
+---@param decimal? integer (The number of decimal <br> default: 0)
+function string.spaceNumber(number, decimal)
+  local s = string.format("%." .. (decimal or 0) .. "f", number)
+  local n, i, f = s:match("^(-?)(%d*)(.*)$")
+  i = i and (i:reverse():gsub("(%d%d%d)", "%1 "):reverse()) or ""
+  i = i:gsub("^(-?) ", "%1")
+  return (n or "") .. i .. (f or "")
+end
+
 jo.string = {}

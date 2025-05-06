@@ -96,16 +96,25 @@ function jo.entity.fadeOut(entity, duration)
 end
 
 --- Create a new entity at specified location
+--- - if coords is a vector4, heading is not required
 ---@param model string (The model name of the entity to create)
----@param coords vector3 (The coordinates where the entity will be created)
----@param heading number (The heading direction for the entity)
+---@param coords vector3|vector4 (The coordinates where the entity will be created)
+---@param heading? number (The heading direction for the entity if coords is vec3)
 ---@param networked? boolean (Whether the entity should be networked <br> default: `false`)
 ---@param fadeDuration? integer (Duration of the fade-in effect in ms <br> default: `0`)
 ---@return integer (The created entity ID)
-function jo.entity.create(model, coords, heading, networked, fadeDuration)
-	networked = networked or false
-	fadeDuration = fadeDuration or 0
-	local model = GetHashFromString(model)
+function jo.entity.create(model, coords, ...)
+	local args = { ... }
+	local networked, fadeDuration = false, 0
+	if type(coords) == vector4 then
+		networked = GetValue(args[1], false)
+		fadeDuration = GetValue(args[2], 0)
+	else
+		coords = vec4(coords.x, coords.y, coords.z, GetValue(args[1], 0))
+		networked = GetValue(args[2], false)
+		fadeDuration = GetValue(args[3], 0)
+	end
+	model = GetHashFromString(model)
 	jo.utils.loadGameData(model, true)
 	local entity
 	if IsModelAPed(model) then
@@ -137,9 +146,11 @@ function jo.entity.create(model, coords, heading, networked, fadeDuration)
 		SetEntityAlpha(entity, 0)
 	end
 	SetEntityCoords(entity, coords.xyz)
-	SetEntityHeading(entity, heading * 1.0)
+	SetEntityHeading(entity, coords.w)
 	if fadeDuration > 0 then
-		jo.entity.fadeIn(entity, fadeDuration)
+		CreateThreadNow(function()
+			jo.entity.fadeIn(entity, fadeDuration)
+		end)
 	end
 	Entities[entity] = true
 	return entity

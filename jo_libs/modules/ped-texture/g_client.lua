@@ -32,7 +32,6 @@ local function SetTextureLayerTint(...) return Citizen.InvokeNative(0x2DF59FFE6F
 local function UpdatePedTexture(...) return Citizen.InvokeNative(0x92DAABA2C1C10B0E, ...) end
 local function N_0x704C908E9C405136(...) return Citizen.InvokeNative(0x704C908E9C405136, ...) end
 local function UpdatePedVariation(ped) return Citizen.InvokeNative(0xCC8CA3E88256E58F, ped, false, true, true, true, false) end
-local CreateThreadNow = Citizen.CreateThreadNow
 local function _updatePedVariation(ped)
   N_0x704C908E9C405136(ped)
   return UpdatePedVariation(ped)
@@ -347,9 +346,9 @@ jo.pedTexture.ordersToApply = {
 --- A function to get the hashname of a texture
 ---@param isMale boolean (`true` if the texture is for a male, `false` otherwise)
 ---@param category string (The layername of the texture)
----@param data table (The texture data <br> ⚠️ Can be either a `number` representing the texture ID or a `table` with detailed configuration)
---- data.albedo string (The albedo of the texture)
---- data.sexe? string (The sex of the texture, used for eyebrow category <br> default: based on isMale)
+---@param data table|integer (The texture data <br> ⚠️ Can be either a `number` representing the texture ID or a `table` with detailed configuration)
+--- data.sexe string (The sex of the texture, used for eyebrow category <br> default: based on isMale)
+--- data.id integer (The ID of the texture)
 ---@return string (Return the hashname of the texture for this ID)
 function jo.pedTexture.getOverlayAssetFromId(isMale, category, data)
   if type(data) == "number" then
