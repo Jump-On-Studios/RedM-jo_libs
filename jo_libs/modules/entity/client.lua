@@ -201,21 +201,26 @@ local function screenToWorld(distance, flags, toIgnore, mouseX, mouseY)
 end
 
 
---- Raycast from the camera through the mouse cursor position and return what was hit
---- Must be called each frames
----@param distance? number (Maximum raycast distance <br> default:100)
----@param flags? integer (Flags for the raycast <br> default:(1|2|8|16))
----@param toIgnore? integer (Entity to ignore in the raycast <br> default:PlayerPedId())
+local spriteDimensions = nil
+--- Raycast from the camera through the screen center and return what was hit
+--- Displays a small crosshair sprite at screen center
+--- Must be called each frame to render the crosshair
+---@param distance? number (Maximum raycast distance <br> default:`100`)
+---@param flags? integer ([Flags](https://docs.fivem.net/natives/?_0x7EE9F5D83DD4F90E) for the raycast <br> default:`16`)
+---@param toIgnore? integer (Entity to ignore in the raycast <br> default:`PlayerPedId()`)
 ---@return boolean,vector3,integer (Hit status, hit coordinates, hit entity)
-function jo.entity.selectWithMouse(distance, flags, toIgnore)
-	-- SetMouseCursorThisFrame()
-	jo.utils.loadGameData("l_016e22bcpp", true)
-	DrawSprite("l_016e22bcpp", "bullet_normal", 0.5, 0.5)
+function jo.entity.getEntityInCrosshair(distance, flags, toIgnore)
+	if not flags then flags = 16 end
+	if not spriteDimensions then
+		spriteDimensions = {}
+		local width, height = GetCurrentScreenResolution()
+		spriteDimensions.width = 9.6 / width
+		spriteDimensions.height = 8.1 / height
+	end
 
-	local mouseX, mouseY               = GetDisabledControlNormal(0, `INPUT_CURSOR_X`), GetDisabledControlNormal(0, `INPUT_CURSOR_Y`)
-
-	local hit, endCoords, _, entityHit = screenToWorld(distance, flags, toIgnore, mouseX, mouseY)
-
+	jo.utils.loadGameData("hud_textures", true)
+	DrawSprite("hud_textures", "breadcrumb", 0.5, 0.5, spriteDimensions.width, spriteDimensions.height, 0.0, 255, 255, 255, 240, false)
+	local hit, endCoords, _, entityHit = screenToWorld(distance, flags, toIgnore, 0.5, 0.5)
 	return hit, endCoords, entityHit
 end
 
