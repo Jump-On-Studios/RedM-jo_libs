@@ -65,9 +65,10 @@ function jo.player.move(cb, interval)
     interval = interval or 0,
     inProgress = true
   }
+  local currentMove = numberMoveCallback
   CreateThreadNow(function()
     cb()
-    moveCallbacks[numberMoveCallback].inProgress = false
+    moveCallbacks[currentMove].inProgress = false
   end)
 end
 
