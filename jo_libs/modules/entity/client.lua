@@ -156,51 +156,6 @@ function jo.entity.create(model, coords, ...)
 	return entity
 end
 
---- Source: https://github.com/citizenfx/lua/blob/luaglm-dev/cfx/libs/scripts/examples/scripting_gta.lua
---- Credits to gottfriedleibniz
-local glm = require "glm"
-
-local glm_rad = glm.rad
-local glm_quatEulerAngleZYX = glm.quatEulerAngleZYX
-local glm_rayPicking = glm.rayPicking
-local glm_up = glm.up()
-local glm_forward = glm.forward()
-local camFov = GetFinalRenderedCamFov()
-local screenRatio = 16 / 9
-
-function ScreenPositionToCameraRay(screenX, screenY)
-	local pos = GetFinalRenderedCamCoord()
-	local rot = glm_rad(GetFinalRenderedCamRot(2))
-
-	local q = glm_quatEulerAngleZYX(rot.z, rot.y, rot.x)
-	return pos, glm_rayPicking(
-		q * glm_forward,
-		q * glm_up,
-		glm_rad(camFov),
-		screenRatio,
-		0.10000,   -- GetFinalRenderedCamNearClip(),
-		1000.0,    -- GetFinalRenderedCamFarClip(),
-		screenX * 2 - 1, -- scale mouse coordinates from [0, 1] to [-1, 1]
-		screenY * 2 - 1
-	)
-end
-
-local function screenToWorld(distance, flags, toIgnore, mouseX, mouseY)
-	distance = distance or 100
-	flags = flags or (1|2|8|16)
-	toIgnore = toIgnore or PlayerPedId()
-	mouseX = mouseX or 0.5 -- Default to screen center if not provided
-	mouseY = mouseY or 0.5 -- Default to screen center if not provided
-
-	-- Create a ray from the camera origin that extends through the mouse cursor
-	local r_pos, r_dir = ScreenPositionToCameraRay(mouseX, mouseY)
-	local b = r_pos + distance * r_dir
-	local rayHandle = StartShapeTestRay(r_pos, b, flags, toIgnore, 0)
-	local a, hit, endCoords, surfaceNormal, entityHit = GetShapeTestResult(rayHandle)
-	return hit, endCoords, surfaceNormal, entityHit
-end
-
-
 local spriteDimensions = nil
 --- Raycast from the camera through the screen center and return what was hit
 --- Displays a small crosshair sprite at screen center
@@ -220,7 +175,7 @@ function jo.entity.getEntityInCrosshair(distance, flags, toIgnore)
 
 	jo.utils.loadGameData("hud_textures", true)
 	DrawSprite("hud_textures", "breadcrumb", 0.5, 0.5, spriteDimensions.width, spriteDimensions.height, 0.0, 255, 255, 255, 240, false)
-	local hit, endCoords, _, entityHit = screenToWorld(distance, flags, toIgnore, 0.5, 0.5)
+	local hit, endCoords, _, entityHit = jo.utils.screenToWorld(distance, flags, toIgnore, 0.5, 0.5)
 	return hit, endCoords, entityHit
 end
 
@@ -234,8 +189,7 @@ function jo.entity.createWithMouse(model, keepEntity, networked)
 	if keepEntity == nil then keepEntity = true end
 	model = GetHashFromString(model)
 	camFov = GetFinalRenderedCamFov()
-	local screenResoX, screenResoY = GetScreenResolution()
-	screenRatio = screenResoX / screenResoY
+
 
 	local origin = GetOffsetFromEntityInWorldCoords(jo.me, 0.0, 5.0, 0.0)
 	local previousCoord = origin
@@ -256,7 +210,7 @@ function jo.entity.createWithMouse(model, keepEntity, networked)
 		DisableControlAction(0, `INPUT_ATTACK`, true)
 		DisableControlAction(0, `INPUT_AIM`, true)
 
-		local hit, targetCoord = screenToWorld(maxDistanceCreate)
+		local hit, targetCoord = jo.utils.screenToWorld(maxDistanceCreate)
 		origin = GetEntityCoords(jo.me)
 
 		if hit and #(targetCoord - origin) <= maxDistanceCreate and #(previousCoord - targetCoord) > 0.025 then

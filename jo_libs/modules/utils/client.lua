@@ -73,3 +73,57 @@ function jo.utils.waiter(cb, maxDuration, loopTimer)
 	end
 	return true
 end
+
+--- Source: https://github.com/citizenfx/lua/blob/luaglm-dev/cfx/libs/scripts/examples/scripting_gta.lua
+--- Credits to gottfriedleibniz
+local glm = require "glm"
+
+local glm_rad = glm.rad
+local glm_quatEulerAngleZYX = glm.quatEulerAngleZYX
+local glm_rayPicking = glm.rayPicking
+local glm_up = glm.up()
+local glm_forward = glm.forward()
+local camFov = GetFinalRenderedCamFov()
+local width, height = GetCurrentScreenResolution()
+local screenRatio = width / height
+
+local function screenPositionToCameraRay(screenX, screenY)
+	local pos = GetFinalRenderedCamCoord()
+	local rot = glm_rad(GetFinalRenderedCamRot(2))
+
+	local q = glm_quatEulerAngleZYX(rot.z, rot.y, rot.x)
+	return pos, glm_rayPicking(
+		q * glm_forward,
+		q * glm_up,
+		glm_rad(camFov),
+		screenRatio,
+		0.10000,   -- GetFinalRenderedCamNearClip(),
+		1000.0,    -- GetFinalRenderedCamFarClip(),
+		screenX * 2 - 1, -- scale mouse coordinates from [0, 1] to [-1, 1]
+		screenY * 2 - 1
+	)
+end
+
+
+--- Converts screen coordinates to world coordinates using camera raycasting
+--- This function casts a ray from the camera through the specified screen position and returns information about what it hits in the 3D world
+---@param distance? number (Maximum raycast distance in game units <br> default:`100`)
+---@param flags? integer ([Flags](https://docs.fivem.net/natives/?_0x7EE9F5D83DD4F90E) for the raycast <br> default:`1|2|8|16`)
+---@param toIgnore? integer (Entity to ignore in the raycast <br> default:`PlayerPedId()`)
+---@param mouseX? number (X screen coordinate normalized between 0-1 <br> default:`0.5` screen center)
+---@param mouseY? number (Y screen coordinate normalized between 0-1 <br> default:`0.5` screen center)
+---@return boolean,vector3,vector3,integer (hit, endCoords, surfaceNormal, entityHit)
+function jo.utils.screenToWorld(distance, flags, toIgnore, mouseX, mouseY)
+	distance = distance or 100
+	flags = flags or (1|2|8|16)
+	toIgnore = toIgnore or PlayerPedId()
+	mouseX = mouseX or 0.5 -- Default to screen center if not provided
+	mouseY = mouseY or 0.5 -- Default to screen center if not provided
+
+	-- Create a ray from the camera origin that extends through the mouse cursor
+	local r_pos, r_dir = screenPositionToCameraRay(mouseX, mouseY)
+	local b = r_pos + distance * r_dir
+	local rayHandle = StartShapeTestRay(r_pos, b, flags, toIgnore, 0)
+	local a, hit, endCoords, surfaceNormal, entityHit = GetShapeTestResult(rayHandle)
+	return hit, endCoords, surfaceNormal, entityHit
+end
