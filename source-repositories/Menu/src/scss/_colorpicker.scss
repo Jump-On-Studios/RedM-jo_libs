@@ -1,0 +1,68 @@
+.colorPicker {
+  input {
+    -webkit-appearance: none;
+    flex: 1;
+    height: 2vh;
+    background-color: transparent;
+    background-size: calc(100% - 2.4vh) 100%;
+    background-position-x: 1.2vh;
+    background-repeat: no-repeat;
+    background-color: transparent;
+    color: white;
+    image-rendering: pixelated;
+  }
+
+  .palette::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    box-shadow: none;
+    border-color: transparent;
+    background-image: url('/assets/images/menu/circle-target.png');
+    background-size: 100%;
+    background-position: 0 0;
+    background-repeat: no-repeat;
+    height: 2.8vh;
+    width: 2.8vh;
+    position: relative;
+    margin-top: -0.1vh;
+  }
+
+  .colorSlider {
+    position: relative;
+    display: flex;
+    gap: 0.25em;
+    align-items: center;
+    margin-top: 1vh;
+    padding-bottom: 0.25em;
+
+    .keyHelpers {
+      &>div {
+        height: 2vh;
+        min-width: 2vh;
+        width: fit-content;
+        text-align: center;
+        line-height: 1.85vh;
+        font-size: 1.7vh;
+        font-family: monospace;
+        font-weight: 700;
+        top: 0.55vh;
+        background-color: white;
+        color: black;
+        border-radius: 0.1vh;
+        opacity: 0.25;
+        text-transform: uppercase;
+      }
+
+      &.index-0>div {
+        line-height: 1.5vh;
+        font-family: fantasy;
+        padding: 0 0.3vh;
+      }
+
+      .left {
+        &.qwerty {
+          line-height: 1.575vh;
+        }
+      }
+    }
+  }
+}
