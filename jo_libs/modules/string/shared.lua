@@ -1,4 +1,15 @@
 -- todo add usePostProcess=false
+---@format disable-next
+local accentMap = {
+  ["Á"]="A",["À"]="A",["Â"]="A",["Ä"]="A",["á"]="a",["à"]="a",["â"]="a",["ä"]="a",
+  ["É"]="E",["È"]="E",["Ê"]="E",["Ë"]="E",["é"]="e",["è"]="e",["ê"]="e",["ë"]="e",
+  ["Í"]="I",["Ì"]="I",["Î"]="I",["Ï"]="I",["í"]="i",["ì"]="i",["î"]="i",["ï"]="i",
+  ["Ó"]="O",["Ò"]="O",["Ô"]="O",["Ö"]="O",["ó"]="o",["ò"]="o",["ô"]="o",["ö"]="o",
+  ["Ú"]="U",["Ù"]="U",["Û"]="U",["Ü"]="U",["ú"]="u",["ù"]="u",["û"]="u",["ü"]="u",
+  ["Ñ"]="N",["ñ"]="n",["Ç"]="C",["ç"]="c",
+}
+local segmentCache = setmetatable({}, { __mode = "v" })
+
 
 --- Return the string with the first letter in uppercase
 ---@return string (Return the string with the first letter in uppercase)
@@ -131,4 +142,36 @@ local function getStringSegment(str, caseSensitive)
   end
   return segs
 end
+
+--- A function to compare two strings
+---@param a string (The 1st string)
+---@param b string (The 2nd string)
+---@param caseSensitive boolean (If the compare is case sensitive<br>default: `false`)
+---@return integer (`-1` if `a` is previous, `0` if both are same and `1` if `a` is after)
+function string.compare(a, b, caseSensitive)
+  caseSensitive = caseSensitive or false
+  a = tostring(a)
+  b = tostring(b)
+  if not a then return -1 end
+  if not b then return 1 end
+  if a == b then return 0 end
+  local sa = segmentCache[a] or getStringSegment(a, caseSensitive)
+  segmentCache[a] = sa
+  local sb = segmentCache[b] or getStringSegment(b, caseSensitive)
+  segmentCache[b] = sb
+
+  local n = math.min(#sa, #sb)
+  for i = 1, n do
+    local va, vb = sa[i], sb[i]
+    if va ~= vb then
+      if type(va) == "number" and type(vb) == "number" then
+        return va < vb and -1 or 1
+      else
+        return va < vb and -1 or 1
+      end
+    end
+  end
+  return #sa < #sb and -1 or 1
+end
+
 jo.string = {}
