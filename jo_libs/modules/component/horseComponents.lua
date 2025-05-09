@@ -188,30 +188,19 @@ HorseComponents = {
       variations = { 159608433, 189984956, 336167465, 502404946, 759674365, 948849458, 1353481414, -2038863777, -1644685476, -1398623055, -1073194124, -783090167, -734723115, -640774732, -517170076, -357093499, -217792492, }
     },
     {
-      --variations = {162921181,668317144,1642776634,-769979804,-591979510,-459598116,-386088566,-278280635,-210612686,898650445,}
       variations = { -591979510 }
     },
     {
-      --variations = {121413827,-1783058735,-1621044975,565007780,728197400,1823890629,123015392,2033812671,}
-      variations = { 121413827, -1783058735, -1621044975, 565007780, 728197400, 1823890629, 2033812671, }
+      variations = { 121413827, -1783058735, -1621044975, 565007780, 728197400, 1823890629, 2033812671, -1493671876, -973758918, -861791069, -803360118, 297838303, -333620327, -189301827, -93587402, -24670375, -2089416116, }
     },
     {
-      --variations = {175183344,916847917,740190526,1115457030,1271539633,1902244804,964657948,1034685529,-1241482208,}
-      variations = { 175183344, 916847917, 740190526, 1271539633, 1902244804, 964657948, 1034685529, -1241482208, }
+      variations = { 175183344, 916847917, 740190526, 1271539633, 1902244804, 964657948, 1034685529, -1241482208, -1538336579, 463419468, 1557350851, 1864953454, 2016997758, -2144006006, -1834764953, -1834601128, -1975020133 }
     },
     {
       variations = { 271484842, 472423486, 951866725, 590913953, 896814801, 1663183412, 1962823184, }
     },
     {
-      --variations = {637095756,957936743,1413491673,1987604553,-1493671876,-1010726486,-973758918,-861791069,-803360118,297838303,-333620327,-189301827,-93587402,-24670375,-2089416116,}
-      variations = { -1493671876, -973758918, -861791069, -803360118, 297838303, -333620327, -189301827, -93587402, -24670375, -2089416116, }
-    },
-    {
       variations = { 1601252790, 1743567474, 1801912941, 1843990690, -2082510137, -1804739386, -1341472265, 516972462, 635894440, 894887074, -61385569, }
-    },
-    {
-      --variations = {-1538336579,463419468,1425451770,1557350851,1864953454,2016997758,-2144006006,-1834764953,-1834601128,}
-      variations = { -1538336579, 463419468, 1557350851, 1864953454, 2016997758, -2144006006, -1834764953, -1834601128, }
     },
     {
       variations = { -19259407, 643704080, -2091149139, -1844839380, -1778899050, -1758800638, -1669317925, -1179674591, -19760654, 352959104, 416553345, 612305799, 708254934, 1119305644, 1179583941, 1314505589, 1374370502, 1868125370, 241220176, -1913665151, }
@@ -224,10 +213,6 @@ HorseComponents = {
     },
     {
       variations = { -177081303, -1741697556, 2101746888, 1702263886, 1600257510, }
-    },
-    {
-      --variations = {-1122567371,-787176656,-817061984,-489732443,-1975020133,}
-      variations = { -1975020133 }
     },
   },
   saddle_stirrups = {
@@ -379,127 +364,127 @@ HorseComponents = {
   },
   horse_outfits = {
     {
-      title = 'skinBears',
+      title = "skinBears",
       variations = {
         0xE0C338BD, --p_c_horse_01_acc2_003
       }
     },
     {
-      title = 'skinFox',
+      title = "skinFox",
       variations = {
         0xD28F9C56, --p_c_horse_01_acc2_004
       }
     },
     {
-      title = 'workerLoadout',
+      title = "workerLoadout",
       variations = {
         0xDA9244A3, --horseloadout_hr1_001
       }
     },
     {
-      title = 'prospectors',
+      title = "prospectors",
       variations = {
         0x56F11EF7, --p_c_horse_01_prospectorsgear_000
       }
     },
     {
-      title = 'snowLoadout',
+      title = "snowLoadout",
       variations = {
         0x460A74C6, --horseloadout_hr1_002
       }
     },
     {
-      title = 'waterLoadout',
+      title = "waterLoadout",
       variations = {
         0x4514190C, --horseloadout_hr1_003
       }
     },
     {
-      title = 'traveler',
+      title = "traveler",
       variations = {
         0xDCC33A7C, --horseloadout_hr1_004
       }
     },
     {
-      title = 'explorer',
+      title = "explorer",
       variations = {
         0x951FB0EB, --p_c_horse_01_explorer_items_000
       }
     },
     {
-      title = 'skinLoadout',
+      title = "skinLoadout",
       variations = {
         0x2459E0BD, --horseloadout_hr1_005
       }
     },
     {
-      title = 'longScabbardLeft',
+      title = "longScabbardLeft",
       variations = {
         0xE7E6E17C, --p_c_horse_01_longscabbardr_000
       }
     },
     {
-      title = 'longScabbardRight',
+      title = "longScabbardRight",
       variations = {
         0x725AFB5D, --p_c_horse_01_longscabbardl_000
       }
     },
     {
-      title = 'holster',
+      title = "holster",
       variations = {
         0x1AA479FA, --p_c_horse_01_shortscabbardr_000
       }
     },
     {
-      title = 'hunter',
+      title = "hunter",
       variations = {
         0xE882EAF6, --p_c_horse_01_hunting_items_003
       }
     },
     {
-      title = 'rearSkin',
+      title = "rearSkin",
       variations = {
         0x4C15B222, --p_c_horse_01_hunting_items_004
       }
     },
     {
-      title = 'wolf',
+      title = "wolf",
       variations = {
         0x3EDC17AF, --pelt_medium_wolf_000_c0
       }
     },
     {
-      title = 'skin',
+      title = "skin",
       variations = {
         0x69F966C8, --trapperblanket + bridle
       }
     },
     {
-      title = 'skin',
+      title = "skin",
       variations = {
         0x5827C325, --trapperblanket + bridle
       }
     },
     {
-      title = 'skin',
+      title = "skin",
       variations = {
         0x94CE3C61, --trapperblanket + bridle
       }
     },
     {
-      title = 'skin',
+      title = "skin",
       variations = {
         0x830398CC, --trapperblanket + bridle
       }
     },
     {
-      title = 'skin',
+      title = "skin",
       variations = {
         0xAFFCF2BE, --trapperblanket + bridle
       }
     },
     {
-      title = 'skin',
+      title = "skin",
       variations = {
         0x9F275113, --trapperblanket + bridle
       }
