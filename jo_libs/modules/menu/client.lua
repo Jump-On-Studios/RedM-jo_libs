@@ -4,6 +4,7 @@ jo.menu.exports = {}
 jo.require("table")
 jo.require("timeout")
 jo.require("nui")
+jo.require("string")
 
 CreateThread(function()
   Wait(100)
@@ -292,10 +293,9 @@ function jo.menu.reset(id) menus[id]:reset() end
 ---@param first? integer (Position of the first element to sort <br> default: `1`)
 ---@param last? integer (Position of the last element to sort <br> default: `#self.items`)
 function MenuClass:sort(first, last)
-  local sortFunc = function(i1, i2)
-    local title1 = i1.title
-    local title2 = i2.title
-    return title1 < title2
+  local sCompare = string.compare
+  local function sortFunc(i1, i2)
+    return sCompare(i1.title, i2.title) < 0
   end
 
   first = math.max(1, first or 1)
