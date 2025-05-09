@@ -1,3 +1,5 @@
+jo.require("utils")
+
 jo.entity = {}
 local Entities = {}
 

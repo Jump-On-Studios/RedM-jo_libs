@@ -123,6 +123,7 @@ function jo.utils.screenToWorld(distance, flags, toIgnore, mouseX, mouseY)
 	-- Create a ray from the camera origin that extends through the mouse cursor
 	local r_pos, r_dir = screenPositionToCameraRay(mouseX, mouseY)
 	local b = r_pos + distance * r_dir
+	if flags == 0 then return false, b, r_dir, 0 end
 	local rayHandle = StartShapeTestRay(r_pos, b, flags, toIgnore, 0)
 	local a, hit, endCoords, surfaceNormal, entityHit = GetShapeTestResult(rayHandle)
 	return hit, endCoords, surfaceNormal, entityHit
