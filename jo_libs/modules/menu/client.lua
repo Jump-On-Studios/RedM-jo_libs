@@ -390,8 +390,8 @@ function jo.menu.create(id, data)
   if menus[id] then
     if jo.menu.isOpen() and currentData.menu == id then
       jo.menu.fireAllLevelsEvent("onExit")
-      previousData = {}
-      currentData = {}
+      -- previousData = {}
+      -- currentData = {}
     end
     menus[id] = nil
   end
