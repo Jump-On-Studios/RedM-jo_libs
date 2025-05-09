@@ -104,4 +104,31 @@ function string.spaceNumber(number, decimal)
   return (n or "") .. i .. (f or "")
 end
 
+--- A function to remove all accent in a string
+---@return string (A string without accent)
+function string:removeAccent()
+  return (self:gsub("[%z\1-\127\194-\244][\128-\191]*", accentMap))
+end
+
+local function getStringSegment(str, caseSensitive)
+  caseSensitive = caseSensitive or false
+  local s = str:removeAccent():trim()
+  if not caseSensitive then
+    s = s:lower()
+  end
+  local segs = {}
+  local pos, len = 1, #s
+  while pos <= len do
+    local num = s:match("^(%d+)", pos)
+    if num then
+      segs[#segs + 1] = tonumber(num)
+      pos = pos + #num
+    else
+      local txt = s:match("^[^%d]+", pos)
+      segs[#segs + 1] = txt
+      pos = pos + #txt
+    end
+  end
+  return segs
+end
 jo.string = {}
