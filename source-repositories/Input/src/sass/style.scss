@@ -1,0 +1,23 @@
+:root {
+  --color-red: #770000;
+  --color-red-light: #e20202;
+  --color-black: #454545;
+  --color-green: #007518;
+  --color-background-dark: #191919;
+  --color-background-grey: #2f2f2f;
+  --global-gap: 0.75rem;
+  --element-gap: 0.3rem;
+}
+
+body {
+  font-family: Hapna;
+  font-weight: 500;
+}
+
+.bg-red {
+  background-color: var(--color-red) !important;
+}
+
+.bg-green {
+  background-color: var(--color-green) !important;
+}
