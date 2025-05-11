@@ -328,10 +328,10 @@ jo.component.data.expressions = {
   mouthConerLeftDepth = 40950,
   mouthConerLeftHeight = 46661,
   mouthConerLeftLipsDistance = 22344,
+  mouthConerRightHeight = 49299,
+  mouthConerRightDepth = 9423,
   mouthConerRightWidth = 55718,
-  mouthConerRightDepth = 49299,
-  mouthConerRightHeight = 60292,
-  mouthConerRightLipsDistance = 9423,
+  mouthConerRightLipsDistance = 60292,
 
   arms = 46032,
   chest = 27779,
