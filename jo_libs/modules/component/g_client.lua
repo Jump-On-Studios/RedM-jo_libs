@@ -241,9 +241,9 @@ jo.component.data.expressions = {
   mouthConerLeftDepth = 40950,
   mouthConerLeftHeight = 46661,
   mouthConerLeftLipsDistance = 22344,
-  mouthConerRightWidth = 60292,
+  mouthConerRightWidth = 55718,
   mouthConerRightDepth = 49299,
-  mouthConerRightHeight = 55718,
+  mouthConerRightHeight = 60292,
   mouthConerRightLipsDistance = 9423,
 
   arms = 46032,
