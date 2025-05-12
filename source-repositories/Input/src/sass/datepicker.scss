@@ -28,8 +28,15 @@
   --dp-range-between-border-color: var(--dp-hover-color, #fff);
   --dp-menu-width: 70vw;
   --dp-border-radius: 0;
+  --dp-font-family: var(--font);
+  --dp-input-padding: 0.625em 1.1em;
 }
 
 .dp__input {
   border: none;
+
+}
+
+.dp__input::placeholder {
+  opacity: 1;
 }

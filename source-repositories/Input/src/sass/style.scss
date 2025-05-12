@@ -7,10 +7,11 @@
   --color-background-grey: #2f2f2f;
   --global-gap: 0.75rem;
   --element-gap: 0.3rem;
+  --font: Hapna
 }
 
 body {
-  font-family: Hapna;
+  font-family: var(--font);
   font-weight: 500;
 }
 
