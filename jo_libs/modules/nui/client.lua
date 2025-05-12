@@ -36,3 +36,10 @@ function jo.nui.resetFocus()
     action = "jo_nui_reset_focus"
   })
 end
+
+--- A function to know if a nui is loaded
+---@param uiName string (The name of the NUI)
+---@return boolean (`true` if the nui is already loaded)
+function jo.nui.isLoaded(uiName)
+  return nuiLoaded[uiName] and true or false
+end
