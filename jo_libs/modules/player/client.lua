@@ -88,7 +88,6 @@ end
 function jo.player.getClosestPlayer(radius, ignoreSelf)
   if not radius then return eprint("Must supply a radius value") end
 
-
   local players = jo.player.activePlayers
   local closestPlayerDistance
   local closestClientId
@@ -109,14 +108,16 @@ function jo.player.getClosestPlayer(radius, ignoreSelf)
       end
     end
   end
-  if closestClientId and not ignoreSelf then
+
+  if closestClientId then
     return closestClientId, closestPlayerDistance
-  else
-    return jo.player.playerId, 0
   end
 
+  if ignoreSelf then
+    return nil, nil
+  end
 
-  return nil, nil
+  return jo.player.playerId, 0
 end
 
 -- A function to convert a clientId to a serverId
