@@ -25,35 +25,10 @@ let menu = {
         //   values: [{ current: 1, min: -10, max: 10 }]
         // },
         {
-          type: 'grid',
-          values: [{ current: 1, min: -10, max: 10 }, { current: 1, min: -10, max: 10 }]
+          values: [1, 2, 3]
         }
       ]
-    },
-    {
-      title: 'This is the title 2',
-      price: 40,
-      icon: "male",
-      footer: 'footer',
-      iconRight: 'tick'
-    },
-    {
-      title: 'This is the title 3',
-      price: 4,
-      icon: "male",
-      footer: 'footer',
-      quality: 0,
-    },
-    {
-      title: 'This is the title 4',
-      price: 4,
-      icon: "male",
-      footer: 'footer',
-      stars: [3, 4],
-      quality: 3,
-      starsClass: 'fgold',
-      quantity: 5
-    },
+    }
   ]
 }
 
