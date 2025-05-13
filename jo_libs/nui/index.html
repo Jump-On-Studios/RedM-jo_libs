@@ -84,6 +84,7 @@
     eventsToRedirect.forEach(eventType => {
       frame.contentWindow.addEventListener(eventType, (event) => {
         if (event.fake) return
+        if (uiNameFocused !== "") return
         const redirectedEvent = new event.constructor('dispatchEvent', event);
         redirectedEvent.realtype = eventType
         iFrames.forEach((frame) => {

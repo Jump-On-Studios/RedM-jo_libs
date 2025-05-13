@@ -226,8 +226,7 @@ onUnmounted(() => {
   height: 100vh;
   display: flex;
   justify-content: center;
-  filter: backdrop(4px);
-  // background-color: rgba(0, 0, 0, 0.8);
+  background-color: rgba(0, 0, 0, 0.8);
   font-family: Hapna;
   color: white;
   font-weight: 500;
