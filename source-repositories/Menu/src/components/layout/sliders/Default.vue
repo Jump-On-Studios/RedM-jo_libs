@@ -8,14 +8,9 @@
         <div class="arrow right clicker" @click="menuStore.sliderRight(props.index)"><img src="/assets/images/menu/selection_arrow_right.png"></div>
       </div>
       <div class="boxes">
-        <div v-for="vIndex in props.slider.values.length"
-          :key="vIndex"
-          :class="['box clicker',{
-            'active' : vIndex < props.slider.current,
-            'current' : vIndex == props.slider.current,
-          }]"
-          @click="click(vIndex)"
-        >
+        <div v-for="(variation, vIndex) in props.slider.values" :key="vIndex" :class="['box clicker']" @click="click(vIndex + 1)">
+          <img src="/assets/images/menu/swatch_bg_1a.png" :class="[{ 'active': vIndex + 1 < props.slider.current }, variation?.class]" />
+          <img src="/assets/images/menu/tank_meter_marker.png" v-if="vIndex + 1 == props.slider.current" class="current" />
         </div>
       </div>
     </div>
@@ -30,7 +25,7 @@ const lang = useLangStore().lang
 
 const menuStore = useMenuStore()
 
-const props = defineProps(['slider','index'])
+const props = defineProps(['slider', 'index'])
 
 const API = inject('API')
 
@@ -41,10 +36,10 @@ function title() {
 }
 
 function numItem() {
-  return API.sprintf(lang('of'),props.slider.current, props.slider.values.length)
+  return API.sprintf(lang('of'), props.slider.current, props.slider.values.length)
 }
 function click(vIndex) {
   if (vIndex == props.slider.current) return
-  menuStore.setSliderCurrent({index: props.index,value:parseInt(vIndex)})
+  menuStore.setSliderCurrent({ index: props.index, value: parseInt(vIndex) })
 }
 </script>

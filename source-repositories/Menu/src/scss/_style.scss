@@ -45,11 +45,15 @@ body {
 
 
 .fred {
-  filter: brightness(0.5) sepia(1) saturate(10000%);
+  filter: brightness(0.5) sepia(1) saturate(10000%) !important;
 }
 
 .fgold {
-  filter: brightness(0) saturate(100%) invert(90%) sepia(29%) saturate(3711%) hue-rotate(349deg) brightness(108%) contrast(101%);
+  filter: brightness(0) saturate(100%) invert(90%) sepia(29%) saturate(3711%) hue-rotate(349deg) brightness(108%) contrast(101%) !important;
+}
+
+.fgreen {
+  filter: brightness(0) saturate(100%) invert(52%) sepia(70%) saturate(3772%) hue-rotate(63deg) brightness(99%) contrast(102%) !important;
 }
 
 .gold {
@@ -310,45 +314,45 @@ main {
       width: 2.8vh;
       height: 0.75vh;
 
-      &::before {
-        content: "";
-        display: block;
+      img {
+        position: absolute;
         width: 100%;
         height: 100%;
-        background-image: url('/assets/images/menu/swatch_bg_1a.png');
-      }
-
-      &:not(.active)::before {
-        filter: invert(50%);
-      }
-
-      &.bought::before {
-        filter: invert(69%) sepia(42%) saturate(6522%) hue-rotate(80deg) brightness(115%) contrast(128%);
-      }
-
-      &.equiped::before {
-        filter: invert(23%) sepia(94%) saturate(502%) hue-rotate(1deg) brightness(107%) contrast(103%);
-      }
-    }
-
-    .current {
-      filter: invert(0%);
-
-      &::after {
-        content: '';
-        display: block;
-        position: absolute;
-        top: 0.185vh;
         left: 0;
-        background-image: url('/assets/images/menu/tank_meter_marker.png');
-        background-size: 100%;
-        background-repeat: no-repeat;
-        background-position: center;
+        top: 0;
+        filter: invert(0.5);
+
+        &.active {
+          filter: invert(0);
+        }
+      }
+
+      .current {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0.35vh;
+        height: calc(100% + 0.5vh);
         filter: brightness(0.5) sepia(1) saturate(10000%);
-        height: calc(100% + 0.37vh);
-        width: calc(100%);
       }
     }
+
+    // .current {
+    //   &::after {
+    //     content: '';
+    //     display: block;
+    //     position: absolute;
+    //     top: 0.185vh;
+    //     left: 0;
+    //     background-image: url('/assets/images/menu/tank_meter_marker.png');
+    //     background-size: 100%;
+    //     background-repeat: no-repeat;
+    //     background-position: center;
+    //     filter: brightness(0.5) sepia(1) saturate(10000%);
+    //     height: calc(100% + 0.37vh);
+    //     width: calc(100%);
+    //   }
+    // }
   }
 }
 

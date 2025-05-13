@@ -55,7 +55,7 @@ class MenuItem {
     sliders = Array.isArray(sliders) ? sliders : [sliders]
 
     sliders.forEach(slid => {
-      this.sliders.push({ ...{ current: 0, values: [], offset: 0, translate: false, type: 'slider', looped: true }, ...slid })
+      this.sliders.push({ ...{ current: 1, values: [], translate: false, type: 'slider', looped: true }, ...slid })
     })
   }
   setChild(value) {
