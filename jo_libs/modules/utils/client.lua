@@ -1,5 +1,3 @@
-jo.utils = {}
-
 --- A function to load a game file
 ---@param name string|integer (The name of the file <br> Compatible with animation dictionaries, models (hashed or string), and texture dictionaries)
 ---@param waiter? boolean (If the function has to wait after the loading to be completed)
@@ -97,8 +95,8 @@ local function screenPositionToCameraRay(screenX, screenY)
 		q * glm_up,
 		glm_rad(camFov),
 		screenRatio,
-		0.10000,   -- GetFinalRenderedCamNearClip(),
-		1000.0,    -- GetFinalRenderedCamFarClip(),
+		0.10000,       -- GetFinalRenderedCamNearClip(),
+		1000.0,        -- GetFinalRenderedCamFarClip(),
 		screenX * 2 - 1, -- scale mouse coordinates from [0, 1] to [-1, 1]
 		screenY * 2 - 1
 	)
