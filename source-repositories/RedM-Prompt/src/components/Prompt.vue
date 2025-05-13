@@ -7,18 +7,12 @@ const props = defineProps({
 </script>
 
 <template>
-  <div class="prompt"
-       v-if="prompt.visible"
-       :class="{ isLeft, disabled: prompt.disabled }">
-    <div id="label"
-         class="crock">
+  <div class="prompt" v-if="prompt.visible" :class="{ isLeft, disabled: prompt.disabled }">
+    <div id="label" class="crock">
       <span v-html="props.prompt.label"></span>
     </div>
     <div id="keyboardKeys">
-      <KeyboardKey v-for="(keyboardKey, index) in props.prompt.keyboardKeys"
-                   :key="index"
-                   :holdTime="props.prompt.holdTime"
-                   :kkey="keyboardKey" />
+      <KeyboardKey v-for="(keyboardKey, index) in props.prompt.keyboardKeys" :key="index" :holdTime="props.prompt.holdTime" :kkey="keyboardKey" />
     </div>
   </div>
 </template>
@@ -60,7 +54,7 @@ const props = defineProps({
   }
 
   &.disabled {
-    opacity: .4
+    opacity: .6
   }
 }
 </style>
