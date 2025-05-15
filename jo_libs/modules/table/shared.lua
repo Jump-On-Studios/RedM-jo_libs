@@ -1,3 +1,5 @@
+jo.table = {}
+
 local type = type
 local setmetatable = setmetatable
 local getmetatable = getmetatable
@@ -187,4 +189,29 @@ function table.extract(t, key)
   return value
 end
 
-jo.table = {}
+--- A function to add a multiples table levels inside a variable if it not exists
+---@param ... table|string (if the 1st argument is a table, keys will be injected in it. Else, a new table will be created)
+---@return table (The new table with multiples table levels)
+function table.addMultiLevels(...)
+  local keys = { ... }
+  local main = {}
+  if type(keys[1]) == "table" then
+    main = keys[1]
+    table.remove(keys, 1)
+  end
+  local child = main
+  for i = 1, #keys do
+    local key = keys[i]
+    if not child[key] then
+      child[key] = {}
+    elseif i < #keys and type(child[key]) ~= "table" then
+      local s = "The value is not a table: ___"
+      for x = 1, i do
+        s = s .. ("[%s]"):format(tostring(keys[x]))
+      end
+      return {}, error(s)
+    end
+    child = child[key]
+  end
+  return main
+end
