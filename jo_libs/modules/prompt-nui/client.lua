@@ -27,6 +27,7 @@ local keysPressed = {}
 local keysFired = {}
 local createdGroupsAmount = 0
 local currentGroupVisible = nil
+local forcedHide = false
 
 -- * =============================================================================
 -- * HELPERS
@@ -219,6 +220,7 @@ end
 --- @return PromptClass (The newly created prompt object.)
 function GroupClass:addPrompt(key, label, holdTime, page)
     local prompt = table.copy(PromptClass)
+    key = key:upper()
     prompt.groupId = self.id
     prompt:setLabel(label)
     prompt:setKeyboardKeys(key)
@@ -255,7 +257,14 @@ local function listenPage(group, pageNumber)
     end
 end
 
-
+local function isForcedHide()
+    if IsPauseMenuActive() then return true end
+    if IsScreenFadedOut() then return true end
+    if IsScreenFadingOut() then return true end
+    if IsScreenFadingIn() then return true end
+    if IsLoadingScreenVisible() then return true end
+    return false
+end
 
 --- Displays the prompt group on the NUI interface and sets up key listeners for the active page. If the group has multiple pages, it also configures pagination using the nextPageKey.
 --- @param page? number (The page number to display<br> defaults to the group's current page.)
@@ -271,18 +280,17 @@ function GroupClass:display(page)
     if lastGroupVisibleId ~= self.id then
         CreateThread(function()
             while true do
+                if not currentGroupVisible or (currentGroupVisible.id ~= self.id) then break end
                 for i = 1, 12 do
                     UiPromptDisablePromptTypeThisFrame(i)
                 end
-                if not currentGroupVisible or (currentGroupVisible.id ~= self.id) then break end
-                if IsPauseMenuActive() then
-                    self:hide()
-                    while IsPauseMenuActive() do
+                if isForcedHide() then
+                    self:forceHide()
+                    while isForcedHide() do
                         Wait(100)
                     end
                     Wait(650)
-                    self:display()
-                    break
+                    self:forceDisplay()
                 end
                 Wait(0)
             end
@@ -321,6 +329,14 @@ function GroupClass:display(page)
     end
 end
 
+function GroupClass:forceDisplay()
+    forcedHide = false
+    SendNUIMessage({
+        type = "forceHide",
+        data = { value = false }
+    })
+end
+
 --- Hides the prompt group from the NUI interface and removes its active key listeners.
 function GroupClass:hide()
     currentGroupVisible = nil
@@ -333,6 +349,14 @@ function GroupClass:hide()
     })
     jo.rawKeys.remove(self.nextPageKey)
     removePage(self, self.currentPage)
+end
+
+function GroupClass:forceHide()
+    forcedHide = true
+    SendNUIMessage({
+        type = "forceHide",
+        data = { value = true }
+    })
 end
 
 -- * =============================================================================
@@ -359,6 +383,8 @@ end
 --- @return boolean (True if the key press is complete and valid, otherwise `false`.)
 function jo.promptNui.isCompleted(key, fireMultipleTimes)
     fireMultipleTimes = fireMultipleTimes or false
+    key = key:upper()
+    if forcedHide then return false end
     if not keysPressed[key] then return false end
 
     if GetGameTimer() >= keysPressed[key] then

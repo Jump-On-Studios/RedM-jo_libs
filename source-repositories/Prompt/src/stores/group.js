@@ -9,7 +9,8 @@ export const useGroupStore = defineStore('group', {
     prompts: [],
     pressedKeys: {},
     currentPageIndex: 0,
-    nextPageKey: "A"
+    nextPageKey: "A",
+    forcedHide: false
   }),
   actions: {
     // since we rely on `this`, we cannot use an arrow function
@@ -49,6 +50,10 @@ export const useGroupStore = defineStore('group', {
 
     updateGroup(data) {
       this[data.property] = data.value
+    },
+
+    forceHide(value) {
+      this.forcedHide = value
     }
 
   },

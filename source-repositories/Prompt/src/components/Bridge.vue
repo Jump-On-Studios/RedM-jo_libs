@@ -29,6 +29,9 @@ window.addEventListener('message', (event) => {
     case 'updateGroup':
       groupStore.updateGroup(data)
       break
+    case 'forceHide':
+      groupStore.forceHide(data.value)
+      break
   }
 })
 </script>

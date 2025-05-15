@@ -2,6 +2,8 @@
 import Group from './components/Group.vue'
 import { initGroup } from './dev'
 import Bridge from './components/Bridge.vue'
+import { useGroupStore } from '@/stores/group'
+const groupStore = useGroupStore()
 
 const isDev = import.meta.env.DEV
 
@@ -12,10 +14,8 @@ if (isDev) {
 
 <template>
   <Bridge />
-  <img v-if="isDev"
-       id="bg"
-       src="/assets/images/capture4.jpg" />
-  <Group />
+  <img v-if="isDev" id="bg" src="/assets/images/capture4.jpg" />
+  <Group v-if="!groupStore.forcedHide" />
 </template>
 
 <style scoped lang="scss">
