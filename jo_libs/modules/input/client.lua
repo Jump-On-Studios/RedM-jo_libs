@@ -26,12 +26,17 @@ function jo.input.native(label, placeholder, maxStringLength)
   end
 end
 
+--- A function to load the NUI.
 function jo.input.loadNUI()
   jo.require("nui")
   if jo.nui.isLoaded("jo_input") then return end
   jo.nui.load("jo_input", "nui://jo_libs/nui/input/index.html")
 end
 
+--- A function to open the nui input
+---@param options table (Options of the input)
+--- options.rows table (The list of rows content)
+---@param cb? function (The return function. If missing, the function is syncrhonous)
 function jo.input.nui(options, cb)
   if nuiOpened then return false, eprint("Input NUI is already opened") end
   nuiOpened = true
