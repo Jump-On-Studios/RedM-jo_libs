@@ -53,7 +53,7 @@ export const useGroupStore = defineStore('group', {
     },
 
     forceHide(value) {
-      this.forceHide = value
+      this.forcedHide = value
     }
 
   },
