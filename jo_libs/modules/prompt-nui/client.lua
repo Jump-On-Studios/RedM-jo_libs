@@ -168,7 +168,8 @@ local GroupClass = {
     prompts = {},
     visible = false,
     nextPageKey = "A",
-    currentPage = 1
+    currentPage = 1,
+    forcedHide = false
 }
 
 --- Refreshes the NUI interface for the group by updating a specified property. This update is only sent if the group is currently visible.
@@ -255,7 +256,13 @@ local function listenPage(group, pageNumber)
     end
 end
 
-
+function isForcedHide()
+    if IsPauseMenuActive() then return true end
+    if IsScreenFadedOut() then return true end
+    if IsScreenFadingOut() then return true end
+    if IsScreenFadingIn() then return true end
+    return false
+end
 
 --- Displays the prompt group on the NUI interface and sets up key listeners for the active page. If the group has multiple pages, it also configures pagination using the nextPageKey.
 --- @param page? number (The page number to display<br> defaults to the group's current page.)
@@ -275,13 +282,13 @@ function GroupClass:display(page)
                     UiPromptDisablePromptTypeThisFrame(i)
                 end
                 if not currentGroupVisible or (currentGroupVisible.id ~= self.id) then break end
-                if IsPauseMenuActive() then
-                    self:hide()
-                    while IsPauseMenuActive() do
+                if isForcedHide() then
+                    self:forceHide()
+                    while isForcedHide() do
                         Wait(100)
                     end
                     Wait(650)
-                    self:display()
+                    self:forceDisplay()
                     break
                 end
                 Wait(0)
@@ -321,6 +328,14 @@ function GroupClass:display(page)
     end
 end
 
+function GroupClass:forceDisplay()
+    self.forcedHide = false
+    SendNUIMessage({
+        type = "forceHide",
+        value = false
+    })
+end
+
 --- Hides the prompt group from the NUI interface and removes its active key listeners.
 function GroupClass:hide()
     currentGroupVisible = nil
@@ -333,6 +348,14 @@ function GroupClass:hide()
     })
     jo.rawKeys.remove(self.nextPageKey)
     removePage(self, self.currentPage)
+end
+
+function GroupClass:forceHide()
+    self.forcedHide = true
+    SendNUIMessage({
+        type = "forceHide",
+        value = true
+    })
 end
 
 -- * =============================================================================
