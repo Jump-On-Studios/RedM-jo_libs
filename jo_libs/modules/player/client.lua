@@ -2,7 +2,7 @@ if GetCurrentResourceName() == "jo_libs" then return end
 
 local moveCallbacks = {}
 local numberMoveCallback = 0
-local lastCallDidMoveFunc = {}
+local lastCallDidMoveFunc = 0
 local lastMoveEvent = 0
 
 jo.player = setmetatable({}, {
@@ -15,6 +15,7 @@ jo.player.coords = GetEntityCoords(jo.player.ped)
 jo.player.playerId = PlayerId()
 jo.player.serverId = GetPlayerServerId(jo.player.playerId)
 jo.player.isMale = IsPedMale(jo.player.ped)
+jo.player.activePlayers = GetActivePlayers()
 
 local function addUpdater()
   exports.jo_libs:jo_player_update(function(values)
@@ -65,24 +66,65 @@ function jo.player.move(cb, interval)
     interval = interval or 0,
     inProgress = true
   }
-  local currentMove = numberMoveCallback
-  CreateThreadNow(function()
-    cb()
-    moveCallbacks[currentMove].inProgress = false
-  end)
+  cb()
+  moveCallbacks[numberMoveCallback].inProgress = false
 end
 
 --- A function to know if the player moved since the last called of the function
----@param id string (Unique ID of call)
 ---@return boolean (`true` if the player moved since the last call)
-function jo.player.didMoveSinceLastCall(id)
+function jo.player.didMoveSinceLastCall()
   local now = GetGameTimer()
   local move = false
-  if (lastCallDidMoveFunc[id] or 0) <= lastMoveEvent then
+  if lastCallDidMoveFunc < lastMoveEvent then
     move = true
   end
-  lastCallDidMoveFunc[id] = now
+  lastCallDidMoveFunc = now
   return move
+end
+
+-- A function to return the closest CliendID of a player within a given radius
+---@param radius number (radius to search) required
+---@param ignoreSelf? boolean (if `true`, the function will not return the player itself)
+function jo.player.getClosestPlayer(radius, ignoreSelf)
+  if not radius then return eprint("Must supply a radius value") end
+
+  local players = jo.player.activePlayers
+  local closestPlayerDistance
+  local closestClientId
+
+  local playerPed = jo.player.ped
+  local playerCoords = jo.player.coords
+
+  for i = 1, #players do
+    local targetPlayer = GetPlayerPed(players[i])
+
+    if targetPlayer ~= playerPed then
+      local checkDistance = #(GetEntityCoords(targetPlayer) - playerCoords)
+      if checkDistance <= radius then
+        if not closestPlayerDistance or checkDistance < closestPlayerDistance then
+          closestClientId = players[i]
+          closestPlayerDistance = checkDistance
+        end
+      end
+    end
+  end
+
+  if closestClientId then
+    return closestClientId, closestPlayerDistance
+  end
+
+  if ignoreSelf then
+    return nil, nil
+  end
+
+  return jo.player.playerId, 0
+end
+
+-- A function to convert a clientId to a serverId
+---@param id number (clientId to convert) required
+function jo.player.getServerId(id)
+  if not id then return eprint("Must supply a player id") end
+  return GetPlayerServerId(id)
 end
 
 -------------
