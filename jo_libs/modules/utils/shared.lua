@@ -1,6 +1,6 @@
 jo.utils = {}
 
--- A function to convert a value to table if it's not already a table
+--- A function to convert a value to table if it's not already a table
 ---@param value any (The value to move inside a table)
 ---@param key string (The key of the value inside the new table)
 ---@return table (The new table with {key = value})

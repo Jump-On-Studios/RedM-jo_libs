@@ -1187,7 +1187,7 @@ end)
 --* Deprecated old names
 --* -----------
 
--- Add shortcut with old name
+--- Add shortcut with old name
 for _, shortcut in pairs({ "clothes", "comp" }) do
   jo[shortcut] = setmetatable({}, {
     __index = function(self, key)

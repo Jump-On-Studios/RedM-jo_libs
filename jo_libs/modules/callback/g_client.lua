@@ -9,8 +9,8 @@ local insert = table.insert
 
 jo.callback = {}
 
--- Function to check if a variable is a callable function.
--- Checks both direct functions and tables with __call metamethod.
+--- Function to check if a variable is a callable function.
+--- Checks both direct functions and tables with __call metamethod.
 --@param cb any (The variable to check)
 --@return boolean (True if the variable is a function or callable, false otherwise)
 local function isAFunction(cb)
@@ -74,11 +74,11 @@ end
 jo.triggerServerCallback = jo.callback.triggerServer
 
 
--- Execute a registered callback by name.
--- Internal function that runs the callback and returns its results.
---@param name string (The name of the registered callback to execute)
---@param ...? any (Parameters to pass to the callback)
---@return any (Return values from the executed callback)
+--- Execute a registered callback by name.
+--- Internal function that runs the callback and returns its results.
+---@param name string (The name of the registered callback to execute)
+---@param ...? any (Parameters to pass to the callback)
+---@return any (Return values from the executed callback)
 local function executeCallback(name, ...)
   if not registeredCallback[name] then return false, eprint(("No callback for: %s"):format(name)) end
   return registeredCallback[name].cb(...)
