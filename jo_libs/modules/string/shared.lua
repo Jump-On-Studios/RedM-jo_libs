@@ -90,7 +90,7 @@ end
 ---@return string (The trimmed string)
 function string:trim()
   if not self then return "" end
-  return self:match("^%s*(.-)%s*$")
+  return self:strtrim()
 end
 
 --- Convert a hexadecimal string to a number, handling signed values

@@ -53,7 +53,6 @@ function jo.input.nui(options, cb)
     nuiOpened = false
   end
   nuiResult = cb or promise.new()
-  log(options)
   SendNUIMessage({
     messageTargetUiName = "jo_input",
     event = "newInput",
