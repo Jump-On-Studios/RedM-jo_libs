@@ -229,3 +229,21 @@ function table.slice(t, s, e)
   table.move(t, s, e, 1, result)
   return result
 end
+
+--- A function to know if a deep key exists in a table
+---@param t table (The table to check)
+---@param ... string (The list of keys to deep)
+---@return boolean, any (`true` if the value exists, else `false` / the value)
+function table.doesKeyExist(t, ...)
+  local keys = { ... }
+  if not t then return false end
+  local deep = t
+  local numberKeys = #keys
+  for i = 1, numberKeys - 1 do
+    local key = keys[i]
+    if not deep[key] then return false end
+    if not type(deep[key]) == "table" then return false end
+    deep = deep[key]
+  end
+  return deep[keys[numberKeys]] and true or false, deep[keys[numberKeys]]
+end
