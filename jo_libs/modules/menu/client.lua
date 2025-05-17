@@ -102,7 +102,7 @@ local function missingMenu(id)
   if not menuCreators[id] then
     return eprint("The menu is missing: %s", id)
   end
-  menuCreators[id]()
+  CreateThreadNow(menuCreators[id])
 end
 
 ---@class MenuClass : table Menu class
