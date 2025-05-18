@@ -73,6 +73,9 @@ end
 ---@return table (Return the player's identifiers <br> `identifiers.identifier` - Unique identifier of the player <br> `identifiers.charid` - Unique id of the player)
 function jo.framework:getUserIdentifiers(source)
   local user = jo.framework.UserClass:get(source)
+  if not user or type(user) ~= "table" then
+    return nil
+  end
   return user:getIdentifiers()
 end
 
