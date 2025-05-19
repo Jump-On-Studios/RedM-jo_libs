@@ -40,3 +40,5 @@ function jo.component.formatComponentData(_data)
   end
   return data
 end
+
+TriggerEvent("print", GetHashFromString("HORSEFEATHERS"))
