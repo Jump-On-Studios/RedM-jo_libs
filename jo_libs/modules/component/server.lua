@@ -1,5 +1,3 @@
-jo.component = {}
-
 jo.require("file")
 
 --- A function to get the list of clothes sorted by sex and category

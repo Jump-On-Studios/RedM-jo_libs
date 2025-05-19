@@ -691,6 +691,10 @@ end
 -- COMPONENT MANAGEMENT
 -------------
 
+local function isValidValue(value)
+  return value and value ~= 0 and value ~= -1 and value ~= 1
+end
+
 --- A function to apply a component on the ped
 ---@param ped integer (The entity ID)
 ---@param category string|integer (The component category)
@@ -716,6 +720,13 @@ function jo.component.apply(ped, category, _data)
   if not data then
     return dprint("Wrong component data structure", ped, category, json.encode(_data))
   end
+
+  if data.hash == 0 or data.hash == false then
+    data.remove = true
+  end
+  data.hash = isValidValue(data.hash) and data.hash or nil
+  data.drawable = isValidValue(data.drawable) and data.drawable or nil
+  data.palette = isValidValue(data.palette) and data.palette or nil
 
   if data.hash and not data.remove then
     categoryHash, isMp = jo.component.getComponentCategory(ped, data.hash)
