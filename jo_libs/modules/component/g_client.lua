@@ -1,5 +1,3 @@
-jo.component = {}
-
 jo.require("table")
 jo.require("timeout")
 jo.require("dataview")
@@ -7,6 +5,7 @@ jo.require("waiter")
 jo.require("utils")
 jo.require("hook")
 jo.require("ped-texture")
+jo.require("component", true)
 --* -----------
 --* CACHE
 --* -----------
@@ -19,7 +18,8 @@ jo.cache.component = {
 --* DATA
 --* -----------
 jo.component.data = {}
-jo.component.data.order = {
+
+jo.component.data.pedCategories = {
   "ponchos",
   "cloaks",
   "hair_accessories",
@@ -60,9 +60,11 @@ jo.component.data.order = {
   "hair",
   "beards_complete",
   "teeth",
-
+}
+jo.component.data.horseCategories = {
   "horse_heads",
   "horse_bodies",
+  "horse_feathers",
   "horse_blankets",
   "saddle_horns",
   "saddle_stirrups",
@@ -78,60 +80,24 @@ jo.component.data.order = {
   "horse_saddles",
   "horse_bridles",
 }
-jo.component.order = jo.component.data.order --deprecated name
 
-jo.component.data.pedClothes = {
-  "ponchos",
-  "cloaks",
-  "hair_accessories",
-  "dresses",
-  "gloves",
-  "coats",
-  "coats_closed",
-  "vests",
-  "suspenders",
-  "neckties",
-  "neckwear",
-  "shirts_full",
-  "spats",
-  "gunbelts",
-  "gauntlets",
-  "holsters_left",
-  "loadouts",
-  "belt_buckles",
-  "belts",
-  "skirts",
-  "boots",
-  "pants",
-  "boot_accessories",
-  "accessories",
-  "satchels",
-  "jewelry_rings_right",
-  "jewelry_rings_left",
-  "jewelry_bracelets",
-  "aprons",
-  "chaps",
-  "badges",
-  "gunbelt_accs",
-  "eyewear",
-  "armor",
-  "masks",
-  "masks_large",
-  "hats"
-}
-jo.component.pedClothes = jo.component.data.pedClothes --deprecated name
+jo.component.data.order = table.copy(jo.component.data.pedCategories)
+for i = 1, #jo.component.data.horseCategories do
+  jo.component.data.order[#jo.component.data.order + 1] = jo.component.data.horseCategories[i]
+end
+
+jo.component.data.pedClothes = table.filter(jo.component.data.pedCategories, function(cat) return cat ~= "hair" and cat ~= "beards_complete" and cat ~= "teeth" end)
 
 jo.component.data.categoryName = {
   [`heads`] = "heads",
   [`bodies_lower`] = "bodies_lower",
   [`bodies_upper`] = "bodies_upper",
   [`eyes`] = "eyes",
-  [`neckerchiefs`] = "neckerchiefs"
+  [`neckerchiefs`] = "neckerchiefs",
 }
 for _, category in pairs(jo.component.data.order) do
   jo.component.data.categoryName[joaat(category)] = category
 end
-jo.component.categoryName = jo.component.data.categoryName --deprecated name
 
 jo.component.data.wearableStates = {
   shirts_full = {
@@ -347,30 +313,6 @@ function jo.component.waitPedLoaded(ped)
   end
 end
 
-local function isValidValue(value)
-  return value and value ~= 0 and value ~= -1 and value ~= 1
-end
-
----@return any data formatted table for component data
-local function formatComponentData(_data)
-  local data = table.copy(_data)
-  if type(data) ~= "table" then
-    data = { hash = data }
-  end
-  if type(data.hash) == "table" then data = data.hash end --for VORP
-  if data.hash == 0 or data.hash == false then
-    data.remove = true
-  end
-  data.hash = isValidValue(data.hash) and data.hash or nil
-  data.drawable = isValidValue(data.drawable) and data.drawable or nil
-  data.palette = isValidValue(data.palette) and data.palette or nil
-
-  if not data.hash and not data.drawable and not data.palette and not data.remove then
-    return false
-  end
-  return data
-end
-
 local function getBaseLayer(ped, hash)
   -- local request = RequestMetaPedComponent(GetMetaPedType(ped), hash, 0, 1, 1)
   -- while not HasMetaPedAssetLoaded(request) do
@@ -580,7 +522,7 @@ end
 --- _data.normal? integer (The normal value)
 --- _data.material? integer (The material value)
 function jo.component.apply(ped, category, _data)
-  local data = formatComponentData(_data)
+  local data = jo.component.formatComponentData(_data)
 
   local categoryHash = GetHashFromString(category)
   local isMp = true
@@ -823,7 +765,7 @@ end
 function jo.component.setWearableState(ped, category, hash, state)
   Entity(ped).state:set("wearableState:" .. category, state)
   initCachePedComponents(ped)
-  local data = formatComponentData(hash) or {}
+  local data = jo.component.formatComponentData(hash) or {}
   if not data.hash then
     data.hash = jo.component.getComponentEquiped(jo.me, category)
   end
