@@ -1,5 +1,3 @@
-jo.component = {}
-
 jo.require("table")
 jo.require("timeout")
 jo.require("dataview")
@@ -7,6 +5,7 @@ jo.require("waiter")
 jo.require("utils")
 jo.require("hook")
 jo.require("ped-texture")
+jo.require("component", true)
 
 -------------
 -- VARIABLES
@@ -34,7 +33,8 @@ jo.cache.component = {
 -- DATA
 -------------
 jo.component.data = {}
-jo.component.data.order = {
+
+jo.component.data.pedCategories = {
   "ponchos",
   "cloaks",
   "hair_accessories",
@@ -75,9 +75,11 @@ jo.component.data.order = {
   "teeth",
   "neckwear",
   "armor",
-
+}
+jo.component.data.horseCategories = {
   "horse_heads",
   "horse_bodies",
+  "horse_feathers",
   "horse_blankets",
   "saddle_horns",
   "saddle_stirrups",
@@ -93,60 +95,24 @@ jo.component.data.order = {
   "horse_saddles",
   "horse_bridles",
 }
-jo.component.order = jo.component.data.order --deprecated name
 
-jo.component.data.pedClothes = {
-  "ponchos",
-  "cloaks",
-  "hair_accessories",
-  "dresses",
-  "gloves",
-  "coats",
-  "coats_closed",
-  "vests",
-  "suspenders",
-  "neckties",
-  "neckwear",
-  "shirts_full",
-  "spats",
-  "gunbelts",
-  "gauntlets",
-  "holsters_left",
-  "loadouts",
-  "belt_buckles",
-  "belts",
-  "skirts",
-  "boots",
-  "pants",
-  "boot_accessories",
-  "accessories",
-  "satchels",
-  "jewelry_rings_right",
-  "jewelry_rings_left",
-  "jewelry_bracelets",
-  "aprons",
-  "chaps",
-  "badges",
-  "gunbelt_accs",
-  "eyewear",
-  "armor",
-  "masks",
-  "masks_large",
-  "hats"
-}
-jo.component.pedClothes = jo.component.data.pedClothes --deprecated name
+jo.component.data.order = table.copy(jo.component.data.pedCategories)
+for i = 1, #jo.component.data.horseCategories do
+  jo.component.data.order[#jo.component.data.order + 1] = jo.component.data.horseCategories[i]
+end
+
+jo.component.data.pedClothes = table.filter(jo.component.data.pedCategories, function(cat) return cat ~= "hair" and cat ~= "beards_complete" and cat ~= "teeth" end)
 
 jo.component.data.categoryName = {
   [`heads`] = "heads",
   [`bodies_lower`] = "bodies_lower",
   [`bodies_upper`] = "bodies_upper",
   [`eyes`] = "eyes",
-  [`neckerchiefs`] = "neckerchiefs"
+  [`neckerchiefs`] = "neckerchiefs",
 }
 for _, category in pairs(jo.component.data.order) do
   jo.component.data.categoryName[joaat(category)] = category
 end
-jo.component.categoryName = jo.component.data.categoryName --deprecated name
 
 jo.component.data.wearableStates = {
   shirts_full = {
@@ -725,7 +691,7 @@ end
 --- _data.normal? integer (The normal value)
 --- _data.material? integer (The material value)
 function jo.component.apply(ped, category, _data)
-  local data = formatComponentData(_data)
+  local data = jo.component.formatComponentData(_data)
 
   local categoryHash = GetHashFromString(category)
   local categoryName = jo.component.getCategoryNameFromHash(category)
