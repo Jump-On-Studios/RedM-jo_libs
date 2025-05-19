@@ -545,7 +545,33 @@ HorseComponents = {
   },
   horse_feathers = {
     {
-      { 0, "p_c_horse_01_feather_000", "p_c_horse_01_hair_000_c0_997_ab", "p_c_horse_01_hair_000_c0_000_nm", "p_c_horse_01_hair_000_c0_000_m", "metaped_tint_horse", 0, 71, 52 }
+      { 0, "p_c_horse_01_feather_000", "p_c_horse_01_hair_000_c0_997_ab", "p_c_horse_01_hair_000_c0_000_nm", "p_c_horse_01_hair_000_c0_000_m", "metaped_tint_horse", 56, 2, 56 },
+      { 0, "p_c_horse_01_feather_000", "p_c_horse_01_hair_000_c0_997_ab", "p_c_horse_01_hair_000_c0_000_nm", "p_c_horse_01_hair_000_c0_000_m", "metaped_tint_horse", 1, 171, 52 },
+      { 0, "p_c_horse_01_feather_000", "p_c_horse_01_hair_000_c0_997_ab", "p_c_horse_01_hair_000_c0_000_nm", "p_c_horse_01_hair_000_c0_000_m", "metaped_tint_horse", 69, 69, 69 },
+      { 0, "p_c_horse_01_feather_000", "p_c_horse_01_hair_000_c0_997_ab", "p_c_horse_01_hair_000_c0_000_nm", "p_c_horse_01_hair_000_c0_000_m", "metaped_tint_horse", 138, 138, 138 },
+      { 0, "p_c_horse_01_feather_000", "p_c_horse_01_hair_000_c0_997_ab", "p_c_horse_01_hair_000_c0_000_nm", "p_c_horse_01_hair_000_c0_000_m", "metaped_tint_horse", 138, 138, 8 },
+      { 0, "p_c_horse_01_feather_000", "p_c_horse_01_hair_000_c0_997_ab", "p_c_horse_01_hair_000_c0_000_nm", "p_c_horse_01_hair_000_c0_000_m", "metaped_tint_horse", 63, 63, 103 },
+      { 0, "p_c_horse_01_feather_000", "p_c_horse_01_hair_000_c0_997_ab", "p_c_horse_01_hair_000_c0_000_nm", "p_c_horse_01_hair_000_c0_000_m", "metaped_tint_horse", 3, 21, 1 },
+      { 0, "p_c_horse_01_feather_000", "p_c_horse_01_hair_000_c0_997_ab", "p_c_horse_01_hair_000_c0_000_nm", "p_c_horse_01_hair_000_c0_000_m", "metaped_tint_horse", 15, 18, 226 },
+      { 0, "p_c_horse_01_feather_000", "p_c_horse_01_hair_000_c0_997_ab", "p_c_horse_01_hair_000_c0_000_nm", "p_c_horse_01_hair_000_c0_000_m", "metaped_tint_horse", 49, 14, 26 },
+      { 0, "p_c_horse_01_feather_000", "p_c_horse_01_hair_000_c0_997_ab", "p_c_horse_01_hair_000_c0_000_nm", "p_c_horse_01_hair_000_c0_000_m", "metaped_tint_horse", 21, 21, 21 },
+    },
+    {
+      { 0, "mp_horse_01_feather_000", "mp_horse_01_hair_000_c0_998_ab", "mp_horse_01_hair_000_c0_000_nm", "mp_horse_01_hair_000_c0_000_m", "metaped_tint_horse", 63, 63, 63 },
+      { 0, "mp_horse_01_feather_000", "mp_horse_01_hair_000_c0_998_ab", "mp_horse_01_hair_000_c0_000_nm", "mp_horse_01_hair_000_c0_000_m", "metaped_tint_horse", 62, 18, 62 },
+      { 0, "mp_horse_01_feather_000", "mp_horse_01_hair_000_c0_998_ab", "mp_horse_01_hair_000_c0_000_nm", "mp_horse_01_hair_000_c0_000_m", "metaped_tint_horse", 62, 0, 60 },
+      { 0, "mp_horse_01_feather_000", "mp_horse_01_hair_000_c0_998_ab", "mp_horse_01_hair_000_c0_000_nm", "mp_horse_01_hair_000_c0_000_m", "metaped_tint_horse", 49, 0, 38 },
+    },
+    {
+      { 0, "p_c_horse_01_feather_000", "p_c_horse_01_hair_000_c0_996_ab", "p_c_horse_01_hair_000_c0_000_nm", "p_c_horse_01_hair_000_c0_000_m", "metaped_tint_horse", 138, 138, 138 },
+      { 0, "p_c_horse_01_feather_000", "p_c_horse_01_hair_000_c0_996_ab", "p_c_horse_01_hair_000_c0_000_nm", "p_c_horse_01_hair_000_c0_000_m", "metaped_tint_horse", 120, 138, 138 },
+      { 0, "p_c_horse_01_feather_000", "p_c_horse_01_hair_000_c0_996_ab", "p_c_horse_01_hair_000_c0_000_nm", "p_c_horse_01_hair_000_c0_000_m", "metaped_tint_horse", 63, 63, 63 },
     }
   }
 }
+
+
+
+
+mustang
+shire
