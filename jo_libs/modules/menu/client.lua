@@ -191,7 +191,7 @@ function MenuClass:addItem(p, item)
   item.index = p
   updateSliderCurrentValue(item)
   table.insert(self.items, p, item)
-  if p < #self.items - 1 then
+  if p < #self.items then
     for i = 1, #self.items do
       if type(self.items[i].index) == "number" then
         self.items[i].index = i
