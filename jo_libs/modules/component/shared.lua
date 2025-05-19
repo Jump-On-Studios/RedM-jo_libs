@@ -16,7 +16,7 @@ function jo.component.formatComponentData(_data)
   end
   if table.type(data) == "array" then
     data = {
-      hash = data[1],
+      hash = data[1] or 0,
       drawable = data[2],
       albedo = data[3],
       normal = data[4],

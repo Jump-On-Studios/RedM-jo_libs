@@ -543,4 +543,9 @@ HorseComponents = {
       1667119228,
     },
   },
+  horse_feathers = {
+    {
+      { 0, "p_c_horse_01_feather_000", "p_c_horse_01_hair_000_c0_997_ab", "p_c_horse_01_hair_000_c0_000_nm", "p_c_horse_01_hair_000_c0_000_m", "metaped_tint_horse", 0, 71, 52 }
+    }
+  }
 }
