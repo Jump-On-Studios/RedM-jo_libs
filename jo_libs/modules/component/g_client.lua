@@ -122,7 +122,7 @@ local categoryNotClothes = {
 jo.component.data.pedClothes = table.filter(jo.component.data.pedCategories, function(cat) return not categoryNotClothes[cat] end)
 
 jo.component.data.categoryName = {
-  [-287556490] = "horse_feathers" --temp category name
+  [-287556490] = "horse_feathers" --temp category name (real name: amknn-d)
 }
 for _, category in pairs(jo.component.data.order) do
   jo.component.data.categoryName[joaat(category)] = category
