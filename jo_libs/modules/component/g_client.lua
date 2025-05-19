@@ -35,6 +35,13 @@ jo.cache.component = {
 jo.component.data = {}
 
 jo.component.data.pedCategories = {
+  "heads",
+  "eyes",
+  "teeth",
+  "bodies_upper",
+  "bodies_lower",
+  "hair",
+  "beards_complete",
   "ponchos",
   "cloaks",
   "hair_accessories",
@@ -74,6 +81,7 @@ jo.component.data.pedCategories = {
   "beards_complete",
   "teeth",
   "neckwear",
+  "neckerchiefs",
   "armor",
 }
 jo.component.data.horseCategories = {
@@ -101,14 +109,20 @@ for i = 1, #jo.component.data.horseCategories do
   jo.component.data.order[#jo.component.data.order + 1] = jo.component.data.horseCategories[i]
 end
 
-jo.component.data.pedClothes = table.filter(jo.component.data.pedCategories, function(cat) return cat ~= "hair" and cat ~= "beards_complete" and cat ~= "teeth" end)
+local categoryNotClothes = {
+  hair = true,
+  beards_complete = true,
+  teeth = true,
+  heads = true,
+  bodies_lower = true,
+  bodies_upper = true,
+  eyes = true,
+  neckerchiefs = true
+}
+jo.component.data.pedClothes = table.filter(jo.component.data.pedCategories, function(cat) return not categoryNotClothes[cat] end)
 
 jo.component.data.categoryName = {
-  [`heads`] = "heads",
-  [`bodies_lower`] = "bodies_lower",
-  [`bodies_upper`] = "bodies_upper",
-  [`eyes`] = "eyes",
-  [`neckerchiefs`] = "neckerchiefs",
+  [-287556490] = "horse_feathers" --temp category name
 }
 for _, category in pairs(jo.component.data.order) do
   jo.component.data.categoryName[joaat(category)] = category
@@ -696,6 +710,8 @@ function jo.component.apply(ped, category, _data)
   local categoryHash = GetHashFromString(category)
   local categoryName = jo.component.getCategoryNameFromHash(category)
   local isMp = true
+
+  if category == "horse_feathers" then categoryHash = -287556490 end
 
   if not data then
     return dprint("Wrong component data structure", ped, category, json.encode(_data))
