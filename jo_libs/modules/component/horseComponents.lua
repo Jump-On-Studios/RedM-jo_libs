@@ -555,6 +555,9 @@ HorseComponents = {
       { 0, "p_c_horse_01_feather_000", "p_c_horse_01_hair_000_c0_997_ab", "p_c_horse_01_hair_000_c0_000_nm", "p_c_horse_01_hair_000_c0_000_m", "metaped_tint_horse", 15, 18, 226 },
       { 0, "p_c_horse_01_feather_000", "p_c_horse_01_hair_000_c0_997_ab", "p_c_horse_01_hair_000_c0_000_nm", "p_c_horse_01_hair_000_c0_000_m", "metaped_tint_horse", 49, 14, 26 },
       { 0, "p_c_horse_01_feather_000", "p_c_horse_01_hair_000_c0_997_ab", "p_c_horse_01_hair_000_c0_000_nm", "p_c_horse_01_hair_000_c0_000_m", "metaped_tint_horse", 21, 21, 21 },
+      { 0, "p_c_horse_01_feather_000", "p_c_horse_01_hair_000_c0_997_ab", "p_c_horse_01_hair_000_c0_000_nm", "p_c_horse_01_hair_000_c0_000_m", "metaped_tint_horse", 170, 170, 170 },
+      { 0, "p_c_horse_01_feather_000", "p_c_horse_01_hair_000_c0_997_ab", "p_c_horse_01_hair_000_c0_000_nm", "p_c_horse_01_hair_000_c0_000_m", "metaped_tint_horse", 1, 2, 4 },
+      { 0, "p_c_horse_01_feather_000", "p_c_horse_01_hair_000_c0_997_ab", "p_c_horse_01_hair_000_c0_000_nm", "p_c_horse_01_hair_000_c0_000_m", "metaped_tint_horse", 63, 0, 63 },
     },
     {
       { 0, "mp_horse_01_feather_000", "mp_horse_01_hair_000_c0_998_ab", "mp_horse_01_hair_000_c0_000_nm", "mp_horse_01_hair_000_c0_000_m", "metaped_tint_horse", 63, 63, 63 },
@@ -569,9 +572,3 @@ HorseComponents = {
     }
   }
 }
-
-
-
-
-mustang
-shire
