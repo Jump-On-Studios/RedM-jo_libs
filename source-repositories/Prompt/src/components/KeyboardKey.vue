@@ -39,6 +39,7 @@ const props = defineProps({
   kkey: { type: String, required: true },
   holdTime: { type: Number, default: 0 },
   isNextPage: { type: Boolean, default: false },
+  disabled: { type: Boolean, default: false },
 })
 
 // Create a computed keymap to avoid repetitive lookups in the template
@@ -78,6 +79,7 @@ groupStore.$subscribe((mutation, state) => {
 
 const sendKeyCompletedFromNUI = async (checkHoldTime) => {
   if (checkHoldTime && props.holdTime) return
+  if (props.disabled) return
   if (isDev) {
     console.log('Would send keyCompleted')
     return
@@ -93,6 +95,7 @@ const sendKeyCompletedFromNUI = async (checkHoldTime) => {
 }
 
 const sendKeyUpFromNUI = async () => {
+  if (props.disabled) return
   if (isDev) {
     console.log('Would send keyUp')
     return
@@ -110,6 +113,7 @@ const sendKeyUpFromNUI = async () => {
 // Handle keydown event (only in DEV mode)
 const handleKeyDown = (event) => {
   if (event.repeat) return
+  if (props.disabled) return
   if (event.key.toUpperCase() === props.kkey.toUpperCase()) {
     if (props.isNextPage) SendNUINextPage()
     SendNUIKey(props.kkey, 'keyDown')
@@ -184,6 +188,7 @@ const calculateProgress = (elapsed, total) => {
 
 // Show key press state and start animation if applicable
 const showKeyDown = () => {
+  if (props.disabled) return
   isActive.value = true
   if (props.holdTime) {
     // Clear any existing animation

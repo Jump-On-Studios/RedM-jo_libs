@@ -2,7 +2,7 @@
 import KeyboardKey from './KeyboardKey.vue'
 const props = defineProps({
   prompt: Object,
-  isLeft: Boolean
+  isLeft: Boolean,
 })
 </script>
 
@@ -12,7 +12,13 @@ const props = defineProps({
       <span v-html="props.prompt.label"></span>
     </div>
     <div id="keyboardKeys">
-      <KeyboardKey v-for="(keyboardKey, index) in props.prompt.keyboardKeys" :key="index" :holdTime="props.prompt.holdTime" :kkey="keyboardKey" />
+      <KeyboardKey
+        v-for="(keyboardKey, index) in props.prompt.keyboardKeys"
+        :key="index"
+        :holdTime="props.prompt.holdTime"
+        :kkey="keyboardKey"
+        :disabled="prompt.disabled"
+      />
     </div>
   </div>
 </template>
@@ -41,7 +47,7 @@ const props = defineProps({
 
       &:deep {
         img {
-          height: .9rem;
+          height: 0.9rem;
         }
       }
     }
@@ -54,7 +60,7 @@ const props = defineProps({
   }
 
   &.disabled {
-    opacity: .6
+    opacity: 0.6;
   }
 }
 </style>
