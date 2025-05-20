@@ -1,16 +1,14 @@
-
 import { defineStore } from 'pinia'
-
 
 export const useGroupStore = defineStore('group', {
   state: () => ({
     title: undefined,
-    position: "bottom-right",
+    position: 'bottom-right',
     prompts: [],
     pressedKeys: {},
     currentPageIndex: 0,
-    nextPageKey: "A",
-    forcedHide: false
+    nextPageKey: 'A',
+    forcedHide: false,
   }),
   actions: {
     // since we rely on `this`, we cannot use an arrow function
@@ -18,15 +16,13 @@ export const useGroupStore = defineStore('group', {
       this.title = data.title
       this.position = data.position
       this.prompts = data.prompts
-      this.nextPageKey = data.nextPageKey;
-      this.currentPageIndex = data.currentPage ? data.currentPage - 1 : 0;
+      this.nextPageKey = data.nextPageKey
+      this.currentPageIndex = data.currentPage ? data.currentPage - 1 : 0
     },
     updatePressedKeys(key, value) {
-
       if (!value) {
-        delete this.pressedKeys[key];
-      }
-      else {
+        delete this.pressedKeys[key]
+      } else {
         this.pressedKeys[key] = value
       }
       // console.log(this.pressedKeys);
@@ -34,19 +30,18 @@ export const useGroupStore = defineStore('group', {
 
     nextPage() {
       if (this.prompts[this.currentPageIndex + 1] !== undefined) {
-        this.currentPageIndex++;
+        this.currentPageIndex++
       } else {
-        this.currentPageIndex = 0;
+        this.currentPageIndex = 0
       }
       this.pressedKeys = {}
     },
 
     updatePrompt(data) {
-      const page = data.page - 1; // Lua is 1 indexed
-      const position = data.position - 1;  // Lua is 1 indexed
+      const page = data.page - 1 // Lua is 1 indexed
+      const position = data.position - 1 // Lua is 1 indexed
       this.prompts[page][position][data.property] = data.value
     },
-
 
     updateGroup(data) {
       this[data.property] = data.value
@@ -54,9 +49,6 @@ export const useGroupStore = defineStore('group', {
 
     forceHide(value) {
       this.forcedHide = value
-    }
-
+    },
   },
 })
-
-
