@@ -46,6 +46,14 @@ RegisterNUICallback("keyCompleted", function(data, cb)
     cb({ ok = "ok" })
 end)
 
+RegisterNUICallback("keyUp", function(data, cb)
+    if nuiDriven then
+        local key = data.kkey:upper()
+        nuiDrivenCompletedKeys[key] = nil
+    end
+    cb({ ok = "ok" })
+end)
+
 -- * =============================================================================
 -- * HELPERS
 -- * =============================================================================

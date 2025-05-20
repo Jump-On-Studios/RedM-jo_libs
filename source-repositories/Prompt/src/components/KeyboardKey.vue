@@ -92,6 +92,21 @@ const sendKeyCompletedFromNUI = async (checkHoldTime) => {
   })
 }
 
+const sendKeyUpFromNUI = async () => {
+  if (isDev) {
+    console.log('Would send keyUp')
+    return
+  }
+  // eslint-disable-next-line no-undef
+  await fetch(`https://${GetParentResourceName()}/keyUp`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: JSON.stringify(props),
+  })
+}
+
 // Handle keydown event (only in DEV mode)
 const handleKeyDown = (event) => {
   if (event.repeat) return
@@ -105,6 +120,7 @@ const handleKeyDown = (event) => {
 // Handle keyup event (only in DEV mode)
 const handleKeyUp = (event) => {
   if (event.key.toUpperCase() === props.kkey.toUpperCase()) {
+    sendKeyUpFromNUI()
     SendNUIKey(props.kkey, 'keyUp')
   }
 }
