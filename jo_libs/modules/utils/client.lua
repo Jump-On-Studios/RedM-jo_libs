@@ -95,8 +95,8 @@ local function screenPositionToCameraRay(screenX, screenY)
 		q * glm_up,
 		glm_rad(camFov),
 		screenRatio,
-		0.10000,       -- GetFinalRenderedCamNearClip(),
-		1000.0,        -- GetFinalRenderedCamFarClip(),
+		0.10000,   -- GetFinalRenderedCamNearClip(),
+		1000.0,    -- GetFinalRenderedCamFarClip(),
 		screenX * 2 - 1, -- scale mouse coordinates from [0, 1] to [-1, 1]
 		screenY * 2 - 1
 	)

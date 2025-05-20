@@ -1,17 +1,20 @@
 <template>
   <div class="keyboardKey bebas" :class="{ holdable: props.holdTime, active: isActive }">
     <div class="progressContainer">
-      <div class="progress" :style="{
-        '--duration': animationDuration,
-        '--animation-state': animationState,
-        '--animation-direction': animationDirection,
-        '--animation-delay': animationDelay,
-        '--scale-r-top': scaleRTop,
-        '--scale-l-top': scaleLTop,
-        '--scale-right': scaleRight,
-        '--scale-bottom': scaleBottom,
-        '--scale-left': scaleLeft,
-      }"></div>
+      <div
+        class="progress"
+        :style="{
+          '--duration': animationDuration,
+          '--animation-state': animationState,
+          '--animation-direction': animationDirection,
+          '--animation-delay': animationDelay,
+          '--scale-r-top': scaleRTop,
+          '--scale-l-top': scaleLTop,
+          '--scale-right': scaleRight,
+          '--scale-bottom': scaleBottom,
+          '--scale-left': scaleLeft,
+        }"
+      ></div>
     </div>
     <div class="activeIndicator"></div>
     <div v-if="keymap?.text" class="text">
@@ -30,6 +33,7 @@ import { SendNUIKey, SendNUINextPage } from '@/dev'
 import { keymaps } from '@/data/keymaps'
 import { useGroupStore } from '@/stores/group'
 
+const isDev = import.meta.env.DEV
 // Define component props
 const props = defineProps({
   kkey: { type: String, required: true },
@@ -72,18 +76,35 @@ groupStore.$subscribe((mutation, state) => {
   }
 })
 
+const sendKeyCompletedFromNUI = async (checkHoldTime) => {
+  if (checkHoldTime && props.holdTime) return
+  if (isDev) {
+    console.log('Would send keyCompleted')
+    return
+  }
+  // eslint-disable-next-line no-undef
+  await fetch(`https://${GetParentResourceName()}/keyCompleted`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: JSON.stringify(props),
+  })
+}
+
 // Handle keydown event (only in DEV mode)
 const handleKeyDown = (event) => {
   if (event.repeat) return
-  if (import.meta.env.DEV && event.key.toUpperCase() === props.kkey.toUpperCase()) {
+  if (event.key.toUpperCase() === props.kkey.toUpperCase()) {
     if (props.isNextPage) SendNUINextPage()
     SendNUIKey(props.kkey, 'keyDown')
+    sendKeyCompletedFromNUI(true)
   }
 }
 
 // Handle keyup event (only in DEV mode)
 const handleKeyUp = (event) => {
-  if (import.meta.env.DEV && event.key.toUpperCase() === props.kkey.toUpperCase()) {
+  if (event.key.toUpperCase() === props.kkey.toUpperCase()) {
     SendNUIKey(props.kkey, 'keyUp')
   }
 }
@@ -178,6 +199,7 @@ const showKeyDown = () => {
 
         resetAnimation()
         isActive.value = false
+        sendKeyCompletedFromNUI(false)
       } else {
         // Animation in progress
         calculateProgress(elapsed, durationMs.value)
@@ -327,22 +349,30 @@ onUnmounted(() => {
   &.holdable {
     .progressContainer {
       background:
-        linear-gradient(to right,
+        linear-gradient(
+          to right,
           var(--strokeBgColor) 0%,
           var(--strokeBgColor) calc(100% - var(--stroke)),
-          transparent 0%),
-        linear-gradient(to bottom,
+          transparent 0%
+        ),
+        linear-gradient(
+          to bottom,
           var(--strokeBgColor) 0%,
           var(--strokeBgColor) calc(100% - var(--stroke)),
-          transparent 0%),
-        linear-gradient(to left,
+          transparent 0%
+        ),
+        linear-gradient(
+          to left,
           var(--strokeBgColor) 0%,
           var(--strokeBgColor) calc(100% - var(--stroke)),
-          transparent 0%),
-        linear-gradient(to top,
+          transparent 0%
+        ),
+        linear-gradient(
+          to top,
           var(--strokeBgColor) 0%,
           var(--strokeBgColor) calc(100% - var(--stroke)),
-          transparent 0%);
+          transparent 0%
+        );
       background-size:
         100% var(--stroke),
         var(--stroke) 100%,
@@ -364,26 +394,34 @@ onUnmounted(() => {
         position: relative;
         z-index: 4;
         background:
-          linear-gradient(to right,
+          linear-gradient(
+            to right,
             var(--fillColor) 0%,
             var(--fillColor) calc(var(--scale-l-top) * 1%),
             transparent 0%,
             transparent 50%,
             var(--fillColor) 0%,
             var(--fillColor) calc(var(--scale-r-top) * 1%),
-            transparent 0%),
-          linear-gradient(to bottom,
+            transparent 0%
+          ),
+          linear-gradient(
+            to bottom,
             var(--fillColor) 0%,
             var(--fillColor) calc(var(--scale-right) * 1%),
-            transparent 0%),
-          linear-gradient(to left,
+            transparent 0%
+          ),
+          linear-gradient(
+            to left,
             var(--fillColor) 0%,
             var(--fillColor) calc(var(--scale-bottom) * 1%),
-            transparent 0%),
-          linear-gradient(to top,
+            transparent 0%
+          ),
+          linear-gradient(
+            to top,
             var(--fillColor) 0%,
             var(--fillColor) calc(var(--scale-left) * 1%),
-            transparent 0%);
+            transparent 0%
+          );
         background-size:
           100% var(--stroke),
           var(--stroke) 100%,

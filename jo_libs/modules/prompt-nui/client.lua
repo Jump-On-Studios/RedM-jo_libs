@@ -19,6 +19,9 @@ CreateThread(function()
 end)
 
 
+
+
+
 -- * =============================================================================
 -- * VARIABLES
 -- * =============================================================================
@@ -28,6 +31,20 @@ local keysFired = {}
 local createdGroupsAmount = 0
 local currentGroupVisible = nil
 local forcedHide = false
+local nuiDriven = false
+local nuiDrivenCompletedKeys = {}
+
+
+-- * ===============================================================================
+-- * RegisterNUICallback for NUI Driven
+-- * ===============================================================================
+RegisterNUICallback("keyCompleted", function(data, cb)
+    if nuiDriven then
+        local key = data.kkey:upper()
+        nuiDrivenCompletedKeys[key] = true
+    end
+    cb({ ok = "ok" })
+end)
 
 -- * =============================================================================
 -- * HELPERS
@@ -169,7 +186,8 @@ local GroupClass = {
     prompts = {},
     visible = false,
     nextPageKey = "A",
-    currentPage = 1
+    currentPage = 1,
+
 }
 
 --- Refreshes the NUI interface for the group by updating a specified property. This update is only sent if the group is currently visible.
@@ -257,6 +275,13 @@ local function listenPage(group, pageNumber)
     end
 end
 
+local function isNuiDriven()
+    if IsNuiFocused() and not IsNuiFocusKeepingInput() then return true end
+    return false
+end
+
+
+
 local function isForcedHide()
     if IsPauseMenuActive() then return true end
     if IsScreenFadedOut() then return true end
@@ -279,11 +304,32 @@ function GroupClass:display(page)
 
     if lastGroupVisibleId ~= self.id then
         CreateThread(function()
+            local wasNuiDriven = nuiDriven -- Initialize with current state
+
+            -- Do an immediate check at the start
+            nuiDriven = isNuiDriven()
+
             while true do
                 if not currentGroupVisible or (currentGroupVisible.id ~= self.id) then break end
+
+                local currentNuiState = isNuiDriven()
+                if currentNuiState ~= nuiDriven then
+                    -- State changed, update immediately
+                    nuiDriven = currentNuiState
+
+                    -- Reset nuiDrivenCompletedKeys when exiting nuiDriven mode
+                    if wasNuiDriven and not nuiDriven then
+                        nuiDrivenCompletedKeys = {}
+                    end
+
+                    wasNuiDriven = nuiDriven
+                end
+
+                -- Standard group display operations
                 for i = 1, 12 do
                     UiPromptDisablePromptTypeThisFrame(i)
                 end
+
                 if isForcedHide() then
                     self:forceHide()
                     while isForcedHide() do
@@ -292,13 +338,13 @@ function GroupClass:display(page)
                     Wait(650)
                     self:forceDisplay()
                 end
+
                 Wait(0)
             end
         end)
     end
 
     self.currentPage = page and math.min(page, #self.prompts) or self.currentPage
-    -- print(self.currentPage)
     self.visible = true
     SendNUIMessage({
         type = "setGroup",
@@ -315,7 +361,6 @@ function GroupClass:display(page)
                 })
                 removePage(self, self.currentPage)
                 self.currentPage = self.currentPage + 1
-                -- print(self.currentPage)
                 if (self.currentPage > #self.prompts) then self.currentPage = 1 end
                 listenPage(self, self.currentPage)
             end
@@ -385,6 +430,20 @@ function jo.promptNui.isCompleted(key, fireMultipleTimes)
     fireMultipleTimes = fireMultipleTimes or false
     key = key:upper()
     if forcedHide then return false end
+
+
+    -- Check for NUI-driven completed keys when in NUI mode
+    if nuiDriven then
+        if nuiDrivenCompletedKeys[key] then
+            if not fireMultipleTimes then
+                nuiDrivenCompletedKeys[key] = nil
+            end
+            return true
+        end
+
+        return false
+    end
+
     if not keysPressed[key] then return false end
 
     if GetGameTimer() >= keysPressed[key] then
