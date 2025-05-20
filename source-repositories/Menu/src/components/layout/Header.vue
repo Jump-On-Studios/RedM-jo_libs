@@ -1,6 +1,6 @@
 <template>
   <header>
-    <h1>{{ getTitle() }}</h1>
+    <h1 v-html="getTitle()"></h1>
   </header>
 </template>
 
