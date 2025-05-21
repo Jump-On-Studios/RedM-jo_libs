@@ -626,6 +626,21 @@ function jo.menu.softHide(cb, animation)
   SendNUIMessage({ event = "updateShow", show = true, cancelAnimation = not animation })
 end
 
+
+--- A function to know if the menu is the current one
+---@param id string (The menu id)
+---@return boolean
+function jo.menu.isCurrentMenu(id)
+  if not jo.menu.isOpen() then return false end
+  return currentData.menu == id
+end
+
+--- A function to get the current index
+---@return integer (The index of the current item)
+function jo.menu.getCurrentIndex()
+  return currentData.index
+end
+
 -------------
 -- NUI
 -------------
