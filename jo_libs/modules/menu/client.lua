@@ -69,7 +69,7 @@ local function menuNUIChange(data)
 
   local oldButton = false
   if previousData.menu then
-    oldButton = menus[previousData.menu].items[previousData.index]
+    oldButton = previousData.item
   end
 
   if previousData.menu ~= currentData.menu then
@@ -123,6 +123,7 @@ local MenuClass = {
   type = "list",
   items = {},
   numberOnScreen = 8,
+  currentIndex = 1,
   distanceToClose = false,
   onEnter = function() end,
   onBack = function() end,
@@ -152,7 +153,7 @@ local MenuItem = {
 }
 
 --- Add an item to a menu
----@param p integer|table (Position index or item table if used as single parameter)
+---@param index integer|table (Position index or item table if used as single parameter)
 ---@param item? table (The item to add - if not provided, p is used as the item)
 --- item.title string (The item label)
 --- item.child? string (The menu to open when Enter is pressed <br> default: false)
@@ -179,27 +180,42 @@ local MenuItem = {
 --- item.onExit? function (Fired when the item is exited)
 --- item.onTick? function (Fired every tick)
 ---@return table (The added item)
-function MenuClass:addItem(p, item)
+function MenuClass:addItem(index, item)
   if item == nil then
-    item = p
-    p = #self.items + 1
+    item = index
+    index = #self.items + 1
   end
   if item.tick then
     item.onTick = item.tick
   end
   item = table.merge(table.copy(MenuItem), item)
-  item.index = p
+  item.index = index
   updateSliderCurrentValue(item)
-  table.insert(self.items, p, item)
-  if p < #self.items then
+  table.insert(self.items, index, item)
+  if index < #self.items then
     for i = 1, #self.items do
       if type(self.items[i].index) == "number" then
         self.items[i].index = i
       end
     end
-    menuNUIChange({ menu = self.id, item = { index = self.currentIndex } })
+    if jo.menu.isCurrentMenu(self.id) and jo.menu.getCurrentIndex() >= index then
+      menuNUIChange({ menu = self.id, item = { index = jo.menu.getCurrentIndex() } })
+    end
   end
   return item
+end
+
+function MenuClass:removeItem(index)
+  if not index then return eprint("MenuClass:removeItem > index can't be nil") end
+  table.remove(self.items, index)
+  if index < #self.items then
+    for i = 1, #self.items do
+      self.items[i].index = i
+    end
+  end
+  if jo.menu.isCurrentMenu(self.id) and jo.menu.getCurrentIndex() >= index then
+    menuNUIChange({ menu = self.id, item = { index = jo.menu.getCurrentIndex() } })
+  end
 end
 
 --- Add an item to a menu by its ID
