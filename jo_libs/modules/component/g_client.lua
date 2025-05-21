@@ -143,8 +143,8 @@ jo.component.data.wearableStates = {
     [11] = "open_collar_rolled_sleeve",
   },
   neckwear = {
-    [0] = "base",     --down
-    [1] = -1829635046 --up
+    [0] = "base",   --down
+    [1] = "mask_up" --up
   },
   boots = {
     [0] = "base",       --upper
