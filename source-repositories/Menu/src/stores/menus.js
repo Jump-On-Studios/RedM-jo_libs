@@ -173,16 +173,10 @@ class Menu {
   translateSubtitle = false;
   type = "list";
   currentIndex = 0;
-  equipedItem = {
-    index: -1,
-    variation: -1
-  };
   items = [];
-  currentColor = 0;
   numberOnScreen = 8;
   numberOnLine = 4;
   numberLineOnScreen = 6;
-  globalColor = false;
   equipedColor = 0;
   disableEscape = true;
   refreshKey = 0;
@@ -233,7 +227,6 @@ class Menu {
       });
     }
     if (data.numberOnScreen) this.setNumberOnScreen(data.numberOnScreen)
-    if (data.globalColor) this.setGlobalColor(data.globalColor)
     if (data.equipedColor) this.setEquipedColor(data.equipedColor)
     if (data.translateTitle != undefined) this.setTranslateTitle(data.translateTitle)
     if (data.subtitle != undefined) this.setSubtitle(data.subtitle)
@@ -265,13 +258,6 @@ class Menu {
     this.currentIndex = value
   }
 
-  setEquipedItem(value) {
-    this.equipedItem = {
-      index: value.index,
-      variation: value.variation
-    }
-  }
-
   setNumberOnScreen(value) {
     this.numberOnScreen = value
   }
@@ -284,17 +270,12 @@ class Menu {
     this.numberOnLine = value
   }
 
-  setGlobalColor(value) {
-    this.globalColor = value
-  }
-
   setEquipedColor(value) {
     this.equipedColor = value
   }
 
   reset() {
     this.currentIndex = 0
-    this.currentColor = 0
   }
 
   setTranslateTitle(value) {
@@ -372,7 +353,10 @@ export const useMenuStore = defineStore('menus', {
     },
     updateMenuData(data) {
       if (!this.menus[data.menu]) return
-      this.menus[data.menu] = API.deepMerge(this.menus[data.menu], data.data)
+      let newData = new Menu(data.data)
+      newData.currentIndex = this.menus[data.menu].currentIndex
+      this.menus[data.menu] = newData
+      this.refreshKey = Math.random()
     },
     updateItem(data) {
       let Index = this.menus[data.menu].items.findIndex((item => item.index == data.index));

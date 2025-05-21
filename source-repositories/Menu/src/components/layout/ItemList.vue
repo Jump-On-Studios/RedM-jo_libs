@@ -3,11 +3,6 @@
     <div :class="[{ 'bw opacity50': item.disabled }, 'image', item.iconClass]" v-if="icon">
       <img :src="getImage(item.icon)" />
     </div>
-    <div class="current" v-if="isCurrent">
-      <div class="tick">
-        <img src="/assets/images/menu/tick.png">
-      </div>
-    </div>
     <div class="current" v-if="item.iconRight">
       <div class="tick">
         <img :src="getImage(item.iconRight)">
@@ -29,7 +24,7 @@
         </template>
       </template>
       <PreviewSlider :item="item" />
-      <div class="priceRight" v-if="!item.iconRight && !isCurrent">
+      <div class="priceRight" v-if="!item.iconRight">
         <PriceDisplay :price="(item.priceRight && (menuStore.cMenu.cItem == item)) ? 0 : item.priceRight" />
       </div>
       <div :class="['textRight', item.textRightClass]" v-if="item.textRight">
@@ -56,9 +51,6 @@ const lang = useLangStore().lang
 
 const props = defineProps({
   icon: {
-    default: false,
-  },
-  isCurrent: {
     default: false,
   },
   item: Object,
