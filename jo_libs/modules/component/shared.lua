@@ -35,3 +35,16 @@ function jo.component.formatComponentData(_data, hashData)
 
   return data
 end
+
+--- A fonction to get the category hash from its string
+---@param category string|integer (The category string)
+---@return integer (The category hash)
+function jo.component.getCategoryHash(category)
+  if type(category) == "number" then return category end
+
+  if category == "horse_feathers" then
+    return -287556490
+  end
+
+  return joaat(category)
+end
