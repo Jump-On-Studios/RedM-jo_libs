@@ -57,15 +57,21 @@ end
 
 local function menuNUIChange(data)
   if not menus[data.menu] then return end
-  if not menus[data.menu].items[data.item.index] then return end
+  -- if not menus[data.menu].items[data.item.index] then return end
 
   currentData.menu = data.menu
-  currentData.index = data.item.index
-  -- menus[data.menu].currentIndex = data.item.index
-  menus[data.menu].items[data.item.index] = table.merge(menus[data.menu].items[data.item.index], data.item)
-  currentData.item = menus[data.menu].items[data.item.index]
+  if data.item.index then
+    currentData.index = data.item.index
+    -- menus[data.menu].currentIndex = data.item.index
+    menus[data.menu].items[data.item.index] = table.merge(menus[data.menu].items[data.item.index], data.item)
+    currentData.item = menus[data.menu].items[data.item.index]
 
-  updateSliderCurrentValue(currentData.item)
+    updateSliderCurrentValue(currentData.item)
+  else
+    currentData.index = -1
+    currentData.item = {}
+  end
+
 
   local oldButton = false
   if previousData.menu then
@@ -734,11 +740,13 @@ RegisterNUICallback("updatePreview", function(data, cb)
   cb("ok")
 
   if not menus[data.menu] then return end
-  if not menus[data.menu].items[data.item.index] then return end
+  -- if not menus[data.menu].items[data.item.index] then return end
 
-  local item = menus[data.menu].items[data.item.index]
-  if not item.bufferOnChange or table.find(data.item.sliders, function(slider) return slider.type == "grid" end) then
-    return menuNUIChange(data)
+  if data.item.index then
+    local item = menus[data.menu].items[data.item.index]
+    if not item.bufferOnChange or table.find(data.item.sliders, function(slider) return slider.type == "grid" end) then
+      return menuNUIChange(data)
+    end
   end
   jo.timeout.delay("menuNUIChange", 100, function()
     menuNUIChange(data)
