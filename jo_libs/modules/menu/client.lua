@@ -39,8 +39,10 @@ local disabledKeys = {
   `INPUT_GAME_MENU_CANCEL`,
   `INPUT_FRONTEND_PAUSE_ALTERNATE`,
 }
+local menusNeedRefresh = {}
 
 local function updateSliderCurrentValue(item)
+  if not item or not item.sliders then return end
   for i = 1, #item.sliders do
     local slider = item.sliders[i]
     if slider.type == "grid" then
@@ -61,14 +63,14 @@ local function menuNUIChange(data)
 
   currentData.menu = data.menu
   if data.item.index then
-    currentData.index = data.item.index
-    -- menus[data.menu].currentIndex = data.item.index
+    menus[data.menu].currentIndex = data.item.index
     menus[data.menu].items[data.item.index] = table.merge(menus[data.menu].items[data.item.index], data.item)
     currentData.item = menus[data.menu].items[data.item.index]
+    currentData.index = menus[data.menu].currentIndex
 
     updateSliderCurrentValue(currentData.item)
   else
-    currentData.index = -1
+    currentData.index = 0
     currentData.item = {}
   end
 
@@ -78,7 +80,7 @@ local function menuNUIChange(data)
     oldButton = previousData.item
   end
 
-  if previousData.menu ~= currentData.menu then
+  if previousData.menu ~= currentData.menu or data.forceMenuEvent then
     if oldButton then
       jo.menu.fireEvent(oldButton, "onExit")
       jo.menu.fireEvent(menus[previousData.menu], "onExit")
@@ -86,7 +88,7 @@ local function menuNUIChange(data)
     jo.menu.fireEvent(menus[currentData.menu], "onEnter")
     jo.menu.fireEvent(currentData.item, "onActive")
   else
-    if previousData.index ~= currentData.index then
+    if previousData.index ~= currentData.index or data.forceItemEvent then
       if oldButton then
         jo.menu.fireEvent(oldButton, "onExit")
       end
@@ -204,9 +206,9 @@ function MenuClass:addItem(index, item)
         self.items[i].index = i
       end
     end
-    if jo.menu.isCurrentMenu(self.id) and jo.menu.getCurrentIndex() >= index then
-      menuNUIChange({ menu = self.id, item = { index = jo.menu.getCurrentIndex() } })
-    end
+  end
+  if jo.menu.isCurrentMenu(self.id) and (jo.menu.getCurrentIndex() >= index or #self.items == 1) then
+    menusNeedRefresh[self.id] = true
   end
   return item
 end
@@ -219,8 +221,9 @@ function MenuClass:removeItem(index)
       self.items[i].index = i
     end
   end
+  self.currentIndex = math.min(self.currentIndex, #self.items)
   if jo.menu.isCurrentMenu(self.id) and jo.menu.getCurrentIndex() >= index then
-    menuNUIChange({ menu = self.id, item = { index = jo.menu.getCurrentIndex() } })
+    menusNeedRefresh[self.id] = true
   end
 end
 
@@ -289,8 +292,11 @@ function MenuClass:refresh()
     menu = self.id,
     data = datas
   })
-  if currentData.menu == self.id then
-    currentData.item = self.items[currentData.index]
+  if menusNeedRefresh[self.id] then
+    if jo.menu.isCurrentMenu(self.id) then
+      jo.menu.runRefreshEvents(false, true)
+    end
+    menusNeedRefresh[self.id] = nil
   end
 end
 
@@ -663,6 +669,11 @@ function jo.menu.getCurrentIndex()
   return currentData.index
 end
 
+function jo.menu.runRefreshEvents(menuEvent, itemEvent)
+  menuEvent = menuEvent or false
+  ItemEvent = itemEvent or false
+  menuNUIChange({ menu = jo.menu.getCurrentMenu().id, item = { index = jo.menu.getCurrentIndex() }, forceMenuEvent = menuEvent, forceItemEvent = itemEvent })
+end
 -------------
 -- NUI
 -------------
