@@ -221,7 +221,6 @@ function MenuClass:removeItem(index)
       self.items[i].index = i
     end
   end
-  self.currentIndex = math.min(self.currentIndex, #self.items)
   if jo.menu.isCurrentMenu(self.id) and jo.menu.getCurrentIndex() >= index then
     menusNeedRefresh[self.id] = true
   end
@@ -294,6 +293,10 @@ function MenuClass:refresh()
   })
   if menusNeedRefresh[self.id] then
     if jo.menu.isCurrentMenu(self.id) then
+      if self.currentIndex > #self.items then
+        self:setCurrentIndex(#self.items)
+      end
+      self.currentIndex = math.min(self.currentIndex, #self.items)
       jo.menu.runRefreshEvents(false, true)
     end
     menusNeedRefresh[self.id] = nil
