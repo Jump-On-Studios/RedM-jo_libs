@@ -106,11 +106,11 @@ local categoryNotClothes = {
 }
 jo.component.data.pedClothes = table.filter(jo.component.data.pedCategories, function(cat) return not categoryNotClothes[cat] end)
 
-jo.component.data.categoryName = {
-  [-287556490] = "horse_feathers" --temp category name because not known
-}
-for _, category in pairs(jo.component.data.order) do
-  jo.component.data.categoryName[joaat(category)] = category
+jo.component.data.categoryName = {}
+for i = 1, #jo.component.data.order do
+  local category = jo.component.data.order[i]
+  local hash = jo.component.getCategoryHash(category)
+  jo.component.data.categoryName[hash] = category
 end
 
 jo.component.data.wearableStates = {
@@ -249,7 +249,7 @@ local invokeNative = Citizen.InvokeNative
 local function SetTextureOutfitTints(ped, category, palette, tint0, tint1, tint2)
   if not palette then return end
   if palette == 0 then return end
-  return invokeNative(0x4EFC1F8FF1AD94DE, ped, GetHashFromString(category), GetHashFromString(palette), tint0, tint1,
+  return invokeNative(0x4EFC1F8FF1AD94DE, ped, jo.component.getCategoryHash(category), GetHashFromString(palette), tint0, tint1,
     tint2)
 end
 local function SetActiveMetaPedComponentsUpdated(ped) return invokeNative(0xAAB86462966168CE, ped, true) end
@@ -396,7 +396,7 @@ local function resetCachedColor(ped, category)
 end
 
 ---@param ped integer (The entity ID)
----@param category integer the category hash
+---@param category integer|string the category hash
 ---@param hash integer the component hash
 ---@param palette integer the palette hash
 ---@param tint0 integer
@@ -404,7 +404,7 @@ end
 ---@param tint2 integer
 local function addCachedComponent(ped, index, category, hash, drawable, albedo, normal, material, palette, tint0, tint1,
     tint2)
-  category = GetHashFromString(category)
+  category = jo.component.getCategoryHash(category)
   if not jo.cache.component.color[ped] then jo.cache.component.color[ped] = {} end
   jo.cache.component.color[ped][category] = {
     category = jo.component.getCategoryNameFromHash(category),
@@ -542,10 +542,8 @@ end
 function jo.component.apply(ped, category, _data)
   local data = jo.component.formatComponentData(_data)
 
-  local categoryHash = GetHashFromString(category)
+  local categoryHash = jo.component.getCategoryHash(category)
   local isMp = true
-
-  if category == "horse_feathers" then categoryHash = -287556490 end
 
   if not data then
     return dprint("Wrong component data structure", ped, category, json.encode(_data))
@@ -965,7 +963,7 @@ end
 ---@param category string|integer (The category name)
 ---@return boolean,integer (1st: Return `true` if the category is equiped, `false` otherwise <br> 2nd: Return the index of the category)
 function jo.component.isCategoryEquiped(ped, category)
-  local categoryHash = GetHashFromString(category)
+  local categoryHash = jo.component.getCategoryHash(category)
   if not IsMetaPedUsingComponent(ped, categoryHash) then
     return false, 0
   end
@@ -979,7 +977,7 @@ end
 --- @param category string|integer (The category to get the component)
 --- @return integer|boolean (Return the hash of the component or `false` is not equiped)
 function jo.component.getComponentEquiped(ped, category)
-  local categoryHash = GetHashFromString(category)
+  local categoryHash = jo.component.getCategoryHash(category)
   if not IsMetaPedUsingComponent(ped, categoryHash) then
     return false
   end
@@ -1011,7 +1009,7 @@ end
 --- @return object|integer,integer,integer,integer (When inTable is true: returns a table with {palette, tint0, tint1, tint2} <br> When inTable is false: 1st: color palette <br> 2nd: tint number 0 <br> 3rd: tint number 1 <br> 4th: tint number 2)
 function jo.component.getCategoryTint(ped, category, inTable)
   if inTable == nil then inTable = false end
-  local categoryHash = GetHashFromString(category)
+  local categoryHash = jo.component.getCategoryHash(category)
   if not IsMetaPedUsingComponent(ped, categoryHash) then
     return false
   end
