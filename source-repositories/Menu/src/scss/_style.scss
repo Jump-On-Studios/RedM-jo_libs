@@ -5,6 +5,13 @@
   --delay-enter: 0.1s;
   --delay-leave: 0.1s;
   --padding-background-item: 0.3vh;
+  --menu-width: 50vh;
+  --menu-height: 90vh;
+  --container-width: calc(var(--menu-width) - 10vh);
+  --container-height: calc(var(--menu-height) - 2.4vh - 3.7vh);
+  --item-height: 4.9vh;
+  --item-padding-v: 0.25vh;
+  --item-padding-h: 2.5vh;
 }
 
 body {
@@ -83,8 +90,6 @@ body {
 
 .menu {
   position: absolute;
-  --menu-width: 50vh;
-  --menu-height: 90vh;
   width: var(--menu-width);
   height: var(--menu-height);
 
@@ -98,8 +103,6 @@ body {
     -webkit-mask-repeat: no-repeat;
     -webkit-mask-size: 100% 110%;
     -webkit-mask-position-y: 0;
-    --container-width: calc(var(--menu-width) - 10vh);
-    --container-height: calc(var(--menu-height) - 2.4vh - 3.7vh);
     padding: 2.4vh 5vh 3.7vh;
     height: 100%;
     width: 100%;

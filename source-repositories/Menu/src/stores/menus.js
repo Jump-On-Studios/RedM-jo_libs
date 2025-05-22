@@ -8,6 +8,7 @@ class MenuItem {
   icon = false;
   iconRight = false;
   iconClass = '';
+  iconSize = 'normal'
   child = false;
   sliders = [];
   price = false;
@@ -154,6 +155,9 @@ class MenuItem {
   setStarsClass(value) {
     this.starsClass = value
   }
+  setIconSize(value) {
+    this.iconSize = value
+  }
 }
 
 class ItemStatistic {
@@ -223,6 +227,7 @@ class Menu {
         if (item.qualityClass != undefined) newItem.setQualityClass(item.qualityClass)
         if (item.stars != undefined) newItem.setStars(item.stars)
         if (item.starsClass != undefined) newItem.setStarsClass(item.starsClass)
+        if (item.iconSize) newItem.setIconSize(item.iconSize)
         this.items.push(newItem)
       });
     }
