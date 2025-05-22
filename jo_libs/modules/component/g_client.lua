@@ -121,11 +121,11 @@ local categoryNotClothes = {
 }
 jo.component.data.pedClothes = table.filter(jo.component.data.pedCategories, function(cat) return not categoryNotClothes[cat] end)
 
-jo.component.data.categoryName = {
-  [-287556490] = "horse_feathers" --temp category name because not known
-}
-for _, category in pairs(jo.component.data.order) do
-  jo.component.data.categoryName[joaat(category)] = category
+jo.component.data.categoryName = {}
+for i = 1, #jo.component.data.order do
+  local category = jo.component.data.order[i]
+  local hash = jo.component.getCategoryHash(category)
+  jo.component.data.categoryName[hash] = category
 end
 
 jo.component.data.wearableStates = {
@@ -340,7 +340,7 @@ local invokeNative = Citizen.InvokeNative
 local function SetTextureOutfitTints(ped, category, palette, tint0, tint1, tint2)
   if not palette then return end
   if palette == 0 then return end
-  return invokeNative(0x4EFC1F8FF1AD94DE, ped, GetHashFromString(category), GetHashFromString(palette), tint0, tint1,
+  return invokeNative(0x4EFC1F8FF1AD94DE, ped, jo.component.getCategoryHash(category), jo.component.getCategoryHash(palette), tint0, tint1,
     tint2)
 end
 local function SetActiveMetaPedComponentsUpdated(ped) return invokeNative(0xAAB86462966168CE, ped, true) end
@@ -426,7 +426,7 @@ local function formatComponentData(_data)
 end
 
 local function getComponentIndexOfCategory(ped, category)
-  category = GetHashFromString(category)
+  category = jo.component.getCategoryHash(category)
   local numComponent = GetNumComponentsInPed(ped)
   for index = 0, numComponent - 1, 1 do
     if GetCategoryOfComponentAtIndex(ped, index) == category then
@@ -439,7 +439,7 @@ end
 function Component.new(index, category, hash, wearableState, drawable, albedo, normal, material, palette, tint0, tint1, tint2)
   return {
     category = jo.component.getCategoryNameFromHash(category),
-    categoryHash = GetHashFromString(category),
+    categoryHash = jo.component.getCategoryHash(category),
     palette = palette,
     tint0 = tint0,
     tint1 = tint1,
@@ -551,7 +551,7 @@ end
 ---@param tint1 integer
 ---@param tint2 integer
 local function addCachedComponent(ped, index, category, hash, wearableState, drawable, albedo, normal, material, palette, tint0, tint1, tint2)
-  category = GetHashFromString(category)
+  category = jo.component.getCategoryHash(category)
   table.addMultiLevels(jo.cache.component.color, ped, category)
   jo.cache.component.color[ped][category] = Component.new(index, category, hash, wearableState, drawable, albedo, normal, material, palette, tint0, tint1, tint2)
   if category == `neckwear` then
@@ -711,11 +711,9 @@ end
 function jo.component.apply(ped, category, _data)
   local data = jo.component.formatComponentData(_data)
 
-  local categoryHash = GetHashFromString(category)
   local categoryName = jo.component.getCategoryNameFromHash(category)
+  local categoryHash = jo.component.getCategoryHash(category)
   local isMp = true
-
-  if category == "horse_feathers" then categoryHash = -287556490 end
 
   if not data then
     return dprint("Wrong component data structure", ped, category, json.encode(_data))
@@ -970,7 +968,7 @@ end
 function jo.component.setWearableState(ped, category, data, state)
   local stateHash = GetHashFromString(state)
   local categoryName = jo.component.getCategoryNameFromHash(category)
-  local categoryHash = GetHashFromString(category)
+  local categoryHash = jo.component.getCategoryHash(category)
 
   local index = getComponentIndexOfCategory(ped, categoryHash)
   if index >= 0 then
@@ -1222,7 +1220,7 @@ end
 --- @return table|integer,integer,integer,integer (When inTable is true: returns a table with {palette, tint0, tint1, tint2} <br> When inTable is false: 1st: color palette <br> 2nd: tint number 0 <br> 3rd: tint number 1 <br> 4th: tint number 2)
 function jo.component.getCategoryTint(ped, category, inTable)
   if inTable == nil then inTable = false end
-  category = GetHashFromString(category)
+  category = jo.component.getCategoryHash(category)
   local isEquiped, index = jo.component.isCategoryEquiped(ped, category)
 
   if not isEquiped then
