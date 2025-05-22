@@ -12,6 +12,7 @@ let menu = {
     {
       title: 'This is the title',
       icon: "female",
+      iconSize: "small",
       price: 4,
       child: "test",
       description: 'My item description',
@@ -28,7 +29,25 @@ let menu = {
           values: [1, 2, 3]
         }
       ]
-    }
+    }, {
+      title: 'This is the title',
+      price: 4,
+      child: "test",
+      description: 'My item description',
+      footer: 'footer',
+      quantity: 5,
+      quantityCircleClass: 'fgold',
+      iconClass: 'fgold',
+      sliders: [
+        // {
+        //   type: 'grid',
+        //   values: [{ current: 1, min: -10, max: 10 }]
+        // },
+        {
+          values: [1, 2, 3]
+        }
+      ]
+    },
   ]
 }
 
