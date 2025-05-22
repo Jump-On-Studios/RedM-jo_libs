@@ -134,7 +134,7 @@ onBeforeUnmount(() => {
 }
 
 .type-list {
-  max-height: calc(var(--numberOnScreen) * 4.9vh + 0.6vh),
+  max-height: calc(var(--numberOnScreen) * var(--item-height) + 0.6vh),
 }
 
 .type-tile {
