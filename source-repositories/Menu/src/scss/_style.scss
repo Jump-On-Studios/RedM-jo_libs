@@ -363,7 +363,8 @@ main {
     text-align: center;
     font-size: 1.3em;
     position: absolute;
-    bottom: -1.5em;
+    bottom: -0.2em;
+    transform: translateY(100%);
     left: 0;
     right: 0;
     width: 100%;
