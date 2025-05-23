@@ -26,7 +26,7 @@ let menu = {
         // },
         {
           values: [1, 2, 3],
-          description: 'My item description',
+          description: 'My item description<br>Second line',
         }
       ]
     }, {
