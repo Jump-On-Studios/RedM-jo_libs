@@ -21,6 +21,9 @@
         {{ label(1) }}
       </div>
     </div>
+    <div class="slider-description hapna" v-if="slider.description">
+      {{ slider.description }}
+    </div>
   </div>
 </template>
 

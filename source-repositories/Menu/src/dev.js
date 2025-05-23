@@ -15,7 +15,6 @@ let menu = {
       iconSize: "small",
       price: 4,
       child: "test",
-      description: 'My item description',
       footer: 'footer',
       quantity: 5,
       quantityCircleClass: 'fgold',
@@ -26,14 +25,14 @@ let menu = {
         //   values: [{ current: 1, min: -10, max: 10 }]
         // },
         {
-          values: [1, 2, 3]
+          values: [1, 2, 3],
+          description: 'My item description',
         }
       ]
     }, {
       title: 'This is the title',
       price: 4,
       child: "test",
-      description: 'My item description',
       footer: 'footer',
       quantity: 5,
       quantityCircleClass: 'fgold',
