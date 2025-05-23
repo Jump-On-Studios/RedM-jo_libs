@@ -16,6 +16,9 @@
           </div>
         </div>
       </div>
+      <div class="slider-description hapna" v-if="slider.description">
+        {{ slider.description }}
+      </div>
     </div>
   </template>
 </template>

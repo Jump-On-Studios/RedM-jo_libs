@@ -13,6 +13,9 @@
           <img src="/assets/images/menu/tank_meter_marker.png" v-if="vIndex + 1 == props.slider.current" class="current" />
         </div>
       </div>
+      <div class="slider-description hapna" v-if="slider.description">
+        {{ slider.description }}
+      </div>
     </div>
   </template>
 </template>
