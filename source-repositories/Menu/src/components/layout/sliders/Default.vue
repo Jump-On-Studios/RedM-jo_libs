@@ -1,5 +1,5 @@
 <template>
-  <template v-if="props.slider.values.length > 1">
+  <template v-if="props.slider.values.length > 1 || props.slider.forceDisplay">
     <div :data-slider-index="props.index" class="slider">
       <h2 v-if="props.slider.title">{{ title() }}</h2>
       <div class="arrows">

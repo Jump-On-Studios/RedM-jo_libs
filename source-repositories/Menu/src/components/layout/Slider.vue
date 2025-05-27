@@ -10,14 +10,10 @@
           <Grid :index="index" :slider="slider" />
         </template>
         <template v-else-if="slider.type == 'sprite' || slider.type == 'color'">
-          <template v-if="slider.values.length > 1">
-            <Sprite :index="index" :slider="slider" />
-          </template>
+          <Sprite :index="index" :slider="slider" />
         </template>
         <template v-else>
-          <template v-if="slider.values.length > 1">
-            <Default :index="index" :slider="slider" />
-          </template>
+          <Default :index="index" :slider="slider" />
         </template>
       </template>
     </div>
