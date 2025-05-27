@@ -304,7 +304,7 @@ class Menu {
 
 export const useMenuStore = defineStore('menus', {
   state: () => ({
-    parentTree: [""],
+    parentTree: [],
     currentMenuId: '',
     menus: {},
   }),
@@ -393,7 +393,8 @@ export const useMenuStore = defineStore('menus', {
     goToMenu(id) {
       const parent = this.currentMenuId
       if (!this.openMenu(id)) return
-      this.parentTree.push(parent)
+      if (this.parentTree.at(-1) != parent)
+        this.parentTree.push(parent)
     },
     backToParentMenu() {
       const id = this.parentTree.pop()
