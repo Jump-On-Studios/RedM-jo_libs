@@ -25,7 +25,8 @@ let menu = {
         //   values: [{ current: 1, min: -10, max: 10 }]
         // },
         {
-          values: [1, 2, 3],
+          forceDisplay: true,
+          values: [1],
           description: 'My item description<br>Second line',
         }
       ]
