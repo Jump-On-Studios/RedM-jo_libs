@@ -184,6 +184,7 @@ class Menu {
   equipedColor = 0;
   disableEscape = true;
   refreshKey = 0;
+  onBeforeEnter = false;
 
   constructor(data) {
     this.setTitle(data.title);
@@ -241,6 +242,7 @@ class Menu {
     if (data.currentIndex != undefined) this.setCurrentIndex(data.currentIndex - 1)
     if (data.numberLineOnScreen != undefined) this.setNumberLineOnScreen(data.numberLineOnScreen)
     if (data.numberOnLine != undefined) this.setNumberOnLine(data.numberOnLine)
+    if (data.onBeforeEnter != undefined) this.setOnBeforeEnter(data.onBeforeEnter)
     this.refreshKey = Math.random();
   }
 
@@ -293,6 +295,10 @@ class Menu {
 
   setDisableEscape(value) {
     this.disableEscape = value
+  }
+
+  setOnBeforeEnter(value) {
+    this.onBeforeEnter = value
   }
 }
 
@@ -384,32 +390,43 @@ export const useMenuStore = defineStore('menus', {
       if (menu == this.currentMenuId)
         this.updatePreview()
     },
+    goToMenu(id) {
+      const parent = this.currentMenuId
+      if (!this.openMenu(id)) return
+      this.parentTree.push(parent)
+    },
+    backToParentMenu() {
+      const id = this.parentTree.pop()
+      this.openMenu(id)
+    },
+    async openMenu(id) {
+      if (!this.menus.hasOwnProperty(id)) {
+        API.post('missingMenu', {
+          menu: id
+        })
+        return false
+      }
+      if (this.menus[id].onBeforeEnter)
+        await API.post('onBeforeEnter', { menu: id })
+      this.currentMenuId = id
+      this.refreshKey = Math.random()
+      this.updatePreview()
+      return true
+    },
     setCurrentMenu(data) {
       if (this.menus[data.menu] == undefined) return console.log("ERROR ! No menu : " + data.menu)
       if (data.reset) this.menus[data.menu].reset()
-      if (data.keepHistoric) {
-        if (this.parentTree.at(-1) != this.currentMenuId && this.currentMenuId.length > 0)
-          this.parentTree.push(this.currentMenuId)
-        // API.PlayAudio('button')
-      } else {
+      this.goToMenu(data.menu)
+      if (!data.keepHistoric) {
         this.parentTree = []
       }
-      this.currentMenuId = data.menu
-      this.updatePreview()
     },
     menuEnter() {
       let item = this.cItem
       if (item.disabled) return
       API.PlayAudio('button')
       if (item.child) {
-        if (!this.menus.hasOwnProperty(item.child)) {
-          return API.post('missingMenu', {
-            menu: item.child
-          })
-        }
-        this.parentTree.push(this.currentMenuId)
-        this.currentMenuId = item.child
-        this.updatePreview()
+        this.goToMenu(item.child)
       } else {
         API.post('click', {
           menu: this.currentMenuId,
@@ -423,9 +440,8 @@ export const useMenuStore = defineStore('menus', {
         item: this.cItem
       })
       if (this.parentTree.length > 0) {
-        this.currentMenuId = this.parentTree.pop()
         API.PlayAudio('button')
-        this.updatePreview()
+        this.backToParentMenu()
       }
     },
     menuRight() {

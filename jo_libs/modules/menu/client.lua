@@ -113,6 +113,12 @@ local function missingMenu(id)
   CreateThreadNow(menuCreators[id])
 end
 
+local function clearDataForNui(data)
+  local newData = table.clearForNui(data)
+  newData.onBeforeEnter = data.onBeforeEnter and true or false
+  return newData
+end
+
 ---@class MenuClass : table Menu class
 ---@field id string Menu Unique ID
 ---@field title string Menu Title
@@ -133,10 +139,11 @@ local MenuClass = {
   numberOnScreen = 8,
   currentIndex = 1,
   distanceToClose = false,
-  onEnter = function() end,
-  onBack = function() end,
-  onExit = function() end,
-  onChange = function() end
+  onBeforeEnter = nil,
+  onEnter = nil,
+  onBack = nil,
+  onExit = nil,
+  onChange = nil
 }
 
 local MenuItem = {
@@ -284,7 +291,7 @@ function jo.menu.updateItem(id, index, key, value) menus[id]:updateItem(index, k
 --- Refresh the menu display without changing the current state
 --- Used when menu items have been modified
 function MenuClass:refresh()
-  local datas = table.clearForNui(self)
+  local datas = clearDataForNui(self)
   datas.currentIndex = nil
   SendNUIMessage({
     event = "updateMenuData",
@@ -369,7 +376,7 @@ function MenuClass:send()
   if self.sentToNUI then
     return error("Menu already sent, please use menu:refresh(): " .. self.id)
   end
-  local datas = table.clearForNui(self)
+  local datas = clearDataForNui(self)
   SendNUIMessage({
     event = "updateMenu",
     menu = datas
@@ -702,6 +709,13 @@ RegisterNuiCallback("missingMenu", function(data, cb)
   cb("ok")
 
   missingMenu(data.menu)
+end)
+
+RegisterNUICallback("onBeforeEnter", function(data, cb)
+  if menus[data.menu] then
+    jo.menu.fireEvent(menus[data.menu], "onBeforeEnter")
+  end
+  cb("ok")
 end)
 
 --- Register a handler for missing menu error
