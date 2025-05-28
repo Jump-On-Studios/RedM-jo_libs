@@ -46,3 +46,8 @@ shared_scripts {
 jo_libs {
 	"version-checker"
 }
+
+dependencies {
+	"/onesync",
+	"/server:14901"
+}
