@@ -20,13 +20,22 @@ jo.framework:loadFile("FrameworkClass")
 -- -----------
 
 --- Checks if a player has sufficient funds of a specified currency type
----@param price number (The amount of money the player needs to have)
+---@param price number|table (The amount of money the player needs to have <br> if table: {money = 1, gold = 1, rol = 1})
 ---@param moneyType? integer (`0`: dollar, `1`: gold, `2`: rol <br> default:`1`)
 ---@param removeIfCan? boolean (Remove the money if the player has enough <br> default:`false`)
 ---@return boolean (Return `true` if the player has more money than the amount)
 function jo.framework.UserClass:canBuy(price, moneyType, removeIfCan)
   if not price then
     return false, eprint("Price value is nil")
+  end
+  if type(price) == "table" then
+    if moneyType == 2 then
+      price = price.rol
+    elseif moneyType == 1 then
+      price = price.gold
+    else
+      price = price.money
+    end
   end
   price = math.abs(price)
   moneyType = GetValue(moneyType, 0)
@@ -97,7 +106,7 @@ end
 
 --- Checks if a player has sufficient funds of a specified currency type
 ---@param source integer (The source ID of the player)
----@param amount number (The amount of money the player needs to have)
+---@param amount number|table (The amount of money the player needs to have <br> {money = 1, gold = 1, rol = 1})
 ---@param moneyType? integer (`0`: dollar, `1`: gold, `2`: rol <br> default:`1`)
 ---@param removeIfCan? boolean (Remove the money if the player has enough <br> default:`false`)
 ---@return boolean (Return `true` if the player has more money than the amount)
