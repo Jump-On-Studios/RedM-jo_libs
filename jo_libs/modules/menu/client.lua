@@ -684,6 +684,10 @@ function jo.menu.runRefreshEvents(menuEvent, itemEvent)
   ItemEvent = itemEvent or false
   menuNUIChange({ menu = jo.menu.getCurrentMenu().id, item = { index = jo.menu.getCurrentIndex() }, forceMenuEvent = menuEvent, forceItemEvent = itemEvent })
 end
+
+function jo.menu.getCurrentMenuId()
+  return currentData.menu
+end
 -------------
 -- NUI
 -------------
