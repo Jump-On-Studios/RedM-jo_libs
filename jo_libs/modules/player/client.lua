@@ -17,6 +17,7 @@ jo.player.serverId = GetPlayerServerId(jo.player.playerId)
 jo.player.isMale = IsPedMale(jo.player.ped)
 
 local function addUpdater()
+  exports.jo_libs:loadGlobalModule("player")
   exports.jo_libs:jo_player_update(function(values)
     local now = GetGameTimer()
     for i = 1, #values do

@@ -21,7 +21,7 @@ exports("jo_player_update", function(cb)
   local resource = GetInvokingResource() or GetCurrentResourceName()
   listeners[#listeners + 1] = {
     send = cb,
-    resource = GetInvokingResource() or GetCurrentResourceName()
+    resource = resource
   }
   if jo.debug then
     bprint("%s listens player module", resource)
