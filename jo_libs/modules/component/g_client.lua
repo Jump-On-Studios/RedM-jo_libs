@@ -408,12 +408,9 @@ end
 --- @return integer (WearableState)
 local function GetShopItemComponentAtIndex(ped, index)
   local componentHash, a, wearableState = GetShopPedComponentAtIndex(ped, index, true, Citizen.ResultAsInteger(), Citizen.ResultAsInteger())
-  log("1", componentHash, a, wearableState)
   if not componentHash or componentHash == 0 then
     componentHash, a, wearableState = GetShopPedComponentAtIndex(ped, index, false, Citizen.ResultAsInteger(), Citizen.ResultAsInteger())
-    log("2", componentHash, a, wearableState)
   end
-  log("3", componentHash, a, wearableState)
   return componentHash, wearableState
 end
 
@@ -616,6 +613,7 @@ local function reapplyComponentStats(ped)
     local isEquiped, index = jo.component.isCategoryEquiped(ped, category)
     if isEquiped then
       local state = Entity(ped).state["wearableState:" .. category] or "base"
+      log(category, state, jo.component.getWearableStateNameFromHash(state))
       if state ~= "base" then
         hash = GetShopItemComponentAtIndex(ped, index)
         if jo.debug then
@@ -778,13 +776,14 @@ function jo.component.apply(ped, category, _data)
     --switch shop item to metatag to allow component mix
     if category == "hats" or category == "masks" or data.albedo then
       data = convertToMetaTag(ped, data)
+      log(data)
     end
 
     if data.hash and data.hash ~= 0 then
       ApplyShopItemToPed(ped, data.hash, false, isMp, false)
     end
 
-    if data.albedo then
+    if data.drawable or data.albedo then
       SetMetaPedTag(ped, data.drawable, data.albedo, data.normal, data.material, data.palette, data.tint0, data.tint1,
         data.tint2)
       addCachedComponent(ped, nil, categoryHash, data.hash, data.wearableState, data.drawable, data.albedo, data.normal, data.material,
@@ -1038,9 +1037,11 @@ function jo.component.getWearableState(ped, category)
   if index < 0 then
     return "not_equiped", 0
   end
-  log("index", index, category)
-  local hash, wearableState = GetShopItemComponentAtIndex(ped, index)
-  log("=>", hash, wearableState)
+  local _, wearableState = GetShopItemComponentAtIndex(ped, index)
+  if wearableState == 0 then
+    local categoryName = jo.component.getCategoryNameFromHash(category)
+    wearableState = Entity(ped).state["wearableState:" .. categoryName]
+  end
   local wearableStatesName = jo.component.getWearableStateNameFromHash(wearableState)
   return wearableStatesName, wearableState
 end
@@ -1058,9 +1059,6 @@ jo.component.isNeckweaUp = jo.component.neckwearIsUp
 ---@param ped integer (The entity ID)
 ---@return boolean (Return `true` if the sleeve are rolled, `false` otherwise.)
 function jo.component.sleeveIsRolled(ped)
-  local wearableStates, wearableHash = jo.component.getWearableState(ped, "shirts_full")
-  log("=>", wearableStates, wearableHash)
-  TriggerServerEvent("print", jo.component.getComponentsEquiped(ped))
   return jo.component.getWearableState(ped, "shirts_full"):find("rolled") ~= nil
 end
 
@@ -1166,7 +1164,6 @@ end
 function jo.component.getCategoriesEquiped(ped)
   local categories = {}
   local numComponent = GetNumComponentsInPed(ped)
-  log(numComponent)
   for index = 0, numComponent - 1 do
     local category = GetCategoryOfComponentAtIndex(ped, index)
     categories[category] = {
@@ -1215,7 +1212,6 @@ end
 function jo.component.getComponentsEquiped(ped)
   local components = {}
   local numComponent = GetNumComponentsInPed(ped)
-  log(numComponent)
   for index = 0, numComponent - 1 do
     local data = getComponentAtIndex(ped, index)
     components[data.categoryHash] = data
