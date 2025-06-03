@@ -566,8 +566,10 @@ local function initCachePedComponents(ped)
 end
 
 local function resetCachedPed(ped)
-  jo.cache.component.color[ped] = nil
-  jo.cache.component.getEquiped[ped] = nil
+  jo.timeout.delay("resetCachedPed" .. ped, 300, function()
+    jo.cache.component.color[ped] = nil
+    jo.cache.component.getEquiped[ped] = nil
+  end)
 end
 
 --* -----------
