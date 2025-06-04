@@ -8,6 +8,7 @@ class MenuItem {
   icon = false;
   iconRight = false;
   iconClass = '';
+  iconSize = 'normal'
   child = false;
   sliders = [];
   price = false;
@@ -55,7 +56,7 @@ class MenuItem {
     sliders = Array.isArray(sliders) ? sliders : [sliders]
 
     sliders.forEach(slid => {
-      this.sliders.push({ ...{ current: 1, values: [], translate: false, type: 'slider', looped: true }, ...slid })
+      this.sliders.push({ ...{ current: 1, values: [], translate: false, type: 'slider', looped: true, forceDisplay: false }, ...slid })
     })
   }
   setChild(value) {
@@ -157,6 +158,9 @@ class MenuItem {
   setStarsClass(value) {
     this.starsClass = value
   }
+  setIconSize(value) {
+    this.iconSize = value
+  }
 }
 
 class ItemStatistic {
@@ -176,19 +180,14 @@ class Menu {
   translateSubtitle = false;
   type = "list";
   currentIndex = 0;
-  equipedItem = {
-    index: -1,
-    variation: -1
-  };
   items = [];
-  currentColor = 0;
   numberOnScreen = 8;
   numberOnLine = 4;
   numberLineOnScreen = 6;
-  globalColor = false;
   equipedColor = 0;
   disableEscape = true;
   refreshKey = 0;
+  onBeforeEnter = false;
 
   constructor(data) {
     this.setTitle(data.title);
@@ -232,11 +231,11 @@ class Menu {
         if (item.qualityClass != undefined) newItem.setQualityClass(item.qualityClass)
         if (item.stars != undefined) newItem.setStars(item.stars)
         if (item.starsClass != undefined) newItem.setStarsClass(item.starsClass)
+        if (item.iconSize) newItem.setIconSize(item.iconSize)
         this.items.push(newItem)
       });
     }
     if (data.numberOnScreen) this.setNumberOnScreen(data.numberOnScreen)
-    if (data.globalColor) this.setGlobalColor(data.globalColor)
     if (data.equipedColor) this.setEquipedColor(data.equipedColor)
     if (data.translateTitle != undefined) this.setTranslateTitle(data.translateTitle)
     if (data.subtitle != undefined) this.setSubtitle(data.subtitle)
@@ -246,6 +245,7 @@ class Menu {
     if (data.currentIndex != undefined) this.setCurrentIndex(data.currentIndex - 1)
     if (data.numberLineOnScreen != undefined) this.setNumberLineOnScreen(data.numberLineOnScreen)
     if (data.numberOnLine != undefined) this.setNumberOnLine(data.numberOnLine)
+    if (data.onBeforeEnter != undefined) this.setOnBeforeEnter(data.onBeforeEnter)
     this.refreshKey = Math.random();
   }
 
@@ -268,13 +268,6 @@ class Menu {
     this.currentIndex = value
   }
 
-  setEquipedItem(value) {
-    this.equipedItem = {
-      index: value.index,
-      variation: value.variation
-    }
-  }
-
   setNumberOnScreen(value) {
     this.numberOnScreen = value
   }
@@ -287,17 +280,12 @@ class Menu {
     this.numberOnLine = value
   }
 
-  setGlobalColor(value) {
-    this.globalColor = value
-  }
-
   setEquipedColor(value) {
     this.equipedColor = value
   }
 
   reset() {
     this.currentIndex = 0
-    this.currentColor = 0
   }
 
   setTranslateTitle(value) {
@@ -311,11 +299,15 @@ class Menu {
   setDisableEscape(value) {
     this.disableEscape = value
   }
+
+  setOnBeforeEnter(value) {
+    this.onBeforeEnter = value
+  }
 }
 
 export const useMenuStore = defineStore('menus', {
   state: () => ({
-    parentTree: [""],
+    parentTree: [],
     currentMenuId: '',
     menus: {},
   }),
@@ -375,7 +367,10 @@ export const useMenuStore = defineStore('menus', {
     },
     updateMenuData(data) {
       if (!this.menus[data.menu]) return
-      this.menus[data.menu] = API.deepMerge(this.menus[data.menu], data.data)
+      let newData = new Menu(data.data)
+      newData.currentIndex = this.menus[data.menu].currentIndex
+      this.menus[data.menu] = newData
+      this.refreshKey = Math.random()
     },
     updateItem(data) {
       let Index = this.menus[data.menu].items.findIndex((item => item.index == data.index));
@@ -398,32 +393,44 @@ export const useMenuStore = defineStore('menus', {
       if (menu == this.currentMenuId)
         this.updatePreview()
     },
+    goToMenu(id) {
+      const parent = this.currentMenuId
+      if (!this.openMenu(id)) return
+      if (this.parentTree.at(-1) != parent)
+        this.parentTree.push(parent)
+    },
+    backToParentMenu() {
+      const id = this.parentTree.pop()
+      this.openMenu(id)
+    },
+    async openMenu(id) {
+      if (!this.menus.hasOwnProperty(id)) {
+        API.post('missingMenu', {
+          menu: id
+        })
+        return false
+      }
+      if (this.menus[id].onBeforeEnter)
+        await API.post('onBeforeEnter', { menu: id })
+      this.currentMenuId = id
+      this.refreshKey = Math.random()
+      this.updatePreview()
+      return true
+    },
     setCurrentMenu(data) {
       if (this.menus[data.menu] == undefined) return console.log("ERROR ! No menu : " + data.menu)
       if (data.reset) this.menus[data.menu].reset()
-      if (data.keepHistoric) {
-        if (this.parentTree.at(-1) != this.currentMenuId && this.currentMenuId.length > 0)
-          this.parentTree.push(this.currentMenuId)
-        // API.PlayAudio('button')
-      } else {
+      this.goToMenu(data.menu)
+      if (!data.keepHistoric) {
         this.parentTree = []
       }
-      this.currentMenuId = data.menu
-      this.updatePreview()
     },
     menuEnter() {
       let item = this.cItem
       if (item.disabled) return
       API.PlayAudio('button')
       if (item.child) {
-        if (!this.menus.hasOwnProperty(item.child)) {
-          return API.post('missingMenu', {
-            menu: item.child
-          })
-        }
-        this.parentTree.push(this.currentMenuId)
-        this.currentMenuId = item.child
-        this.updatePreview()
+        this.goToMenu(item.child)
       } else {
         API.post('click', {
           menu: this.currentMenuId,
@@ -437,9 +444,8 @@ export const useMenuStore = defineStore('menus', {
         item: this.cItem
       })
       if (this.parentTree.length > 0) {
-        this.currentMenuId = this.parentTree.pop()
         API.PlayAudio('button')
-        this.updatePreview()
+        this.backToParentMenu()
       }
     },
     menuRight() {

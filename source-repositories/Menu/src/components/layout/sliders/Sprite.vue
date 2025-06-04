@@ -1,5 +1,5 @@
 <template>
-  <template v-if="slider.values.length > 1">
+  <template v-if="slider.values.length > 1 || slider.forceDisplay">
     <div :data-slider-index="index" class="slider">
       <h2 v-if="slider.title">{{ title() }}</h2>
       <div class="arrows">
@@ -16,6 +16,7 @@
           </div>
         </div>
       </div>
+      <div class="slider-description hapna" v-if="slider.description" v-html="slider.description" />
     </div>
   </template>
 </template>

@@ -1,5 +1,3 @@
-jo.component = {}
-
 jo.require("table")
 jo.require("timeout")
 jo.require("dataview")
@@ -7,6 +5,7 @@ jo.require("waiter")
 jo.require("utils")
 jo.require("hook")
 jo.require("ped-texture")
+jo.require("component", true)
 
 -------------
 -- VARIABLES
@@ -34,7 +33,15 @@ jo.cache.component = {
 -- DATA
 -------------
 jo.component.data = {}
-jo.component.data.order = {
+
+jo.component.data.pedCategories = {
+  "heads",
+  "eyes",
+  "teeth",
+  "bodies_upper",
+  "bodies_lower",
+  "hair",
+  "beards_complete",
   "ponchos",
   "cloaks",
   "hair_accessories",
@@ -74,10 +81,13 @@ jo.component.data.order = {
   "beards_complete",
   "teeth",
   "neckwear",
+  "neckerchiefs",
   "armor",
-
+}
+jo.component.data.horseCategories = {
   "horse_heads",
   "horse_bodies",
+  "horse_feathers",
   "horse_blankets",
   "saddle_horns",
   "saddle_stirrups",
@@ -93,60 +103,30 @@ jo.component.data.order = {
   "horse_saddles",
   "horse_bridles",
 }
-jo.component.order = jo.component.data.order --deprecated name
 
-jo.component.data.pedClothes = {
-  "ponchos",
-  "cloaks",
-  "hair_accessories",
-  "dresses",
-  "gloves",
-  "coats",
-  "coats_closed",
-  "vests",
-  "suspenders",
-  "neckties",
-  "neckwear",
-  "shirts_full",
-  "spats",
-  "gunbelts",
-  "gauntlets",
-  "holsters_left",
-  "loadouts",
-  "belt_buckles",
-  "belts",
-  "skirts",
-  "boots",
-  "pants",
-  "boot_accessories",
-  "accessories",
-  "satchels",
-  "jewelry_rings_right",
-  "jewelry_rings_left",
-  "jewelry_bracelets",
-  "aprons",
-  "chaps",
-  "badges",
-  "gunbelt_accs",
-  "eyewear",
-  "armor",
-  "masks",
-  "masks_large",
-  "hats"
-}
-jo.component.pedClothes = jo.component.data.pedClothes --deprecated name
-
-jo.component.data.categoryName = {
-  [`heads`] = "heads",
-  [`bodies_lower`] = "bodies_lower",
-  [`bodies_upper`] = "bodies_upper",
-  [`eyes`] = "eyes",
-  [`neckerchiefs`] = "neckerchiefs"
-}
-for _, category in pairs(jo.component.data.order) do
-  jo.component.data.categoryName[joaat(category)] = category
+jo.component.data.order = table.copy(jo.component.data.pedCategories)
+for i = 1, #jo.component.data.horseCategories do
+  jo.component.data.order[#jo.component.data.order + 1] = jo.component.data.horseCategories[i]
 end
-jo.component.categoryName = jo.component.data.categoryName --deprecated name
+
+local categoryNotClothes = {
+  hair = true,
+  beards_complete = true,
+  teeth = true,
+  heads = true,
+  bodies_lower = true,
+  bodies_upper = true,
+  eyes = true,
+  neckerchiefs = true
+}
+jo.component.data.pedClothes = table.filter(jo.component.data.pedCategories, function(cat) return not categoryNotClothes[cat] end)
+
+jo.component.data.categoryName = {}
+for i = 1, #jo.component.data.order do
+  local category = jo.component.data.order[i]
+  local hash = jo.component.getCategoryHash(category)
+  jo.component.data.categoryName[hash] = category
+end
 
 jo.component.data.wearableStates = {
   shirts_full = {
@@ -360,7 +340,7 @@ local invokeNative = Citizen.InvokeNative
 local function SetTextureOutfitTints(ped, category, palette, tint0, tint1, tint2)
   if not palette then return end
   if palette == 0 then return end
-  return invokeNative(0x4EFC1F8FF1AD94DE, ped, GetHashFromString(category), GetHashFromString(palette), tint0, tint1,
+  return invokeNative(0x4EFC1F8FF1AD94DE, ped, jo.component.getCategoryHash(category), jo.component.getCategoryHash(palette), tint0, tint1,
     tint2)
 end
 local function SetActiveMetaPedComponentsUpdated(ped) return invokeNative(0xAAB86462966168CE, ped, true) end
@@ -446,7 +426,7 @@ local function formatComponentData(_data)
 end
 
 local function getComponentIndexOfCategory(ped, category)
-  category = GetHashFromString(category)
+  category = jo.component.getCategoryHash(category)
   local numComponent = GetNumComponentsInPed(ped)
   for index = 0, numComponent - 1, 1 do
     if GetCategoryOfComponentAtIndex(ped, index) == category then
@@ -459,7 +439,7 @@ end
 function Component.new(index, category, hash, wearableState, drawable, albedo, normal, material, palette, tint0, tint1, tint2)
   return {
     category = jo.component.getCategoryNameFromHash(category),
-    categoryHash = GetHashFromString(category),
+    categoryHash = jo.component.getCategoryHash(category),
     palette = palette,
     tint0 = tint0,
     tint1 = tint1,
@@ -571,7 +551,7 @@ end
 ---@param tint1 integer
 ---@param tint2 integer
 local function addCachedComponent(ped, index, category, hash, wearableState, drawable, albedo, normal, material, palette, tint0, tint1, tint2)
-  category = GetHashFromString(category)
+  category = jo.component.getCategoryHash(category)
   table.addMultiLevels(jo.cache.component.color, ped, category)
   jo.cache.component.color[ped][category] = Component.new(index, category, hash, wearableState, drawable, albedo, normal, material, palette, tint0, tint1, tint2)
   if category == `neckwear` then
@@ -711,6 +691,10 @@ end
 -- COMPONENT MANAGEMENT
 -------------
 
+local function isValidValue(value)
+  return value and value ~= 0 and value ~= -1 and value ~= 1
+end
+
 --- A function to apply a component on the ped
 ---@param ped integer (The entity ID)
 ---@param category string|integer (The component category)
@@ -725,15 +709,22 @@ end
 --- _data.normal? integer (The normal value)
 --- _data.material? integer (The material value)
 function jo.component.apply(ped, category, _data)
-  local data = formatComponentData(_data)
+  local data = jo.component.formatComponentData(_data)
 
-  local categoryHash = GetHashFromString(category)
   local categoryName = jo.component.getCategoryNameFromHash(category)
+  local categoryHash = jo.component.getCategoryHash(category)
   local isMp = true
 
   if not data then
     return dprint("Wrong component data structure", ped, category, json.encode(_data))
   end
+
+  if data.hash == 0 or data.hash == false then
+    data.remove = true
+  end
+  data.hash = isValidValue(data.hash) and data.hash or nil
+  data.drawable = isValidValue(data.drawable) and data.drawable or nil
+  data.palette = isValidValue(data.palette) and data.palette or nil
 
   if data.hash and not data.remove then
     categoryHash, isMp = jo.component.getComponentCategory(ped, data.hash)
@@ -911,7 +902,7 @@ function jo.component.applySkin(ped, skin)
   jo.component.waitPedLoaded(ped)
 
   dprint("apply expression")
-  for expression, value in pairs(skin.expressions) do
+  for expression, value in pairs(skin.expressions or {}) do
     local percent = (value or 0.0) * 1.0
     percent = math.min(1.0, percent)
     percent = math.max(-1.0, percent)
@@ -977,7 +968,7 @@ end
 function jo.component.setWearableState(ped, category, data, state)
   local stateHash = GetHashFromString(state)
   local categoryName = jo.component.getCategoryNameFromHash(category)
-  local categoryHash = GetHashFromString(category)
+  local categoryHash = jo.component.getCategoryHash(category)
 
   local index = getComponentIndexOfCategory(ped, categoryHash)
   if index >= 0 then
@@ -1229,7 +1220,7 @@ end
 --- @return table|integer,integer,integer,integer (When inTable is true: returns a table with {palette, tint0, tint1, tint2} <br> When inTable is false: 1st: color palette <br> 2nd: tint number 0 <br> 3rd: tint number 1 <br> 4th: tint number 2)
 function jo.component.getCategoryTint(ped, category, inTable)
   if inTable == nil then inTable = false end
-  category = GetHashFromString(category)
+  category = jo.component.getCategoryHash(category)
   local isEquiped, index = jo.component.isCategoryEquiped(ped, category)
 
   if not isEquiped then
@@ -1273,6 +1264,19 @@ function jo.component.getCategoryNameFromHash(category)
   if type(category) == "string" then return category end
   if not category then return "no hash" end
   return jo.component.data.categoryName[category] or "unknown"
+end
+
+--- A fonction to get the category hash from its stringAdd commentMore actions
+---@param category string|integer (The category string)
+---@return integer (The category hash)
+function jo.component.getCategoryHash(category)
+  if type(category) == "number" then return category end
+
+  if category == "horse_feathers" then
+    return -287556490
+  end
+
+  return joaat(category)
 end
 
 function jo.component.getWearableStateNameFromHash(state)

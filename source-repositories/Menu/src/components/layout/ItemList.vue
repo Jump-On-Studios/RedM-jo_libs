@@ -1,12 +1,12 @@
 <template>
-  <li v-if="item" :id="`item-${id}`" :class="['item', 'clicker', { 'with-icon': icon, 'disabled': item.disabled, 'active': active }]" @click="click()">
+  <li v-if="item" :id="`item-${id}`" :class="[
+    'item',
+    'clicker',
+    { 'with-icon': icon, 'disabled': item.disabled, 'active': active, },
+    `icon-size-${item.iconSize}`
+  ]" @click="click()">
     <div :class="[{ 'bw opacity50': item.disabled }, 'image', item.iconClass]" v-if="icon">
       <img :src="getImage(item.icon)" />
-    </div>
-    <div class="current" v-if="isCurrent">
-      <div class="tick">
-        <img src="/assets/images/menu/tick.png">
-      </div>
     </div>
     <div class="current" v-if="item.iconRight">
       <div class="tick">
@@ -29,7 +29,7 @@
         </template>
       </template>
       <PreviewSlider :item="item" />
-      <div class="priceRight" v-if="!item.iconRight && !isCurrent">
+      <div class="priceRight" v-if="!item.iconRight">
         <PriceDisplay :price="(item.priceRight && (menuStore.cMenu.cItem == item)) ? 0 : item.priceRight" />
       </div>
       <div :class="['textRight', item.textRightClass]" v-if="item.textRight">
@@ -56,9 +56,6 @@ const lang = useLangStore().lang
 
 const props = defineProps({
   icon: {
-    default: false,
-  },
-  isCurrent: {
     default: false,
   },
   item: Object,
@@ -113,12 +110,12 @@ function getImage(url) {
   display: grid;
   position: relative;
   width: 100%;
-  min-height: 4.9vh;
+  min-height: var(--item-height);
   // grid-template-columns: repeat(auto);
   align-items: center;
-  padding: 0.25vh 2.5vh;
-  scroll-margin-top: 0.25vh;
-  scroll-margin-bottom: 0.25vh;
+  padding: var(--item-padding-v) var(--item-padding-h);
+  scroll-margin-top: var(--item-padding-v);
+  scroll-margin-bottom: var(--item-padding-v);
 
   &.active::after {
     border-color: #d80419;
@@ -205,7 +202,18 @@ function getImage(url) {
   &.with-icon {
     grid-template-columns: 5.5vh auto;
     grid-gap: 1.85vh;
-    height: 9.8vh;
+    height: calc(2* var(--item-height));
+
+    .image {
+      display: flex;
+      align-items: center;
+    }
+
+    &.icon-size-small {
+      height: inherit;
+      grid-template-columns: calc(0.7*var(--item-height) - 2*var(--item-padding-v)) auto;
+      grid-gap: 1vh;
+    }
 
     .background {
       background-image: url('/assets/images/menu/background_item.png');

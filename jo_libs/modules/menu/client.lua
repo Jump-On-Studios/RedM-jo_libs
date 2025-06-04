@@ -39,8 +39,10 @@ local disabledKeys = {
   `INPUT_GAME_MENU_CANCEL`,
   `INPUT_FRONTEND_PAUSE_ALTERNATE`,
 }
+local menusNeedRefresh = {}
 
 local function updateSliderCurrentValue(item)
+  if not item or not item.sliders then return end
   for i = 1, #item.sliders do
     local slider = item.sliders[i]
     if slider.type == "grid" then
@@ -57,22 +59,28 @@ end
 
 local function menuNUIChange(data)
   if not menus[data.menu] then return end
-  if not menus[data.menu].items[data.item.index] then return end
+  -- if not menus[data.menu].items[data.item.index] then return end
 
   currentData.menu = data.menu
-  currentData.index = data.item.index
-  -- menus[data.menu].currentIndex = data.item.index
-  menus[data.menu].items[data.item.index] = table.merge(menus[data.menu].items[data.item.index], data.item)
-  currentData.item = menus[data.menu].items[data.item.index]
+  if data.item.index then
+    menus[data.menu].currentIndex = data.item.index
+    menus[data.menu].items[data.item.index] = table.merge(menus[data.menu].items[data.item.index], data.item)
+    currentData.item = menus[data.menu].items[data.item.index]
+    currentData.index = menus[data.menu].currentIndex
 
-  updateSliderCurrentValue(currentData.item)
+    updateSliderCurrentValue(currentData.item)
+  else
+    currentData.index = 0
+    currentData.item = {}
+  end
+
 
   local oldButton = false
   if previousData.menu then
-    oldButton = menus[previousData.menu].items[previousData.index]
+    oldButton = previousData.item
   end
 
-  if previousData.menu ~= currentData.menu then
+  if previousData.menu ~= currentData.menu or data.forceMenuEvent then
     if oldButton then
       jo.menu.fireEvent(oldButton, "onExit")
       jo.menu.fireEvent(menus[previousData.menu], "onExit")
@@ -80,7 +88,7 @@ local function menuNUIChange(data)
     jo.menu.fireEvent(menus[currentData.menu], "onEnter")
     jo.menu.fireEvent(currentData.item, "onActive")
   else
-    if previousData.index ~= currentData.index then
+    if previousData.index ~= currentData.index or data.forceItemEvent then
       if oldButton then
         jo.menu.fireEvent(oldButton, "onExit")
       end
@@ -105,6 +113,12 @@ local function missingMenu(id)
   CreateThreadNow(menuCreators[id])
 end
 
+local function clearDataForNui(data)
+  local newData = table.clearForNui(data)
+  newData.onBeforeEnter = data.onBeforeEnter and true or false
+  return newData
+end
+
 ---@class MenuClass : table Menu class
 ---@field id string Menu Unique ID
 ---@field title string Menu Title
@@ -123,11 +137,13 @@ local MenuClass = {
   type = "list",
   items = {},
   numberOnScreen = 8,
+  currentIndex = 1,
   distanceToClose = false,
-  onEnter = function() end,
-  onBack = function() end,
-  onExit = function() end,
-  onChange = function() end
+  onBeforeEnter = nil,
+  onEnter = nil,
+  onBack = nil,
+  onExit = nil,
+  onChange = nil
 }
 
 local MenuItem = {
@@ -152,7 +168,7 @@ local MenuItem = {
 }
 
 --- Add an item to a menu
----@param p integer|table (Position index or item table if used as single parameter)
+---@param index integer|table (Position index or item table if used as single parameter)
 ---@param item? table (The item to add - if not provided, p is used as the item)
 --- item.title string (The item label)
 --- item.child? string (The menu to open when Enter is pressed <br> default: false)
@@ -179,27 +195,42 @@ local MenuItem = {
 --- item.onExit? function (Fired when the item is exited)
 --- item.onTick? function (Fired every tick)
 ---@return table (The added item)
-function MenuClass:addItem(p, item)
+function MenuClass:addItem(index, item)
   if item == nil then
-    item = p
-    p = #self.items + 1
+    item = index
+    index = #self.items + 1
   end
   if item.tick then
     item.onTick = item.tick
   end
   item = table.merge(table.copy(MenuItem), item)
-  item.index = p
+  item.index = index
   updateSliderCurrentValue(item)
-  table.insert(self.items, p, item)
-  if p < #self.items - 1 then
+  table.insert(self.items, index, item)
+  if index < #self.items then
     for i = 1, #self.items do
       if type(self.items[i].index) == "number" then
         self.items[i].index = i
       end
     end
-    menuNUIChange({ menu = self.id, item = { index = self.currentIndex } })
+  end
+  if jo.menu.isCurrentMenu(self.id) and (jo.menu.getCurrentIndex() >= index or #self.items == 1) then
+    menusNeedRefresh[self.id] = true
   end
   return item
+end
+
+function MenuClass:removeItem(index)
+  if not index then return eprint("MenuClass:removeItem > index can't be nil") end
+  table.remove(self.items, index)
+  if index < #self.items then
+    for i = 1, #self.items do
+      self.items[i].index = i
+    end
+  end
+  if jo.menu.isCurrentMenu(self.id) and jo.menu.getCurrentIndex() >= index then
+    menusNeedRefresh[self.id] = true
+  end
 end
 
 --- Add an item to a menu by its ID
@@ -260,15 +291,22 @@ function jo.menu.updateItem(id, index, key, value) menus[id]:updateItem(index, k
 --- Refresh the menu display without changing the current state
 --- Used when menu items have been modified
 function MenuClass:refresh()
-  local datas = table.clearForNui(self)
+  local datas = clearDataForNui(self)
   datas.currentIndex = nil
   SendNUIMessage({
     event = "updateMenuData",
     menu = self.id,
     data = datas
   })
-  if currentData.menu == self.id then
-    currentData.item = self.items[currentData.index]
+  if menusNeedRefresh[self.id] then
+    if jo.menu.isCurrentMenu(self.id) then
+      if self.currentIndex > #self.items then
+        self:setCurrentIndex(#self.items)
+      end
+      self.currentIndex = math.min(self.currentIndex, #self.items)
+      jo.menu.runRefreshEvents(false, true)
+    end
+    menusNeedRefresh[self.id] = nil
   end
 end
 
@@ -338,7 +376,7 @@ function MenuClass:send()
   if self.sentToNUI then
     return error("Menu already sent, please use menu:refresh(): " .. self.id)
   end
-  local datas = table.clearForNui(self)
+  local datas = clearDataForNui(self)
   SendNUIMessage({
     event = "updateMenu",
     menu = datas
@@ -626,6 +664,30 @@ function jo.menu.softHide(cb, animation)
   SendNUIMessage({ event = "updateShow", show = true, cancelAnimation = not animation })
 end
 
+
+--- A function to know if the menu is the current one
+---@param id string (The menu id)
+---@return boolean
+function jo.menu.isCurrentMenu(id)
+  if not jo.menu.isOpen() then return false end
+  return currentData.menu == id
+end
+
+--- A function to get the current index
+---@return integer (The index of the current item)
+function jo.menu.getCurrentIndex()
+  return currentData.index
+end
+
+function jo.menu.runRefreshEvents(menuEvent, itemEvent)
+  menuEvent = menuEvent or false
+  ItemEvent = itemEvent or false
+  menuNUIChange({ menu = jo.menu.getCurrentMenu().id, item = { index = jo.menu.getCurrentIndex() }, forceMenuEvent = menuEvent, forceItemEvent = itemEvent })
+end
+
+function jo.menu.getCurrentMenuId()
+  return currentData.menu
+end
 -------------
 -- NUI
 -------------
@@ -651,6 +713,13 @@ RegisterNuiCallback("missingMenu", function(data, cb)
   cb("ok")
 
   missingMenu(data.menu)
+end)
+
+RegisterNUICallback("onBeforeEnter", function(data, cb)
+  if menus[data.menu] then
+    jo.menu.fireEvent(menus[data.menu], "onBeforeEnter")
+  end
+  cb("ok")
 end)
 
 --- Register a handler for missing menu error
@@ -703,11 +772,13 @@ RegisterNUICallback("updatePreview", function(data, cb)
   cb("ok")
 
   if not menus[data.menu] then return end
-  if not menus[data.menu].items[data.item.index] then return end
+  -- if not menus[data.menu].items[data.item.index] then return end
 
-  local item = menus[data.menu].items[data.item.index]
-  if not item.bufferOnChange or table.find(data.item.sliders, function(slider) return slider.type == "grid" end) then
-    return menuNUIChange(data)
+  if data.item.index then
+    local item = menus[data.menu].items[data.item.index]
+    if not item.bufferOnChange or table.find(data.item.sliders, function(slider) return slider.type == "grid" end) then
+      return menuNUIChange(data)
+    end
   end
   jo.timeout.delay("menuNUIChange", 100, function()
     menuNUIChange(data)

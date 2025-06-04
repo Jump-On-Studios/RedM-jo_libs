@@ -167,7 +167,7 @@ function string.compare(a, b, caseSensitive)
       if type(va) == "number" and type(vb) == "number" then
         return va < vb and -1 or 1
       else
-        return va < vb and -1 or 1
+        return tostring(va) < tostring(vb) and -1 or 1
       end
     end
   end
