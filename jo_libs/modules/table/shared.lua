@@ -184,6 +184,7 @@ end
 ---@param key any (The key to extract)
 ---@return any (The extracted value)
 function table.extract(t, key)
+  if not t then return nil end
   local value = type(t[key]) == "table" and table.copy(t[key]) or t[key]
   t[key] = nil
   return value
@@ -246,4 +247,30 @@ function table.doesKeyExist(t, ...)
     deep = deep[key]
   end
   return deep[keys[numberKeys]] and true or false, deep[keys[numberKeys]]
+end
+
+--- A function to search a value inside an array
+---@param t table (The table)
+---@param value any (The value to search)
+---@param fromIndex? integer (index at which to start searching <br> default: `1`)
+---@return boolean (Returns `true` if the value is found)
+---@return integer (Returns the index of the found value or 0 if missing)
+function table.includes(t, value, fromIndex)
+  if not t then return false, 0 end
+  if not value then return false, 0 end
+  fromIndex = fromIndex or 1
+  if type(t) ~= "table" then return false, eprint("table.includes: t is not a table") end
+  if table.type(t) == "array" then
+    for i = 1, #t do
+      if value == t[i] then
+        return true, i
+      end
+    end
+  end
+  for key, val in pairs(t) do
+    if val == value then
+      return true, key
+    end
+  end
+  return false, 0
 end
