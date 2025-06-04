@@ -490,7 +490,11 @@ main {
     }
   }
 
-  &>:first-child:not(:last-child) {
+  .dollar {
+    display: flex;
+  }
+
+  &>.monetary>:first-child:not(:last-child) {
     font-size: 0.6em;
     margin-top: 0.93vh;
     margin-right: 0.93vh;
@@ -500,34 +504,64 @@ main {
     }
   }
 
-  .item {
+  .items {
     display: flex;
     align-items: center;
-    gap: 0.25em;
-    height: var(--price-height);
+    gap: 0.4em;
 
-    .quantity {
-      font-size: 0.6em;
-    }
-
-    .icon {
-      height: var(--price-height);
+    .item {
       display: flex;
-      flex-direction: column;
       align-items: center;
+      position: relative;
 
-      img {
-        object-fit: cover;
-        display: block;
-        width: auto;
-        height: calc(var(--price-height) * 0.6);
-        // height: var(--price-height);
+      .quantity {
+        font-size: 0.6em;
+
+        &.circle {
+          position: absolute;
+          color: black;
+          background: white;
+          border-radius: 100%;
+          aspect-ratio: 1 / 1;
+          min-width: 0.8vw;
+          text-align: center;
+          top: -1px;
+          right: 0px;
+          font-size: 0.4em;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+          font-family: 'Hapna';
+          font-weight: bold;
+        }
       }
 
-      .label {
-        font-size: 0.5em;
-        font-family: Hapna;
-        text-wrap: no-wrap;
+      .icon {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        img {
+          object-fit: cover;
+          display: block;
+          width: auto;
+          height: calc(var(--price-height) - 2*0.46vh);
+        }
+
+        .label {
+          font-size: 0.5em;
+          font-family: Hapna;
+          text-wrap: no-wrap;
+        }
+      }
+
+      &.with-label {
+        .icon img {
+          height: calc(var(--price-height) * 0.6);
+        }
+
+        gap: 0.2em;
       }
     }
   }
