@@ -12,6 +12,7 @@ jo.require("ped-texture")
 -- VARIABLES
 -------------
 local delays = {}
+local isRefreshing = false
 
 ---@Class Component
 local Component = {}
@@ -401,7 +402,12 @@ end
 
 local function GetCategoryOfComponentAtIndex(ped, componentIndex)
   local pedType = IsThisModelAHorse(GetEntityModel(ped)) and 6 or 0
-  return invokeNative(0x9b90842304c938a7, ped, componentIndex, pedType, Citizen.ResultAsInteger())
+  local category = invokeNative(0x9b90842304c938a7, ped, componentIndex, pedType, Citizen.ResultAsInteger())
+  --patch neckerchiefs
+  if category == `neckerchiefs` then
+    category = `neckwear`
+  end
+  return category
 end
 
 --- @return integer (Hash)
@@ -580,6 +586,7 @@ end
 ---@param ped integer the entity ID
 ---@return table
 local function initCachePedComponents(ped)
+  while isRefreshing do Wait(0) end
   if not jo.cache.component.color[ped] then
     local numComponent = GetNumComponentsInPed(ped)
     if not numComponent then return {} end -- No component detected on the ped
@@ -595,11 +602,6 @@ local function initCachePedComponents(ped)
   end
   return table.copy(jo.cache.component.color[ped])
 end
-
-local function resetCachedPed(ped)
-  jo.cache.component.color[ped] = nil
-end
-
 -------------
 -- END COLOR MANAGEMENT
 -------------
@@ -608,14 +610,13 @@ end
 -- CACHE MANAGEMENT
 -------------
 local function reapplyComponentStats(ped)
-  local hash = 0
   for category, list in pairs(jo.component.data.wearableStates) do
     local isEquiped, index = jo.component.isCategoryEquiped(ped, category)
     if isEquiped then
       local state = Entity(ped).state["wearableState:" .. category] or "base"
       local stateName = jo.component.getWearableStateNameFromHash(state)
       if stateName ~= "base" and table.includes(list, stateName) then
-        hash = GetShopItemComponentAtIndex(ped, index)
+        local hash = GetShopItemComponentAtIndex(ped, index)
         if jo.debug then
           dprint("Reapply state of %s: %s (%d)", category, jo.component.getWearableStateNameFromHash(state), state)
         end
@@ -623,7 +624,6 @@ local function reapplyComponentStats(ped)
       end
     end
   end
-  refreshPed(ped)
 end
 
 local function reapplyComponentsColor(ped)
@@ -637,10 +637,10 @@ local function reapplyCached(ped)
   delays["refresh" .. ped] = jo.timeout.delay("jo_libs:component:reapplyCachedColor" .. ped,
     function() jo.component.waitPedLoaded(ped) end, function()
       refreshPed(ped)
-      jo.component.waitPedLoaded(ped)
+      -- jo.component.waitPedLoaded(ped)
       reapplyComponentStats(ped)
       reapplyComponentsColor(ped)
-      resetCachedPed(ped)
+      jo.cache.component.color[ped] = nil
       refreshPed(ped)
     end)
 end
@@ -752,56 +752,48 @@ function jo.component.apply(ped, category, _data)
   end
   resetCachedColor(ped, categoryHash)
 
-  if data.hash or data.albedo then
-    if data.hash and category ~= "horse_bridles" then
-      RemoveTagFromMetaPed(ped, categoryHash, 0)
-    end
-    if (categoryHash == `neckwear`) then
-      RemoveTagFromMetaPed(ped, `neckerchiefs`, 0)
-    end
-    if (category == "ponchos") then
-      RemoveTagFromMetaPed(ped, `cloaks`, 0)
-    end
-    if (category == "cloaks") then
-      RemoveTagFromMetaPed(ped, `ponchos`, 0)
-    end
-    if category == "coats" then
-      RemoveTagFromMetaPed(ped, "coats_closed", 0)
-    elseif category == "coats_closed" then
-      RemoveTagFromMetaPed(ped, "coats", 0)
-    elseif category == "skirts" then
-      RemoveTagFromMetaPed(ped, "pants", 0)
+  if data.hash or data.albedo or data.palette then
+    if data.hash or data.albedo then
+      if data.hash and category ~= "horse_bridles" then
+        RemoveTagFromMetaPed(ped, categoryHash, 0)
+      end
+      if (categoryHash == `neckwear`) then
+        RemoveTagFromMetaPed(ped, `neckerchiefs`, 0)
+      end
+      if (category == "ponchos") then
+        RemoveTagFromMetaPed(ped, `cloaks`, 0)
+      end
+      if (category == "cloaks") then
+        RemoveTagFromMetaPed(ped, `ponchos`, 0)
+      end
+      if category == "coats" then
+        RemoveTagFromMetaPed(ped, "coats_closed", 0)
+      elseif category == "coats_closed" then
+        RemoveTagFromMetaPed(ped, "coats", 0)
+      elseif category == "skirts" then
+        RemoveTagFromMetaPed(ped, "pants", 0)
+      end
+
+      --switch shop item to metatag to allow component mix
+      if category == "hats" or category == "masks" or data.albedo then
+        data = convertToMetaTag(ped, data)
+      end
+
+      if data.hash and data.hash ~= 0 then
+        ApplyShopItemToPed(ped, data.hash, false, isMp, false)
+      end
+
+      if data.drawable or data.albedo then
+        SetMetaPedTag(ped, data.drawable, data.albedo, data.normal, data.material, data.palette, data.tint0, data.tint1, data.tint2)
+      end
+
+      local state = data.wearableState or Entity(ped).state["wearableState:" .. category]
+      if state then
+        updateComponentWearableState(ped, category, data, state)
+      end
     end
 
-    --switch shop item to metatag to allow component mix
-    if category == "hats" or category == "masks" or data.albedo then
-      data = convertToMetaTag(ped, data)
-      log(data)
-    end
-
-    if data.hash and data.hash ~= 0 then
-      ApplyShopItemToPed(ped, data.hash, false, isMp, false)
-    end
-
-    if data.drawable or data.albedo then
-      SetMetaPedTag(ped, data.drawable, data.albedo, data.normal, data.material, data.palette, data.tint0, data.tint1,
-        data.tint2)
-      addCachedComponent(ped, nil, categoryHash, data.hash, data.wearableState, data.drawable, data.albedo, data.normal, data.material,
-        data.palette, data.tint0, data.tint1, data.tint2)
-    end
-
-    if data.palette and data.palette ~= 0 then
-      addCachedComponent(ped, nil, categoryHash, data.hash, data.wearableState, data.drawable, data.albedo, data.normal, data.material,
-        data.palette, data.tint0, data.tint1, data.tint2)
-    end
-
-    local state = data.wearableState or Entity(ped).state["wearableState:" .. category]
-    if state then
-      jo.component.setWearableState(ped, category, data, state)
-    end
-  elseif data.palette then
-    addCachedComponent(ped, nil, categoryHash, nil, data.wearableState, nil, data.albedo, data.normal, data.material, data.palette,
-      data.tint0, data.tint1, data.tint2)
+    addCachedComponent(ped, nil, categoryHash, data.hash, data.wearableState, data.drawable, data.albedo, data.normal, data.material, data.palette, data.tint0, data.tint1, data.tint2)
   else
     RemoveTagFromMetaPed(ped, categoryHash, 0)
     if categoryHash == `neckwear` then
@@ -1011,13 +1003,24 @@ function jo.component.setWearableState(ped, category, data, state)
       if beardIndex >= 0 then
         local armorHash, armor = jo.component.getComponentEquiped(ped, "armor")
         if armorHash then
+          local shirtHash, shirt = jo.component.getComponentEquiped(ped, "shirts_full")
           RemoveTagFromMetaPed(ped, `armor`, 0)
           CreateThread(function()
-            jo.component.waitPedLoaded(ped)
+            if shirtHash then
+              SetTextureOutfitTints(ped, shirt.category, shirt.palette, shirt.tint0, shirt.tint1, shirt.tint2)
+            end
             jo.component.apply(ped, armor.category, armor)
           end)
         end
       end
+    end
+  end
+  if categoryHash == `boots` then
+    local pantHash, pant = jo.component.getComponentEquiped(ped, "pants")
+    if pantHash then
+      CreateThread(function()
+        SetTextureOutfitTints(ped, pant.category, pant.palette, pant.tint0, pant.tint1, pant.tint2)
+      end)
     end
   end
   updateComponentWearableState(ped, categoryName, data, stateHash)
@@ -1196,11 +1199,11 @@ end
 ---@param ped integer (The entity ID)
 ---@param category string|integer (The category to get the component)
 ---@return integer|boolean (Return the hash of the component or `false` is not equiped)
----@return table|boolean (Return the component datas)
+---@return table (Return the component datas)
 function jo.component.getComponentEquiped(ped, category)
   local index = getComponentIndexOfCategory(ped, category)
   if index == -1 then
-    return false, false
+    return false, {}
   end
   local component = getComponentAtIndex(ped, index)
   return component.hash, component
