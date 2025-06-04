@@ -62,7 +62,10 @@ class MenuItem {
     this.child = value
   }
   setPrice(price) {
-    this.price = price
+    if (typeof (price) != "object")
+      this.price = { money: price }
+    else
+      this.price = price
   }
   setData(data) {
     this.data = data

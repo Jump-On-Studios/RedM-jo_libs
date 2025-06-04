@@ -1,26 +1,29 @@
 <template>
   <template v-if="props.price !== undefined && props.price !== false">
     <div class="priceDisplay">
-      <template v-if="(typeof (props.price) == 'object') && props.price.gold && props.price.money">
-        <span class="gold left">
+      <template v-if="props.price.gold">
+        <span class="gold">
           <span class="icon">
             <img src="/assets/images/gold.png">
           </span>
           {{ gold() }}
         </span>
       </template>
-      <template v-if="props.price.gold && !props.price.money">
-        <span class="gold">
-          <span class="icon">
-            <img src="/assets/images/gold.png">
-          </span>
-          <span class="round">{{ gold() }}</span>
+      <template v-if="props.price.money">
+        <span class="dollar">
+          <span class="devise">{{ devise() }}</span>
+          <span class="round">{{ priceRounded() }}</span>
+          <span class="centime">{{ centimes() }}</span>
         </span>
       </template>
-      <template v-else>
-        <span class="devise">{{ devise() }}</span>
-        <span class="round">{{ priceRounded() }}</span>
-        <span class="centime">{{ centimes() }}</span>
+      <template v-if="props.price.item">
+        <span class="item">
+          <span class="quantity">{{ props.price.item.quantity }}x</span>
+          <div class="icon" v-tooltip.top="props.price.item.label">
+            <img :src="getImage(props.price.item.image)" />
+            <span class="label">{{ props.price.item.label }}</span>
+          </div>
+        </span>
       </template>
     </div>
   </template>
@@ -56,5 +59,14 @@ function devise() {
   if (getPrice() == 0)
     return ''
   return lang('devise')
+}
+function isNUIImage(url) {
+  return url.includes('://')
+}
+
+function getImage(url) {
+  if (isNUIImage(url))
+    return url
+  return `./assets/images/icons/${url}.png`
 }
 </script>
