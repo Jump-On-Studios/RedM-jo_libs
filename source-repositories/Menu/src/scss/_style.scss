@@ -12,7 +12,7 @@
   --item-height: 4.9vh;
   --item-padding-v: 0.25vh;
   --item-padding-h: 2.5vh;
-  --price-height: 2.2vw;
+  --price-height: 5.4vh;
 }
 
 body {
@@ -440,7 +440,6 @@ main {
     align-items: center;
     justify-content: space-between;
     padding: 0.46vh 0.92vh;
-    height: var(--price-height);
 
     h4 {
       font-size: 1.5em;
@@ -449,121 +448,6 @@ main {
 
   .priceDisplay {
     font-size: 2em;
-  }
-}
-
-.priceDisplay {
-  display: flex;
-  position: relative;
-
-  &>* {
-    display: flex;
-  }
-
-  .centime {
-    position: relative;
-    font-size: 0.6em;
-    margin-left: 0.185vh;
-    margin-top: 0.185vh;
-    height: fit-content;
-
-    &::after {
-      content: '';
-      position: absolute;
-      display: block;
-      background-image: url('/assets/images/menu/money_line.png');
-      height: 0.46vh;
-      width: 100%;
-      left: 0;
-      bottom: 0;
-    }
-  }
-
-  .divider.bottom {
-    margin-top: -0.46vh;
-  }
-
-  .gold {
-    img {
-      width: 2.8vh;
-      margin-right: 0.46vh;
-    }
-  }
-
-  .dollar {
-    display: flex;
-  }
-
-  &>.monetary>:first-child:not(:last-child) {
-    font-size: 0.6em;
-    margin-top: 0.93vh;
-    margin-right: 0.93vh;
-
-    img {
-      width: 1.85vh;
-    }
-  }
-
-  .items {
-    display: flex;
-    align-items: center;
-    gap: 0.4em;
-
-    .item {
-      display: flex;
-      align-items: center;
-      position: relative;
-
-      .quantity {
-        font-size: 0.6em;
-
-        &.circle {
-          position: absolute;
-          color: black;
-          background: white;
-          border-radius: 100%;
-          aspect-ratio: 1 / 1;
-          min-width: 0.8vw;
-          text-align: center;
-          top: -1px;
-          right: 0px;
-          font-size: 0.4em;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          text-align: center;
-          font-family: 'Hapna';
-          font-weight: bold;
-        }
-      }
-
-      .icon {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-
-        img {
-          object-fit: cover;
-          display: block;
-          width: auto;
-          height: calc(var(--price-height) - 2*0.46vh);
-        }
-
-        .label {
-          font-size: 0.5em;
-          font-family: Hapna;
-          text-wrap: no-wrap;
-        }
-      }
-
-      &.with-label {
-        .icon img {
-          height: calc(var(--price-height) * 0.6);
-        }
-
-        gap: 0.2em;
-      }
-    }
   }
 }
 
