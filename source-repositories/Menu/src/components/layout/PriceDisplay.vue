@@ -1,26 +1,33 @@
 <template>
   <template v-if="props.price !== undefined && props.price !== false">
     <div class="priceDisplay">
-      <template v-if="(typeof (props.price) == 'object') && props.price.gold && props.price.money">
-        <span class="gold left">
-          <span class="icon">
-            <img src="/assets/images/gold.png">
+      <div class="monetary">
+        <template v-if="props.price.gold">
+          <span class="gold">
+            <span class="icon">
+              <img src="/assets/images/gold.png">
+            </span>
+            {{ gold() }}
           </span>
-          {{ gold() }}
-        </span>
-      </template>
-      <template v-if="props.price.gold && !props.price.money">
-        <span class="gold">
-          <span class="icon">
-            <img src="/assets/images/gold.png">
+        </template>
+        <template v-if="props.price.money">
+          <span class="dollar">
+            <span class="devise">{{ devise() }}</span>
+            <span class="round">{{ priceRounded() }}</span>
+            <span class="centime">{{ centimes() }}</span>
           </span>
-          <span class="round">{{ gold() }}</span>
-        </span>
-      </template>
-      <template v-else>
-        <span class="devise">{{ devise() }}</span>
-        <span class="round">{{ priceRounded() }}</span>
-        <span class="centime">{{ centimes() }}</span>
+        </template>
+      </div>
+      <template v-if="props.price.items">
+        <div class="items">
+          <span :class="['item', { 'with-label': item.displayLabel }]" v-for="item, key in props.price.items" :key="key + item.item">
+            <span :class="['quantity', { circle: (item.quantityStyle == 'circle') }]">{{ item.quantity }}<template v-if="item.quantityStyle != 'circle'">x</template></span>
+            <div class="icon" v-tooltip.top="{ value: (!item.displayLabel ? item.label : ''), escape: false }">
+              <img :src="getImage(item.image)" />
+              <span v-if="item.displayLabel" class="label" v-html="item.label" </span>
+            </div>
+          </span>
+        </div>
       </template>
     </div>
   </template>
@@ -56,5 +63,14 @@ function devise() {
   if (getPrice() == 0)
     return ''
   return lang('devise')
+}
+function isNUIImage(url) {
+  return url.includes('://')
+}
+
+function getImage(url) {
+  if (isNUIImage(url))
+    return url
+  return `./assets/images/icons/${url}.png`
 }
 </script>

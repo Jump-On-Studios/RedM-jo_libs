@@ -2,7 +2,7 @@
   <div class="price" v-if="menuStore.cItemPrice !== false">
     <div class="divider"></div>
     <div class="content">
-      <h4 v-if="menuStore.cItem.priceTitle > 0">{{ menuStore.cItem.priceTitle }}</h4>
+      <h4 v-if="menuStore.cItem.priceTitle">{{ menuStore.cItem.priceTitle }}</h4>
       <h4 v-else>{{ lang('price') }}</h4>
       <div class="amount">
         <PriceDisplay :price="menuStore.cItemPrice" />

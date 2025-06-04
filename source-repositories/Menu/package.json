@@ -7,8 +7,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@primeuix/themes": "^1.1.1",
     "lodash": "^4.17.21",
     "pinia": "^2.1.7",
+    "primevue": "^4.3.5",
     "util": "^0.12.5",
     "vue": "^3.2.41"
   },
