@@ -13,9 +13,15 @@ let menu = {
       title: 'This is the title',
       icon: "female",
       iconSize: "small",
-      price: 4,
+      priceTitle: "Price",
+      price: [
+        { item: 'apple', quantity: 1, label: "Horseshoes", image: "Horseshoes", quantityStyle: "circle" },
+        { item: 'apple', quantity: 2, label: "Shovel", image: "horse_outfits", displayLabel: true },
+        { money: 1 },
+        { gold: 10 },
+      ],
+      // footer: "The footer",
       child: "test",
-      footer: 'footer',
       quantity: 5,
       quantityCircleClass: 'fgold',
       iconClass: 'fgold',
@@ -33,21 +39,19 @@ let menu = {
     }, {
       title: 'This is the title',
       price: 4,
-      child: "test",
-      footer: 'footer',
-      quantity: 5,
-      quantityCircleClass: 'fgold',
-      iconClass: 'fgold',
-      sliders: [
-        // {
-        //   type: 'grid',
-        //   values: [{ current: 1, min: -10, max: 10 }]
-        // },
-        {
-          values: [1, 2, 3]
-        }
-      ]
     },
+    {
+      title: 'This is the title',
+      price: { money: 4 },
+    },
+    {
+      title: 'This is the title',
+      price: { gold: 4 },
+    },
+    {
+      title: 'This is the title',
+      price: { gold: 4, money: 4 },
+    }
   ]
 }
 

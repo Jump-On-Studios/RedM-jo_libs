@@ -106,11 +106,39 @@ end
 
 --- Checks if a player has sufficient funds of a specified currency type
 ---@param source integer (The source ID of the player)
----@param amount number|table (The amount of money the player needs to have <br> {money = 1, gold = 1, rol = 1})
----@param moneyType? integer (`0`: dollar, `1`: gold, `2`: rol <br> default:`1`)
+---@param amount number|table (The amount of money the player needs to have <br> {money = 1, gold = 1, rol = 1, items = {{item = "water", quantity = 1, keep = false}, {item = "apple", quantity = 3, keep = false}}})
+---@param moneyType? integer|string (`0`: dollar, `1`: gold, `2`: rol <br> default:`1`)
 ---@param removeIfCan? boolean (Remove the money if the player has enough <br> default:`false`)
----@return boolean (Return `true` if the player has more money than the amount)
+---@return boolean (Returns `true` if the player has more money than the amount)
 function jo.framework:canUserBuy(source, amount, moneyType, removeIfCan)
+  if moneyType == "item" then
+    local items = amount.items or amount.item or amount
+    if type(items) ~= "table" then
+      eprint("jo.framework:canUserBuy: Wrong amount type. Need to be a table")
+      return false
+    end
+    if table.type(items) ~= "array" then items = { items } end
+    for i = 1, #items do
+      if not jo.framework:canUseItem(source, items[i].item, items[i].quantity, items[i].meta, false) then
+        return false
+      end
+    end
+    if removeIfCan then
+      for i = 1, #items do
+        if not items[i].keep then
+          jo.framework:canUseItem(source, items[i].item, items[i].quantity, items[i].meta, true)
+        end
+      end
+    end
+    return true
+  end
+  if moneyType == "gold" then
+    moneyType = 1
+  elseif moneyType == "rol" then
+    moneyType = 2
+  elseif type(moneyType) ~= "number" then
+    moneyType = 0
+  end
   local user = jo.framework.UserClass:get(source)
   return user:canBuy(amount, moneyType, removeIfCan)
 end
