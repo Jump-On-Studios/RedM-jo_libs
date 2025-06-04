@@ -609,12 +609,12 @@ end
 -------------
 local function reapplyComponentStats(ped)
   local hash = 0
-  for category, _ in pairs(jo.component.data.wearableStates) do
+  for category, list in pairs(jo.component.data.wearableStates) do
     local isEquiped, index = jo.component.isCategoryEquiped(ped, category)
     if isEquiped then
       local state = Entity(ped).state["wearableState:" .. category] or "base"
-      log(category, state, jo.component.getWearableStateNameFromHash(state))
-      if state ~= "base" then
+      local stateName = jo.component.getWearableStateNameFromHash(state)
+      if stateName ~= "base" and table.includes(list, stateName) then
         hash = GetShopItemComponentAtIndex(ped, index)
         if jo.debug then
           dprint("Reapply state of %s: %s (%d)", category, jo.component.getWearableStateNameFromHash(state), state)
