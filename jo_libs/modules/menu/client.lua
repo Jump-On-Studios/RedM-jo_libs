@@ -57,6 +57,21 @@ local function updateSliderCurrentValue(item)
   end
 end
 
+local function updatePriceItemNames(item)
+  if not item.price then return end
+  if type(item.price) ~= "table" then return end
+  if table.type(item.price) ~= "array" then return end
+  for i = 1, #item.price do
+    local price = item.price[i]
+    if price.item then
+      jo.require("framework")
+      log(price.item)
+      price = table.merge(price, jo.framework:getItemData(price.item))
+      log("=>", price)
+    end
+  end
+end
+
 local function menuNUIChange(data)
   if not menus[data.menu] then return end
   -- if not menus[data.menu].items[data.item.index] then return end
@@ -206,6 +221,7 @@ function MenuClass:addItem(index, item)
   item = table.merge(table.copy(MenuItem), item)
   item.index = index
   updateSliderCurrentValue(item)
+  updatePriceItemNames(item)
   table.insert(self.items, index, item)
   if index < #self.items then
     for i = 1, #self.items do

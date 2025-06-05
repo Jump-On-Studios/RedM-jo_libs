@@ -178,6 +178,7 @@ function getQuantityStyle(item) {
 .quantity {
   font-size: 0.6em;
   margin-bottom: 0.2em;
+  margin-right: 0.2em;
 }
 
 .circle-quantity {
