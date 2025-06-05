@@ -20,6 +20,7 @@ let menu = {
         { money: 1 },
         { gold: 10 },
       ],
+      // footer: "The footer",
       child: "test",
       quantity: 5,
       quantityCircleClass: 'fgold',
