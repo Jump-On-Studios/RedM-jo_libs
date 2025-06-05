@@ -1,5 +1,12 @@
 ---@class FrameworkClass
-jo.framework = {}
+---@field core table (The link with the framework)
+---@field inv table (The link with the inventory)
+---@field inventoryItems table (The list of items)
+jo.framework = {
+  core = {},
+  inv = {},
+  inventoryItems = {},
+}
 
 jo.require("string")
 
@@ -180,4 +187,23 @@ function jo.framework:loadFile(...)
     return jo.file.load(path)
   end
   return false
+end
+
+CreateThread(function()
+  jo.framework.inventoryItems = exports.jo_libs:jo_framework_getInventoryItems()
+end)
+
+--- A function to get the list of items
+---@return table (The list of items)
+function jo.framework:getItems()
+  while table.isEmpty(jo.framework.inventoryItems) do Wait(10) end
+  return jo.framework.inventoryItems
+end
+
+--- A function to get an item data
+---@param item string (The name of the item)
+---@return table|false (The item data or false if not found)
+function jo.framework:getItemData(item)
+  while table.isEmpty(jo.framework.inventoryItems) do Wait(10) end
+  return jo.framework.inventoryItems[item] or false
 end
