@@ -104,9 +104,13 @@ function getQuantityStyle(item) {
 
 <style lang="scss" scoped>
 .priceDisplay {
+  position: absolute;
+  top: 0.46vh;
+  right: 0.92vh;
   display: flex;
-  position: relative;
   align-items: center;
+  font-size: 2em;
+  height: 100%;
 }
 
 .monetary {
@@ -117,7 +121,6 @@ function getQuantityStyle(item) {
   &>:first-child:not(:last-child) {
     font-size: 0.6em;
     margin-top: 0.93vh;
-    margin-right: 0.93vh;
 
     img {
       width: 1.85vh;
