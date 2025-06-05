@@ -19,9 +19,9 @@
         <Description />
         <Slider />
       </template>
-      <Price />
-      <Footer />
     </div>
+    <Price />
+    <Footer />
   </main>
 </template>
 
