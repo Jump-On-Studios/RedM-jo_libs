@@ -2,7 +2,6 @@ local nextRequestId = 0
 local responseCallback = {}
 local registeredCallback = {}
 local promise = promise
-local await = Citizen.Await
 local pack = table.pack
 local unpack = table.unpack
 local insert = table.insert
@@ -82,7 +81,7 @@ function jo.callback.triggerClient(name, source, cb, ...)
   if cbType == "function" then
     return
   end
-  return unpack(await(responseCallback[currentRequestId]) or {})
+  return unpack(Await(responseCallback[currentRequestId]) or {})
 end
 
 local function executeCallback(name, ...)
@@ -127,7 +126,7 @@ RegisterServerEvent("jo_libs:triggerCallback", function(name, requestId, fromRes
   local source = source
   if not registeredCallback[name] then return eprint("No server callback for:", name) end
 
-  local trigger = registeredCallback[name].latent and jo.emit.triggerClient.latent or jo.emit.triggerClient
+  local trigger = registeredCallback[name].latent and jo.emit.triggerClient.latent or TriggerClientEvent
 
   trigger("jo_libs:responseCallback", source, requestId, fromRessource, executeCallback(name, source, ...))
 end)
