@@ -1,2 +1,3 @@
-jo.callback = exports.jo_libs:getCallbackAPI()
-
+if jo.resourceName ~= "jo_libs" then
+  jo.callback = exports.jo_libs:getCallbackAPI()
+end
