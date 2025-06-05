@@ -40,7 +40,9 @@ function jo.file.load(modname)
 
   local success, result = pcall(fn)
 
-  if not success then return false, eprint("Error loading: " .. modname) end
+  if not success then
+    return false, eprint(("Error loading file (%s):\n %s"):format(modname, result))
+  end
   return result
 end
 
