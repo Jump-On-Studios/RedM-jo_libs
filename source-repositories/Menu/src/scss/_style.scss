@@ -108,7 +108,7 @@ body {
     -webkit-mask-position-y: 0;
     --container-width: calc(var(--menu-width) - 10vh);
     --container-height: calc(var(--menu-height) - 2.4vh - 3.7vh);
-    padding: 2.4vh 5vh 3.7vh;
+    padding: 2.4vh 5vh 3vh;
     height: 100%;
     width: 100%;
     position: absolute;
@@ -430,25 +430,6 @@ main {
   height: 0.37vh;
   background-image: url('/assets/images/menu/divider_line.png');
   background-size: 100% 100%;
-}
-
-.price {
-  width: 100%;
-
-  .content {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.46vh 0.92vh;
-
-    h4 {
-      font-size: 1.5em;
-    }
-  }
-
-  .priceDisplay {
-    font-size: 2em;
-  }
 }
 
 .description {
