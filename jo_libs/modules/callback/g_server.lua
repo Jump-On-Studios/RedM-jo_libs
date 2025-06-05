@@ -6,6 +6,7 @@ local await = Citizen.Await
 local pack = table.pack
 local unpack = table.unpack
 local insert = table.insert
+jo.require("emit")
 
 jo.callback = {}
 
@@ -19,14 +20,24 @@ local function isAFunction(cb)
 end
 
 --- A function to register a server callback
+---@alias jo.callback.register function
 ---@param name string (The name of the callback event)
 ---@param cb function (The function executed when the callback is triggered <br> ⚠️ `source` is always the first argument)
-function jo.callback.register(name, cb)
+function jo.callback.registerCallback(name, cb, latent)
   if registeredCallback[name] then return eprint("Callback already registered:", name) end
   registeredCallback[name] = {
     cb = cb,
-    resource = GetInvokingResource()
+    resource = GetInvokingResource(),
+    latent = latent or false
   }
+end
+
+--- A function to register a latent server callback
+---@alias jo.callback.registerLatent function
+---@param name string (The name of the callback event)
+---@param cb function (The function executed when the callback is triggered <br> ⚠️ `source` is always the first argument)
+function jo.callback.registerLatentCallback(name, cb)
+  jo.callback.registerCallback(name, cb, true)
 end
 
 AddEventHandler("onResourceStop", function(resource)
@@ -65,8 +76,7 @@ function jo.callback.triggerClient(name, source, cb, ...)
   end
 
 
-  TriggerClientEvent("jo_libs:triggerCallback", source, name, currentRequestId, GetInvokingResource() or "unknown",
-    unpack(args))
+  TriggerClientEvent("jo_libs:triggerCallback", source, name, currentRequestId, GetInvokingResource() or "unknown", unpack(args))
 
   nextRequestId = nextRequestId < 65535 and nextRequestId + 1 or 0
   if cbType == "function" then
@@ -115,7 +125,11 @@ end)
 
 RegisterServerEvent("jo_libs:triggerCallback", function(name, requestId, fromRessource, ...)
   local source = source
-  TriggerClientEvent("jo_libs:responseCallback", source, requestId, fromRessource, executeCallback(name, source, ...))
+  if not registeredCallback[name] then return eprint("No server callback for:", name) end
+
+  local trigger = registeredCallback[name].latent and jo.emit.triggerClient.latent or jo.emit.triggerClient
+
+  trigger("jo_libs:responseCallback", source, requestId, fromRessource, executeCallback(name, source, ...))
 end)
 
 exports("getCallbackAPI", function()
