@@ -1,4 +1,6 @@
 jo.require("framework-bridge")
+jo.require("callback")
+jo.file.load("@oxmysql.lib.MySQL")
 
 jo.framework:loadFile("g_server")
 jo.framework:loadFile("_custom", "g_server")
@@ -41,4 +43,19 @@ RegisterNetEvent("jo_libs:server:applySkin", function(ped, skin)
   skin = jo.framework:standardizeSkin(UnJson(skin))
 
   TriggerClientEvent("jo_libs:client:applySkin", source, ped, skin)
+end)
+
+MySQL.ready(function()
+  jo.framework.inventoryItems = jo.framework:getItemsFromDBInternal()
+  dprint("=>3. %d items inventory loaded", table.count(jo.framework.inventoryItems))
+end)
+
+jo.callback.register.latent("jo_framework_getInventoryItems", function()
+  while table.isEmpty(jo.framework.inventoryItems) do Wait(10) end
+  return jo.framework.inventoryItems
+end)
+
+exports("jo_framework_getInventoryItems", function()
+  while table.isEmpty(jo.framework.inventoryItems) do Wait(10) end
+  return jo.framework.inventoryItems
 end)
