@@ -211,6 +211,9 @@ function getQuantityStyle(item) {
     display: flex;
     flex-direction: column;
     align-items: center;
+    max-width: 2em;
+    max-height: var(--price-height);
+
 
     img {
       object-fit: cover;
@@ -222,7 +225,8 @@ function getQuantityStyle(item) {
     .label {
       font-size: 0.5em;
       font-family: Hapna;
-      text-wrap: no-wrap;
+      overflow-wrap: break-word;
+      text-align: center;
     }
   }
 

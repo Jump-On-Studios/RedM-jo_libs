@@ -15,7 +15,7 @@ let menu = {
       iconSize: "small",
       priceTitle: "Price",
       price: [
-        { item: 'apple', quantity: 1, label: "Horseshoes", image: "Horseshoes" },
+        { item: 'apple', quantity: 1, label: "Trainer Licence", image: "https://femga.com/images/samples/ui_textures_no_bg/inventory_items/document_business_card_rock_carvings.png" },
         { money: 1 },
         { gold: 10 },
       ],
