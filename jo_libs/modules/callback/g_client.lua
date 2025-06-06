@@ -40,6 +40,36 @@ AddEventHandler("onResourceStop", function(resource)
   end
 end)
 
+--- Execute a registered callback by name.
+--- Internal function that runs the callback and returns its results.
+---@param name string (The name of the registered callback to execute)
+---@param ...? any (Parameters to pass to the callback)
+---@return any (Return values from the executed callback)
+local function executeCallback(name, ...)
+  if not registeredCallback[name] then return false, eprint(("No callback for: %s"):format(name)) end
+  return registeredCallback[name].cb(...)
+end
+
+--- A function to trigger a client callback
+---@param name string (The name of the callback event)
+---@param cb? function|nil (Function to receive the result of the event)
+---@param ...? mixed (The list of parameters to send to the callback event)
+function jo.callback.triggerClient(name, cb, ...)
+  if not registeredCallback[name] then return false, eprint("No client callback for:", name) end
+
+  local cbType = isAFunction(cb) and "function" or "other"
+  local args = { ... }
+
+  if cbType == "function" then
+    cb(executeCallback(name, unpack(args)))
+  else
+    if cb then
+      insert(args, 1, cb)
+    end
+    return executeCallback(name, unpack(args))
+  end
+end
+
 --- A function to trigger a server callback
 ---@param name string (Name of the callback event)
 ---@param cb? function (Function to receive the result of the event)
@@ -84,39 +114,8 @@ end
 --deprecated function
 jo.triggerServerCallback = jo.callback.triggerServer
 
-
---- Execute a registered callback by name.
---- Internal function that runs the callback and returns its results.
----@param name string (The name of the registered callback to execute)
----@param ...? any (Parameters to pass to the callback)
----@return any (Return values from the executed callback)
-local function executeCallback(name, ...)
-  if not registeredCallback[name] then return false, eprint(("No callback for: %s"):format(name)) end
-  return registeredCallback[name].cb(...)
-end
-
---- A function to trigger a client callback
----@param name string (The name of the callback event)
----@param cb? function|nil (Function to receive the result of the event)
----@param ...? mixed (The list of parameters to send to the callback event)
-function jo.callback.triggerClient(name, cb, ...)
-  if not registeredCallback[name] then return false, eprint("No client callback for:", name) end
-
-  local cbType = isAFunction(cb) and "function" or "other"
-  local args = { ... }
-
-  if cbType == "function" then
-    cb(executeCallback(name, unpack(args)))
-  else
-    if cb then
-      insert(args, 1, cb)
-    end
-    return executeCallback(name, unpack(args))
-  end
-end
-
 RegisterNetEvent("jo_libs:triggerCallback", function(name, requestId, fromResource, ...)
-  TriggerServerEvent("jo_libs:responseCallback", requestId, fromResource, executeCallback(name, ...))
+  TriggerServerEvent(generateEventName("response", requestId), fromResource, executeCallback(name, ...))
 end)
 
 exports("getCallbackAPI", function()

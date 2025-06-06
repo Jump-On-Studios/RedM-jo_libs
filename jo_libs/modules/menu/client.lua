@@ -65,9 +65,7 @@ local function updatePriceItemNames(item)
     local price = item.price[i]
     if price.item then
       jo.require("framework")
-      log(price.item)
       price = table.merge(price, jo.framework:getItemData(price.item))
-      log("=>", price)
     end
   end
 end
