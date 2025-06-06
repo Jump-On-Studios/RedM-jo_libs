@@ -57,19 +57,6 @@ local function updateSliderCurrentValue(item)
   end
 end
 
-local function updatePriceItemNames(item)
-  if not item.price then return end
-  if type(item.price) ~= "table" then return end
-  if table.type(item.price) ~= "array" then return end
-  for i = 1, #item.price do
-    local price = item.price[i]
-    if price.item then
-      jo.require("framework")
-      price = table.merge(price, jo.framework:getItemData(price.item))
-    end
-  end
-end
-
 local function menuNUIChange(data)
   if not menus[data.menu] then return end
   -- if not menus[data.menu].items[data.item.index] then return end
@@ -179,6 +166,24 @@ local MenuItem = {
   onChange = function() end,
   onExit = function() end
 }
+function MenuItem:formatPrice()
+  if not self.price then return end
+  if type(self.price) ~= "table" then return end
+  if table.type(self.price) ~= "array" then return end
+  for i = 1, #self.price do
+    local price = self.price[i]
+    if price.item then
+      jo.require("framework")
+      price = table.merge(price, jo.framework:getItemData(price.item))
+    end
+  end
+end
+function MenuItem:update(key, value)
+  self[key] = value
+  if key == "price" then
+    self:formatPrice()
+  end
+end
 
 --- Add an item to a menu
 ---@param index integer|table (Position index or item table if used as single parameter)
@@ -219,7 +224,7 @@ function MenuClass:addItem(index, item)
   item = table.merge(table.copy(MenuItem), item)
   item.index = index
   updateSliderCurrentValue(item)
-  updatePriceItemNames(item)
+  item:formatPrice()
   table.insert(self.items, index, item)
   if index < #self.items then
     for i = 1, #self.items do
@@ -292,7 +297,7 @@ function jo.menu.addItems(id, items) menus[id]:addItems(items) end
 ---@param key string (The property name to update)
 ---@param value any (The new value for the property)
 function MenuClass:updateItem(index, key, value)
-  self.items[index][key] = value
+  self.items[index]:update(key, value)
 end
 
 --- Update a specific property of a menu item by menu ID
