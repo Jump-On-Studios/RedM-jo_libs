@@ -1,5 +1,4 @@
 local nextRequestId = 0
-local responseCallback = {}
 local registeredCallback = {}
 local promise = promise
 local await = Citizen.Await
@@ -50,15 +49,27 @@ function jo.callback.triggerServer(name, cb, ...)
 
   local currentRequestId = nextRequestId
   local args = { ... }
+  local responseCallback
 
   if cbType == "function" then
-    responseCallback[currentRequestId] = cb
+    responseCallback = cb
   else
     if cb then
       insert(args, 1, cb)
     end
-    responseCallback[currentRequestId] = promise.new()
+    responseCallback = promise.new()
   end
+
+  local handler
+  handler = RegisterNetEvent(generateEventName("response", currentRequestId), function(fromResource, ...)
+    dprint("Response received for request ID: %d from resource: %s", currentRequestId, fromResource)
+    if isAFunction(responseCallback) then
+      responseCallback(...)
+    else
+      responseCallback:resolve(pack(...))
+    end
+    RemoveEventHandler(handler)
+  end)
 
   TriggerServerEvent("jo_libs:triggerCallback", name, currentRequestId, GetInvokingResource() or "unknown", unpack(args))
 
@@ -67,7 +78,7 @@ function jo.callback.triggerServer(name, cb, ...)
   if cbType == "function" then
     return
   end
-  return unpack(await(responseCallback[currentRequestId]) or {})
+  return unpack(await(responseCallback) or {})
 end
 
 --deprecated function
@@ -104,21 +115,8 @@ function jo.callback.triggerClient(name, cb, ...)
   end
 end
 
-RegisterNetEvent("jo_libs:responseCallback", function(requestId, fromRessource, ...)
-  if not responseCallback[requestId] then
-    return eprint(("No callback response for: %d - Called from: %d"):format(
-      requestId, fromRessource))
-  end
-  if isAFunction(responseCallback[requestId]) then
-    responseCallback[requestId](...)
-  else
-    responseCallback[requestId]:resolve(pack(...))
-  end
-  responseCallback[requestId] = nil
-end)
-
-RegisterNetEvent("jo_libs:triggerCallback", function(name, requestId, fromRessource, ...)
-  TriggerServerEvent("jo_libs:responseCallback", requestId, fromRessource, executeCallback(name, ...))
+RegisterNetEvent("jo_libs:triggerCallback", function(name, requestId, fromResource, ...)
+  TriggerServerEvent("jo_libs:responseCallback", requestId, fromResource, executeCallback(name, ...))
 end)
 
 exports("getCallbackAPI", function()
