@@ -128,7 +128,7 @@ RegisterServerEvent("jo_libs:triggerCallback", function(name, requestId, fromRes
 
   local trigger = registeredCallback[name].latent and jo.emit.triggerClient.latent or TriggerClientEvent
 
-  trigger("jo_libs:responseCallback", source, requestId, fromRessource, executeCallback(name, source, ...))
+  trigger(generateEventName("response", requestId), source, fromRessource, executeCallback(name, source, ...))
 end)
 
 exports("getCallbackAPI", function()
