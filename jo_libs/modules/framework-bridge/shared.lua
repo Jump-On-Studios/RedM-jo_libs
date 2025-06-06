@@ -210,5 +210,12 @@ end
 ---@return table|false (The item data or false if not found)
 function jo.framework:getItemData(item)
   while table.isEmpty(jo.framework.inventoryItems) do Wait(10) end
-  return jo.framework.inventoryItems[item] or false
+  if not jo.framework.inventoryItems[item] then
+    eprint("Item %s not found", item)
+    return
+    {
+      label = "Not exist"
+    }
+  end
+  return jo.framework.inventoryItems[item]
 end
