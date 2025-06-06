@@ -15,8 +15,7 @@ let menu = {
       iconSize: "small",
       priceTitle: "Price",
       price: [
-        { item: 'apple', quantity: 1, label: "Horseshoes", image: "Horseshoes", quantityStyle: "circle" },
-        { item: 'apple', quantity: 2, label: "Shovel", image: "horse_outfits", displayLabel: true },
+        { item: 'apple', quantity: 1, label: "Horseshoes", image: "Horseshoes" },
         { money: 1 },
         { gold: 10 },
       ],

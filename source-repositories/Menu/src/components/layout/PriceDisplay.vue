@@ -18,7 +18,7 @@
             <span v-else-if="price.item" :class="['item', { 'with-label': displayLabel(price) }]">
               <span class="circle-quantity" v-if="getQuantityStyle(price) == 'circle'" v-html="price.quantity"></span>
               <span class="quantity" v-else>{{ price.quantity }}<template v-if="getQuantityStyle(price) != 'circle'">x</template></span>
-              <div class="icon" v-tooltip.top="{ value: (!price.displayLabel ? price.label : ''), escape: false }">
+              <div class="icon" v-tooltip.top="{ value: (price.tooltip ? price.label : ''), escape: false }">
                 <img v-if="hasImage(price)" :src="getImage(price.image)" />
                 <span v-if="displayLabel(price)" class="label" v-html="price.label"></span>
               </div>
@@ -83,7 +83,7 @@ function hasImage(item) {
 }
 
 function displayLabel(item) {
-  return item.displayLabel || !hasImage(item)
+  return !item.tooltip || !hasImage(item)
 }
 
 function isNUIImage(url) {
@@ -230,8 +230,6 @@ function getQuantityStyle(item) {
     .icon img {
       height: calc(var(--price-height) * 0.6);
     }
-
-    gap: 0.2em;
   }
 }
 </style>
