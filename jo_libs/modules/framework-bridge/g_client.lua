@@ -55,9 +55,7 @@ end)
 
 CreateThread(function()
   Wait(1000)
-  log("START GET ITEMS")
   jo.framework.inventoryItems = jo.callback.triggerServer("jo_framework_getInventoryItems")
-  log("=>2. items inventory loaded")
 end)
 
 exports("jo_framework_getInventoryItems", function()
