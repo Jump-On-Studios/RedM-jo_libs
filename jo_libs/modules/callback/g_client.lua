@@ -1,5 +1,4 @@
 local nextRequestId = 0
-local responseCallback = {}
 local registeredCallback = {}
 local promise = promise
 local await = Citizen.Await
@@ -41,39 +40,6 @@ AddEventHandler("onResourceStop", function(resource)
   end
 end)
 
---- A function to trigger a server callback
----@param name string (Name of the callback event)
----@param cb? function (Function to receive the result of the event)
----@param ...? mixed (The list of parameters to send to the callback event)
-function jo.callback.triggerServer(name, cb, ...)
-  local cbType = isAFunction(cb) and "function" or "other"
-
-  local currentRequestId = nextRequestId
-  local args = { ... }
-
-  if cbType == "function" then
-    responseCallback[currentRequestId] = cb
-  else
-    if cb then
-      insert(args, 1, cb)
-    end
-    responseCallback[currentRequestId] = promise.new()
-  end
-
-  TriggerServerEvent("jo_libs:triggerCallback", name, currentRequestId, GetInvokingResource() or "unknown", unpack(args))
-
-  nextRequestId = nextRequestId < 65535 and nextRequestId + 1 or 0
-
-  if cbType == "function" then
-    return
-  end
-  return unpack(await(responseCallback[currentRequestId]) or {})
-end
-
---deprecated function
-jo.triggerServerCallback = jo.callback.triggerServer
-
-
 --- Execute a registered callback by name.
 --- Internal function that runs the callback and returns its results.
 ---@param name string (The name of the registered callback to execute)
@@ -104,21 +70,52 @@ function jo.callback.triggerClient(name, cb, ...)
   end
 end
 
-RegisterNetEvent("jo_libs:responseCallback", function(requestId, fromRessource, ...)
-  if not responseCallback[requestId] then
-    return eprint(("No callback response for: %d - Called from: %d"):format(
-      requestId, fromRessource))
-  end
-  if isAFunction(responseCallback[requestId]) then
-    responseCallback[requestId](...)
-  else
-    responseCallback[requestId]:resolve(pack(...))
-  end
-  responseCallback[requestId] = nil
-end)
+--- A function to trigger a server callback
+---@param name string (Name of the callback event)
+---@param cb? function (Function to receive the result of the event)
+---@param ...? mixed (The list of parameters to send to the callback event)
+function jo.callback.triggerServer(name, cb, ...)
+  local cbType = isAFunction(cb) and "function" or "other"
 
-RegisterNetEvent("jo_libs:triggerCallback", function(name, requestId, fromRessource, ...)
-  TriggerServerEvent("jo_libs:responseCallback", requestId, fromRessource, executeCallback(name, ...))
+  local currentRequestId = nextRequestId
+  local args = { ... }
+  local responseCallback
+
+  if cbType == "function" then
+    responseCallback = cb
+  else
+    if cb then
+      insert(args, 1, cb)
+    end
+    responseCallback = promise.new()
+  end
+
+  local handler
+  handler = RegisterNetEvent(generateEventName("response", currentRequestId), function(fromResource, ...)
+    dprint("Response received for request ID: %d from resource: %s", currentRequestId, fromResource)
+    if isAFunction(responseCallback) then
+      responseCallback(...)
+    else
+      responseCallback:resolve(pack(...))
+    end
+    RemoveEventHandler(handler)
+  end)
+
+  TriggerServerEvent("jo_libs:triggerCallback", name, currentRequestId, GetInvokingResource() or "unknown", unpack(args))
+
+  nextRequestId = nextRequestId < 65535 and nextRequestId + 1 or 0
+
+  if cbType == "function" then
+    return
+  end
+  return unpack(await(responseCallback) or {})
+end
+
+--deprecated function
+jo.triggerServerCallback = jo.callback.triggerServer
+
+RegisterNetEvent("jo_libs:triggerCallback", function(name, requestId, fromResource, ...)
+  TriggerServerEvent(generateEventName("response", requestId), fromResource, executeCallback(name, ...))
 end)
 
 exports("getCallbackAPI", function()

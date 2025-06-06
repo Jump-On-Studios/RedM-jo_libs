@@ -56,15 +56,8 @@ RegisterNetEvent("jo_libs:client:emit:start", function(eventName)
   eventsInProgress[eventName] = true
   RegisterNetEvent(eventName)
   handler = AddEventHandler(eventName, function()
-    log("=>", handlerKey)
-    log("=>", handler)
     eventsInProgress[eventName] = nil
-    -- RemoveEventHandler(handler)
+    RemoveEventHandler(handler)
     dprint(("Emit: %s takes %dms"):format(eventName, GetGameTimer() - time))
   end)
-  log(handler)
-end)
-
-Citizen.SetEventRoutine(function(eventName, eventPayload, eventSource)
-  log(eventName, eventSource)
 end)
