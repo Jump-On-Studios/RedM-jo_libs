@@ -340,7 +340,7 @@ local invokeNative = Citizen.InvokeNative
 local function SetTextureOutfitTints(ped, category, palette, tint0, tint1, tint2)
   if not palette then return end
   if palette == 0 then return end
-  return invokeNative(0x4EFC1F8FF1AD94DE, ped, jo.component.getCategoryHash(category), jo.component.getCategoryHash(palette), tint0, tint1,
+  return invokeNative(0x4EFC1F8FF1AD94DE, ped, jo.component.getCategoryHash(category), GetHashFromString(palette), tint0, tint1,
     tint2)
 end
 local function SetActiveMetaPedComponentsUpdated(ped) return invokeNative(0xAAB86462966168CE, ped, true) end
@@ -607,8 +607,12 @@ local function reapplyComponentStats(ped)
 end
 
 local function reapplyComponentsColor(ped)
-  for category, data in pairs(jo.cache.component.color[ped] or {}) do
-    SetTextureOutfitTints(ped, category, data.palette, data.tint0, data.tint1, data.tint2)
+  for i = 1, #jo.component.data.order do
+    local category = jo.component.getCategoryHash(jo.component.data.order[i])
+    if jo.cache.component.color[ped][category] then
+      local data = jo.cache.component.color[ped][category]
+      SetTextureOutfitTints(ped, category, data.palette, data.tint0, data.tint1, data.tint2)
+    end
   end
 end
 
