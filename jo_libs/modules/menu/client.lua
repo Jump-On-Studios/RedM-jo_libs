@@ -173,7 +173,17 @@ function MenuItem:formatPrice()
     local price = self.price[i]
     if price.item then
       jo.require("framework")
+      local loaderOn = false
+      if table.isEmpty(jo.framework.inventoryItems) then
+        log("Please wait the loading of inventory items")
+        log("Loading ...")
+        jo.menu.displayLoader()
+        loaderOn = true
+      end
       price = table.merge(price, jo.framework:getItemData(price.item))
+      if loaderOn then
+        SetTimeout(100, jo.menu.hideLoader)
+      end
     end
   end
 end
@@ -697,14 +707,31 @@ function jo.menu.getCurrentIndex()
   return currentData.index
 end
 
+--- A function to run refresh events
+---@param menuEvent? boolean (Whether to run menu events)
+---@param itemEvent? boolean (Whether to run item events)
 function jo.menu.runRefreshEvents(menuEvent, itemEvent)
   menuEvent = menuEvent or false
   ItemEvent = itemEvent or false
   menuNUIChange({ menu = jo.menu.getCurrentMenu().id, item = { index = jo.menu.getCurrentIndex() }, forceMenuEvent = menuEvent, forceItemEvent = itemEvent })
 end
 
+--- A function to get the current menu id
+---@return string (The id of the current menu)
 function jo.menu.getCurrentMenuId()
   return currentData.menu
+end
+
+--- A function to display the loader
+---@param value? boolean (Whether to display the loader <br> default: `true`)
+function jo.menu.displayLoader(value)
+  value = GetValue(value, true)
+  SendNUIMessage({ event = "displayLoader", show = value })
+end
+
+--- A function to hide the loader
+function jo.menu.hideLoader()
+  jo.menu.displayLoader(false)
 end
 -------------
 -- NUI
