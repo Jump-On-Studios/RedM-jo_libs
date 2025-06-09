@@ -103,12 +103,12 @@ function getQuantityStyle(item) {
 
 function sortItems(prices) {
   return prices.sort((a, b) => {
-    if (a.item) return -1
-    if (b.item) return 1
-    if (a.gold) return -1
-    if (b.gold) return 1
-    if (a.money) return -1
-    if (b.money) return 1
+    if (a.item && !b.item) return -1
+    if (b.item && !a.item) return 1
+    if (a.gold && !b.gold) return -1
+    if (b.gold && !a.gold) return 1
+    if (a.money && !b.money) return -1
+    if (b.money && !a.money) return 1
     return 0
   })
 }

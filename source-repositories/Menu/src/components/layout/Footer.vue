@@ -1,6 +1,5 @@
 <template>
-  {{ cItem }}
-  <div class="footer-text hapna" v-if="menuStore.cItem.footer !== undefined && menuStore.cItem.footer.length > 0">
+  <div class="footer-text hapna" v-if="menuStore.cItem?.footer !== undefined && menuStore.cItem?.footer.length > 0">
     <div class="divider" v-if="!menuStore.cItem.price"></div>
     <div class="content" v-html="menuStore.cItem.footer">
     </div>
@@ -8,7 +7,6 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
 import { useMenuStore } from '../../stores/menus';
 const menuStore = useMenuStore()
 
