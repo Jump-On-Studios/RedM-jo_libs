@@ -82,4 +82,11 @@ if (import.meta.env.DEV) {
       show: true
     })
   }, 200)
+
+  setTimeout(() => {
+    window.postMessage({
+      event: "displayLoader",
+      show: true
+    })
+  }, 3000);
 }

@@ -76,6 +76,11 @@ class API {
     datas.definePosition(data.menuRight)
   }
 
+  displayLoader(data) {
+    const datas = useDataStore()
+    datas.displayLoader(data.show)
+  }
+
   updateLang(data) {
     const langStore = useLangStore()
     langStore.updateStrings(data.lang)
