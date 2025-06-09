@@ -1,6 +1,4 @@
 jo.menu.exports = {}
-
-jo.require("table")
 jo.require("timeout")
 jo.require("nui")
 jo.require("string")
@@ -180,7 +178,7 @@ function MenuItem:formatPrice()
         jo.menu.displayLoader()
         loaderOn = true
       end
-      price = table.merge(price, jo.framework:getItemData(price.item))
+      price = jo.menu.formatPrice(table.merge(price, jo.framework:getItemData(price.item)))
       if loaderOn then
         SetTimeout(100, jo.menu.hideLoader)
       end
