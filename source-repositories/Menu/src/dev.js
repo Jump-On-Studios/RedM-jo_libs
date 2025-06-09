@@ -83,10 +83,10 @@ if (import.meta.env.DEV) {
     })
   }, 200)
 
-  setTimeout(() => {
-    window.postMessage({
-      event: "displayLoader",
-      show: true
-    })
-  }, 3000);
+  // setTimeout(() => {
+  //   window.postMessage({
+  //     event: "displayLoader",
+  //     show: true
+  //   })
+  // }, 3000);
 }
