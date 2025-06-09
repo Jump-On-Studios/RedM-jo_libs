@@ -2,7 +2,7 @@
   <template v-if="props.price !== undefined && props.price !== false">
     <template v-if="Array.isArray(props.price)">
       <div class="priceDisplay">
-        <template v-for="price, index in props.price" :key="index">
+        <template v-for="price, index in sortItems(props.price)" :key="index">
           <div class="price-item">
             <span v-if="price.gold" class="gold">
               <span class="icon">
@@ -16,8 +16,8 @@
               <span class="centime">{{ centimes(price.money) }}</span>
             </span>
             <span v-else-if="price.item" :class="['item', { 'with-label': displayLabel(price) }]">
-              <span class="circle-quantity" v-if="getQuantityStyle(price) == 'circle'" v-html="price.quantity"></span>
-              <span class="quantity" v-else>{{ price.quantity }}<template v-if="getQuantityStyle(price) != 'circle'">x</template></span>
+              <span class="circle-quantity" v-if="getQuantityStyle(price) == 'circle'" v-html="price.quantity || 1"></span>
+              <span class="quantity" v-else>{{ price.quantity || 1 }}<template v-if="getQuantityStyle(price) != 'circle'">x</template></span>
               <div class="icon" v-tooltip.top="{ value: (price.tooltip ? price.label : ''), escape: false }">
                 <img v-if="hasImage(price)" :src="getImage(price.image)" />
                 <span v-if="displayLabel(price)" class="label" v-html="price.label"></span>
@@ -99,6 +99,18 @@ function getImage(url) {
 function getQuantityStyle(item) {
   if (!hasImage(item)) return ''
   return item.quantityStyle
+}
+
+function sortItems(prices) {
+  return prices.sort((a, b) => {
+    if (a.item) return -1
+    if (b.item) return 1
+    if (a.gold) return -1
+    if (b.gold) return 1
+    if (a.money) return -1
+    if (b.money) return 1
+    return 0
+  })
 }
 </script>
 
