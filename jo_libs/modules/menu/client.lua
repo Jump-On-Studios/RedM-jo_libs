@@ -1,4 +1,3 @@
-jo.menu = {}
 jo.menu.exports = {}
 
 jo.require("table")
@@ -784,6 +783,8 @@ RegisterNUICallback("updatePreview", function(data, cb)
     menuNUIChange(data)
   end)
 end)
+
+
 
 -------------
 -- BRIDGE OTHER MENU
