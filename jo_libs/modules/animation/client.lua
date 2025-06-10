@@ -65,13 +65,53 @@ end
 ---@param heading number (The desired heading)
 ---@param waiter? boolean (If need to reach the heading to end the function - default:true)
 function jo.animation.setDesiredHeading(ped, heading, waiter)
-  if waiter == nil then waiter = true end
+  waiter = GetValue(waiter, true)
+  local isFrozen = IsEntityFrozen(ped) == 1
+  if isFrozen then FreezeEntityPosition(ped, false) end
   TaskAchieveHeading(ped, heading % 360, 10000)
 
-  if waiter then
+  local result = promise.new()
+
+  CreateThread(function()
     Wait(1000)
-    while not IsPedStill(ped) do
-      Wait(100)
-    end
+    while not IsPedStill(ped) do Wait(100) end
+    ClearPedTasks(ped)
+    if isFrozen then FreezeEntityPosition(ped, true) end
+    result:resolve()
+  end)
+
+  if waiter then
+    Await(result)
+  end
+end
+
+--- Turn the ped to face the target
+---@param ped integer (The ped to turn)
+---@param target integer (The target to face)
+---@param waiter? boolean (If need to reach the heading to end the function - default:true)
+function jo.animation.faceEntity(ped, target, waiter)
+  waiter = GetValue(waiter, true)
+  local isFrozen = IsEntityFrozen(ped) == 1
+  if isFrozen then FreezeEntityPosition(ped, false) end
+  TaskTurnPedToFaceEntity(ped, target, 10000)
+
+  local result = promise.new()
+  CreateThread(function()
+    Wait(1000)
+    while not IsPedStill(ped) do Wait(100) end
+    ClearPedTasks(ped)
+    if isFrozen then FreezeEntityPosition(ped, true) end
+    result:resolve()
+  end)
+
+  if waiter then
+    Await(result)
+  end
+end
+
+function jo.animation.waitTaskEnd(ped, task)
+  task = GetHashFromString(task)
+  while GetScriptTaskStatus(ped, task) <= 1 do
+    Wait(10)
   end
 end
