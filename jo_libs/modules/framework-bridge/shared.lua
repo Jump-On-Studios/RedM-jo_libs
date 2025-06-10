@@ -189,7 +189,8 @@ function jo.framework:loadFile(...)
   return false
 end
 
-CreateThread(function()
+jo.ready(function()
+  Wait(1000)
   jo.framework.inventoryItems = exports.jo_libs:jo_framework_getInventoryItems()
 end)
 

@@ -10,7 +10,7 @@
               </span>
               {{ formatPrice(price.gold) }}
             </span>
-            <span v-else-if="price.money" class="dollar">
+            <span v-else-if="price.money || props.price.length == 1" class="dollar">
               <span class="devise">{{ devise(price.money) }}</span>
               <span class="round">{{ priceRounded(price.money) }}</span>
               <span class="centime">{{ centimes(price.money) }}</span>
@@ -63,7 +63,7 @@ function formatPrice(price) {
 }
 
 function priceRounded(price) {
-  if (price == 0)
+  if (!price || price == 0)
     return lang('free')
   return Math.trunc(price)
 }
@@ -121,7 +121,7 @@ function sortItems(prices) {
   right: 0.92vh;
   display: flex;
   align-items: center;
-  font-size: 2em;
+  font-size: 1.5em;
   height: 100%;
 }
 
@@ -235,7 +235,7 @@ function sortItems(prices) {
     }
 
     .label {
-      font-size: 0.5em;
+      font-size: 0.6em;
       font-family: Hapna;
       overflow-wrap: break-word;
       text-align: center;
