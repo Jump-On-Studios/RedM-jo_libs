@@ -5,10 +5,10 @@ jo.require("table")
 ---@param entry any
 ---@return table
 local function normalizeEntry(entry)
-  if type(entry) ~= "table" then 
-    return { money = entry } 
+  if type(entry) ~= "table" then
+    return { money = entry }
   end
-  
+
   if entry.item then
     return {
       item = entry.item,
@@ -17,7 +17,7 @@ local function normalizeEntry(entry)
       meta = entry.meta
     }
   end
-  
+
   return entry
 end
 
@@ -30,7 +30,7 @@ function jo.menu.formatPrice(price)
 
   local result = {}
   local size = 1
-  
+
   for key, value in pairs(price) do
     if type(key) == "string" then
       result[size] = normalizeEntry({ [key] = value })
@@ -55,7 +55,7 @@ function jo.menu.formatPrice(price)
       size += 1
     end
   end
-  
+
   return result
 end
 
@@ -65,11 +65,11 @@ end
 function jo.menu.formatPrices(prices)
   if not prices then return { { { money = 0 } } } end
   if type(prices) ~= "table" then return { { { money = prices } } } end
-  
+
   local operator = prices.operator or "or"
   local formattedPrices = {}
   local size = 1
-  
+
   -- Process each price entry
   for key, price in pairs(prices) do
     if key ~= "operator" then
@@ -85,7 +85,7 @@ function jo.menu.formatPrices(prices)
       end
     end
   end
-  
+
   -- Merge all prices if operator is "and"
   if operator == "and" and #formattedPrices > 1 then
     local merged = formattedPrices[1]
@@ -94,7 +94,7 @@ function jo.menu.formatPrices(prices)
     end
     formattedPrices = { merged }
   end
-  
+
   -- Sanitize prices (combine same currency types) in a single pass
   for i = 1, #formattedPrices do
     local price = formattedPrices[i]
@@ -104,7 +104,7 @@ function jo.menu.formatPrices(prices)
     local goldTotal = 0
     local rolTotal = 0
     local items = {}
-    
+
     for j = 1, #price do
       local item = price[j]
       if item.money then
@@ -114,12 +114,12 @@ function jo.menu.formatPrices(prices)
       elseif item.rol then
         rolTotal = rolTotal + item.rol
       elseif item.item then
-        local key = item.item..":"..tostring(item.keep)
+        local key = item.item .. ":" .. tostring(item.keep)
         if not items[key] then
           items[key] = {}
         end
         local found = false
-        for y =1, #items[key] do
+        for y = 1, #items[key] do
           if table.isEgal(GetValue(items[key][y].meta, {}), GetValue(item.meta, {})) then
             items[key][y].quantity += item.quantity
             found = true
@@ -135,7 +135,7 @@ function jo.menu.formatPrices(prices)
         size += 1
       end
     end
-    
+
     if moneyTotal > 0 then
       sanitized[size] = { money = moneyTotal }
       size += 1
@@ -148,11 +148,18 @@ function jo.menu.formatPrices(prices)
       sanitized[size] = { rol = rolTotal }
       size += 1
     end
-    
+
     formattedPrices[i] = sanitized
   end
-  
+
   return formattedPrices
+end
+
+--- Checks if a price is free
+---@param price table|integer|number (The price to check)
+---@return boolean (Return `true` if the price is free)
+function jo.menu.isPriceFree(price)
+  return type(price) == "table" and #price == 1 and (price[1].money == 0 or price[1][1].money == 0)
 end
 
 local function runTests()
@@ -160,15 +167,15 @@ local function runTests()
     { name = "Simple number", price = 5 },
     { name = "Complex mixed", price = { 10, { item = "water", money = 5, gold = 3, { gold = 7 }, { 10 } }, operator = "or" } },
     { name = "Multi currency", price = { money = 5, gold = 3, operator = "or" } },
-    { name = "Merge same meta", price = {{money = 10, gold = 1,{item = "water", quantity = 2, meta = {a = 1}}},{money = 10, gold = 1,{ item = "water", quantity = 2, meta = {a = 1} }}, operator = "and" }},
-    { name = "Merge meta different", price = {{{item = "water", quantity = 2, meta = {a = 1, b = 1}}},{{ item = "water", quantity = 2, meta = {a = 1} }}, operator = "and" }},
+    { name = "Merge same meta", price = { { money = 10, gold = 1, { item = "water", quantity = 2, meta = { a = 1 } } }, { money = 10, gold = 1, { item = "water", quantity = 2, meta = { a = 1 } } }, operator = "and" } },
+    { name = "Merge meta different", price = { { { item = "water", quantity = 2, meta = { a = 1, b = 1 } } }, { { item = "water", quantity = 2, meta = { a = 1 } } }, operator = "and" } },
   }
 
-  jo.require('debugger')
-  
+  jo.require("debugger")
+
   for _, test in ipairs(tests) do
     log("=> " .. test.name)
-    jo.debugger.perfomance("test",function()
+    jo.debugger.perfomance("test", function()
       log(jo.menu.formatPrices(test.price))
     end)
   end
