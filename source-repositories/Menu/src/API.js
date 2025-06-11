@@ -147,6 +147,17 @@ class API {
   logProxy = function (...v) {
     console.log(JSON.parse(JSON.stringify(v)))
   }
+
+  isNUIImage = function (url) {
+    if (url == undefined) return false
+    return url.includes('://')
+  }
+
+  getImage = function (url) {
+    if (this.isNUIImage(url))
+      return url
+    return `./assets/images/icons/${url}.png`
+  }
 }
 
 const instance = new API()
