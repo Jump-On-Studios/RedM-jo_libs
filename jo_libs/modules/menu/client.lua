@@ -71,6 +71,13 @@ local function menuNUIChange(data)
     currentData.item = {}
   end
 
+  if not jo.menu.doesActiveButtonChange() and currentData.item.sliders then
+    for i = 1, #currentData.item.sliders do
+      local current = currentData.item.sliders[i].current
+      local oldCurrent = previousData.item.sliders[i]?.current or 0
+      currentData.item.sliders[i].changed = current ~= oldCurrent
+    end
+  end
 
   local oldButton = false
   if previousData.menu then
