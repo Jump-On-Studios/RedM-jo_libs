@@ -31,6 +31,6 @@ export const useDataStore = defineStore('datas', {
     },
     displayLoader(value) {
       this.showLoader = value
-    }
+    },
   }
 })
