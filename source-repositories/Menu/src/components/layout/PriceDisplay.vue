@@ -39,7 +39,7 @@
               {{ formatPrice(props.price.gold) }}
             </span>
           </template>
-          <template v-if="props.price.money">
+          <template v-if="props.price.money || props.price">
             <span class="dollar">
               <span class="devise">{{ devise(props.price.money) }}</span>
               <span class="round">{{ priceRounded(props.price.money) }}</span>

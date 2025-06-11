@@ -388,12 +388,27 @@ main {
   }
 
   .sprite {
+    --sprite-padding: 0.75vh;
     position: relative;
-    padding: 0.75vh;
+    padding: var(--sprite-padding);
     width: 5vh;
     height: 5vh;
     min-width: 5vh;
     max-width: 5vh;
+
+    &::before {
+      content: '';
+      display: block;
+      position: absolute;
+      top: var(--sprite-padding);
+      left: var(--sprite-padding);
+      bottom: var(--sprite-padding);
+      right: var(--sprite-padding);
+      background-image: url('/assets/images/tints/swatch_box.png');
+      background-size: 100%;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
 
     img {
       width: 100%;
@@ -408,8 +423,6 @@ main {
   }
 
   .current {
-    filter: invert(0%);
-
     &::after {
       content: '';
       display: block;
@@ -424,6 +437,11 @@ main {
       background-position: center;
       filter: brightness(0.5) sepia(1) saturate(10000%);
     }
+  }
+
+  .color-custom {
+    width: 100%;
+    height: 100%;
   }
 }
 

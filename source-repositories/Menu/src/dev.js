@@ -31,8 +31,9 @@ let menu = {
         //   values: [{ current: 1, min: -10, max: 10 }]
         // },
         {
+          type: 'sprite',
           forceDisplay: true,
-          values: [1],
+          values: [{ palette: { tint0: 1, tint1: 20, tint2: 30, palette: 'tint_generic_clean' } }, { palette: { tint0: 1, tint1: 20, palette: 'tint_generic_clean' } }, { rgb: 'red' }, { sprite: 'tints/metal_engraving_2' }],
           description: 'My item description<br>Second line',
         }
       ]
