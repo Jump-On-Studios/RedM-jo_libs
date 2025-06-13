@@ -123,6 +123,7 @@ class API {
   deepMerge = function (obj1, obj2) {
     // Loop through the properties of the merged object
     for (const key of Object.keys(obj2)) {
+      if (obj2[key] == null || obj2[key] == undefined) continue
       // Check if the property is an object
       if (typeof obj1[key] !== typeof obj2[key]) {
         obj1[key] = obj2[key]
@@ -142,6 +143,26 @@ class API {
       }
     }
     return obj1;
+  }
+
+  deepDelete = function (target, pattern) {
+    if (!pattern || typeof pattern !== 'object' || !target || typeof target !== 'object') return;
+    for (const key in pattern) {
+      if (target[key] === undefined)
+        return console.log('key not found', key)
+      if (pattern[key] === null) {
+        continue
+      } else if (pattern[key] === true) {
+        // Suppression directe de la clé
+        if (Array.isArray(target)) {
+          target.splice(key, 1)
+        } else {
+          delete target[key];
+        }
+      } else if (typeof pattern[key] === 'object' && typeof target[key] === 'object') {
+        this.deepDelete(target[key], pattern[key]);
+      }
+    }
   }
 
   logProxy = function (...v) {

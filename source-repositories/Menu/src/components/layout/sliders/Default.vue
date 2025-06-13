@@ -13,7 +13,7 @@
           <img src="/assets/images/menu/tank_meter_marker.png" v-if="vIndex + 1 == props.slider.current" class="current" />
         </div>
       </div>
-      <div class="slider-description hapna" v-if="slider.description" v-html="slider.description" />
+      <div :class="['slider-description hapna', { last: props.last }]" v-if="slider.description" v-html="slider.description" />
     </div>
   </template>
 </template>
@@ -26,7 +26,7 @@ const lang = useLangStore().lang
 
 const menuStore = useMenuStore()
 
-const props = defineProps(['slider', 'index'])
+const props = defineProps(['slider', 'index', 'last'])
 
 const API = inject('API')
 
