@@ -743,9 +743,11 @@ function jo.component.apply(ped, category, _data)
   end
 
   local cached = initCachePedComponents(ped)
-  if cached[categoryHash] then
+  if cached and cached[categoryHash] then
     if categoryName ~= "unknown" then
-      if not Entity(ped).state["wearableState:" .. categoryName] then
+      local stateName = jo.component.getWearableStateNameFromHash(cached[categoryHash].wearableStateHash)
+      if not Entity(ped).state["wearableState:" .. categoryName] and stateName ~= "base" and table.includes(list, stateName) then
+        dprint("Save the wearable state of %s: %s", categoryName, tostring(stateName))
         Entity(ped).state["wearableState:" .. categoryName] = cached[categoryHash].wearableStateHash
       end
     end
