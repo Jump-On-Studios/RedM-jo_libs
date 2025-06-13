@@ -366,11 +366,15 @@ main {
 }
 
 .slider-description {
-  position: absolute;
-  bottom: 0;
   width: 100%;
   text-align: center;
-  transform: translateY(100%);
+
+  &.last {
+    position: absolute;
+    bottom: 0;
+    transform: translateY(100%);
+
+  }
 }
 
 .slider .sprites {

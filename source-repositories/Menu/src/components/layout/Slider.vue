@@ -3,17 +3,17 @@
     <div :class="['sliders', { full: fullHeight() }]" v-if="menuStore.cItem.sliders && (menuStore.cItem.sliders.length > 0)">
       <template v-for="(slider, index) in menuStore.cItem.sliders" :key="index">
         <template v-if="slider.type == 'palette'">
-          <Palette :index="index" :slider="slider" />
+          <Palette :index="index" :slider="slider" :last="index == menuStore.cItem.sliders.length - 1" />
         </template>
         <template v-else-if="slider.type == 'switch'" />
         <template v-else-if="slider.type == 'grid'">
-          <Grid :index="index" :slider="slider" />
+          <Grid :index="index" :slider="slider" :last="index == menuStore.cItem.sliders.length - 1" />
         </template>
         <template v-else-if="slider.type == 'sprite' || slider.type == 'color'">
-          <Sprite :index="index" :slider="slider" />
+          <Sprite :index="index" :slider="slider" :last="index == menuStore.cItem.sliders.length - 1" />
         </template>
         <template v-else>
-          <Default :index="index" :slider="slider" />
+          <Default :index="index" :slider="slider" :last="index == menuStore.cItem.sliders.length - 1" />
         </template>
       </template>
     </div>

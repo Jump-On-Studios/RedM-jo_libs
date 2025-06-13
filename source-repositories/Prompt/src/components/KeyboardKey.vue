@@ -1,20 +1,17 @@
 <template>
   <div class="keyboardKey bebas" :class="{ holdable: props.holdTime, active: isActive }">
     <div class="progressContainer">
-      <div
-        class="progress"
-        :style="{
-          '--duration': animationDuration,
-          '--animation-state': animationState,
-          '--animation-direction': animationDirection,
-          '--animation-delay': animationDelay,
-          '--scale-r-top': scaleRTop,
-          '--scale-l-top': scaleLTop,
-          '--scale-right': scaleRight,
-          '--scale-bottom': scaleBottom,
-          '--scale-left': scaleLeft,
-        }"
-      ></div>
+      <div class="progress" :style="{
+        '--duration': animationDuration,
+        '--animation-state': animationState,
+        '--animation-direction': animationDirection,
+        '--animation-delay': animationDelay,
+        '--scale-r-top': scaleRTop,
+        '--scale-l-top': scaleLTop,
+        '--scale-right': scaleRight,
+        '--scale-bottom': scaleBottom,
+        '--scale-left': scaleLeft,
+      }"></div>
     </div>
     <div class="activeIndicator"></div>
     <div v-if="keymap?.text" class="text">
@@ -370,30 +367,22 @@ onUnmounted(() => {
   &.holdable {
     .progressContainer {
       background:
-        linear-gradient(
-          to right,
+        linear-gradient(to right,
           var(--strokeBgColor) 0%,
           var(--strokeBgColor) calc(100% - var(--stroke)),
-          transparent 0%
-        ),
-        linear-gradient(
-          to bottom,
+          transparent 0%),
+        linear-gradient(to bottom,
           var(--strokeBgColor) 0%,
           var(--strokeBgColor) calc(100% - var(--stroke)),
-          transparent 0%
-        ),
-        linear-gradient(
-          to left,
+          transparent 0%),
+        linear-gradient(to left,
           var(--strokeBgColor) 0%,
           var(--strokeBgColor) calc(100% - var(--stroke)),
-          transparent 0%
-        ),
-        linear-gradient(
-          to top,
+          transparent 0%),
+        linear-gradient(to top,
           var(--strokeBgColor) 0%,
           var(--strokeBgColor) calc(100% - var(--stroke)),
-          transparent 0%
-        );
+          transparent 0%);
       background-size:
         100% var(--stroke),
         var(--stroke) 100%,
@@ -415,34 +404,26 @@ onUnmounted(() => {
         position: relative;
         z-index: 4;
         background:
-          linear-gradient(
-            to right,
+          linear-gradient(to right,
             var(--fillColor) 0%,
             var(--fillColor) calc(var(--scale-l-top) * 1%),
             transparent 0%,
             transparent 50%,
             var(--fillColor) 0%,
             var(--fillColor) calc(var(--scale-r-top) * 1%),
-            transparent 0%
-          ),
-          linear-gradient(
-            to bottom,
+            transparent 0%),
+          linear-gradient(to bottom,
             var(--fillColor) 0%,
             var(--fillColor) calc(var(--scale-right) * 1%),
-            transparent 0%
-          ),
-          linear-gradient(
-            to left,
+            transparent 0%),
+          linear-gradient(to left,
             var(--fillColor) 0%,
             var(--fillColor) calc(var(--scale-bottom) * 1%),
-            transparent 0%
-          ),
-          linear-gradient(
-            to top,
+            transparent 0%),
+          linear-gradient(to top,
             var(--fillColor) 0%,
             var(--fillColor) calc(var(--scale-left) * 1%),
-            transparent 0%
-          );
+            transparent 0%);
         background-size:
           100% var(--stroke),
           var(--stroke) 100%,

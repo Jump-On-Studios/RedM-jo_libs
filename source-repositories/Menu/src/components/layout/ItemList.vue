@@ -21,7 +21,7 @@
         <span class="main" v-html="item.title"></span>
         <span class="subtitle hapna" v-if="item.subtitle.length > 0" v-html="item.subtitle"></span>
       </div>
-      <template v-if="!item.disabled">
+      <template v-if="!item.disabled && item.sliders">
         <template v-for="(slider, index) in item.sliders" :key="index">
           <template v-if="slider.type == 'switch' && slider.values.length > 1">
             <Switch :slider="slider" :index="index" :isCurrent="item.index == menuStore.cItem.index" />
