@@ -371,6 +371,7 @@ export const useMenuStore = defineStore('menus', {
       newData.currentIndex = this.menus[data.menu].currentIndex
       this.menus[data.menu] = newData
       this.refreshKey = Math.random()
+      console.log('update !')
     },
     updateItem(data) {
       let Index = this.menus[data.menu].items.findIndex((item => item.index == data.index));

@@ -72,6 +72,37 @@ if (import.meta.env.DEV) {
     menu: menu
   })
 
+  let newMenu = {
+    items: [
+      {
+        sliders: [
+          // {
+          //   type: 'grid',
+          //   values: [{ current: 1, min: -10, max: 10 }]
+          // },
+          {
+            type: 'sprite',
+            forceDisplay: true,
+            values: [
+              { palette: { tint0: 1, tint1: 20, tint2: 30, palette: 'tint_generic_clean' } },
+              { palette: { tint0: 1, tint1: 20, palette: 'tint_generic_clean' } },
+              { rgb: 'red' },
+            ],
+            description: 'My item description<br>Second line',
+          }
+        ]
+      }
+    ]
+  }
+
+  setTimeout(() => {
+    window.postMessage({
+      event: 'updateMenuData',
+      menu: "home",
+      data: newMenu
+    })
+  }, 2000);
+
   // window.postMessage({
   //   event: 'setCurrentIndex',
   //   menu: 'home',

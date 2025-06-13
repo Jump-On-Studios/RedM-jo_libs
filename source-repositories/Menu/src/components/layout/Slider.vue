@@ -1,5 +1,6 @@
 <template>
   <template v-if="!menuStore.cItem.disabled">
+    {{ menuStore.menus['home'].items[0].sliders }}
     <div :class="['sliders', { full: fullHeight() }]" v-if="menuStore.cItem.sliders && (menuStore.cItem.sliders.length > 0)">
       <template v-for="(slider, index) in menuStore.cItem.sliders" :key="index">
         <template v-if="slider.type == 'palette'">

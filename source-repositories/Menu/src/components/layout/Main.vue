@@ -14,6 +14,8 @@
     <template v-if="datas.showLoader || (menuStore.cMenuItems.length == 0 && menuStore.cMenu.type == 'list')">
       <Loading />
     </template>
+    {{ menuStore.menus['home'].items[1].sliders }}
+    {{ menuStore.cMenu.refreshKey }}
     <div class="footer" :key="menuStore.cMenu.refreshKey">
       <template v-if="showItems()">
         <Description />
