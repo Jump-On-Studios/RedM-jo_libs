@@ -10,12 +10,12 @@ local function normalizeEntry(entry)
   end
 
   if entry.item then
-    return {
+    return table.merge({
       item = entry.item,
       quantity = entry.quantity or 1,
       keep = entry.keep or false,
       meta = entry.meta
-    }
+    }, jo.framework:getItemData(entry.item))
   end
 
   return entry
