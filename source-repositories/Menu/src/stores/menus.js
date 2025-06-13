@@ -310,6 +310,7 @@ export const useMenuStore = defineStore('menus', {
     parentTree: [],
     currentMenuId: '',
     menus: {},
+    dataToSend: {}
   }),
   getters: {
     cMenu: (state) => state.menus[state.currentMenuId] || new Menu({}),
@@ -329,6 +330,21 @@ export const useMenuStore = defineStore('menus', {
     },
   },
   actions: {
+    addDataToSend(keys, value) {
+      let current = this.dataToSend
+      let lastKey = keys[keys.length - 1]
+      for (let i = 0; i < keys.length - 1; i++) {
+        if (!current[keys[i]]) {
+          if (typeof keys[i + 1] == "number") {
+            current[keys[i]] = []
+          } else {
+            current[keys[i]] = {}
+          }
+        }
+        current = current[keys[i]]
+      }
+      current[lastKey] = value
+    },
     resetMenu(data) {
       if (this.menus[data.menu])
         this.menus[data.menu].reset()
@@ -517,10 +533,10 @@ export const useMenuStore = defineStore('menus', {
       let item = this.cItem
       let slider = undefined
       if (index == undefined) {
-        index = item.sliders.findIndex(slider => slider.type == "switch")
-        slider = item.sliders[index] ? item.sliders[index] : item.sliders[0]
+        index = Math.max(item.sliders.findIndex(slider => slider.type == "switch"), 0)
+        slider = item.sliders[index]
       } else {
-        slider = item.sliders[index] ? item.sliders[index] : item.sliders[item.sliders.length - 1]
+        slider = item.sliders[Math.min(index, item.sliders.length - 1)]
       }
       if (!slider) return;
 
@@ -532,9 +548,10 @@ export const useMenuStore = defineStore('menus', {
       } else {
         if (slider.current == 1 && !slider.looped) return
         slider.current--
-        if (slider.current == 0) slider.current = slider.values.length
+        if (slider.current <= 0) slider.current = slider.values.length
       }
       API.PlayAudio('button')
+      this.addDataToSend(["sliders", index, "current"], slider.current)
       this.updatePreview()
     },
     sliderRight(index) {
@@ -542,10 +559,10 @@ export const useMenuStore = defineStore('menus', {
       let item = this.cItem
       let slider = undefined
       if (index == undefined) {
-        index = item.sliders.findIndex(slider => slider.type == "switch")
-        slider = item.sliders[index] ? item.sliders[index] : item.sliders[0]
+        index = Math.max(item.sliders.findIndex(slider => slider.type == "switch"), 0)
+        slider = item.sliders[index]
       } else {
-        slider = item.sliders[index] ? item.sliders[index] : item.sliders[item.sliders.length - 1]
+        slider = item.sliders[Math.min(index, item.sliders.length - 1)]
       }
       if (!slider) return;
 
@@ -560,6 +577,7 @@ export const useMenuStore = defineStore('menus', {
         if (slider.current > slider.values.length) slider.current = 1
       }
       API.PlayAudio('button')
+      this.addDataToSend(["sliders", index, "current"], slider.current)
       this.updatePreview()
     },
     setSliderCurrent(data) {
@@ -591,29 +609,8 @@ export const useMenuStore = defineStore('menus', {
         slider.current = data.value
       }
       API.PlayAudio('button')
+      this.addDataToSend(["sliders", data.index, "current"], slider.current)
       this.updatePreview()
-    },
-    saveGridPosition(data) {
-      let item = this.cItem
-      if (!item.grid) return
-      let values = item.grid.values
-      let change = false
-      if (item.grid.values.length == 2) {
-        let current2 = data[1] * (values[1].max - values[1].min) + values[1].min
-        if (current2 != values[1].current) {
-          values[1].current = current2
-          change = true
-        }
-      }
-      let current = data[0] * (values[0].max - values[0].min) + values[0].min
-      if (current != values[0].current) {
-        values[0].current = current
-        change = true
-      }
-      if (change) {
-        API.PlayAudio('button')
-        this.updatePreview()
-      }
     },
     gridLeft(index) {
       let item = this.cItem
@@ -627,6 +624,7 @@ export const useMenuStore = defineStore('menus', {
       let values = slider.values
       values[0].current = Math.max(values[0].min, values[0].current - (values[0].gap || 1))
       API.PlayAudio('button')
+      this.addDataToSend(["sliders", index, "values", 1, "current"], values[0].current)
       this.updatePreview()
     },
     gridRight(index) {
@@ -641,6 +639,7 @@ export const useMenuStore = defineStore('menus', {
       let values = slider.values
       values[0].current = Math.min(values[0].max, values[0].current + (values[0].gap || 1))
       API.PlayAudio('button')
+      this.addDataToSend(["sliders", index, "values", 2, "current"], values[0].current)
       this.updatePreview()
     },
     gridUp(index) {
@@ -652,6 +651,7 @@ export const useMenuStore = defineStore('menus', {
       let values = slider.values
       values[1].current = Math.max(values[1].min, values[1].current - (values[1].gap || 1))
       API.PlayAudio('button')
+      this.addDataToSend(["sliders", index, "values", 1, "current"], values[1].current)
       this.updatePreview()
     },
     gridDown(index) {
@@ -663,15 +663,44 @@ export const useMenuStore = defineStore('menus', {
       let values = slider.values
       values[1].current = Math.min(values[1].max, values[1].current + (values[1].gap || 1))
       API.PlayAudio('button')
+      this.addDataToSend(["sliders", index, "values", 2, "current"], values[1].current)
       this.updatePreview()
     },
     updatePreview() {
       if (this.cItem == undefined) return
-      let item = this.cItem
       API.post('updatePreview', {
         menu: this.currentMenuId,
         index: this.cMenu.currentIndex + 1,
-        item: item,
+        item: this.dataToSend,
+      })
+      this.dataToSend = {}
+    },
+    updateMenuValues(data) {
+      if (!this.menus[data.menu]) return
+      this.$patch((state) => {
+        data.updated.forEach(element => {
+          let keys = element.keys
+          let lastKey = keys[keys.length - 1]
+          if (typeof lastKey == "number") { //Fixed the array start at 1 in LUA
+            lastKey -= 1
+          }
+          let current = state.menus[data.menu]
+          for (let i = 0; i < keys.length - 1; i++) {
+            let key = keys[i]
+            if (typeof key == "number") { //Fixed the array start at 1 in LUA
+              key -= 1
+            }
+            current = current[key]
+          }
+          switch (element.action) {
+            case "delete":
+              delete current[lastKey]
+              break;
+            case "update":
+              current[lastKey] = element.value
+              break;
+          }
+        });
       })
     },
   },
