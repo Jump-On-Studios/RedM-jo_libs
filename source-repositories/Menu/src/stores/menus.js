@@ -675,5 +675,12 @@ export const useMenuStore = defineStore('menus', {
         item: item,
       })
     },
+    updateMenuValues(data) {
+      if (!this.menus[data.menu]) return
+      this.$patch((state) => {
+        API.deepMerge(state.menus[data.menu], data.updated)
+        API.deepDelete(state.menus[data.menu], data.deleted)
+      })
+    },
   },
 })

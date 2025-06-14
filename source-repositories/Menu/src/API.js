@@ -144,6 +144,24 @@ class API {
     return obj1;
   }
 
+  deepDelete = function (target, pattern) {
+    if (!pattern || typeof pattern !== 'object' || !target || typeof target !== 'object') return;
+    for (const key in pattern) {
+      if (target[key] === undefined)
+        return console.log('key not found', key)
+      if (pattern[key] === true) {
+        // Suppression directe de la clé
+        if (Array.isArray(target)) {
+          target.splice(key, 1)
+        } else {
+          delete target[key];
+        }
+      } else if (typeof pattern[key] === 'object' && typeof target[key] === 'object') {
+        this.deepDelete(target[key], pattern[key]);
+      }
+    }
+  }
+
   logProxy = function (...v) {
     console.log(JSON.parse(JSON.stringify(v)))
   }

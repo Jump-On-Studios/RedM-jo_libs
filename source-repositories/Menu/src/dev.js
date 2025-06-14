@@ -69,6 +69,7 @@ let menu = {
     }, {
       title: 'This is the title',
       price: 4,
+      description: "test"
     },
     {
       title: 'This is the title',
@@ -95,34 +96,32 @@ if (import.meta.env.DEV) {
     menu: menu
   })
 
-  let newMenu = {
+  let newValues = {
     items: [
       {
-        sliders: [
-          // {
-          //   type: 'grid',
-          //   values: [{ current: 1, min: -10, max: 10 }]
-          // },
-          {
-            type: 'sprite',
-            forceDisplay: true,
-            values: [
-              { palette: { tint0: 1, tint1: 20, tint2: 30, palette: 'tint_generic_clean' } },
-              { palette: { tint0: 1, tint1: 20, palette: 'tint_generic_clean' } },
-              { rgb: 'red' },
-            ],
-            description: 'My item description<br>Second line',
-          }
-        ]
+        title: "New title"
+      },
+      {
+        description: "New description"
+      }
+    ]
+  }
+
+  let deletedValues = {
+    items: [
+      {
+        sliders: [true],
+        price: true
       }
     ]
   }
 
   setTimeout(() => {
     window.postMessage({
-      event: 'updateMenuData',
+      event: "updateMenuValues",
       menu: "home",
-      data: newMenu
+      updated: newValues,
+      deleted: deletedValues
     })
   }, 2000);
 
