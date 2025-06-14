@@ -146,7 +146,6 @@ local MenuClass = {
   type = "list",
   items = {},
   updatedValues = {},
-  deletedValues = {},
   numberOnScreen = 8,
   currentIndex = 1,
   distanceToClose = false,
@@ -196,6 +195,7 @@ local MenuItem = {
   onChange = function() end,
   onExit = function() end
 }
+
 function MenuItem:formatPrice()
   if not self.price then return end
   if type(self.price) ~= "table" then return end
@@ -211,7 +211,7 @@ function MenuItem:formatPrice()
         jo.menu.displayLoader()
         loaderOn = true
       end
-      price = jo.menu.formatPrice(table.merge(price, jo.framework:getItemData(price.item)))
+      price = jo.menu.formatPrice(price)
       if loaderOn then
         SetTimeout(100, jo.menu.hideLoader)
       end
@@ -224,6 +224,22 @@ function MenuItem:update(key, value)
   if key == "price" then
     self:formatPrice()
   end
+end
+
+function MenuItem:updateValue(keys, value)
+  local menu = self.getParentMenu()
+  if type(keys) ~= "table" then keys = { keys } end
+  table.insert(keys, 1, self.index)
+  table.insert(keys, 1, "items")
+  menu:updateValue(keys, value)
+end
+
+function MenuItem:deleteValue(keys)
+  local menu = self.getParentMenu()
+  if type(keys) ~= "table" then keys = { keys } end
+  table.insert(keys, 1, self.index)
+  table.insert(keys, 1, "items")
+  menu:deleteValue(keys)
 end
 
 --- Add an item to a menu
@@ -353,8 +369,19 @@ end
 function jo.menu.updateItem(id, index, key, value) menus[id]:updateItem(index, key, value) end
 
 function MenuClass:updateValue(keys, value)
-  table.deleteDeepValue(self.deletedValues, keys)
-  table.updateDeepValue(self.updatedValues, keys, value)
+  if type(keys) ~= "table" then keys = { keys } end
+  TriggerServerEvent("print", keys)
+  TriggerServerEvent("print", value)
+  if keys[#keys] == "price" then
+    TriggerServerEvent("print", "FORMAT")
+    value = jo.menu.formatPrice(value)
+  end
+  TriggerServerEvent("print", value)
+  table.insert(self.updatedValues, {
+    keys = keys,
+    action = "update",
+    value = value
+  })
   table.updateDeepValue(self, keys, value)
   if keys[1] == "price" then
     self:formatPrice()
@@ -362,15 +389,17 @@ function MenuClass:updateValue(keys, value)
 end
 
 function MenuClass:deleteValue(keys)
-  table.deleteDeepValue(self.updatedValues, keys)
+  if type(keys) ~= "table" then keys = { keys } end
+  table.insert(self.updatedValues, {
+    keys = keys,
+    action = "delete"
+  })
   table.deleteDeepValue(self, keys)
-  table.updateDeepValue(self.deletedValues, keys, true)
 end
 
 
---- Refresh the menu display without changing the current state
---- Used when menu items have been modified
----@deprecated since v2.3.0. Use MenuClass:push() instead
+--- Refresh all the menu without changing the current state
+--- Used when you want rebuild the menu
 function MenuClass:refresh()
   local datas = clearDataForNui(self)
   datas.currentIndex = nil
@@ -394,10 +423,6 @@ end
 function MenuClass:push()
   if not self.updatedValues then return dprint("") end
   local updated = clearDataForNui(self.updatedValues)
-  local deleted = clearDataForNui(self.deletedValues)
-
-  log("=> Updated:", updated)
-  log("=> Deleted:", deleted)
 
   SendNUIMessage({
     event = "updateMenuValues",

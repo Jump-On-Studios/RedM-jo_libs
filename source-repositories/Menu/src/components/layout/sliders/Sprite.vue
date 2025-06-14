@@ -19,7 +19,7 @@
           </div>
         </div>
       </div>
-      <div class="slider-description hapna" v-if="slider.description" v-html="slider.description" />
+      <div :class="['slider-description hapna', { last: props.last }]" v-if="slider.description" v-html="slider.description" />
     </div>
   </template>
 </template>
@@ -32,7 +32,7 @@ import { useMenuStore } from '../../../stores/menus';
 const lang = useLangStore().lang
 const menuStore = useMenuStore()
 
-const props = defineProps(['slider', 'index'])
+const props = defineProps(['slider', 'index', 'last'])
 
 const API = inject('API')
 

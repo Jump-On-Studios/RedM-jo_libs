@@ -371,7 +371,6 @@ export const useMenuStore = defineStore('menus', {
       newData.currentIndex = this.menus[data.menu].currentIndex
       this.menus[data.menu] = newData
       this.refreshKey = Math.random()
-      console.log('update !')
     },
     updateItem(data) {
       let Index = this.menus[data.menu].items.findIndex((item => item.index == data.index));
@@ -678,8 +677,26 @@ export const useMenuStore = defineStore('menus', {
     updateMenuValues(data) {
       if (!this.menus[data.menu]) return
       this.$patch((state) => {
-        API.deepMerge(state.menus[data.menu], data.updated)
-        API.deepDelete(state.menus[data.menu], data.deleted)
+        data.updated.forEach(element => {
+          let keys = element.keys
+          let lastKey = keys[keys.length - 1]
+          let current = state.menus[data.menu]
+          for (let i = 0; i < keys.length - 1; i++) {
+            let key = keys[i]
+            if (typeof key == "number") {
+              key = keys[i] - 1
+            }
+            current = current[key]
+          }
+          switch (element.action) {
+            case "delete":
+              delete current[lastKey]
+              break;
+            case "update":
+              current[lastKey] = element.value
+              break;
+          }
+        });
       })
     },
   },

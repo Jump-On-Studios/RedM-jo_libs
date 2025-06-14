@@ -96,32 +96,26 @@ if (import.meta.env.DEV) {
     menu: menu
   })
 
-  let newValues = {
-    items: [
-      {
-        title: "New title"
-      },
-      {
-        description: "New description"
-      }
-    ]
-  }
-
-  let deletedValues = {
-    items: [
-      {
-        sliders: [true],
-        price: true
-      }
-    ]
-  }
+  let newValues = [
+    {
+      keys: ["items", 1, "sliders", 1, "title"],
+      value: "New title"
+    },
+    {
+      keys: ["items", 1, "sliders", 1, "description"],
+      value: "New description"
+    },
+    {
+      keys: ["items", 1, "price"],
+      action: "delete"
+    }
+  ]
 
   setTimeout(() => {
     window.postMessage({
       event: "updateMenuValues",
       menu: "home",
       updated: newValues,
-      deleted: deletedValues
     })
   }, 2000);
 
