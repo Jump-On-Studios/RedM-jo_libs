@@ -41,6 +41,29 @@ let menu = {
             { sprite: 'tints/metal_engraving_2' }
           ],
           description: 'My item description<br>Second line',
+        },
+        {
+          type: 'sprite',
+          forceDisplay: true,
+          values: [
+            { palette: { tint0: 1, tint1: 20, tint2: 30, palette: 'tint_generic_clean' } },
+            { palette: { tint0: 1, tint1: 20, palette: 'tint_generic_clean' } },
+            { rgb: 'red' },
+            { rgb: ['red', 'blue', "green"] },
+            { sprite: 'tints/metal_engraving_2' },
+            { sprite: 'tints/metal_engraving_2' },
+            { sprite: 'tints/metal_engraving_2' },
+            { sprite: 'tints/metal_engraving_2' },
+            { sprite: 'tints/metal_engraving_2' },
+            { sprite: 'tints/metal_engraving_2' },
+            { sprite: 'tints/metal_engraving_2' },
+            { sprite: 'tints/metal_engraving_2' },
+            { sprite: 'tints/metal_engraving_2' },
+            { sprite: 'tints/metal_engraving_2' },
+            { sprite: 'tints/metal_engraving_2' },
+            { sprite: 'tints/metal_engraving_2' },
+          ],
+          description: 'My item description<br>Second line',
         }
       ]
     }, {

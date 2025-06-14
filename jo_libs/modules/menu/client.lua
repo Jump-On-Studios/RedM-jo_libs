@@ -3,11 +3,14 @@ jo.require("timeout")
 jo.require("nui")
 jo.require("string")
 
+local nuiLoaded = false
+
 CreateThread(function()
   Wait(100)
   if GetResourceMetadata(GetCurrentResourceName(), "ui_page") == "nui://jo_libs/nui/menu/index.html" then
     return
   end
+  nuiLoaded = true
   jo.nui.load("jo_menu", "nui://jo_libs/nui/menu/index.html")
 end)
 
@@ -23,7 +26,9 @@ local previousData = {}
 local previousKeepingInput = false
 local NativeSendNUIMessage = SendNUIMessage
 local function SendNUIMessage(data)
-  if clockStart == GetGameTimer() then Wait(100) end
+  while not nuiLoaded do
+    Wait(0)
+  end
   data.messageTargetUiName = "jo_menu"
   NativeSendNUIMessage(data)
 end
@@ -119,7 +124,7 @@ end
 
 local function clearDataForNui(data)
   local newData = table.clearForNui(data)
-  newData.onBeforeEnter = data.onBeforeEnter and true or false
+  newData.onBeforeEnter = data.onBeforeEnter and true or nil
   return newData
 end
 
@@ -140,6 +145,8 @@ local MenuClass = {
   subtitle = "",
   type = "list",
   items = {},
+  updatedValues = {},
+  deletedValues = {},
   numberOnScreen = 8,
   currentIndex = 1,
   distanceToClose = false,
@@ -150,6 +157,25 @@ local MenuClass = {
   onChange = nil
 }
 
+---@class MenuItemClass : table Menu item class
+---@field title string Item title
+---@field subtitle string Item subtitle
+---@field footer string Item footer
+---@field child string|boolean Item child
+---@field sliders table Item sliders
+---@field price table|boolean Item price
+---@field data table Item data
+---@field visible boolean Item visibility
+---@field description string Item description
+---@field prefix string|boolean Item prefix
+---@field statistics table Item statistics
+---@field disabled boolean Item disabled
+---@field textRight string|boolean Item text right
+---@field bufferOnChange boolean Item buffer on change
+---@field onActive function Item on active
+---@field onClick function Item on click
+---@field onChange function Item on change
+---@field onExit function Item on exit
 local MenuItem = {
   title = "",
   subtitle = "",
@@ -192,6 +218,7 @@ function MenuItem:formatPrice()
     end
   end
 end
+
 function MenuItem:update(key, value)
   self[key] = value
   if key == "price" then
@@ -307,6 +334,7 @@ end
 function jo.menu.addItems(id, items) menus[id]:addItems(items) end
 
 --- Update a specific property of a menu item
+---@deprecated since v2.3.0. Use MenuClass:updateValue or MenuClass:deleteValue instead
 ---@param index integer (The index of the item to update)
 ---@param key string (The property name to update)
 ---@param value any (The new value for the property)
@@ -321,8 +349,25 @@ end
 ---@param value any (The new value for the property)
 function jo.menu.updateItem(id, index, key, value) menus[id]:updateItem(index, key, value) end
 
+function MenuClass:updateValue(keys, value)
+  table.deleteDeepValue(self.deletedValues, keys)
+  table.updateDeepValue(self.updatedValues, keys, value)
+  table.updateDeepValue(self, keys, value)
+  if keys[1] == "price" then
+    self:formatPrice()
+  end
+end
+
+function MenuClass:deleteValue(keys)
+  table.deleteDeepValue(self.updatedValues, keys)
+  table.deleteDeepValue(self, keys)
+  table.updateDeepValue(self.deletedValues, keys, true)
+end
+
+
 --- Refresh the menu display without changing the current state
 --- Used when menu items have been modified
+---@deprecated since v2.3.0. Use MenuClass:push() instead
 function MenuClass:refresh()
   local datas = clearDataForNui(self)
   datas.currentIndex = nil
@@ -341,6 +386,23 @@ function MenuClass:refresh()
     end
     menusNeedRefresh[self.id] = nil
   end
+end
+
+function MenuClass:push()
+  if not self.updatedValues then return dprint("") end
+  local updated = clearDataForNui(self.updatedValues)
+  local deleted = clearDataForNui(self.deletedValues)
+
+  log("=> Updated:", updated)
+  log("=> Deleted:", deleted)
+
+  SendNUIMessage({
+    event = "updateMenuValues",
+    menu = self.id,
+    updated = updated,
+    deleted = deleted
+  })
+  self.updatedValues = {}
 end
 
 --- Refresh a menu by its ID

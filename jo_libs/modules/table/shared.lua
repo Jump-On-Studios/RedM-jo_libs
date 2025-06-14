@@ -274,3 +274,44 @@ function table.includes(t, value, fromIndex)
   end
   return false, 0
 end
+
+--- A function to update a deep value in a table
+---@param t table (The table)
+---@param keys any (The keys to deep and the value to update)
+---@param value any (The updated value)
+---@return table (The updated table)
+function table.updateDeepValue(t, keys, value)
+  if not t then return t, error("table.updateDeepValue: t is not a table") end
+  if type(t) ~= "table" then return t, error("table.updateDeepValue: t is not a table") end
+  local deep = t
+  local last = keys[#keys]
+  for i = 1, #keys - 1 do
+    local key = keys[i]
+    if not deep[key] then
+      deep[key] = {}
+    end
+    deep = deep[key]
+  end
+  deep[last] = value
+  return t
+end
+
+--- A function to delete a deep value in a table
+---@param t table (The table)
+---@param keys any (The keys to deep)
+---@return table, boolean (Returns the table and `true` if the value was deleted)
+function table.deleteDeepValue(t, keys)
+  if not t then return t, false, error("table.deleteDeepValue: t is not a table") end
+  if type(t) ~= "table" then return t, false, error("table.deleteDeepValue: t is not a table") end
+  local last = keys[#keys]
+  local deep = t
+  for i = 1, #keys - 1 do
+    local key = keys[i]
+    if not deep[key] then
+      return t, false
+    end
+    deep = deep[key]
+  end
+  deep[last] = nil
+  return t, true
+end
