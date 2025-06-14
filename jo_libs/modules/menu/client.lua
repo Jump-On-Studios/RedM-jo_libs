@@ -296,6 +296,9 @@ function MenuClass:addItem(index, item)
   if jo.menu.isCurrentMenu(self.id) and (jo.menu.getCurrentIndex() >= index or #self.items == 1) then
     menusNeedRefresh[self.id] = true
   end
+  function item.getParentMenu()
+    return self
+  end
   return item
 end
 
