@@ -65,7 +65,6 @@ end
 local function menuNUIChange(data)
   if not menus[data.menu] then return end
   -- if not menus[data.menu].items[data.item.index] then return end
-  menuNuiChangeInProgress = true
 
   currentData.menu = data.menu
   if data.index then
@@ -88,36 +87,49 @@ local function menuNUIChange(data)
     end
   end
 
-  local oldButton = false
-  if previousData.menu then
-    oldButton = previousData.item
+  local waiter = function()
+    while menuNuiChangeInProgress do Wait(10) end
+    Wait(100)
   end
 
-  if previousData.menu ~= currentData.menu or data.forceMenuEvent then
-    if oldButton then
-      jo.menu.fireEvent(oldButton, "onExit")
-      jo.menu.fireEvent(menus[previousData.menu], "onExit")
+  if not currentData.item.bufferOnChange or table.find(data.item.sliders, function(slider) return slider.type == "grid" end) then
+    waiter = function() while menuNuiChangeInProgress do Wait(0) end end
+  end
+
+  jo.timeout.noSpam("menuNUIChange", waiter, function()
+    menuNuiChangeInProgress = true
+
+    local oldButton = false
+    if previousData.menu then
+      oldButton = previousData.item
     end
-    jo.menu.fireEvent(menus[currentData.menu], "onEnter")
-    jo.menu.fireEvent(currentData.item, "onActive")
-  else
-    if previousData.index ~= currentData.index or data.forceItemEvent then
+
+    if previousData.menu ~= currentData.menu or data.forceMenuEvent then
       if oldButton then
         jo.menu.fireEvent(oldButton, "onExit")
+        jo.menu.fireEvent(menus[previousData.menu], "onExit")
       end
+      jo.menu.fireEvent(menus[currentData.menu], "onEnter")
       jo.menu.fireEvent(currentData.item, "onActive")
     else
-      jo.menu.fireEvent(currentData.item, "onChange")
+      if previousData.index ~= currentData.index or data.forceItemEvent then
+        if oldButton then
+          jo.menu.fireEvent(oldButton, "onExit")
+        end
+        jo.menu.fireEvent(currentData.item, "onActive")
+      else
+        jo.menu.fireEvent(currentData.item, "onChange")
+      end
+      jo.menu.fireEvent(menus[previousData.menu], "onChange")
     end
-    jo.menu.fireEvent(menus[previousData.menu], "onChange")
-  end
 
-  for _, listener in ipairs(jo.menu.listeners) do
-    listener.cb(currentData)
-  end
+    for _, listener in ipairs(jo.menu.listeners) do
+      listener.cb(currentData)
+    end
 
-  previousData = table.copy(currentData)
-  menuNuiChangeInProgress = false
+    previousData = table.copy(currentData)
+    menuNuiChangeInProgress = false
+  end)
 end
 
 local function missingMenu(id)
@@ -908,21 +920,7 @@ end
 RegisterNUICallback("updatePreview", function(data, cb)
   cb("ok")
 
-  if not menus[data.menu] then return end
-  -- if not menus[data.menu].items[data.item.index] then return end
-
-  if data.item.index then
-    local item = menus[data.menu].items[data.item.index]
-    if not item.bufferOnChange or table.find(data.item.sliders, function(slider) return slider.type == "grid" end) then
-      return menuNUIChange(data)
-    end
-  end
-  jo.timeout.noSpam("menuNUIChange", function()
-    while menuNuiChangeInProgress do Wait(10) end
-    Wait(100)
-  end, function()
-    menuNUIChange(data)
-  end)
+  menuNUIChange(data)
 end)
 
 
