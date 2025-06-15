@@ -1,4 +1,5 @@
 local delays = {}
+local noSpams = {}
 jo.timeout = {}
 
 jo.require("table")
@@ -81,7 +82,7 @@ end
 --- A function to set a timeout
 ---@param msec integer|function (If integer: wait duration in ms. If function: the function will be executed before cb)
 ---@param cb function (The function executed when waiter is done)
----@param ... mixed (Additional arguments to pass to the callback function)
+---@param ... any (Additional arguments to pass to the callback function)
 ---@return TimeoutClass (Return the timeout instance)
 function jo.timeout.set(msec, cb, ...)
   local args = table.pack(...)
@@ -93,7 +94,7 @@ end
 --- Create a loop to execute the function at regular interval
 ---@param msec integer (The duration between two executions of cb)
 ---@param cb function (The function executed every msec ms)
----@param ... mixed (Additional arguments to pass to the callback function)
+---@param ... any (Additional arguments to pass to the callback function)
 ---@return TimeoutClass (Return the timeout instance)
 function jo.timeout.loop(msec, cb, ...)
   local args = table.pack(...)
@@ -111,7 +112,7 @@ end
 ---@param id string (The unique ID of the delay)
 ---@param msec integer|function (The duration before execute cb or a waiter function)
 ---@param cb function (The function executed after msec)
----@param ... mixed (Additional arguments to pass to the callback function)
+---@param ... any (Additional arguments to pass to the callback function)
 ---@return TimeoutClass (Return the timeout instance)
 function jo.timeout.delay(id, msec, cb, ...)
   if delays[id] then
@@ -119,4 +120,22 @@ function jo.timeout.delay(id, msec, cb, ...)
   end
   delays[id] = jo.timeout.set(msec, cb, ...)
   return delays[id]
+end
+
+
+--- A function to delay the second exeuction. If another delay is created with the same id, the previous one is canceled
+---@param id string (The unique ID of the delay)
+---@param msec integer|function (The duration before execute cb or a waiter function)
+---@param cb function (The function executed after msec)
+---@param ... any (Additional arguments to pass to the callback function)
+---@return TimeoutClass (Return the timeout instance)
+function jo.timeout.noSpam(id, msec, cb, ...)
+  if noSpams[id] then
+    noSpams[id]:clear()
+    noSpams[id] = jo.timeout.set(msec, cb, ...)
+    return noSpams[id]
+  end
+  noSpams[id] = jo.timeout.set(msec, function() end)
+  cb(...)
+  return noSpams[id]
 end
