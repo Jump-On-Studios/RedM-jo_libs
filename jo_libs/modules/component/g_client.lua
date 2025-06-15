@@ -253,9 +253,10 @@ jo.component.data.palettes = {
 }
 jo.component.palettes = jo.component.data.palettes --deprecated name
 jo.component.data.palettesName = {}
-for i = 1, #jo.component.data.palettesName do
-  local palette = jo.component.data.palettesName[i]
-  jo.component.data.palettesName[palette] = palette
+for i = 1, #jo.component.data.palettes do
+  local palette = jo.component.data.palettes[i]
+  local hash = GetHashFromString(palette)
+  jo.component.data.palettesName[hash] = palette
 end
 
 jo.component.data.expressions = {
@@ -464,17 +465,34 @@ local function getComponentAtIndex(ped, index)
   return Component.new(index, category, hash, wearableState, drawable, albedo, normal, material, palette, tint0, tint1, tint2)
 end
 
-
-local function getBaseLayer(ped, hash)
-  local drawable, albedo, normal, material, palette, tint0, tint1, tint2 = GetShopItemBaseLayers(hash, GetMetaPedType(ped), jo.component.isMpComponent(ped, hash))
+--- A function to get the base layer of a component
+---@param ped integer (The entity ID or the metaped type)
+---@param hash string|integer (The component hash)
+---@param inTable? boolean (`true` to get the result as a table, `false` to get the result as separate values<br> Default: `false`)
+---@return table|integer,integer,integer,integer,integer,integer,integer,integer (When inTable is true: returns a table with {drawable, albedo, normal, material, palette, tint0, tint1, tint2} <br> When inTable is false: 1st: drawable <br> 2nd: albedo <br> 3rd: normal <br> 4th: material <br> 5th: palette <br> 6th: tint0 <br> 7th: tint1 <br> 8th: tint2)
+function jo.component.getBaseLayer(ped, hash, inTable)
+  inTable = GetValue(inTable, false)
+  local metapedType = DoesEntityExist(ped) and GetMetaPedType(ped) or ped
+  local drawable, albedo, normal, material, palette, tint0, tint1, tint2 = GetShopItemBaseLayers(hash, metapedType, jo.component.isMpComponent(ped, hash))
   if drawable == 0 or drawable == 1 then drawable = nil end
   if albedo == 0 then albedo = nil end
   if normal == 0 then normal = nil end
   if material == 0 then material = nil end
   if palette == 0 then palette = nil end
-  return drawable, albedo, normal, material, palette, tint0, tint1, tint2
+  if inTable then
+    return {
+      drawable = drawable,
+      albedo = albedo,
+      normal = normal,
+      material = material,
+      palette = jo.component.getPaletteNameFromHash(palette),
+      tint0 = tint0,
+      tint1 = tint1,
+      tint2 = tint2
+    }
+  end
+  return drawable, albedo, normal, material, jo.component.getPaletteNameFromHash(palette), tint0, tint1, tint2
 end
-jo.component.getBaseLayer = getBaseLayer
 
 local function convertToMetaTag(ped, data)
   data = table.copy(data)
@@ -482,7 +500,7 @@ local function convertToMetaTag(ped, data)
   if not data.hash then return data end
   if data.albedo then return data end
 
-  local drawable, albedo, normal, material, palette, tint0, tint1, tint2 = getBaseLayer(ped, data.hash)
+  local drawable, albedo, normal, material, palette, tint0, tint1, tint2 = jo.component.getBaseLayer(ped, data.hash)
   data.drawable = data.drawable or drawable or data.hash or 0
   data.albedo = data.albedo or albedo or 0
   data.normal = data.normal or normal or 0
@@ -675,12 +693,13 @@ function jo.component.getComponentCategory(ped, hash)
 end
 
 --- A function to check if a component is an MP component (multiplayer component)
----@param ped integer (The entity ID)
+---@param ped integer (The entity ID OR the metapedType)
 ---@param hash integer (The component hash)
 ---@return boolean (Return `true` if it's an MP component, `false` otherwise)
 function jo.component.isMpComponent(ped, hash)
   hash = GetHashFromString(hash)
-  local categoryHash = GetShopItemComponentCategory(hash, GetMetaPedType(ped), true)
+  local metapedType = DoesEntityExist(ped) and GetMetaPedType(ped) or ped
+  local categoryHash = GetShopItemComponentCategory(hash, metapedType, true)
   if not categoryHash then
     return false
   end
