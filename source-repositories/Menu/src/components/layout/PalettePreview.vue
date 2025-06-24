@@ -3,7 +3,9 @@
 </template>
 
 <script setup>
+import { inject } from 'vue';
 import ColorPaletteBox from './ColorPaletteBox.vue';
+const API = inject('API')
 
 const props = defineProps(['sliders'])
 
@@ -11,7 +13,7 @@ function getPalette() {
   for (let index = 0; index < props.sliders.length; index++) {
     const slider = props.sliders[index];
     if (slider.type == "palette")
-      return slider.tint
+      return API.getPalette(slider.palette || slider.tint)
   }
   return ""
 }

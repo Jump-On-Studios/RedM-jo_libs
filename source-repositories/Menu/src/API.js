@@ -179,6 +179,29 @@ class API {
       return url
     return `./assets/images/icons/${url}.png`
   }
+
+  getPalette = function (palette) {
+    switch (palette) {
+      case "metaped_tint_generic_weathered":
+        return "metaped_tint_generic_clean"
+      case "metaped_tint_generic_worn":
+        return "metaped_tint_generic_clean"
+      case "metaped_tint_hat_clean":
+        return "metaped_tint_generic_clean"
+      case "metaped_tint_hat_weathered":
+        return "metaped_tint_generic_clean"
+      case "metaped_tint_hat_worn":
+        return "metaped_tint_generic_clean"
+      case "metaped_tint_skirt_clean":
+        return "metaped_tint_generic_clean"
+      case "metaped_tint_skirt_weathered":
+        return "metaped_tint_generic_clean"
+      case "metaped_tint_skirt_worn":
+        return "metaped_tint_generic_clean"
+
+    }
+    return palette
+  }
 }
 
 const instance = new API()
