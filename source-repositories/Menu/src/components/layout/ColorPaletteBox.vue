@@ -61,7 +61,7 @@ function getStyleTint(index) {
 
     let value = tint.value.tints[index]
 
-    let percent = (value / max.value) * 100
+    let percent = Math.min((value / max.value) * 100, 100)
     return {
         backgroundImage: "url(" + url.value + ")",
         backgroundPosition: percent + "% 0px"
