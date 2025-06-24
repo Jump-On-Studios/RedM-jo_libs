@@ -321,6 +321,8 @@ export const useMenuStore = defineStore('menus', {
       if (cItem.sliders) {
         for (let index = 0; index < cItem.sliders.length; index++) {
           const slider = cItem.sliders[index];
+          if (slider.type == "grid") continue
+          if (slider.type == "palette") continue
           const current = slider.current - 1
           if (slider.values[current] && typeof (slider.values[current]) == 'object' && (slider.values[current].price !== undefined))
             return slider.values[current].price
