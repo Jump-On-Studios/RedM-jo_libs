@@ -168,7 +168,8 @@ function sortItems(prices) {
   align-items: center;
 
   img {
-    width: 2.7vh;
+    height: 1em;
+    width: auto;
     margin-right: 0.46vh;
   }
 }
@@ -231,7 +232,7 @@ function sortItems(prices) {
       object-fit: cover;
       display: block;
       width: auto;
-      height: calc(var(--price-height) - 2*0.46vh);
+      height: 1em;
     }
 
     .label {
