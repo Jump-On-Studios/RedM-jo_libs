@@ -186,17 +186,6 @@ function getImage(url) {
         column-gap: 0.93vh;
       }
     }
-
-    .priceRight {
-      font-size: 1.5em;
-      position: relative;
-      display: block;
-      top: 0.3vh;
-
-      .gold img {
-        width: 1.85vh;
-      }
-    }
   }
 
   &.with-icon {
@@ -285,5 +274,13 @@ function getImage(url) {
     font-family: 'Hapna';
     font-weight: 500;
   }
+}
+
+.priceRight {
+  --price-height: 4.6vh;
+  font-size: 0.8em;
+  position: relative;
+  display: block;
+  top: -0.16vh;
 }
 </style>
