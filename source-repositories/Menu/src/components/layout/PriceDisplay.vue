@@ -248,4 +248,14 @@ function sortItems(prices) {
     }
   }
 }
+
+.priceRight {
+  .icon {
+    margin-top: -0.4vh;
+  }
+
+  .label {
+    display: none;
+  }
+}
 </style>
