@@ -146,4 +146,8 @@ function getStyleTint(index) {
         }
     }
 }
+
+.sprites .color-custom .border {
+    display: none;
+}
 </style>

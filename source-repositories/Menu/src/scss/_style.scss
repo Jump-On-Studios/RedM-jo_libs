@@ -400,7 +400,7 @@ main {
     min-width: 5vh;
     max-width: 5vh;
 
-    &::before {
+    &:before {
       content: '';
       display: block;
       position: absolute;
@@ -412,6 +412,7 @@ main {
       background-size: 100%;
       background-repeat: no-repeat;
       background-position: center;
+      z-index: 9999;
     }
 
     img {
