@@ -247,6 +247,9 @@ function MenuItem:updateValue(keys, value)
   table.insert(keys, 1, self.index)
   table.insert(keys, 1, "items")
   menu:updateValue(keys, value)
+  if not jo.menu.doesActiveButtonChange() then
+    previousData = table.copy(currentData)
+  end
 end
 
 function MenuItem:deleteValue(keys)
