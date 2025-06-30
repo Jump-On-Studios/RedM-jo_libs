@@ -1,3 +1,7 @@
+-------------
+-- DEPRECATED
+-------------
+
 clothes_list_sorted = {
 	female = {
 		satchels = {
