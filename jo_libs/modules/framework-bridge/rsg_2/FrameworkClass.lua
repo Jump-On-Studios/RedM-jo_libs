@@ -61,5 +61,9 @@ function jo.framework:getItemsFromInventory(invId)
 end
 
 function jo.framework:removeInventory(invId)
+  MySQL.update([[
+            DELETE FROM inventories
+            WHERE identifier = ?
+        ]], { invId })
   return Inventory.DeleteInventory(invId)
 end
