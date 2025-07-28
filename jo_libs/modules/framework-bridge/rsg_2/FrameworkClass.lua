@@ -59,3 +59,7 @@ function jo.framework:getItemsFromInventory(invId)
   end
   return items
 end
+
+function jo.framework:removeInventory(invId)
+  return Inventory.DeleteInventory(invId)
+end
