@@ -12,13 +12,34 @@ end)
 ---@param location vector3 (The blip location)
 ---@param name string (The blip name)
 ---@param sprite string (The name of the sprite ([Non exhaustive list](https://github.com/femga/rdr3_discoveries/tree/master/useful_info_from_rpfs/textures/blips)))
----@param blipHash? integer (The blip type - default: 1664425300)
----@param color? string (The color of the blip)
+---@param blipHash integer (The blip type - default: 1664425300)
+---@param color string (The color of the blip)
 ---@return integer (Return the blip ID)
 function jo.blip.create(location, name, sprite, blipHash, color)
   if not blipHash then blipHash = 1664425300 end
   if type(sprite) == "string" then sprite = joaat(sprite) end
   local blip = BlipAddForCoords(blipHash, location.x, location.y, location.z)
+  SetBlipSprite(blip, sprite)
+  SetBlipName(blip, name)
+  if color then
+    BlipAddModifier(blip, GetHashFromString(color))
+  end
+  Blips[#Blips + 1] = blip
+  return blip
+end
+
+--- Create a new blip for entity
+--- This function adds a blip to an entity and follows it with customizable properties.
+---@param entity integer (The entity to attach the blip to)
+---@param name string (The blip name)
+---@param sprite string (The name of the sprite ([Non exhaustive list](https://github.com/femga/rdr3_discoveries/tree/master/useful_info_from_rpfs/textures/blips)))
+---@param blipHash integer (The blip type - default: 1664425300)
+---@param color string (The color of the blip)
+---@return integer (Return the blip ID)
+function jo.blip.createForEntity(entity, name, sprite, blipHash, color)
+  if not blipHash then blipHash = 1664425300 end
+  if type(sprite) == "string" then sprite = joaat(sprite) end
+  local blip = N_0x23f74c2fda6e7c61(blipHash, entity)
   SetBlipSprite(blip, sprite)
   SetBlipName(blip, name)
   if color then
