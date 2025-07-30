@@ -155,6 +155,19 @@ function jo.notif.simpleTop(title, subtitle, duration)
   UiFeedPostTwoTextShard(structConfig:Buffer(), structData:Buffer(), 1, 1)
 end
 
+function failmissionnotif(title, subTitle, duration)
+    local title = CreateVarString(10, "LITERAL_STRING", title)
+    local msg = CreateVarString(10, "LITERAL_STRING", subTitle)
+    local duration = tonumber(duration)
+    local struct1 = DataView.ArrayBuffer(8*5)
+    local struct2 = DataView.ArrayBuffer(8*9)
+    struct2:SetInt64(8*1,bigInt(title))
+    struct2:SetInt64(8*2,bigInt(msg))
+    local msgId = Citizen.InvokeNative(0x9F2CC2439A04E7BA,struct1:Buffer(),struct2:Buffer(),1)
+    Wait(duration)
+    Citizen.InvokeNative(0x00A15B94CBA4F76F,msgId)
+end
+
 RegisterNetEvent(GetCurrentResourceName() .. ":client:simpleTop", function(title, subtitle, duration)
   jo.notif.simpleTop(title, subtitle, duration)
 end)
