@@ -46,6 +46,7 @@ local menusNeedRefresh = {}
 
 local function updateSliderCurrentValue(item)
   if not item or not item.sliders then return end
+  TriggerServerEvent("print", item.sliders)
   for i = 1, #item.sliders do
     local slider = item.sliders[i]
     if slider then
@@ -56,6 +57,9 @@ local function updateSliderCurrentValue(item)
       elseif slider.type == "palette" then
         slider.value = slider.current
       else
+        log("=>", i)
+        log("=>", slider.current)
+        log("===>", slider.values)
         slider.value = slider.values[slider.current]
       end
     end
