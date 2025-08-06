@@ -330,8 +330,9 @@ end
 
 function jo.framework:getItemsFromInventory(invId)
   local invItems = Inventory:getCustomInventoryItems(invId) or {}
-
+  local weaponItems = Inventory:getCustomInventoryWeapons(invId) or {}
   local items = {}
+
   for i = 1, #invItems do
     items[i] = {
       id = invItems[i].id,
@@ -340,6 +341,20 @@ function jo.framework:getItemsFromInventory(invId)
       metadata = invItems[i].metadata
     }
   end
+
+  for i = 1, #weaponItems do
+    items[#items + 1] = {
+      id = weaponItems[i].id,
+      amount = 1,
+      item = weaponItems[i].name,
+      metadata = {
+        label = weaponItems[i].label,
+        custom_desc = weaponItems[i].custom_desc,
+        serial_number = weaponItems[i].serial_number,
+      }
+    }
+  end
+
   return items
 end
 
