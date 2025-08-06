@@ -4,17 +4,32 @@ jo.require("nui")
 jo.require("prompt")
 
 CreateThread(function()
+    dprint("[GIZMO DEBUG] NUI loading thread started at:", GetGameTimer())
     Wait(100)
-    if GetResourceMetadata(GetCurrentResourceName(), "ui_page") == "nui://jo_libs/nui/gizmo/index.html" then
+    local uiPage = GetResourceMetadata(GetCurrentResourceName(), "ui_page")
+    dprint("[GIZMO DEBUG] Resource UI page:", uiPage)
+    if uiPage == "nui://jo_libs/nui/gizmo/index.html" then
+        dprint("[GIZMO DEBUG] UI page already set, skipping load")
         return
     end
+    dprint("[GIZMO DEBUG] Loading NUI: jo_gizmo at nui://jo_libs/nui/gizmo/index.html")
     jo.nui.load("jo_gizmo", "nui://jo_libs/nui/gizmo/index.html")
+    dprint("[GIZMO DEBUG] NUI load command completed")
 end)
 local NativeSendNUIMessage = SendNUIMessage
+local clockStart = nil
 local function SendNUIMessage(data)
-    if clockStart == GetGameTimer() then Wait(100) end
+    local currentTime = GetGameTimer()
+    dprint("[GIZMO DEBUG] SendNUIMessage called at:", currentTime)
+    dprint("[GIZMO DEBUG] clockStart:", clockStart or "undefined", "currentTime:", currentTime)
+    if clockStart == GetGameTimer() then
+        dprint("[GIZMO DEBUG] clockStart equals current time, waiting 100ms")
+        Wait(100)
+    end
     data.messageTargetUiName = "jo_gizmo"
+    dprint("[GIZMO DEBUG] Sending NUI message:", json.encode(data))
     NativeSendNUIMessage(data)
+    dprint("[GIZMO DEBUG] NUI message sent successfully")
 end
 
 -- =============================================================================
@@ -76,39 +91,60 @@ end
 -- Initializes UI focus, camera, and other misc
 -- @param bool boolean
 local function showNUI(bool)
+    dprint("[GIZMO DEBUG] showNUI called with bool:", bool, "at", GetGameTimer())
     if bool then
+        dprint("[GIZMO DEBUG] Setting NUI focus to true")
         SetNuiFocus(true, true)
+        dprint("[GIZMO DEBUG] NUI focus set, checking IsNuiFocused:", IsNuiFocused())
         SetNuiFocusKeepInput(true)
+        dprint("[GIZMO DEBUG] NUI focus keep input set, IsNuiFocusKeepingInput:", IsNuiFocusKeepingInput())
 
         if enableCam then
+            dprint("[GIZMO DEBUG] Setting up camera, enableCam:", enableCam)
             local coords = GetGameplayCamCoord()
             local rot = GetGameplayCamRot(2)
             local fov = GetGameplayCamFov()
+            dprint("[GIZMO DEBUG] Camera coords:", coords.x, coords.y, coords.z)
+            dprint("[GIZMO DEBUG] Camera rotation:", rot.x, rot.y, rot.z)
+            dprint("[GIZMO DEBUG] Camera FOV:", fov)
 
             cam = CreateCam("DEFAULT_SCRIPTED_CAMERA", true)
+            dprint("[GIZMO DEBUG] Camera created, cam handle:", cam)
 
             SetCamCoord(cam, coords.x, coords.y, coords.z + 0.5)
             SetCamFov(cam, fov)
             RenderScriptCams(true, true, 500, true, true)
             FreezeEntityPosition(PlayerPedId(), true)
+            dprint("[GIZMO DEBUG] Camera setup complete, focusEntity:", focusEntity)
             if focusEntity then
                 pointEntity()
             end
             needUpdateCamNUI = true
+        else
+            dprint("[GIZMO DEBUG] Camera disabled, enableCam:", enableCam)
         end
 
         SetCurrentPedWeapon(PlayerPedId(), GetHashKey("WEAPON_UNARMED"), true)
+        dprint("[GIZMO DEBUG] NUI setup complete, weapon set to unarmed")
     else
+        dprint("[GIZMO DEBUG] Disabling NUI, setting focus to false")
         SetNuiFocus(false, false)
+        dprint("[GIZMO DEBUG] NUI focus disabled, IsNuiFocused:", IsNuiFocused())
         SetNuiFocusKeepInput(IsNuiFocusKeepingInput())
+        dprint("[GIZMO DEBUG] NUI focus keep input reset")
         FreezeEntityPosition(PlayerPedId(), false)
+        dprint("[GIZMO DEBUG] Player unfrozen")
 
         if cam then
+            dprint("[GIZMO DEBUG] Cleaning up camera, cam handle:", cam)
             RenderScriptCams(false, true, 500, true, true)
             SetCamActive(cam, false)
             DetachCam(cam)
             DestroyCam(cam, true)
             cam = nil
+            dprint("[GIZMO DEBUG] Camera destroyed and reset")
+        else
+            dprint("[GIZMO DEBUG] No camera to clean up")
         end
 
         stored = nil
@@ -123,10 +159,12 @@ local function showNUI(bool)
     end
 
     gizmoActive = bool
+    dprint("[GIZMO DEBUG] showNUI complete, gizmoActive:", gizmoActive)
 end
 
 -- Disables controls, Radar, and Player Firing
 local function disableControls()
+    -- dprint("[GIZMO DEBUG] disableControls: Disabling INPUT_ATTACK")
     DisableControlAction(0, `INPUT_ATTACK`, true)
 end
 
@@ -145,12 +183,22 @@ end
 
 -- Handle camera rotations
 local function rotations()
-    if focusEntity then return end
+    if focusEntity then
+        -- dprint("[GIZMO DEBUG] rotations: Skipping rotation, focusEntity is true")
+        return
+    end
     local newX
     local rAxisX = GetControlNormal(0, `INPUT_LOOK_LR`)
     local rAxisY = GetControlNormal(0, `INPUT_LOOK_UD`)
 
-    if rAxisX == 0 and rAxisY == 0 then return end
+    if rAxisX ~= 0 or rAxisY ~= 0 then
+        dprint("[GIZMO DEBUG] rotations: Mouse movement detected - X:", rAxisX, "Y:", rAxisY)
+    end
+
+    if rAxisX == 0 and rAxisY == 0 then
+        -- dprint("[GIZMO DEBUG] rotations: No rotation input, returning")
+        return
+    end
 
     local rot = GetCamRot(cam, 2)
 
@@ -163,8 +211,11 @@ local function rotations()
     end
 
     if newX and newZ then
+        dprint("[GIZMO DEBUG] rotations: Setting camera rotation to:", newX, rot.y, newZ)
         SetCamRot(cam, vector3(newX, rot.y, newZ), 2)
         needUpdateCamNUI = true
+    else
+        dprint("[GIZMO DEBUG] rotations: Rotation blocked - newX:", newX, "newZ:", newZ)
     end
 end
 
@@ -174,7 +225,12 @@ local function movement()
     local moveY = getSmartControlNormal(config.keys.moveY)                        -- Forward & Backward
     local moveZ = getSmartControlNormal(config.keys.moveUp, config.keys.moveDown) -- Up & Down
 
+    if moveX ~= 0 or moveY ~= 0 or moveZ ~= 0 then
+        dprint("[GIZMO DEBUG] movement: Movement input detected - X:", moveX, "Y:", moveY, "Z:", moveZ)
+    end
+
     if moveX == 0 and moveY == 0 and moveZ == 0 then
+        -- dprint("[GIZMO DEBUG] movement: No movement input, returning")
         return
     end
 
@@ -201,9 +257,16 @@ local function movement()
         z += moveZ * movementSpeed
     end
 
-    if #(GetEntityCoords(PlayerPedId()) - vec3(x, y, z)) <= maxCamDistance and (not hookedFunc or hookedFunc(vec3(x, y, z))) then
+    local newPos = vec3(x, y, z)
+    local playerPos = GetEntityCoords(PlayerPedId())
+    local distance = #(playerPos - newPos)
+
+    if distance <= maxCamDistance and (not hookedFunc or hookedFunc(newPos)) then
+        dprint("[GIZMO DEBUG] movement: Moving camera to:", x, y, z, "Distance from player:", distance)
         SetCamCoord(cam, x, y, z)
         needUpdateCamNUI = true
+    else
+        dprint("[GIZMO DEBUG] movement: Camera movement blocked - Distance:", distance, "Max:", maxCamDistance, "HookFunc passed:", not hookedFunc or hookedFunc(newPos))
     end
 end
 
@@ -214,18 +277,28 @@ local function camControls()
 end
 
 local function updateCamNUI()
-    if not needUpdateCamNUI then return end
-    if getSmartControlNormal(`INPUT_ATTACK`) > 0 then return end
+    if not needUpdateCamNUI then
+        -- dprint("[GIZMO DEBUG] updateCamNUI: needUpdateCamNUI is false, skipping")
+        return
+    end
+    if getSmartControlNormal(`INPUT_ATTACK`) > 0 then
+        dprint("[GIZMO DEBUG] updateCamNUI: INPUT_ATTACK pressed, skipping camera update")
+        return
+    end
 
+    local camPos = GetFinalRenderedCamCoord()
+    local camRot = GetFinalRenderedCamRot(0)
+    dprint("[GIZMO DEBUG] updateCamNUI: Updating camera position - Pos:", camPos.x, camPos.y, camPos.z, "Rot:", camRot.x, camRot.y, camRot.z)
 
     SendNUIMessage({
         action = "SetCameraPosition",
         data = {
-            position = GetFinalRenderedCamCoord(),
-            rotation = GetFinalRenderedCamRot(0)
+            position = camPos,
+            rotation = camRot
         }
     })
     needUpdateCamNUI = false
+    dprint("[GIZMO DEBUG] updateCamNUI: Camera position message sent")
 end
 
 local function refreshSpeedPrompt()
@@ -246,14 +319,23 @@ end
 ---@param allowPlace? function (Optional callback to validate placement - receives proposed position as parameter)
 ---@return table|nil (Returns entity position and rotation data when completed, nil if already active)
 function jo.gizmo.moveEntity(entity, cfg, allowPlace)
-    if gizmoActive then return eprint("Gizmo is already started") end
-    if not entity then return end
+    dprint("[GIZMO DEBUG] *** jo.gizmo.moveEntity called at:", GetGameTimer(), "***")
+    dprint("[GIZMO DEBUG] Entity:", entity, "cfg:", cfg and json.encode(cfg) or "nil", "allowPlace:", allowPlace ~= nil)
+    dprint("[GIZMO DEBUG] Current gizmoActive state:", gizmoActive)
+
+    if gizmoActive then return edprint("Gizmo is already started") end
+    if not entity then
+        dprint("[GIZMO DEBUG] ERROR: No entity provided")
+        return
+    end
 
     if gizmoActive then
+        dprint("[GIZMO DEBUG] WARNING: gizmoActive was true, showing NUI false")
         showNUI(false)
     end
 
     target = entity
+    dprint("[GIZMO DEBUG] Target entity set to:", target)
 
     enableCam = cfg?.enableCam == nil and config.enableCam or cfg.enableCam
     maxDistance = cfg?.maxDistance == nil and config.maxDistance or cfg.maxDistance
@@ -274,8 +356,16 @@ function jo.gizmo.moveEntity(entity, cfg, allowPlace)
     responseData = {}
     showNUI(true)
     DisplayHud(false)
+    dprint("[GIZMO DEBUG] HUD disabled, waiting 500ms before sending initial message")
 
     Wait(500)
+    dprint("[GIZMO DEBUG] Wait complete, current time:", GetGameTimer())
+
+    dprint("[GIZMO DEBUG] About to send initial SetupGizmo message")
+    dprint("[GIZMO DEBUG] Entity handle:", entity)
+    dprint("[GIZMO DEBUG] Stored position:", json.encode(stored.coords))
+    dprint("[GIZMO DEBUG] Stored rotation:", json.encode(stored.rotation))
+    dprint("[GIZMO DEBUG] Initial gizmo mode:", mode)
 
     SendNUIMessage({
         action = "SetupGizmo",
@@ -286,6 +376,8 @@ function jo.gizmo.moveEntity(entity, cfg, allowPlace)
             gizmoMode = mode
         }
     })
+
+    dprint("[GIZMO DEBUG] Initial SetupGizmo message sent")
 
     CreateThread(function()
         while gizmoActive do
@@ -315,28 +407,42 @@ function jo.gizmo.moveEntity(entity, cfg, allowPlace)
         jo.prompt.create(groupName, "Move Down", config.keys.moveUp)
     end
 
-
+    dprint("[GIZMO DEBUG] Entering main prompt handling loop")
+    local loopCount = 0
     while gizmoActive do
+        loopCount = loopCount + 1
+        if loopCount % 1000 == 0 then -- Every 1000 iterations (~10 seconds)
+            dprint("[GIZMO DEBUG] Main loop iteration:", loopCount, "gizmoActive:", gizmoActive)
+        end
+
         if jo.prompt.isCompleted(groupName, config.keys.switchMode) then
+            local oldMode = mode
             mode = (mode == "translate" and "rotate" or "translate")
+            dprint("[GIZMO DEBUG] Switching gizmo mode from", oldMode, "to", mode)
             SendNUIMessage({
                 action = "SetGizmoMode",
                 data = mode
             })
             jo.prompt.editKeyLabel(groupName, config.keys.switchMode,
                 mode == "translate" and "Switch to Rotate mode" or "Switch to Translate mode")
+            dprint("[GIZMO DEBUG] Gizmo mode switch complete")
         end
 
         if jo.prompt.isCompleted(groupName, config.keys.snapToGround) then
+            dprint("[GIZMO DEBUG] Snapping entity to ground")
             PlaceObjectOnGroundProperly(entity)
+            local newPos = GetEntityCoords(entity)
+            local newRot = GetEntityRotation(entity)
+            dprint("[GIZMO DEBUG] Entity snapped - New pos:", json.encode(newPos), "New rot:", json.encode(newRot))
             SendNUIMessage({
                 action = "SetupGizmo",
                 data = {
                     handle = entity,
-                    position = GetEntityCoords(entity),
-                    rotation = GetEntityRotation(entity)
+                    position = newPos,
+                    rotation = newRot
                 }
             })
+            dprint("[GIZMO DEBUG] Snap to ground message sent")
         end
 
         if jo.prompt.isCompleted(groupName, config.keys.cameraSpeedUp) then
@@ -392,8 +498,11 @@ function jo.gizmo.moveEntity(entity, cfg, allowPlace)
 
         Wait(10)
     end
+
+    dprint("[GIZMO DEBUG] Exited main loop, cleaning up prompts")
     jo.prompt.deleteGroup(groupName)
     DisplayHud(true)
+    dprint("[GIZMO DEBUG] Cleanup complete, returning response data:", json.encode(responseData))
 
     return responseData
 end
@@ -407,25 +516,40 @@ end
 -- @param data table
 -- @param cb function
 RegisterNUICallback("gizmo:UpdateEntity", function(data, cb)
+    dprint("[GIZMO DEBUG] *** NUI CALLBACK RECEIVED *** at", GetGameTimer())
+    dprint("[GIZMO DEBUG] Callback data received:", json.encode(data))
+
     local entity = data.handle
     local position = data.position
     local rotation = data.rotation
 
+    dprint("[GIZMO DEBUG] Entity handle:", entity)
+    dprint("[GIZMO DEBUG] Position:", position and json.encode(position) or "nil")
+    dprint("[GIZMO DEBUG] Rotation:", rotation and json.encode(rotation) or "nil")
+    dprint("[GIZMO DEBUG] Stored coords:", stored and json.encode(stored.coords) or "nil")
+    dprint("[GIZMO DEBUG] MaxDistance:", maxDistance)
+    dprint("[GIZMO DEBUG] HookedFunc exists:", hookedFunc ~= nil)
+
     if (maxDistance and #(vec3(position.x, position.y, position.z) - stored.coords) <= maxDistance) and (not hookedFunc or hookedFunc(position)) then
+        dprint("[GIZMO DEBUG] Position validation passed, updating entity")
         SetEntityCoordsNoOffset(entity, position.x, position.y, position.z)
         SetEntityRotation(entity, rotation.x, rotation.y, rotation.z)
         needUpdateCamNUI = true
+        dprint("[GIZMO DEBUG] Entity updated successfully")
         return cb({ status = "ok" })
     end
 
+    dprint("[GIZMO DEBUG] Position validation failed, reverting to entity position")
     position = GetEntityCoords(entity)
     rotation = GetEntityRotation(entity)
 
-    cb({
+    local response = {
         status = "Distance is too far",
         position = { x = position.x, y = position.y, z = position.z },
         rotation = { x = rotation.x, y = rotation.y, z = rotation.z }
-    })
+    }
+    dprint("[GIZMO DEBUG] Sending error response:", json.encode(response))
+    cb(response)
 end)
 
 --- If DevMode is enabled, register a command to spawn a crate for testing
@@ -450,7 +574,7 @@ if jo.debug then
             enableCam = true
         })
 
-        print(json.encode(data, { indent = true }))
+        dprint(json.encode(data, { indent = true }))
 
         if tempEntity then
             DeleteEntity(tempEntity)
