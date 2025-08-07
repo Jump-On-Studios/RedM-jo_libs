@@ -9,13 +9,13 @@ export const Transform = () => {
   const [editorMode, setEditorMode] = useState<"translate" | "rotate">("translate");
 
   const handleObjectDataUpdate = async () => {
-    
+
     const entity = {
       handle: currentEntity,
       position: {
         x: mesh.current.position.x,
         y: -mesh.current.position.z,
-        z: mesh.current.position.y - 0.5,
+        z: mesh.current.position.y,
       },
       rotation: {
         x: MathUtils.radToDeg(mesh.current.rotation.x),
@@ -24,17 +24,17 @@ export const Transform = () => {
       },
     };
 
-    const response :any = await fetchNui("UpdateEntity", entity);
-    
+    const response: any = await fetchNui("UpdateEntity", entity);
+
     if (response?.status !== "ok") {
       mesh.current.position.set(
         response.position.x,
-        response.position.z + 0.5,
+        response.position.z,
         -response.position.y
       );
-  
+
       mesh.current.rotation.order = "YZX";
-  
+
       mesh.current.rotation.set(
         MathUtils.degToRad(response.rotation.x),
         MathUtils.degToRad(response.rotation.z),
@@ -51,7 +51,7 @@ export const Transform = () => {
 
     mesh.current.position.set(
       entity.position.x,
-      entity.position.z + 0.5,
+      entity.position.z,
       -entity.position.y
     );
 
