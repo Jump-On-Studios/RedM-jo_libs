@@ -46,6 +46,12 @@ local config = {
     maxMovementSpeed = GetConvarFloat("jo_libs:gizmo:maxMovementSpeed", 0.2),                             -- Maximum movement speed for camera
     minMovementSpeed = GetConvarFloat("jo_libs:gizmo:minMovementSpeed", 0.001),                           -- Minimum movement speed for camera
     movementSpeedIncrement = GetConvarFloat("jo_libs:gizmo:movementSpeedIncrement", 0.01),                -- Increment value when adjusting camera speed
+    allowTranslateX = GetConvarBool("jo_libs:gizmo:allowTranslateX", true),                              -- Allow translation on X-axis
+    allowTranslateY = GetConvarBool("jo_libs:gizmo:allowTranslateY", true),                              -- Allow translation on Y-axis
+    allowTranslateZ = GetConvarBool("jo_libs:gizmo:allowTranslateZ", true),                              -- Allow translation on Z-axis
+    allowRotateX = GetConvarBool("jo_libs:gizmo:allowRotateX", true),                                    -- Allow rotation on X-axis
+    allowRotateY = GetConvarBool("jo_libs:gizmo:allowRotateY", true),                                    -- Allow rotation on Y-axis
+    allowRotateZ = GetConvarBool("jo_libs:gizmo:allowRotateZ", true),                                    -- Allow rotation on Z-axis
     keys = {
         moveX = GetConvarInt("jo_libs:gizmo:keys:moveX", `INPUT_SCRIPTED_FLY_LR`),                        -- Move left/right
         moveY = GetConvarInt("jo_libs:gizmo:keys:moveY", `INPUT_SCRIPTED_FLY_UD`),                        -- Move forward/backward
@@ -77,6 +83,12 @@ local minY = 0
 local maxY = 0
 local focusEntity = true
 local movementSpeed = 0
+local allowTranslateX = true
+local allowTranslateY = true
+local allowTranslateZ = true
+local allowRotateX = true
+local allowRotateY = true
+local allowRotateZ = true
 local stored = nil
 local hookedFunc = nil
 local target = 0
@@ -343,6 +355,12 @@ function jo.gizmo.moveEntity(entity, cfg, allowPlace)
     minY = cfg?.minY == nil and config.minY or cfg.minY
     maxY = cfg?.maxY == nil and config.maxY or cfg.maxY
     movementSpeed = cfg?.movementSpeed == nil and config.movementSpeed or cfg.movementSpeed
+    allowTranslateX = cfg?.allowTranslateX == nil and config.allowTranslateX or cfg.allowTranslateX
+    allowTranslateY = cfg?.allowTranslateY == nil and config.allowTranslateY or cfg.allowTranslateY
+    allowTranslateZ = cfg?.allowTranslateZ == nil and config.allowTranslateZ or cfg.allowTranslateZ
+    allowRotateX = cfg?.allowRotateX == nil and config.allowRotateX or cfg.allowRotateX
+    allowRotateY = cfg?.allowRotateY == nil and config.allowRotateY or cfg.allowRotateY
+    allowRotateZ = cfg?.allowRotateZ == nil and config.allowRotateZ or cfg.allowRotateZ
     mode = "translate"
 
 
@@ -373,7 +391,13 @@ function jo.gizmo.moveEntity(entity, cfg, allowPlace)
             handle = entity,
             position = stored.coords,
             rotation = stored.rotation,
-            gizmoMode = mode
+            gizmoMode = mode,
+            allowTranslateX = allowTranslateX,
+            allowTranslateY = allowTranslateY,
+            allowTranslateZ = allowTranslateZ,
+            allowRotateX = allowRotateX,
+            allowRotateY = allowRotateY,
+            allowRotateZ = allowRotateZ
         }
     })
 
@@ -439,7 +463,14 @@ function jo.gizmo.moveEntity(entity, cfg, allowPlace)
                 data = {
                     handle = entity,
                     position = newPos,
-                    rotation = newRot
+                    rotation = newRot,
+                    gizmoMode = mode,
+                    allowTranslateX = allowTranslateX,
+                    allowTranslateY = allowTranslateY,
+                    allowTranslateZ = allowTranslateZ,
+                    allowRotateX = allowRotateX,
+                    allowRotateY = allowRotateY,
+                    allowRotateZ = allowRotateZ
                 }
             })
             dprint("[GIZMO DEBUG] Snap to ground message sent")
