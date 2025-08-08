@@ -7,6 +7,12 @@ export const Transform = () => {
   const mesh = useRef<Mesh>(null!);
   const [currentEntity, setCurrentEntity] = useState<number>();
   const [editorMode, setEditorMode] = useState<"translate" | "rotate">("translate");
+  const [allowTranslateX, setAllowTranslateX] = useState<boolean>(true);
+  const [allowTranslateY, setAllowTranslateY] = useState<boolean>(true);
+  const [allowTranslateZ, setAllowTranslateZ] = useState<boolean>(true);
+  const [allowRotateX, setAllowRotateX] = useState<boolean>(true);
+  const [allowRotateY, setAllowRotateY] = useState<boolean>(true);
+  const [allowRotateZ, setAllowRotateZ] = useState<boolean>(true);
 
   const handleObjectDataUpdate = async () => {
 
@@ -67,6 +73,14 @@ export const Transform = () => {
       setEditorMode(entity.gizmoMode);
     }
 
+    // Set axis control properties (default to true if not provided)
+    setAllowTranslateX(entity.allowTranslateX ?? true);
+    setAllowTranslateY(entity.allowTranslateY ?? true);
+    setAllowTranslateZ(entity.allowTranslateZ ?? true);
+    setAllowRotateX(entity.allowRotateX ?? true);
+    setAllowRotateY(entity.allowRotateY ?? true);
+    setAllowRotateZ(entity.allowRotateZ ?? true);
+
   });
 
   useNuiEvent('SetGizmoMode', (editMode: any) => {
@@ -82,6 +96,9 @@ export const Transform = () => {
             object={mesh}
             mode={editorMode}
             onObjectChange={handleObjectDataUpdate}
+            showX={editorMode === "translate" ? allowTranslateX : allowRotateX}
+            showY={editorMode === "translate" ? allowTranslateZ : allowRotateZ}
+            showZ={editorMode === "translate" ? allowTranslateY : allowRotateY}
           />
         )}
         <mesh ref={mesh} />
