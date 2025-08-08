@@ -46,12 +46,12 @@ local config = {
     maxMovementSpeed = GetConvarFloat("jo_libs:gizmo:maxMovementSpeed", 0.2),                             -- Maximum movement speed for camera
     minMovementSpeed = GetConvarFloat("jo_libs:gizmo:minMovementSpeed", 0.001),                           -- Minimum movement speed for camera
     movementSpeedIncrement = GetConvarFloat("jo_libs:gizmo:movementSpeedIncrement", 0.01),                -- Increment value when adjusting camera speed
-    allowTranslateX = GetConvarBool("jo_libs:gizmo:allowTranslateX", true),                              -- Allow translation on X-axis
-    allowTranslateY = GetConvarBool("jo_libs:gizmo:allowTranslateY", true),                              -- Allow translation on Y-axis
-    allowTranslateZ = GetConvarBool("jo_libs:gizmo:allowTranslateZ", true),                              -- Allow translation on Z-axis
-    allowRotateX = GetConvarBool("jo_libs:gizmo:allowRotateX", true),                                    -- Allow rotation on X-axis
-    allowRotateY = GetConvarBool("jo_libs:gizmo:allowRotateY", true),                                    -- Allow rotation on Y-axis
-    allowRotateZ = GetConvarBool("jo_libs:gizmo:allowRotateZ", true),                                    -- Allow rotation on Z-axis
+    allowTranslateX = GetConvarBool("jo_libs:gizmo:allowTranslateX", true),                               -- Allow translation on X-axis
+    allowTranslateY = GetConvarBool("jo_libs:gizmo:allowTranslateY", true),                               -- Allow translation on Y-axis
+    allowTranslateZ = GetConvarBool("jo_libs:gizmo:allowTranslateZ", true),                               -- Allow translation on Z-axis
+    allowRotateX = GetConvarBool("jo_libs:gizmo:allowRotateX", true),                                     -- Allow rotation on X-axis
+    allowRotateY = GetConvarBool("jo_libs:gizmo:allowRotateY", true),                                     -- Allow rotation on Y-axis
+    allowRotateZ = GetConvarBool("jo_libs:gizmo:allowRotateZ", true),                                     -- Allow rotation on Z-axis
     keys = {
         moveX = GetConvarInt("jo_libs:gizmo:keys:moveX", `INPUT_SCRIPTED_FLY_LR`),                        -- Move left/right
         moveY = GetConvarInt("jo_libs:gizmo:keys:moveY", `INPUT_SCRIPTED_FLY_UD`),                        -- Move forward/backward
@@ -328,6 +328,12 @@ end
 --- cfg.minY number (Min Y value from starting position for camera - default based on config)
 --- cfg.maxY number (Max Y value from starting position for camera - default based on config)
 --- cfg.movementSpeed number (Movement speed for camera - default based on config)
+--- cfg.allowTranslateX boolean (Allow translation on X-axis - default `true`)
+--- cfg.allowTranslateY boolean (Allow translation on Y-axis - default `true`)
+--- cfg.allowTranslateZ boolean (Allow translation on Z-axis - default `true`)
+--- cfg.allowRotateX boolean (Allow rotation on X-axis - default `true`)
+--- cfg.allowRotateY boolean (Allow rotation on Y-axis - default `true`)
+--- cfg.allowRotateZ boolean (Allow rotation on Z-axis - default `true`)
 ---@param allowPlace? function (Optional callback to validate placement - receives proposed position as parameter)
 ---@return table|nil (Returns entity position and rotation data when completed, nil if already active)
 function jo.gizmo.moveEntity(entity, cfg, allowPlace)
