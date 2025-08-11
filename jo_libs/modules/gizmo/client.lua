@@ -93,6 +93,7 @@ local stored = nil
 local hookedFunc = nil
 local target = 0
 local needUpdateCamNUI = false
+local onMove = nil
 local groupName = "interaction_GizmoPrompts"
 
 local function pointEntity()
@@ -334,6 +335,7 @@ end
 --- cfg.allowRotateX boolean (Allow rotation on X-axis - default `true`)
 --- cfg.allowRotateY boolean (Allow rotation on Y-axis - default `true`)
 --- cfg.allowRotateZ boolean (Allow rotation on Z-axis - default `true`)
+--- cfg.onMove function (Optional function fired when the entity move with the gizmo)
 ---@param allowPlace? function (Optional callback to validate placement - receives proposed position as parameter)
 ---@return table|nil (Returns entity position and rotation data when completed, nil if already active)
 function jo.gizmo.moveEntity(entity, cfg, allowPlace)
@@ -368,7 +370,7 @@ function jo.gizmo.moveEntity(entity, cfg, allowPlace)
     allowRotateY = cfg?.allowRotateY == nil and config.allowRotateY or cfg.allowRotateY
     allowRotateZ = cfg?.allowRotateZ == nil and config.allowRotateZ or cfg.allowRotateZ
     mode = "translate"
-
+    onMove = cfg?.onMove
 
     stored = {
         coords = GetEntityCoords(entity),
@@ -573,6 +575,9 @@ RegisterNUICallback("gizmo:UpdateEntity", function(data, cb)
         SetEntityRotation(entity, rotation.x, rotation.y, rotation.z)
         needUpdateCamNUI = true
         dprint("[GIZMO DEBUG] Entity updated successfully")
+        if onMove then
+            onMove(position, rotation)
+        end
         return cb({ status = "ok" })
     end
 
