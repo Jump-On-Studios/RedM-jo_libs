@@ -217,6 +217,34 @@ function table.addMultiLevels(...)
   return main
 end
 
+--- A function to set/update a value in a table with multiple levels
+---@param ... table|string (if the 1st argument is a table, keys will be injected in it. Else, a new table will be created. The last argument is the value to set)
+---@return table (The new table with multiples table levels)
+function table.upsert(...)
+  local keys = { ... }
+  local main = {}
+  if type(keys[1]) == "table" then
+    main = keys[1]
+    table.remove(keys, 1)
+  end
+  local child = main
+  for i = 1, #keys - 2 do
+    local key = keys[i]
+    if not child[key] then
+      child[key] = {}
+    elseif i < #keys and type(child[key]) ~= "table" then
+      local s = "The value is not a table: ___"
+      for x = 1, i do
+        s = s .. ("[%s]"):format(tostring(keys[x]))
+      end
+      return {}, error(s)
+    end
+    child = child[key]
+  end
+  child[keys[#keys - 1]] = keys[#keys]
+  return main
+end
+
 --- Get a part of table with stard and end index
 ---@param t table (The table to get from)
 ---@param s? integer (The start intex <br> default:`1`)
