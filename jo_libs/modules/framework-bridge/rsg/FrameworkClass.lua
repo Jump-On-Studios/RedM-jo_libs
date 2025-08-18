@@ -318,7 +318,7 @@ function jo.framework:createInventory(id, name, invConfig)
 end
 
 function jo.framework:openInventory(source, id)
-  local config = inventoriesCreated[id]
+  local config = inventoriesCreated[id].config
 
   TriggerClientEvent("jo_libs:client:openInventory", source, id, config)
   return
