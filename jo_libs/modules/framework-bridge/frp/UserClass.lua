@@ -1,14 +1,14 @@
 -------------
 -- USER CLASS
 -------------
-local API = exports["frp_core"]:API()
+---
 
 ---@param source integer the player ID
 ---@return table user User data
 function jo.framework.UserClass:get(source)
   self = table.copy(jo.framework.UserClass)
   self.source = tonumber(source)
-  self.data = API.GetUserFromSource(self.source)
+  self.data = jo.framework.core.GetUserFromSource(self.source)
 
   return self
 end

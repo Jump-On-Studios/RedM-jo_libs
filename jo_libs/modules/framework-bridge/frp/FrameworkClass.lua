@@ -1,9 +1,13 @@
 -------------
 -- FRAMEWORK CLASS
 -------------
-local Core = exports.frp_core:API()
+---
+jo.file.load("@frp_lib.library.linker")
 
-jo.framework.core = Core
+local Proxy = module("frp_lib", "lib/Proxy")
+local API = Proxy.getInterface("API")
+
+jo.framework.core = API
 
 -------------
 -- VARIABLES
@@ -117,6 +121,80 @@ end
 -------------
 -- SKIN & CLOTHES
 -------------
+
+
+eMetapedBodyApparatusTypeToStr = 
+{
+    [-1] = "Invalid",
+    [0]  = "hair",
+    [1]  = "Heads",
+    [2]  = "BodiesLower",
+    [3]  = "BodiesUpper",
+    [4]  = "teeth",
+    [5]  = "Eyes",
+    [6]  = "hats",
+    [7]  = "shirts_full",
+    [8]  = "vests",
+    [9]  = "coats",
+    [10]  = "coats_closed",
+    [11]  = "pants",
+    [12]  = "boots",
+    [13]  = "boot_accessories",
+    [14]  = "cloaks",
+    [15]  = "chaps",
+    [16]  = "badges",
+    [17]  = "masks",
+    [18]  = "spats",
+    [19]  = "neckwear",
+    [20]  = "accessories",
+    [21]  = "jewelry_rings_right",
+    [22]  = "jewelry_rings_left",
+    [23]  = "jewelry_bracelets",
+    [24]  = "gauntlets",
+    [25]  = "neckties",
+    [26]  = "loadouts",
+    [27]  = "suspenders",
+    [28]  = "satchels",
+    [29]  = "gunbelts",
+    [30]  = "belts",
+    [31]  = "belt_buckles",
+    [32]  = "holsters_left",
+    [33]  = "ponchos",
+    [34]  = "armor",
+    [35]  = "eyewear",
+    [36]  = "gloves",
+    [37]  = "gunbelt_accs",
+    [38]  = "skirts",
+    [39]  = "beards_complete",
+    [40]  = "hair_accessories",
+}
+
+function getShopitemAnyByMetapedBodyApparatus( metapedBodyApparatus )
+  local dbLayerRoot = exports.frp_appearance:mp_peds_components()
+
+  local type = metapedBodyApparatus.type
+  local gender = metapedBodyApparatus.gender
+  local id = metapedBodyApparatus.id
+  local styleId = metapedBodyApparatus.styleId
+
+  local dbLayerType = dbLayerRoot[type + 1]
+
+  if dbLayerType ~= nil then
+      local dbLayerGender = dbLayerType[gender]
+
+      if dbLayerGender ~= nil then
+          local dbLayerStyle = dbLayerGender[id]
+
+          if dbLayerStyle ~= nil then
+              local shopitem = dbLayerStyle[styleId]
+
+              if shopitem ~= nil then
+                  return shopitem
+              end
+          end
+      end
+  end
+end
 
 ---A function to standardize the skin data
 ---@param skin table skin data with framework keys
