@@ -13,6 +13,9 @@ export const Transform = () => {
   const [allowRotateX, setAllowRotateX] = useState<boolean>(true);
   const [allowRotateY, setAllowRotateY] = useState<boolean>(true);
   const [allowRotateZ, setAllowRotateZ] = useState<boolean>(true);
+  const [rotationSnap, setRotationSnap] = useState<number>(5);
+  const [rotationSnapEnabled, setRotationSnapEnabled] = useState<boolean>(false);
+
 
   const handleObjectDataUpdate = async () => {
 
@@ -80,11 +83,15 @@ export const Transform = () => {
     setAllowRotateX(entity.allowRotateX ?? true);
     setAllowRotateY(entity.allowRotateY ?? true);
     setAllowRotateZ(entity.allowRotateZ ?? true);
-
+    setRotationSnap(entity.rotationSnap ?? 5);
   });
 
   useNuiEvent('SetGizmoMode', (editMode: any) => {
     setEditorMode(editMode);
+  });
+
+  useNuiEvent('EnableRotationSnap', (value: any) => {
+    setRotationSnapEnabled(value ?? false);
   });
 
   return (
@@ -99,6 +106,7 @@ export const Transform = () => {
             showX={editorMode === "translate" ? allowTranslateX : allowRotateX}
             showY={editorMode === "translate" ? allowTranslateZ : allowRotateZ}
             showZ={editorMode === "translate" ? allowTranslateY : allowRotateY}
+            rotationSnap={rotationSnapEnabled ? rotationSnap : null}
           />
         )}
         <mesh ref={mesh} />

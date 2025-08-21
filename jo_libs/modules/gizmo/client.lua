@@ -52,6 +52,7 @@ local config = {
     allowRotateX = GetConvarBool("jo_libs:gizmo:allowRotateX", true),                                     -- Allow rotation on X-axis
     allowRotateY = GetConvarBool("jo_libs:gizmo:allowRotateY", true),                                     -- Allow rotation on Y-axis
     allowRotateZ = GetConvarBool("jo_libs:gizmo:allowRotateZ", true),                                     -- Allow rotation on Z-axis
+    rotationSnap = GetConvarInt("jo_libs:gizmo:rotationSnap", 5),                                         -- Rotation snap value
     keys = {
         moveX = GetConvarInt("jo_libs:gizmo:keys:moveX", `INPUT_SCRIPTED_FLY_LR`),                        -- Move left/right
         moveY = GetConvarInt("jo_libs:gizmo:keys:moveY", `INPUT_SCRIPTED_FLY_UD`),                        -- Move forward/backward
@@ -64,6 +65,7 @@ local config = {
         focusEntity = GetConvarInt("jo_libs:gizmo:keys:focusEntity", `INPUT_SHOP_SPECIAL`),               -- Toggle focus on entity
         cameraSpeedUp = GetConvarInt("jo_libs:gizmo:keys:cameraSpeedUp", `INPUT_SELECT_PREV_WEAPON`),     -- Increase camera speed
         cameraSpeedDown = GetConvarInt("jo_libs:gizmo:keys:cameraSpeedDown", `INPUT_SELECT_NEXT_WEAPON`), -- Decrease camera speed
+        rotationSnap = GetConvarInt("jo_libs:gizmo:keys:rotationSnap", `INPUT_FRONTEND_Y`),               -- Rotation snap key
     }
 }
 
@@ -95,6 +97,7 @@ local target = 0
 local needUpdateCamNUI = false
 local onMove = nil
 local groupName = "interaction_GizmoPrompts"
+local rotationSnap = nil
 
 local function pointEntity()
     PointCamAtEntity(cam, target)
@@ -335,6 +338,7 @@ end
 --- cfg.allowRotateX boolean (Allow rotation on X-axis - default `true`)
 --- cfg.allowRotateY boolean (Allow rotation on Y-axis - default `true`)
 --- cfg.allowRotateZ boolean (Allow rotation on Z-axis - default `true`)
+--- cfg.rotationSnap number (Rotation snap value - default `5`)
 --- cfg.onMove function (Optional function fired when the entity move with the gizmo)
 ---@param allowPlace? function (Optional callback to validate placement - receives proposed position as parameter)
 ---@return table|nil (Returns entity position and rotation data when completed, nil if already active)
@@ -369,6 +373,7 @@ function jo.gizmo.moveEntity(entity, cfg, allowPlace)
     allowRotateX = cfg?.allowRotateX == nil and config.allowRotateX or cfg.allowRotateX
     allowRotateY = cfg?.allowRotateY == nil and config.allowRotateY or cfg.allowRotateY
     allowRotateZ = cfg?.allowRotateZ == nil and config.allowRotateZ or cfg.allowRotateZ
+    rotationSnap = (cfg?.rotationSnap == nil and config.rotationSnap or cfg.rotationSnap) * math.pi / 180
     mode = "translate"
     onMove = cfg?.onMove
 
@@ -405,7 +410,8 @@ function jo.gizmo.moveEntity(entity, cfg, allowPlace)
             allowTranslateZ = allowTranslateZ,
             allowRotateX = allowRotateX,
             allowRotateY = allowRotateY,
-            allowRotateZ = allowRotateZ
+            allowRotateZ = allowRotateZ,
+            rotationSnap = rotationSnap
         }
     })
 
@@ -431,7 +437,8 @@ function jo.gizmo.moveEntity(entity, cfg, allowPlace)
     jo.prompt.create(groupName, "Free cam", config.keys.focusEntity)
     jo.prompt.create(groupName, ("Camera speed: x%.3f"):format(movementSpeed),
         { config.keys.cameraSpeedUp, config.keys.cameraSpeedDown })
-
+    jo.prompt.create(groupName, "Rotation snap", config.keys.rotationSnap)
+    jo.prompt.setVisible(groupName, config.keys.rotationSnap, false)
     if (cam) then
         jo.prompt.create(groupName, "Move L/R", config.keys.moveX)
         jo.prompt.create(groupName, "Move F/B", config.keys.moveY)
@@ -458,6 +465,7 @@ function jo.gizmo.moveEntity(entity, cfg, allowPlace)
             jo.prompt.editKeyLabel(groupName, config.keys.switchMode,
                 mode == "translate" and "Switch to Rotate mode" or "Switch to Translate mode")
             dprint("[GIZMO DEBUG] Gizmo mode switch complete")
+            jo.prompt.setVisible(groupName, config.keys.rotationSnap, mode == "rotate")
         end
 
         if jo.prompt.isCompleted(groupName, config.keys.snapToGround) then
@@ -478,7 +486,8 @@ function jo.gizmo.moveEntity(entity, cfg, allowPlace)
                     allowTranslateZ = allowTranslateZ,
                     allowRotateX = allowRotateX,
                     allowRotateY = allowRotateY,
-                    allowRotateZ = allowRotateZ
+                    allowRotateZ = allowRotateZ,
+                    rotationSnap = rotationSnap
                 }
             })
             dprint("[GIZMO DEBUG] Snap to ground message sent")
@@ -533,6 +542,20 @@ function jo.gizmo.moveEntity(entity, cfg, allowPlace)
 
             showNUI(false)
             break
+        end
+
+        if jo.prompt.isCompleted(groupName, config.keys.rotationSnap) then
+            SendNUIMessage({
+                action = "EnableRotationSnap",
+                data = true
+            })
+            while jo.prompt.isCompleted(groupName, config.keys.rotationSnap, true) do
+                Wait(0)
+            end
+            SendNUIMessage({
+                action = "EnableRotationSnap",
+                data = false
+            })
         end
 
         Wait(10)
