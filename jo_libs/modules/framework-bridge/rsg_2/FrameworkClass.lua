@@ -43,7 +43,9 @@ function jo.framework:openInventory(source, id)
 end
 
 function jo.framework:addItemInInventory(source, invId, item, quantity, metadata, needWait)
-  Inventory:CreateInventory(invId)
+  if not Inventory:GetInventory(invId) then
+    Inventory:CreateInventory(invId, {})
+  end
   return Inventory:AddItem(invId, item, quantity, false, metadata)
 end
 
