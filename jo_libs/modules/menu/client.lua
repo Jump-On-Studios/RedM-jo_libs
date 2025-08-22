@@ -46,7 +46,7 @@ local menusNeedRefresh = {}
 
 local function updateSliderCurrentValue(item)
   if not item or not item.sliders then return end
-  TriggerServerEvent("print", item.sliders)
+  -- TriggerServerEvent("print", item.sliders)
   for i = 1, #item.sliders do
     local slider = item.sliders[i]
     if slider then
@@ -57,9 +57,9 @@ local function updateSliderCurrentValue(item)
       elseif slider.type == "palette" then
         slider.value = slider.current
       else
-        log("=>", i)
-        log("=>", slider.current)
-        log("===>", slider.values)
+        -- log("=>", i)
+        -- log("=>", slider.current)
+        -- log("===>", slider.values)
         slider.value = slider.values[slider.current]
       end
     end
@@ -318,6 +318,7 @@ function MenuClass:addItem(index, item)
   function item.getParentMenu()
     return self
   end
+
   return item
 end
 
@@ -412,7 +413,6 @@ function MenuClass:deleteValue(keys)
   })
   table.deleteDeepValue(self, keys)
 end
-
 
 --- Refresh all the menu without changing the current state
 --- Used when you want rebuild the menu
@@ -803,7 +803,6 @@ function jo.menu.softHide(cb, animation)
   SendNUIMessage({ event = "updateShow", show = true, cancelAnimation = not animation })
 end
 
-
 --- A function to know if the menu is the current one
 ---@param id string (The menu id)
 ---@return boolean
@@ -844,6 +843,7 @@ end
 function jo.menu.hideLoader()
   jo.menu.displayLoader(false)
 end
+
 -------------
 -- NUI
 -------------
