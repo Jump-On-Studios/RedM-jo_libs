@@ -344,7 +344,6 @@ end
 ---@return table|nil (Returns entity position and rotation data when completed, nil if already active)
 function jo.gizmo.moveEntity(entity, cfg, allowPlace)
     dprint("[GIZMO DEBUG] *** jo.gizmo.moveEntity called at:", GetGameTimer(), "***")
-    dprint("[GIZMO DEBUG] Entity:", entity, "cfg:", cfg and json.encode(cfg) or "nil", "allowPlace:", allowPlace ~= nil)
     dprint("[GIZMO DEBUG] Current gizmoActive state:", gizmoActive)
 
     if gizmoActive then return edprint("Gizmo is already started") end
