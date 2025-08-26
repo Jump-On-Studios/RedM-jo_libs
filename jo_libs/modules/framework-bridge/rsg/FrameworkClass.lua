@@ -275,75 +275,13 @@ end
 
 function jo.framework:canUseItem(source, item, amount, meta, remove)
   local Player = self.UserClass:get(source)
-
-
-  -- Log initial parameters
-  log(string.format("[canUseItem] Called - Source: %s, Item: %s, Amount: %d, Remove: %s",
-    tostring(source), tostring(item), amount, tostring(remove)))
-  if meta then
-    log("[canUseItem] Meta requirements: " .. json.encode(meta))
-  end
-
-  local items = Player.data.Functions.GetItemsByName(source, item)
-  log(string.format("[canUseItem] Found %d item(s) with name '%s'", items and #items or 0, item))
-
-  if not items or #items == 0 then
-    log(string.format("[canUseItem] FAILED - No items found with name '%s'", item))
-    return false
-  end
-
-  -- Check each item to find one that matches all criteria
-  for index, itemData in ipairs(items) do
-    log(string.format("[canUseItem] Checking item #%d (slot: %s):", index, tostring(itemData.slot)))
-    log(string.format("  - Amount: %d/%d required", itemData.amount or 0, amount))
-
-    if itemData and itemData.amount >= amount then
-      local metaMatches = true
-
-      -- Check meta properties if meta is provided
-      if meta then
-        log("  - Checking meta properties...")
-        if not itemData.info then
-          metaMatches = false
-          log("  - FAILED: Item has no info property")
-        else
-          -- Check each meta property against itemData.info
-          for key, value in pairs(meta) do
-            local itemValue = itemData.info[key]
-            if itemValue ~= value then
-              metaMatches = false
-              log(string.format("  - FAILED: Meta mismatch for '%s' - expected: %s, got: %s",
-                key, tostring(value), tostring(itemValue)))
-              break
-            else
-              log(string.format("  - PASSED: Meta '%s' matches (%s)", key, tostring(value)))
-            end
-          end
-        end
-      else
-        log("  - No meta requirements to check")
-      end
-
-      -- If this item matches all criteria
-      if metaMatches then
-        log(string.format("[canUseItem] SUCCESS - Item #%d (slot: %s) matches all criteria", index, tostring(itemData.slot)))
-        if remove then
-          log(string.format("[canUseItem] Removing %d of '%s' from inventory", amount, item))
-          -- TODO: This might need adjustment - we should ideally remove from the specific slot
-          -- that matched our criteria, not just any item with this name
-          Player.data.Functions.RemoveItem(item, amount)
-        end
-        return true
-      else
-        log(string.format("  - Item #%d does not match all criteria", index))
-      end
-    else
-      log(string.format("  - Insufficient amount: has %d, needs %d", itemData and itemData.amount or 0, amount))
+  local itemData = Player.data.Functions.GetItemByName(item)
+  if itemData and itemData.amount >= amount then
+    if remove then
+      Player.data.Functions.RemoveItem(item, amount)
     end
+    return true
   end
-
-  log(string.format("[canUseItem] FAILED - No items matched all criteria for '%s'", item))
-  return false
 end
 
 function jo.framework:registerUseItem(item, closeAfterUsed, callback)

@@ -66,3 +66,28 @@ function jo.framework:removeInventory(invId)
   MySQL.update("DELETE FROM inventories WHERE identifier = ?", { invId })
   return Inventory.DeleteInventory(invId)
 end
+
+function jo.framework:canUseItem(source, item, amount, meta, remove)
+  local items = Inventory:GetItemsByName(source, item)
+
+  if not items or #items == 0 then
+    return false
+  end
+  for i = 1, #items do
+    local data = items[i]
+    if meta then
+      if table.isEgal(data.info, meta, false, false, true) then
+        if data.amount >= amount then
+          if remove then
+            Inventory:RemoveItem(source, item, amount, data.slot)
+          end
+          return true
+        end
+      end
+    else
+      return true
+    end
+  end
+
+  return false
+end
