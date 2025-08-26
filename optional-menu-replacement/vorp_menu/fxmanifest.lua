@@ -1,4 +1,4 @@
-author "JUMP ON studios : http://jumpon-studios.com"
+author "JUMP ON studios : https://jumpon-studios.com"
 documentation "https://docs.jumpon-studios.com"
 description "Replace MenuAPI by jo_menu"
 
