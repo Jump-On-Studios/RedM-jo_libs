@@ -64,6 +64,12 @@ local supportedFrameworks = {
     folder = "frp",
     resources = { "frp_core" }
   },
+  {
+    id = "gm",
+    name = "GM Core",
+    folder = "gm",
+    resources = { "gm_core" }
+  },
 }
 
 local function extractResourceData(str)
