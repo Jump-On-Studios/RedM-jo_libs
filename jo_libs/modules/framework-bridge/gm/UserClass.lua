@@ -38,7 +38,7 @@ end
 
 function jo.framework.UserClass:removeMoney(amount, moneyType)
   if moneyType == 0 then
-    return exports.gm_core:RemoveMoney("cash", amount)
+    return exports.gm_core:RemoveMoney(self.source, "cash", amount)
   elseif moneyType == 1 then
     return exports.gm_core:RemoveMoney(self.source, "gold", amount)
   elseif moneyType == 2 then
