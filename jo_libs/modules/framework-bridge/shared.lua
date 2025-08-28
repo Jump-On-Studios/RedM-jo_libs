@@ -8,6 +8,26 @@ jo.framework = {
   inventoryItems = {},
 }
 
+local frameworkDetected
+
+---@autodoc:config ignore:true
+function jo.framework:getFrameworkDetected()
+  return frameworkDetected
+end
+
+---@autodoc:config ignore:true
+function jo.framework:loadFile(...)
+  if not frameworkDetected then return false end
+  local args = { ... }
+  local folder = args[2] and args[1] or frameworkDetected.folder
+  local name = args[2] or args[1]
+  local path = ("framework-bridge.%s.%s"):format(folder, name)
+  if jo.file.isExist(path) then
+    return jo.file.load(path)
+  end
+  return false
+end
+
 jo.require("string")
 
 local supportedFrameworks = {
@@ -156,7 +176,7 @@ local function detectFramework()
   return frameworkDetected
 end
 
-local frameworkDetected = detectFramework()
+frameworkDetected = detectFramework()
 if not frameworkDetected then
   eprint("IMPOSSIBLE to detect which framework is used on your server")
   return
@@ -194,7 +214,8 @@ function jo.framework:loadFile(...)
   return false
 end
 
-CreateThread(function()
+jo.ready(function()
+  Wait(1000)
   jo.framework.inventoryItems = exports.jo_libs:jo_framework_getInventoryItems()
 end)
 
