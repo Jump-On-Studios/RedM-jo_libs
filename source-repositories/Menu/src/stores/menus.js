@@ -672,7 +672,7 @@ export const useMenuStore = defineStore('menus', {
       if (this.cItem == undefined) return
       API.post('updatePreview', {
         menu: this.currentMenuId,
-        index: this.cMenu.currentIndex + 1,
+        index: this.cItem.index,
         item: this.dataToSend,
       })
       this.dataToSend = {}
