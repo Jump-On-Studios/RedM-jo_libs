@@ -74,7 +74,7 @@ let menu = {
       title: 'This is the title',
       price: 4,
       description: "test",
-      textRight: "good"
+      textRight: "The text right"
     },
     {
       title: 'This is the title',
