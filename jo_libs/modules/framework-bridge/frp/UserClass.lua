@@ -21,7 +21,7 @@ function jo.framework.UserClass:getMoney(moneyType)
     return exports.ox_inventory:GetItem(self.source, "money", nil, true)
   elseif moneyType == 1 then
     local goldStatus, goldAmount = pcall(function()
-      return exports.prime_api:getUserCash( self.source )
+      return exports.prime_api:getUserCash(self.source)
     end)
     return goldAmount or 0
   elseif moneyType == 2 then
@@ -37,10 +37,10 @@ end
 function jo.framework.UserClass:removeMoney(amount, moneyType)
   moneyType = GetValue(moneyType, 0)
   if moneyType == 0 then
-    local success = exports.ox_inventory:RemoveItem( self.source, "money", amount + 0.001 )
+    local success = exports.ox_inventory:RemoveItem(self.source, "money", amount + 0.001)
     return success
   elseif moneyType == 1 then
-    local success = exports.prime_api:removeUserCash( { self.source, amount, 'purchase' } )
+    local success = exports.prime_api:removeUserCash({ self.source, amount, "purchase" })
     return success
   elseif moneyType == 2 then
     oprint("Rol in not supported by your Framework")
@@ -55,7 +55,7 @@ end
 function jo.framework.UserClass:addMoney(amount, moneyType)
   moneyType = GetValue(moneyType, 0)
   if moneyType == 0 then
-    local success = exports.ox_inventory:AddItem(self.source, "money", amount + 0.001 )
+    local success = exports.ox_inventory:AddItem(self.source, "money", amount + 0.001)
     return success
   elseif moneyType == 1 then
     oprint("Gold in not supported by your Framework")
