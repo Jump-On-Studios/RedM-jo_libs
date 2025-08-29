@@ -26,10 +26,14 @@ let menu = {
       quantityCircleClass: 'fgold',
       iconClass: 'fgold',
       sliders: [
-        // {
-        //   type: 'grid',
-        //   values: [{ current: 1, min: -10, max: 10 }]
-        // },
+        {
+          type: "switch",
+          values: [{ label: "good" }, { label: "bad" }]
+        },
+        {
+          type: 'grid',
+          values: [{ current: 1, min: -10, max: 10 }]
+        },
         {
           type: 'sprite',
           forceDisplay: true,
@@ -69,7 +73,8 @@ let menu = {
     }, {
       title: 'This is the title',
       price: 4,
-      description: "test"
+      description: "test",
+      textRight: "good"
     },
     {
       title: 'This is the title',

@@ -23,20 +23,22 @@
       </div>
       <template v-if="!item.disabled && item.sliders">
         <template v-for="(slider, index) in item.sliders" :key="index">
-          <template v-if="slider.type == 'switch' && slider.values.length > 1">
+          <template v-if="slider.type == 'switch'">
             <Switch :slider="slider" :index="index" :isCurrent="item.index == menuStore.cItem.index" />
           </template>
         </template>
       </template>
       <PreviewSlider :item="item" />
-      <div class="priceRight" v-if="!item.iconRight">
-        <PriceDisplay :price="(item.priceRight && (menuStore.cMenu.cItem == item)) ? 0 : item.priceRight" />
+      <div class="sufix" v-if="item.textRight">
+        <div :class="['textRight', item.textRightClass]">
+          <span v-if="item.translateTextRight" v-html="lang(item.textRight)">
+          </span>
+          <span v-else v-html="item.textRight">
+          </span>
+        </div>
       </div>
-      <div :class="['textRight', item.textRightClass]" v-if="item.textRight">
-        <span v-if="item.translateTextRight" v-html="lang(item.textRight)">
-        </span>
-        <span v-else v-html="item.textRight">
-        </span>
+      <div class="priceRight" v-if="!item.iconRight && price !== undefined && price !== false">
+        <PriceDisplay :price="price" />
       </div>
     </h3>
     <div class="background"></div>
@@ -49,7 +51,7 @@ import Switch from './sliders/Switch.vue'
 import PreviewSlider from './PreviewSlider.vue'
 import { useMenuStore } from '../../stores/menus'
 import { useLangStore } from '../../stores/lang'
-import { inject } from 'vue'
+import { inject, computed } from 'vue'
 const menuStore = useMenuStore()
 const API = inject('API')
 const lang = useLangStore().lang
@@ -64,6 +66,10 @@ const props = defineProps({
     type: Boolean
   },
   id: Number
+})
+
+const price = computed(() => {
+  return (props.item.priceRight && (menuStore.cMenu.cItem == props.item)) ? 0 : props.item.priceRight
 })
 
 function click() {
@@ -99,6 +105,10 @@ function getImage(url) {
 }
 
 .textRight {
+  font-family: "Hapna";
+  font-weight: 500;
+  font-size: 1.1em;
+
   &.tiny {
     font-size: 0.715em;
     font-family: 'Hapna';
