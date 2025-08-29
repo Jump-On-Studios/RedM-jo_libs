@@ -45,17 +45,4 @@ RegisterNetEvent("jo_libs:server:applySkin", function(ped, skin)
   TriggerClientEvent("jo_libs:client:applySkin", source, ped, skin)
 end)
 
-MySQL.ready(function()
-  jo.framework.inventoryItems = jo.framework:getItemsFromDBInternal()
-  dprint("=>3. %d items inventory loaded", table.count(jo.framework.inventoryItems))
-end)
 
-jo.callback.register.latent("jo_framework_getInventoryItems", function()
-  while table.isEmpty(jo.framework.inventoryItems) do Wait(10) end
-  return jo.framework.inventoryItems
-end)
-
-exports("jo_framework_getInventoryItems", function()
-  while table.isEmpty(jo.framework.inventoryItems) do Wait(10) end
-  return jo.framework.inventoryItems
-end)

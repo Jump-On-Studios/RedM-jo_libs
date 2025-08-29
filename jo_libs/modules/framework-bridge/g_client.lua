@@ -52,13 +52,3 @@ RegisterNetEvent("jo_libs:client:applyClothes", function(ped, clothes)
     jo.hook.doActions("jo_libs:applyClothes:after", ped, clothes)
   end)
 end)
-
-CreateThread(function()
-  Wait(1000)
-  jo.framework.inventoryItems = jo.callback.triggerServer("jo_framework_getInventoryItems")
-end)
-
-exports("jo_framework_getInventoryItems", function()
-  while table.isEmpty(jo.framework.inventoryItems) do Wait(10) end
-  return jo.framework.inventoryItems
-end)

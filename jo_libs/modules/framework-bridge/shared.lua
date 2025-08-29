@@ -197,21 +197,8 @@ for i = 1, #frameworkDetected.resources do
   end
 end
 
----@autodoc:config ignore:true
-function jo.framework:getFrameworkDetected()
-  return frameworkDetected
-end
-
----@autodoc:config ignore:true
-function jo.framework:loadFile(...)
-  local args = { ... }
-  local folder = args[2] and args[1] or frameworkDetected.folder
-  local name = args[2] or args[1]
-  local path = ("framework-bridge.%s.%s"):format(folder, name)
-  if jo.file.isExist(path) then
-    return jo.file.load(path)
-  end
-  return false
+local function waitInventoryItems()
+  while table.isEmpty(jo.framework.inventoryItems) do Wait(10) end
 end
 
 jo.ready(function()
@@ -222,7 +209,7 @@ end)
 --- A function to get the list of items
 ---@return table (The list of items)
 function jo.framework:getItems()
-  while table.isEmpty(jo.framework.inventoryItems) do Wait(10) end
+  waitInventoryItems()
   return jo.framework.inventoryItems
 end
 
@@ -230,7 +217,7 @@ end
 ---@param item string (The name of the item)
 ---@return table|false (The item data or false if not found)
 function jo.framework:getItemData(item)
-  while table.isEmpty(jo.framework.inventoryItems) do Wait(10) end
+  waitInventoryItems()
   if not jo.framework.inventoryItems[item] then
     eprint("Item %s not found", item)
     return
