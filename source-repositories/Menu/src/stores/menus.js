@@ -549,6 +549,7 @@ export const useMenuStore = defineStore('menus', {
         return this.gridLeft(index)
       } else {
         if (slider.current == 1 && !slider.looped) return
+        if (slider.values.length == 1) return
         slider.current--
         if (slider.current <= 0) slider.current = slider.values.length
       }
@@ -575,6 +576,7 @@ export const useMenuStore = defineStore('menus', {
         return this.gridRight(index)
       } else {
         if (slider.current == slider.values.length && !slider.looped) return
+        if (slider.values.length == 1) return
         slider.current++;
         if (slider.current > slider.values.length) slider.current = 1
       }

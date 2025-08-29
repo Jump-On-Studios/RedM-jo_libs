@@ -33,10 +33,12 @@ const tint = computed(() => {
 })
 
 const numberColor = computed(() => { return tint.value.tints.length })
-const url = computed(() => { return `./assets/images/menu/${props.color.palette}.png` })
+const url = computed(() => { return props.color.palette && `./assets/images/menu/${props.color.palette}.png` })
 
 const max = ref(1)
 function calculMax() {
+    if (!url.value)
+        return
     const img = new Image();
     img.src = url.value;
     img.onload = function () {

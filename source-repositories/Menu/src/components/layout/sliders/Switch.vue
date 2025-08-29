@@ -1,5 +1,5 @@
 <template>
-  <div class="sufix" v-if="props.slider.type == 'switch' && props.slider.values.length > 1">
+  <div class="sufix" v-if="props.slider.type == 'switch'">
     <div class="arrows" @click.stop="">
       <div class="arrow left clicker" @click="menuStore.sliderLeft(props.index)" v-if="props.isCurrent"><img src="/assets/images/menu/selection_arrow_left.png"></div>
       <div class="text hapna">{{ getSufixLabel() }}</div>

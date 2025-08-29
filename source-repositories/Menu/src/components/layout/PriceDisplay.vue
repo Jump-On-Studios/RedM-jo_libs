@@ -39,11 +39,11 @@
               {{ formatPrice(props.price.gold) }}
             </span>
           </template>
-          <template v-if="props.price.money || props.price">
-            <span class="dollar">
-              <span class="devise">{{ devise(props.price.money) }}</span>
-              <span class="round">{{ priceRounded(props.price.money) }}</span>
-              <span class="centime">{{ centimes(props.price.money) }}</span>
+          <template v-if="moneyPrice">
+            <span class="dollar" v-if="moneyPrice">
+              <span class="devise">{{ devise(moneyPrice) }}</span>
+              <span class="round">{{ priceRounded(moneyPrice) }}</span>
+              <span class="centime">{{ centimes(moneyPrice) }}</span>
             </span>
           </template>
         </div>
@@ -53,6 +53,7 @@
 </template>
 
 <script setup>
+import { computed } from 'vue';
 import { useLangStore } from '../../stores/lang';
 const props = defineProps(['price'])
 const lang = useLangStore().lang
@@ -62,13 +63,19 @@ function formatPrice(price) {
   return price.toFixed(2).toString()
 }
 
+const moneyPrice = computed(() => {
+  if (typeof props.price == 'number') return props.price
+  if (props.price.money) return props.price.money
+  return false
+})
+
 function priceRounded(price) {
   if (!price || price == 0)
     return lang('free')
   return Math.trunc(price)
 }
 function centimes(price) {
-  if (price == 0)
+  if (price == undefined || price == false || price == 0)
     return ''
   return (price % 1).toFixed(2).toString().substring(2);
 }
