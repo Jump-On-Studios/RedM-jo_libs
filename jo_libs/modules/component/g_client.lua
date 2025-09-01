@@ -1291,19 +1291,6 @@ function jo.component.getCategoryNameFromHash(category)
   return jo.component.data.categoryName[category] or "unknown"
 end
 
---- A fonction to get the category hash from its stringAdd commentMore actions
----@param category string|integer (The category string)
----@return integer (The category hash)
-function jo.component.getCategoryHash(category)
-  if type(category) == "number" then return category end
-
-  if category == "horse_feathers" then
-    return -287556490
-  end
-
-  return joaat(category)
-end
-
 function jo.component.getWearableStateNameFromHash(state)
   if type(state) == "string" then return state end
   if not state then return "no hash" end
