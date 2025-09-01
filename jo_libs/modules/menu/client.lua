@@ -213,12 +213,13 @@ local MenuItem = {
   onExit = function() end
 }
 
-function MenuItem:formatPrice()
-  if not self.price then return end
-  if type(self.price) ~= "table" then return end
-  if table.type(self.price) ~= "array" then return end
-  for i = 1, #self.price do
-    local price = self.price[i]
+--- Format the price of the item
+local function formatItemPrice(item)
+  if not item.price then return end
+  if type(item.price) ~= "table" then return end
+  if table.type(item.price) ~= "array" then return end
+  for i = 1, #item.price do
+    local price = item.price[i]
     if price.item then
       jo.require("framework")
       local loaderOn = false
@@ -234,13 +235,9 @@ function MenuItem:formatPrice()
   end
 end
 
-function MenuItem:update(key, value)
-  self[key] = value
-  if key == "price" then
-    self:formatPrice()
-  end
-end
-
+--- Update a specific property of a menu item. Requires MenuClass:push() to be called to apply the changes
+---@param keys string|table (The property name to update)
+---@param value any (The new value for the property)
 function MenuItem:updateValue(keys, value)
   local menu = self.getParentMenu()
   if type(keys) ~= "table" then keys = { keys } end
@@ -252,7 +249,10 @@ function MenuItem:updateValue(keys, value)
   end
 end
 
+--- Delete a specific property of a menu item. Requires MenuClass:push() to be called to apply the changes
+---@param keys table (The list of property name to access to the value)
 function MenuItem:deleteValue(keys)
+  if type(keys) ~= "table" then error("MenuItem:deleteValue > keys must be a table") end
   local menu = self.getParentMenu()
   if type(keys) ~= "table" then keys = { keys } end
   table.insert(keys, 1, self.index)
@@ -287,7 +287,7 @@ end
 --- item.onChange? function (Fired when a slider value changes)
 --- item.onExit? function (Fired when the item is exited)
 --- item.onTick? function (Fired every tick)
----@return table (The added item)
+---@return MenuItemClass (The added item)
 function MenuClass:addItem(index, item)
   if item == nil then
     item = index
@@ -299,7 +299,7 @@ function MenuClass:addItem(index, item)
   item = table.merge(table.copy(MenuItem), item)
   item.index = index
   updateSliderCurrentValue(item)
-  item:formatPrice()
+  formatItemPrice(item)
   table.insert(self.items, index, item)
   if index < #self.items then
     for i = 1, #self.items do
@@ -317,6 +317,8 @@ function MenuClass:addItem(index, item)
   return item
 end
 
+--- Remove an item from a menu by its index. Requires MenuClass:push() to be called to apply the changes
+---@param index integer (The index of the item to remove)
 function MenuClass:removeItem(index)
   if not index then return eprint("MenuClass:removeItem > index can't be nil") end
   table.remove(self.items, index)
@@ -386,8 +388,11 @@ end
 ---@param value any (The new value for the property)
 function jo.menu.updateItem(id, index, key, value) menus[id]:updateItem(index, key, value) end
 
+--- Update a specific property of a menu. Requires MenuClass:push() to be called to apply the changes
+---@param keys string|table (The list of property name to access to the value)
+---@param value any (The new value)
 function MenuClass:updateValue(keys, value)
-  if type(keys) ~= "table" then keys = { keys } end
+  if type(keys) ~= "table" then error("MenuClass:updateValue > keys must be a table") end
   if keys[#keys] == "price" then
     value = jo.menu.formatPrice(value)
   end
@@ -400,8 +405,10 @@ function MenuClass:updateValue(keys, value)
   table.updateDeepValue(self, keys, v)
 end
 
+--- Delete a specific property of a menu. Requires MenuClass:push() to be called to apply the changes
+---@param keys string|table (The list of property name to access to the value)
 function MenuClass:deleteValue(keys)
-  if type(keys) ~= "table" then keys = { keys } end
+  if type(keys) ~= "table" then error("MenuClass:deleteValue > keys must be a table") end
   table.insert(self.updatedValues, {
     keys = keys,
     action = "delete"
@@ -432,6 +439,7 @@ function MenuClass:refresh()
   end
 end
 
+--- Push the updated values to the NUI layer
 function MenuClass:push()
   if not self.updatedValues then return dprint("") end
   local updated = clearDataForNui(self.updatedValues)
