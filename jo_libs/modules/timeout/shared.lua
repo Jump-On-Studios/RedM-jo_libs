@@ -125,7 +125,7 @@ function jo.timeout.delay(id, msec, cb, ...)
 end
 
 
---- A function to delay the second exeuction. If another delay is created with the same id, the previous one is canceled
+--- A function to delay the second execution. If another delay is created with the same id, the previous one is canceled
 ---@param id string (The unique ID of the delay)
 ---@param msec integer|function (The duration before execute cb or a waiter function)
 ---@param cb function (The function executed after msec)

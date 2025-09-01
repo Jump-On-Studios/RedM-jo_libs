@@ -251,11 +251,10 @@ function MenuItem:updateValue(keys, value)
 end
 
 --- Delete a specific property of a menu item. Requires MenuClass:push() to be called to apply the changes
----@param keys table (The list of property name to access to the value)
+---@param keys string|table (The list of property name to access to the value)
 function MenuItem:deleteValue(keys)
-  if type(keys) ~= "table" then error("MenuItem:deleteValue > keys must be a table") end
-  local menu = self:getParentMenu()
   if type(keys) ~= "table" then keys = { keys } end
+  local menu = self:getParentMenu()
   table.insert(keys, 1, self.index)
   table.insert(keys, 1, "items")
   menu:deleteValue(keys)
@@ -828,7 +827,7 @@ function jo.menu.getCurrentIndex()
   return currentData.index
 end
 
---- A function to run refresh events
+--- A function to fire menu and items events
 ---@param menuEvent? boolean (Whether to run menu events)
 ---@param itemEvent? boolean (Whether to run item events)
 function jo.menu.runRefreshEvents(menuEvent, itemEvent)
