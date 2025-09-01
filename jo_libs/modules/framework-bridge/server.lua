@@ -148,7 +148,8 @@ end
 ---@param prices table (The prices to check)
 ---@param removeIfCan? boolean (Remove the prices if the player can pay)
 ---@return boolean (Return `true` if the player can pay the prices)
----@return number (Return the index of the price that the player can't pay)
+---@return boolean, number (Return `true` if the player can pay the prices and the index of the price that the player can't pay)
+---@ignore
 function jo.framework:canUserPayWith(source, prices, removeIfCan)
   if type(prices) ~= "table" then
     eprint("jo.framework:canUserBuyMultiples: Wrong prices type. Need to be a table")

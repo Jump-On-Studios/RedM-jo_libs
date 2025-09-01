@@ -208,6 +208,7 @@ end)
 
 --- A function to get the list of items
 ---@return table (The list of items)
+---@ignore
 function jo.framework:getItems()
   waitInventoryItems()
   return jo.framework.inventoryItems
@@ -216,6 +217,7 @@ end
 --- A function to get an item data
 ---@param item string (The name of the item)
 ---@return table|false (The item data or false if not found)
+---@ignore
 function jo.framework:getItemData(item)
   waitInventoryItems()
   if not jo.framework.inventoryItems[item] then
