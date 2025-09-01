@@ -207,6 +207,7 @@ local MenuItem = {
   disabled = false,
   textRight = false,
   bufferOnChange = true,
+  parentMenu = nil,
   onActive = function() end,
   onClick = function() end,
   onChange = function() end,
@@ -239,7 +240,7 @@ end
 ---@param keys string|table (The property name to update)
 ---@param value any (The new value for the property)
 function MenuItem:updateValue(keys, value)
-  local menu = self.getParentMenu()
+  local menu = self:getParentMenu()
   if type(keys) ~= "table" then keys = { keys } end
   table.insert(keys, 1, self.index)
   table.insert(keys, 1, "items")
@@ -253,11 +254,17 @@ end
 ---@param keys table (The list of property name to access to the value)
 function MenuItem:deleteValue(keys)
   if type(keys) ~= "table" then error("MenuItem:deleteValue > keys must be a table") end
-  local menu = self.getParentMenu()
+  local menu = self:getParentMenu()
   if type(keys) ~= "table" then keys = { keys } end
   table.insert(keys, 1, self.index)
   table.insert(keys, 1, "items")
   menu:deleteValue(keys)
+end
+
+--- Get the parent menu of the item
+---@return MenuClass (The parent menu)
+function MenuItem:getParentMenu()
+  return self.parentMenu
 end
 
 --- Add an item to a menu
@@ -311,9 +318,8 @@ function MenuClass:addItem(index, item)
   if jo.menu.isCurrentMenu(self.id) and (jo.menu.getCurrentIndex() >= index or #self.items == 1) then
     menusNeedRefresh[self.id] = true
   end
-  function item.getParentMenu()
-    return self
-  end
+
+  item.parentMenu = self
   return item
 end
 
@@ -392,7 +398,7 @@ function jo.menu.updateItem(id, index, key, value) menus[id]:updateItem(index, k
 ---@param keys string|table (The list of property name to access to the value)
 ---@param value any (The new value)
 function MenuClass:updateValue(keys, value)
-  if type(keys) ~= "table" then error("MenuClass:updateValue > keys must be a table") end
+  if type(keys) ~= "table" then keys = { keys } end
   if keys[#keys] == "price" then
     value = jo.menu.formatPrice(value)
   end
@@ -408,7 +414,7 @@ end
 --- Delete a specific property of a menu. Requires MenuClass:push() to be called to apply the changes
 ---@param keys string|table (The list of property name to access to the value)
 function MenuClass:deleteValue(keys)
-  if type(keys) ~= "table" then error("MenuClass:deleteValue > keys must be a table") end
+  if type(keys) ~= "table" then keys = { keys } end
   table.insert(self.updatedValues, {
     keys = keys,
     action = "delete"
