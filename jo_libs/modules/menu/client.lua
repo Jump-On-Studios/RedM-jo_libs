@@ -207,7 +207,6 @@ local MenuItem = {
   disabled = false,
   textRight = false,
   bufferOnChange = true,
-  parentMenu = nil,
   onActive = function() end,
   onClick = function() end,
   onChange = function() end,
@@ -263,7 +262,7 @@ end
 --- Get the parent menu of the item
 ---@return MenuClass (The parent menu)
 function MenuItem:getParentMenu()
-  return self.parentMenu
+  return {}
 end
 
 --- Add an item to a menu
@@ -318,7 +317,11 @@ function MenuClass:addItem(index, item)
     menusNeedRefresh[self.id] = true
   end
 
-  item.parentMenu = self
+  ---@ignore
+  function item:getParentMenu()
+    return self
+  end
+
   return item
 end
 
