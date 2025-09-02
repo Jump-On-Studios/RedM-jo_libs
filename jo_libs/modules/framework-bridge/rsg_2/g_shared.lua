@@ -1,3 +1,6 @@
+local RSGCore = exports["rsg-core"]:GetCoreObject()
+jo.framework.core = RSGCore
+
 function jo.framework:getInventoryItems()
   local itemsRSG = self.core.Shared.Items
   local items = {}
