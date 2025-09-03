@@ -588,6 +588,7 @@ function jo.menu.create(id, data)
     data.onTick = data.tick
   end
   menus[id] = table.merge(table.copy(MenuClass), data)
+  menus[id].numberOnScreen = math.min(data.numberOnScreen or 8, 13)
   menus[id].id = id
   -- menus[id]:send()
   return menus[id]
