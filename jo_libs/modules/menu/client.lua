@@ -386,7 +386,7 @@ function jo.menu.addItems(id, items) menus[id]:addItems(items) end
 ---@param key string (The property name to update)
 ---@param value any (The new value for the property)
 function MenuClass:updateItem(index, key, value)
-  self.items[index]:update(key, value)
+  self.items[index]:updateValue(key, value)
 end
 
 --- Update a specific property of a menu item by menu ID
@@ -410,7 +410,7 @@ function MenuClass:updateValue(keys, value)
     action = "update",
     value = v
   })
-  table.updateDeepValue(self, keys, v)
+  table.upsert(self, keys, v)
 end
 
 --- Delete a specific property of a menu. Requires MenuClass:push() to be called to apply the changes
