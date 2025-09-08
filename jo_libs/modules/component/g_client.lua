@@ -364,7 +364,6 @@ local function GetMetaPedAssetTint(ped, index)
     Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt())
 end
 local function GetNumComponentsInPed(ped) return invokeNative(0x90403E8107B60E81, ped) or 0 end
-local function GetMetaPedType(ped) return invokeNative(0xEC9A1261BF0CE510, ped) end
 local function GetShopItemComponentCategory(...) return invokeNative(0x5FF9A878C3D115B8, ...) end
 local function UpdateShopItemWearableState(ped, hash, state)
   return invokeNative(0x66B957AAC2EAAEAB, ped, GetHashFromString(hash), GetHashFromString(state), 0, true, 1)
