@@ -99,7 +99,7 @@ end
 function jo.timeout.loop(msec, cb, ...)
   local args = table.pack(...)
   local t = TimeoutClass:set(msec, cb, args)
-  CreateThreadNow(function()
+  CreateThread(function()
     while not t.canceled do
       cb(table.unpack(args))
       Wait(t.msec)
