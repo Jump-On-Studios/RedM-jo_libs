@@ -20,13 +20,22 @@ jo.framework:loadFile("FrameworkClass")
 -- -----------
 
 --- Checks if a player has sufficient funds of a specified currency type
----@param price number (The amount of money the player needs to have)
+---@param price number|table (The amount of money the player needs to have <br> if table: {money = 1, gold = 1, rol = 1})
 ---@param moneyType? integer (`0`: dollar, `1`: gold, `2`: rol <br> default:`1`)
 ---@param removeIfCan? boolean (Remove the money if the player has enough <br> default:`false`)
 ---@return boolean (Return `true` if the player has more money than the amount)
 function jo.framework.UserClass:canBuy(price, moneyType, removeIfCan)
   if not price then
     return false, eprint("Price value is nil")
+  end
+  if type(price) == "table" then
+    if moneyType == 2 then
+      price = price.rol
+    elseif moneyType == 1 then
+      price = price.gold
+    else
+      price = price.money
+    end
   end
   price = math.abs(price)
   moneyType = GetValue(moneyType, 0)
@@ -97,16 +106,97 @@ end
 
 --- Checks if a player has sufficient funds of a specified currency type
 ---@param source integer (The source ID of the player)
----@param amount number (The amount of money the player needs to have)
----@param moneyType? integer (`0`: dollar, `1`: gold, `2`: rol <br> default:`1`)
+---@param amount number (The amount of money the player needs to have <br> {money = 10.5, gold = 3, rol = 1.5})
+---@param moneyType? integer|string (`0`: dollar, `1`: gold, `2`: rol <br> default:`1`)
 ---@param removeIfCan? boolean (Remove the money if the player has enough <br> default:`false`)
----@return boolean (Return `true` if the player has more money than the amount)
+---@return boolean (Returns `true` if the player has more money than the amount)
 function jo.framework:canUserBuy(source, amount, moneyType, removeIfCan)
+  if moneyType == "gold" then
+    moneyType = 1
+  elseif moneyType == "rol" then
+    moneyType = 2
+  elseif type(moneyType) ~= "number" then
+    moneyType = 0
+  end
+  if type(amount) == "table" then
+    if moneyType == 0 then
+      if not amount.money then
+        return false, eprint("No money define in the price: %s", json.encode(amount))
+      else
+        amount = amount.money
+      end
+    elseif moneyType == 1 then
+      if not amount.gold then
+        return false, eprint("No gold define in the price: %s", json.encode(amount))
+      else
+        amount = amount.gold
+      end
+    elseif moneyType == 2 then
+      if not amount.rol then
+        return false, eprint("No rol define in the price: %s", json.encode(amount))
+      else
+        amount = amount.rol
+      end
+    end
+  end
   local user = jo.framework.UserClass:get(source)
   return user:canBuy(amount, moneyType, removeIfCan)
 end
 
---- Adds money to a player
+--- A function that checks if a player can pay multiple prices
+---@param source integer (The source ID of the player)
+---@param prices table (The prices to check)
+---@param removeIfCan? boolean (Remove the prices if the player can pay)
+---@return boolean (Return `true` if the player can pay the prices)
+---@return boolean, number (Return `true` if the player can pay the prices and the index of the price that the player can't pay)
+---@ignore
+function jo.framework:canUserPayWith(source, prices, removeIfCan)
+  if type(prices) ~= "table" then
+    eprint("jo.framework:canUserBuyMultiples: Wrong prices type. Need to be a table")
+    eprint("Use jo.framework:canUserBuy() instead")
+    return false
+  end
+  if table.type(prices) ~= "array" then prices = { prices } end
+  for i = 1, #prices do
+    local price = prices[i]
+    if price.item then
+      if not jo.framework:canUseItem(source, price.item, price.quantity or 1, price.meta, false) then
+        return false, i
+      end
+    elseif price.money then
+      if not jo.framework:canUserBuy(source, price.money, 0, false) then
+        return false, i
+      end
+    elseif price.gold then
+      if not jo.framework:canUserBuy(source, price.gold, 1, false) then
+        return false, i
+      end
+    elseif price.rol then
+      if not jo.framework:canUserBuy(source, price.rol, 2, false) then
+        return false, i
+      end
+    end
+  end
+
+  if not removeIfCan then return true, 0 end
+
+  for i = 1, #prices do
+    local price = prices[i]
+    if price.item and not price.keep then
+      jo.framework:removeItem(source, price.item, price.quantity or 1, price.meta)
+    elseif price.money then
+      jo.framework:removeMoney(source, price.money, 0)
+    elseif price.gold then
+      jo.framework:removeMoney(source, price.gold, 1)
+    elseif price.rol then
+      jo.framework:removeMoney(source, price.rol, 2)
+    end
+  end
+
+  return true, 0
+end
+
+--- A function to give money to a player
 ---@param source integer (The source ID of the player)
 ---@param amount number (The amount of money to add)
 ---@param moneyType? integer (`0`: dollar, `1`: gold, `2`: rol <br> default:`0`)
@@ -116,7 +206,7 @@ function jo.framework:addMoney(source, amount, moneyType)
   return user:addMoney(amount, moneyType)
 end
 
---- Removes money from a player's account
+--- A function to remove money from a player's account
 ---@param source integer (The source ID of the player)
 ---@param amount number (The amount of money to remove)
 ---@param moneyType? integer (`0`: dollar, `1`: gold, `2`: rol <br> default:`0`)
@@ -126,7 +216,7 @@ function jo.framework:removeMoney(source, amount, moneyType)
   return user:removeMoney(amount, moneyType)
 end
 
---- Removes an item from a player's inventory if they have enough quantity
+--- A function to remove an item from a player's inventory if they have enough quantity
 ---@param source integer (The source ID of the player)
 ---@param item string (The name of the item to remove)
 ---@param quantity integer (The quantity of the item to remove)

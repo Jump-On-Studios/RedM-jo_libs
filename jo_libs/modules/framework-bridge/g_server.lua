@@ -1,4 +1,6 @@
 jo.require("framework-bridge")
+jo.require("callback")
+jo.file.load("@oxmysql.lib.MySQL")
 
 jo.framework:loadFile("g_server")
 jo.framework:loadFile("_custom", "g_server")
@@ -42,3 +44,5 @@ RegisterNetEvent("jo_libs:server:applySkin", function(ped, skin)
 
   TriggerClientEvent("jo_libs:client:applySkin", source, ped, skin)
 end)
+
+

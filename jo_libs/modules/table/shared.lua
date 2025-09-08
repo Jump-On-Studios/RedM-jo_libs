@@ -227,12 +227,16 @@ function table.upsert(...)
     main = keys[1]
     table.remove(keys, 1)
   end
+  local newValue = keys[#keys]
+  table.remove(keys, #keys)
+  if type(keys[1]) == "table" then keys = keys[1] end
+  local lastKey = keys[#keys]
   local child = main
-  for i = 1, #keys - 2 do
+  for i = 1, #keys - 1 do
     local key = keys[i]
     if not child[key] then
       child[key] = {}
-    elseif i < #keys and type(child[key]) ~= "table" then
+    elseif type(child[key]) ~= "table" then
       local s = "The value is not a table: ___"
       for x = 1, i do
         s = s .. ("[%s]"):format(tostring(keys[x]))
@@ -241,7 +245,7 @@ function table.upsert(...)
     end
     child = child[key]
   end
-  child[keys[#keys - 1]] = keys[#keys]
+  child[lastKey] = newValue
   return main
 end
 
@@ -301,4 +305,24 @@ function table.includes(t, value, fromIndex)
     end
   end
   return false, 0
+end
+
+--- A function to delete a deep value in a table
+---@param t table (The table)
+---@param keys any (The keys to deep)
+---@return table, boolean (Returns the table and `true` if the value was deleted)
+function table.deleteDeepValue(t, keys)
+  if not t then return t, false, error("table.deleteDeepValue: t is not a table") end
+  if type(t) ~= "table" then return t, false, error("table.deleteDeepValue: t is not a table") end
+  local last = keys[#keys]
+  local deep = t
+  for i = 1, #keys - 1 do
+    local key = keys[i]
+    if not deep[key] then
+      return t, false
+    end
+    deep = deep[key]
+  end
+  deep[last] = nil
+  return t, true
 end

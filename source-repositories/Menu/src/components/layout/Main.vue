@@ -7,21 +7,21 @@
           <img src="/assets/images/menu/selection_arrow_left.png">
         </span>
       </h2>
-      <template v-if="menuStore.cMenuItems.length > 0">
+      <template v-if="showItems()">
         <List />
       </template>
     </div>
-    <template v-if="menuStore.cMenuItems.length == 0 & menuStore.cMenu.type == 'list'">
+    <template v-if="datas.showLoader || (menuStore.cMenuItems.length == 0 && menuStore.cMenu.type == 'list')">
       <Loading />
     </template>
     <div class="footer" :key="menuStore.cMenu.refreshKey">
-      <template v-if="menuStore.cMenuItems.length > 0">
+      <template v-if="showItems()">
         <Description />
         <Slider />
       </template>
-      <Price />
-      <Footer />
     </div>
+    <Price v-if="showItems()" />
+    <Footer v-if="showItems()" />
   </main>
 </template>
 
@@ -80,6 +80,10 @@ function getTitle() {
     return lang(menuStore.cMenu.subtitle)
   }
   return menuStore.cMenu.subtitle
+}
+
+function showItems() {
+  return !datas.showLoader && menuStore.cMenuItems.length > 0
 }
 onBeforeMount(() => {
   window.addEventListener('keydown', handleKeydown);

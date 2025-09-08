@@ -76,6 +76,11 @@ class API {
     datas.definePosition(data.menuRight)
   }
 
+  displayLoader(data) {
+    const datas = useDataStore()
+    datas.displayLoader(data.show)
+  }
+
   updateLang(data) {
     const langStore = useLangStore()
     langStore.updateStrings(data.lang)
@@ -118,6 +123,7 @@ class API {
   deepMerge = function (obj1, obj2) {
     // Loop through the properties of the merged object
     for (const key of Object.keys(obj2)) {
+      if (obj2[key] == null || obj2[key] == undefined) continue
       // Check if the property is an object
       if (typeof obj1[key] !== typeof obj2[key]) {
         obj1[key] = obj2[key]
@@ -139,8 +145,62 @@ class API {
     return obj1;
   }
 
+  deepDelete = function (target, pattern) {
+    if (!pattern || typeof pattern !== 'object' || !target || typeof target !== 'object') return;
+    for (const key in pattern) {
+      if (target[key] === undefined)
+        return console.log('key not found', key)
+      if (pattern[key] === null) {
+        continue
+      } else if (pattern[key] === true) {
+        // Suppression directe de la clé
+        if (Array.isArray(target)) {
+          target.splice(key, 1)
+        } else {
+          delete target[key];
+        }
+      } else if (typeof pattern[key] === 'object' && typeof target[key] === 'object') {
+        this.deepDelete(target[key], pattern[key]);
+      }
+    }
+  }
+
   logProxy = function (...v) {
     console.log(JSON.parse(JSON.stringify(v)))
+  }
+
+  isNUIImage = function (url) {
+    if (url == undefined) return false
+    return url.includes('://')
+  }
+
+  getImage = function (url) {
+    if (this.isNUIImage(url))
+      return url
+    return `./assets/images/icons/${url}.png`
+  }
+
+  getPalette = function (palette) {
+    switch (palette) {
+      case "metaped_tint_generic_weathered":
+        return "metaped_tint_generic_clean"
+      case "metaped_tint_generic_worn":
+        return "metaped_tint_generic_clean"
+      case "metaped_tint_hat_clean":
+        return "metaped_tint_generic_clean"
+      case "metaped_tint_hat_weathered":
+        return "metaped_tint_generic_clean"
+      case "metaped_tint_hat_worn":
+        return "metaped_tint_generic_clean"
+      case "metaped_tint_skirt_clean":
+        return "metaped_tint_generic_clean"
+      case "metaped_tint_skirt_weathered":
+        return "metaped_tint_generic_clean"
+      case "metaped_tint_skirt_worn":
+        return "metaped_tint_generic_clean"
+
+    }
+    return palette
   }
 }
 

@@ -53,6 +53,8 @@ end
 RegisterNetEvent("jo_libs:client:emit:start", function(eventName)
   local handler
   local time = GetGameTimer()
+  eventsInProgress[eventName] = true
+  RegisterNetEvent(eventName)
   handler = AddEventHandler(eventName, function()
     eventsInProgress[eventName] = nil
     RemoveEventHandler(handler)

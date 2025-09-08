@@ -6,7 +6,8 @@ export const useDataStore = defineStore('datas', {
     showMenu: false,
     menuPositionRight: false,
     isQwerty: false,
-    openingAnimation: true
+    openingAnimation: true,
+    showLoader: false
   }),
   actions: {
     defineShow(value) {
@@ -27,6 +28,9 @@ export const useDataStore = defineStore('datas', {
     },
     defineQwerty(value) {
       this.isQwerty = value
-    }
+    },
+    displayLoader(value) {
+      this.showLoader = value
+    },
   }
 })

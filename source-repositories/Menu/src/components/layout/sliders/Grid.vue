@@ -21,6 +21,7 @@
         {{ label(1) }}
       </div>
     </div>
+    <div :class="['slider-description hapna', { last: props.last }]" v-if="slider.description" v-html="slider.description" />
   </div>
 </template>
 
@@ -30,7 +31,7 @@ const lang = useLangStore().lang
 import { useMenuStore } from '../../../stores/menus';
 const menuStore = useMenuStore()
 
-const props = defineProps(['index', 'slider'])
+const props = defineProps(['index', 'slider', 'last'])
 
 let boxTop = 0
 let boxLeft = 0

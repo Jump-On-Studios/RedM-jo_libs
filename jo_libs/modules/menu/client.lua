@@ -1,16 +1,17 @@
-jo.menu = {}
 jo.menu.exports = {}
-
-jo.require("table")
 jo.require("timeout")
 jo.require("nui")
 jo.require("string")
+
+local nuiLoaded = false
+local menuNuiChangeInProgress = false
 
 CreateThread(function()
   Wait(100)
   if GetResourceMetadata(GetCurrentResourceName(), "ui_page") == "nui://jo_libs/nui/menu/index.html" then
     return
   end
+  nuiLoaded = true
   jo.nui.load("jo_menu", "nui://jo_libs/nui/menu/index.html")
 end)
 
@@ -26,7 +27,9 @@ local previousData = {}
 local previousKeepingInput = false
 local NativeSendNUIMessage = SendNUIMessage
 local function SendNUIMessage(data)
-  if clockStart == GetGameTimer() then Wait(100) end
+  while not nuiLoaded do
+    Wait(0)
+  end
   data.messageTargetUiName = "jo_menu"
   NativeSendNUIMessage(data)
 end
@@ -39,63 +42,94 @@ local disabledKeys = {
   `INPUT_GAME_MENU_CANCEL`,
   `INPUT_FRONTEND_PAUSE_ALTERNATE`,
 }
+local menusNeedRefresh = {}
 
 local function updateSliderCurrentValue(item)
+  if not item or not item.sliders then return end
   for i = 1, #item.sliders do
     local slider = item.sliders[i]
-    if slider.type == "grid" then
-      slider.value = {}
-      slider.value[1] = slider.values[1] and math.floor(slider.values[1].current * 1000) / 1000 or nil
-      slider.value[2] = slider.values[2] and math.floor(slider.values[2].current * 1000) / 1000 or nil
-    elseif slider.type == "palette" then
-      slider.value = slider.current
-    else
-      slider.value = slider.values[slider.current]
+    if slider then
+      if slider.type == "grid" then
+        slider.value = {}
+        slider.value[1] = slider.values[1] and math.floor(slider.values[1].current * 1000) / 1000 or nil
+        slider.value[2] = slider.values[2] and math.floor(slider.values[2].current * 1000) / 1000 or nil
+      elseif slider.type == "palette" then
+        slider.value = slider.current
+      else
+        slider.value = slider.values[slider.current]
+      end
     end
   end
 end
 
 local function menuNUIChange(data)
   if not menus[data.menu] then return end
-  if not menus[data.menu].items[data.item.index] then return end
+  -- if not menus[data.menu].items[data.item.index] then return end
 
   currentData.menu = data.menu
-  currentData.index = data.item.index
-  -- menus[data.menu].currentIndex = data.item.index
-  menus[data.menu].items[data.item.index] = table.merge(menus[data.menu].items[data.item.index], data.item)
-  currentData.item = menus[data.menu].items[data.item.index]
+  if data.index then
+    menus[data.menu].currentIndex = data.index
+    menus[data.menu].items[data.index] = table.merge(menus[data.menu].items[data.index], data.item)
+    currentData.item = menus[data.menu].items[data.index]
+    currentData.index = menus[data.menu].currentIndex
 
-  updateSliderCurrentValue(currentData.item)
-
-  local oldButton = false
-  if previousData.menu then
-    oldButton = menus[previousData.menu].items[previousData.index]
+    updateSliderCurrentValue(currentData.item)
+  else
+    currentData.index = 0
+    currentData.item = {}
   end
 
-  if previousData.menu ~= currentData.menu then
-    if oldButton then
-      jo.menu.fireEvent(oldButton, "onExit")
-      jo.menu.fireEvent(menus[previousData.menu], "onExit")
+  if not jo.menu.doesActiveButtonChange() and currentData.item.sliders then
+    for i = 1, #currentData.item.sliders do
+      local current = currentData.item.sliders[i].current
+      local oldCurrent = previousData.item.sliders[i]?.current or 0
+      currentData.item.sliders[i].changed = current ~= oldCurrent
     end
-    jo.menu.fireEvent(menus[currentData.menu], "onEnter")
-    jo.menu.fireEvent(currentData.item, "onActive")
-  else
-    if previousData.index ~= currentData.index then
+  end
+
+  local waiter = function()
+    while menuNuiChangeInProgress do Wait(10) end
+    Wait(100)
+  end
+
+  if not currentData.item.bufferOnChange or table.find(data.item.sliders, function(slider) return slider.type == "grid" end) then
+    waiter = function() while menuNuiChangeInProgress do Wait(0) end end
+  end
+
+  jo.timeout.noSpam("menuNUIChange", waiter, function()
+    menuNuiChangeInProgress = true
+
+    local oldButton = false
+    if previousData.menu then
+      oldButton = previousData.item
+    end
+
+    if previousData.menu ~= currentData.menu or data.forceMenuEvent then
       if oldButton then
         jo.menu.fireEvent(oldButton, "onExit")
+        jo.menu.fireEvent(menus[previousData.menu], "onExit")
       end
+      jo.menu.fireEvent(menus[currentData.menu], "onEnter")
       jo.menu.fireEvent(currentData.item, "onActive")
     else
-      jo.menu.fireEvent(currentData.item, "onChange")
+      if previousData.index ~= currentData.index or data.forceItemEvent then
+        if oldButton then
+          jo.menu.fireEvent(oldButton, "onExit")
+        end
+        jo.menu.fireEvent(currentData.item, "onActive")
+      else
+        jo.menu.fireEvent(currentData.item, "onChange")
+      end
+      jo.menu.fireEvent(menus[previousData.menu], "onChange")
     end
-    jo.menu.fireEvent(menus[previousData.menu], "onChange")
-  end
 
-  for _, listener in ipairs(jo.menu.listeners) do
-    listener.cb(currentData)
-  end
+    for _, listener in ipairs(jo.menu.listeners) do
+      listener.cb(currentData)
+    end
 
-  previousData = table.copy(currentData)
+    previousData = table.copy(currentData)
+    menuNuiChangeInProgress = false
+  end)
 end
 
 local function missingMenu(id)
@@ -103,6 +137,12 @@ local function missingMenu(id)
     return eprint("The menu is missing: %s", id)
   end
   CreateThreadNow(menuCreators[id])
+end
+
+local function clearDataForNui(data)
+  local newData = table.clearForNui(data)
+  newData.onBeforeEnter = data.onBeforeEnter and true or nil
+  return newData
 end
 
 ---@class MenuClass : table Menu class
@@ -122,14 +162,36 @@ local MenuClass = {
   subtitle = "",
   type = "list",
   items = {},
+  updatedValues = {},
   numberOnScreen = 8,
+  currentIndex = 1,
   distanceToClose = false,
-  onEnter = function() end,
-  onBack = function() end,
-  onExit = function() end,
-  onChange = function() end
+  onBeforeEnter = nil,
+  onEnter = nil,
+  onBack = nil,
+  onExit = nil,
+  onChange = nil
 }
 
+---@class MenuItemClass : table Menu item class
+---@field title string Item title
+---@field subtitle string Item subtitle
+---@field footer string Item footer
+---@field child string|boolean Item child
+---@field sliders table Item sliders
+---@field price table|boolean Item price
+---@field data table Item data
+---@field visible boolean Item visibility
+---@field description string Item description
+---@field prefix string|boolean Item prefix
+---@field statistics table Item statistics
+---@field disabled boolean Item disabled
+---@field textRight string|boolean Item text right
+---@field bufferOnChange boolean Item buffer on change
+---@field onActive function Item on active
+---@field onClick function Item on click
+---@field onChange function Item on change
+---@field onExit function Item on exit
 local MenuItem = {
   title = "",
   subtitle = "",
@@ -151,8 +213,60 @@ local MenuItem = {
   onExit = function() end
 }
 
+--- Format the price of the item
+local function formatItemPrice(item)
+  if not item.price then return end
+  if type(item.price) ~= "table" then return end
+  if table.type(item.price) ~= "array" then return end
+  for i = 1, #item.price do
+    local price = item.price[i]
+    if price.item then
+      jo.require("framework")
+      local loaderOn = false
+      if table.isEmpty(jo.framework.inventoryItems) then
+        jo.menu.displayLoader()
+        loaderOn = true
+      end
+      price = jo.menu.formatPrice(price)
+      if loaderOn then
+        SetTimeout(100, jo.menu.hideLoader)
+      end
+    end
+  end
+end
+
+--- Update a specific property of a menu item. Requires MenuClass:push() to be called to apply the changes
+---@param keys string|table (The property name to update)
+---@param value any (The new value for the property)
+function MenuItem:updateValue(keys, value)
+  local menu = self:getParentMenu()
+  if type(keys) ~= "table" then keys = { keys } end
+  table.insert(keys, 1, self.index)
+  table.insert(keys, 1, "items")
+  menu:updateValue(keys, value)
+  if not jo.menu.doesActiveButtonChange() then
+    previousData = table.copy(currentData)
+  end
+end
+
+--- Delete a specific property of a menu item. Requires MenuClass:push() to be called to apply the changes
+---@param keys string|table (The list of property name to access to the value)
+function MenuItem:deleteValue(keys)
+  if type(keys) ~= "table" then keys = { keys } end
+  local menu = self:getParentMenu()
+  table.insert(keys, 1, self.index)
+  table.insert(keys, 1, "items")
+  menu:deleteValue(keys)
+end
+
+--- Get the parent menu of the item
+---@return MenuClass (The parent menu)
+function MenuItem:getParentMenu()
+  return {}
+end
+
 --- Add an item to a menu
----@param p integer|table (Position index or item table if used as single parameter)
+---@param index integer|table (Position index or item table if used as single parameter)
 ---@param item? table (The item to add - if not provided, p is used as the item)
 --- item.title string (The item label)
 --- item.child? string (The menu to open when Enter is pressed <br> default: false)
@@ -178,28 +292,52 @@ local MenuItem = {
 --- item.onChange? function (Fired when a slider value changes)
 --- item.onExit? function (Fired when the item is exited)
 --- item.onTick? function (Fired every tick)
----@return table (The added item)
-function MenuClass:addItem(p, item)
+---@return MenuItemClass (The added item)
+function MenuClass:addItem(index, item)
   if item == nil then
-    item = p
-    p = #self.items + 1
+    item = index
+    index = #self.items + 1
   end
   if item.tick then
     item.onTick = item.tick
   end
   item = table.merge(table.copy(MenuItem), item)
-  item.index = p
+  item.index = index
   updateSliderCurrentValue(item)
-  table.insert(self.items, p, item)
-  if p < #self.items - 1 then
+  formatItemPrice(item)
+  table.insert(self.items, index, item)
+  if index < #self.items then
     for i = 1, #self.items do
       if type(self.items[i].index) == "number" then
         self.items[i].index = i
       end
     end
-    menuNUIChange({ menu = self.id, item = { index = self.currentIndex } })
   end
+  if jo.menu.isCurrentMenu(self.id) and (jo.menu.getCurrentIndex() >= index or #self.items == 1) then
+    menusNeedRefresh[self.id] = true
+  end
+
+  ---@ignore
+  function item:getParentMenu()
+    return self
+  end
+
   return item
+end
+
+--- Remove an item from a menu by its index. Requires MenuClass:push() to be called to apply the changes
+---@param index integer (The index of the item to remove)
+function MenuClass:removeItem(index)
+  if not index then return eprint("MenuClass:removeItem > index can't be nil") end
+  table.remove(self.items, index)
+  if index < #self.items then
+    for i = 1, #self.items do
+      self.items[i].index = i
+    end
+  end
+  if jo.menu.isCurrentMenu(self.id) and jo.menu.getCurrentIndex() >= index then
+    menusNeedRefresh[self.id] = true
+  end
 end
 
 --- Add an item to a menu by its ID
@@ -243,11 +381,12 @@ end
 function jo.menu.addItems(id, items) menus[id]:addItems(items) end
 
 --- Update a specific property of a menu item
+---@deprecated since v2.3.0. Use MenuClass:updateValue or MenuClass:deleteValue instead
 ---@param index integer (The index of the item to update)
 ---@param key string (The property name to update)
 ---@param value any (The new value for the property)
 function MenuClass:updateItem(index, key, value)
-  self.items[index][key] = value
+  self.items[index]:updateValue(key, value)
 end
 
 --- Update a specific property of a menu item by menu ID
@@ -257,19 +396,69 @@ end
 ---@param value any (The new value for the property)
 function jo.menu.updateItem(id, index, key, value) menus[id]:updateItem(index, key, value) end
 
---- Refresh the menu display without changing the current state
---- Used when menu items have been modified
+--- Update a specific property of a menu. Requires MenuClass:push() to be called to apply the changes
+---@param keys string|table (The list of property name to access to the value)
+---@param value any (The new value)
+function MenuClass:updateValue(keys, value)
+  if type(keys) ~= "table" then keys = { keys } end
+  if keys[#keys] == "price" then
+    value = jo.menu.formatPrice(value)
+  end
+  local v = table.copy(value)
+  table.insert(self.updatedValues, {
+    keys = keys,
+    action = "update",
+    value = v
+  })
+  table.upsert(self, keys, v)
+end
+
+--- Delete a specific property of a menu. Requires MenuClass:push() to be called to apply the changes
+---@param keys string|table (The list of property name to access to the value)
+function MenuClass:deleteValue(keys)
+  if type(keys) ~= "table" then keys = { keys } end
+  table.insert(self.updatedValues, {
+    keys = keys,
+    action = "delete"
+  })
+  table.deleteDeepValue(self, keys)
+end
+
+
+--- Refresh all the menu without changing the current state
+--- Used when you want rebuild the menu
 function MenuClass:refresh()
-  local datas = table.clearForNui(self)
+  local datas = clearDataForNui(self)
   datas.currentIndex = nil
   SendNUIMessage({
     event = "updateMenuData",
     menu = self.id,
     data = datas
   })
-  if currentData.menu == self.id then
-    currentData.item = self.items[currentData.index]
+  if menusNeedRefresh[self.id] then
+    if jo.menu.isCurrentMenu(self.id) then
+      if self.currentIndex > #self.items then
+        self:setCurrentIndex(#self.items)
+      end
+      self.currentIndex = math.min(self.currentIndex, #self.items)
+      jo.menu.runRefreshEvents(false, true)
+    end
+    menusNeedRefresh[self.id] = nil
   end
+end
+
+--- Push the updated values to the NUI layer
+function MenuClass:push()
+  if not self.updatedValues then return dprint("") end
+  local updated = clearDataForNui(self.updatedValues)
+
+  SendNUIMessage({
+    event = "updateMenuValues",
+    menu = self.id,
+    updated = updated,
+    deleted = deleted
+  })
+  self.updatedValues = {}
 end
 
 --- Refresh a menu by its ID
@@ -338,7 +527,7 @@ function MenuClass:send()
   if self.sentToNUI then
     return error("Menu already sent, please use menu:refresh(): " .. self.id)
   end
-  local datas = table.clearForNui(self)
+  local datas = clearDataForNui(self)
   SendNUIMessage({
     event = "updateMenu",
     menu = datas
@@ -399,6 +588,7 @@ function jo.menu.create(id, data)
     data.onTick = data.tick
   end
   menus[id] = table.merge(table.copy(MenuClass), data)
+  menus[id].numberOnScreen = math.min(data.numberOnScreen or 8, 13)
   menus[id].id = id
   -- menus[id]:send()
   return menus[id]
@@ -626,6 +816,47 @@ function jo.menu.softHide(cb, animation)
   SendNUIMessage({ event = "updateShow", show = true, cancelAnimation = not animation })
 end
 
+
+--- A function to know if the menu is the current one
+---@param id string (The menu id)
+---@return boolean
+function jo.menu.isCurrentMenu(id)
+  if not jo.menu.isOpen() then return false end
+  return currentData.menu == id
+end
+
+--- A function to get the current index
+---@return integer (The index of the current item)
+function jo.menu.getCurrentIndex()
+  return currentData.index
+end
+
+--- A function to fire menu and items events
+---@param menuEvent? boolean (Whether to run menu events)
+---@param itemEvent? boolean (Whether to run item events)
+function jo.menu.runRefreshEvents(menuEvent, itemEvent)
+  menuEvent = menuEvent or false
+  ItemEvent = itemEvent or false
+  menuNUIChange({ menu = jo.menu.getCurrentMenu().id, item = { index = jo.menu.getCurrentIndex() }, forceMenuEvent = menuEvent, forceItemEvent = itemEvent })
+end
+
+--- A function to get the current menu id
+---@return string (The id of the current menu)
+function jo.menu.getCurrentMenuId()
+  return currentData.menu
+end
+
+--- A function to display the loader
+---@param value? boolean (Whether to display the loader <br> default: `true`)
+function jo.menu.displayLoader(value)
+  value = GetValue(value, true)
+  SendNUIMessage({ event = "displayLoader", show = value })
+end
+
+--- A function to hide the loader
+function jo.menu.hideLoader()
+  jo.menu.displayLoader(false)
+end
 -------------
 -- NUI
 -------------
@@ -651,6 +882,13 @@ RegisterNuiCallback("missingMenu", function(data, cb)
   cb("ok")
 
   missingMenu(data.menu)
+end)
+
+RegisterNUICallback("onBeforeEnter", function(data, cb)
+  if menus[data.menu] then
+    jo.menu.fireEvent(menus[data.menu], "onBeforeEnter")
+  end
+  cb("ok")
 end)
 
 --- Register a handler for missing menu error
@@ -702,17 +940,10 @@ end
 RegisterNUICallback("updatePreview", function(data, cb)
   cb("ok")
 
-  if not menus[data.menu] then return end
-  if not menus[data.menu].items[data.item.index] then return end
-
-  local item = menus[data.menu].items[data.item.index]
-  if not item.bufferOnChange or table.find(data.item.sliders, function(slider) return slider.type == "grid" end) then
-    return menuNUIChange(data)
-  end
-  jo.timeout.delay("menuNUIChange", 100, function()
-    menuNUIChange(data)
-  end)
+  menuNUIChange(data)
 end)
+
+
 
 -------------
 -- BRIDGE OTHER MENU

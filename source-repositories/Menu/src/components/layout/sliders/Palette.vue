@@ -19,6 +19,7 @@
         </div>
       </div>
     </div>
+    <div :class="['slider-description hapna', { last: props.last }]" v-if="slider.description" v-html="slider.description" />
   </div>
 </template>
 
@@ -30,14 +31,14 @@ import { useMenuStore } from '../../../stores/menus';
 const menuStore = useMenuStore()
 const API = inject('API')
 
-const props = defineProps(['index', 'slider'])
+const props = defineProps(['index', 'slider', 'last'])
 let fakeIndex = ref(props.index)
 if (menuStore.cMenu.type == 'tile')
   fakeIndex.value += 1
 const max = ref(1)
 let mounted = false
 
-const url = computed(() => { return `./assets/images/menu/${props.slider.tint}.png` })
+const url = computed(() => { return `./assets/images/menu/${API.getPalette(props.slider.palette || props.slider.tint)}.png` })
 
 function CalculMaxValue() {
   const img = new Image();

@@ -5,6 +5,14 @@
   --delay-enter: 0.1s;
   --delay-leave: 0.1s;
   --padding-background-item: 0.3vh;
+  --menu-width: 50vh;
+  --menu-height: 90vh;
+  --container-width: calc(var(--menu-width) - 10vh);
+  --container-height: calc(var(--menu-height) - 2.4vh - 3.7vh);
+  --item-height: 4.9vh;
+  --item-padding-v: 0.25vh;
+  --item-padding-h: 2.5vh;
+  --price-height: 5.4vh;
 }
 
 body {
@@ -28,7 +36,7 @@ body {
 }
 
 *::-webkit-scrollbar-thumb {
-  background-color: rgb(196, 196, 196);
+  background-color: rgb(8, 6, 6);
   border-radius: 0.93vh;
   border: 0.093vh solid transparent;
 }
@@ -100,7 +108,7 @@ body {
     -webkit-mask-position-y: 0;
     --container-width: calc(var(--menu-width) - 10vh);
     --container-height: calc(var(--menu-height) - 2.4vh - 3.7vh);
-    padding: 2.4vh 5vh 3.7vh;
+    padding: 2.4vh 5vh 3vh;
     height: 100%;
     width: 100%;
     position: absolute;
@@ -263,6 +271,10 @@ main {
   justify-content: center;
   column-gap: 1.4vh;
 
+  .arrow.disabled {
+    opacity: 0.3;
+  }
+
   &>div {
     display: grid;
   }
@@ -295,6 +307,7 @@ main {
 
 .slider {
   width: 100%;
+  position: relative;
 
   h2 {
     margin-bottom: 0.75vh;
@@ -356,6 +369,18 @@ main {
   }
 }
 
+.slider-description {
+  width: 100%;
+  text-align: center;
+
+  &.last {
+    position: absolute;
+    bottom: 0;
+    transform: translateY(100%);
+
+  }
+}
+
 .slider .sprites {
   display: flex;
   align-items: center;
@@ -371,14 +396,35 @@ main {
   }
 
   .sprite {
+    --sprite-padding: 0.75vh;
     position: relative;
-    padding: 0.75vh;
+    padding: var(--sprite-padding);
     width: 5vh;
     height: 5vh;
     min-width: 5vh;
     max-width: 5vh;
 
+    &:before {
+      content: '';
+      display: block;
+      position: absolute;
+      top: var(--sprite-padding);
+      left: var(--sprite-padding);
+      bottom: var(--sprite-padding);
+      right: var(--sprite-padding);
+      background-image: url('/assets/images/tints/swatch_box.png');
+      background-size: 100%;
+      background-repeat: no-repeat;
+      background-position: center;
+      z-index: 9999;
+    }
+
     img {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+    }
+
+    .empty {
       width: 100%;
       aspect-ratio: 1 / 1;
     }
@@ -391,8 +437,6 @@ main {
   }
 
   .current {
-    filter: invert(0%);
-
     &::after {
       content: '';
       display: block;
@@ -408,6 +452,11 @@ main {
       filter: brightness(0.5) sepia(1) saturate(10000%);
     }
   }
+
+  .color-custom {
+    width: 100%;
+    height: 100%;
+  }
 }
 
 
@@ -422,70 +471,6 @@ main {
   height: 0.37vh;
   background-image: url('/assets/images/menu/divider_line.png');
   background-size: 100% 100%;
-}
-
-.price {
-  width: 100%;
-
-  .content {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.46vh 0.92vh;
-
-    h4 {
-      font-size: 1.5em;
-    }
-  }
-
-  .priceDisplay {
-    font-size: 2em;
-  }
-}
-
-.priceDisplay {
-  display: flex;
-  position: relative;
-
-  .centime {
-    position: relative;
-    font-size: 0.6em;
-    margin-left: 0.185vh;
-    margin-top: 0.185vh;
-    height: fit-content;
-
-    &::after {
-      content: '';
-      position: absolute;
-      display: block;
-      background-image: url('/assets/images/menu/money_line.png');
-      height: 0.46vh;
-      width: 100%;
-      left: 0;
-      bottom: 0;
-    }
-  }
-
-  .divider.bottom {
-    margin-top: -0.46vh;
-  }
-
-  .gold {
-    img {
-      width: 2.8vh;
-      margin-right: 0.46vh;
-    }
-  }
-
-  .gold.left {
-    font-size: 0.6em;
-    margin-top: 0.93vh;
-    margin-right: 0.93vh;
-
-    img {
-      width: 1.85vh;
-    }
-  }
 }
 
 .description {

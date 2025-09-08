@@ -1,5 +1,32 @@
 ---@class FrameworkClass
-jo.framework = {}
+---@field core table (The link with the framework)
+---@field inv table (The link with the inventory)
+---@field inventoryItems table (The list of items)
+jo.framework = {
+  core = {},
+  inv = {},
+  inventoryItems = {},
+}
+
+local frameworkDetected
+
+---@autodoc:config ignore:true
+function jo.framework:getFrameworkDetected()
+  return frameworkDetected
+end
+
+---@autodoc:config ignore:true
+function jo.framework:loadFile(...)
+  if not frameworkDetected then return false end
+  local args = { ... }
+  local folder = args[2] and args[1] or frameworkDetected.folder
+  local name = args[2] or args[1]
+  local path = ("framework-bridge.%s.%s"):format(folder, name)
+  if jo.file.isExist(path) then
+    return jo.file.load(path)
+  end
+  return false
+end
 
 jo.require("string")
 
@@ -149,7 +176,7 @@ local function detectFramework()
   return frameworkDetected
 end
 
-local frameworkDetected = detectFramework()
+frameworkDetected = detectFramework()
 if not frameworkDetected then
   eprint("IMPOSSIBLE to detect which framework is used on your server")
   return
@@ -170,19 +197,35 @@ for i = 1, #frameworkDetected.resources do
   end
 end
 
----@autodoc:config ignore:true
-function jo.framework:getFrameworkDetected()
-  return frameworkDetected
+local function waitInventoryItems()
+  while table.isEmpty(jo.framework.inventoryItems) do Wait(10) end
 end
 
----@autodoc:config ignore:true
-function jo.framework:loadFile(...)
-  local args = { ... }
-  local folder = args[2] and args[1] or frameworkDetected.folder
-  local name = args[2] or args[1]
-  local path = ("framework-bridge.%s.%s"):format(folder, name)
-  if jo.file.isExist(path) then
-    return jo.file.load(path)
+jo.ready(function()
+  Wait(1000)
+  jo.framework.inventoryItems = exports.jo_libs:jo_framework_getInventoryItems()
+end)
+
+--- A function to get the list of items
+---@return table (The list of items)
+---@ignore
+function jo.framework:getItems()
+  waitInventoryItems()
+  return jo.framework.inventoryItems
+end
+
+--- A function to get an item data
+---@param item string (The name of the item)
+---@return table|false (The item data or false if not found)
+---@ignore
+function jo.framework:getItemData(item)
+  waitInventoryItems()
+  if not jo.framework.inventoryItems[item] then
+    eprint("Item %s not found", item)
+    return
+    {
+      label = "Not exist"
+    }
   end
-  return false
+  return jo.framework.inventoryItems[item]
 end

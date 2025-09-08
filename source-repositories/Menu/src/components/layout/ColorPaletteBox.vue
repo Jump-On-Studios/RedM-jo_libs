@@ -1,7 +1,14 @@
 <template>
     <div :class="['color-custom color-' + numberColor, props.color.style]" :key="keyUpdate" ref="boxParent">
-        <div v-for="index in numberColor" :key="index" :class="'tint tint' + (index - 1)" :style="getStyleTint(index - 1)"></div>
-        <div class="border"></div>
+        <template v-if="tint.palette == 'rgb'">
+            <div v-for="index in numberColor" :key="index" :class="'tint tint' + (index - 1)" :style="getStyleTint(index - 1)"></div>
+            <div class="border"></div>
+        </template>
+        <template v-else>
+            <div v-for="index in numberColor" :key="index" :class="'tint tint' + (index - 1)" :style="getStyleTint(index - 1)"></div>
+            <div class="border"></div>
+        </template>
+
     </div>
 </template>
 
@@ -9,6 +16,11 @@
 import { computed, onMounted, ref, watch } from 'vue';
 const props = defineProps(['color'])
 const tint = computed(() => {
+    if (props.color.rgb)
+        return {
+            palette: 'rgb',
+            tints: props.color.rgb
+        }
     const tints = [props.color.tint0]
     if (Number.isInteger(props.color.tint1))
         tints.push(props.color.tint1)
@@ -21,10 +33,12 @@ const tint = computed(() => {
 })
 
 const numberColor = computed(() => { return tint.value.tints.length })
-const url = computed(() => { return `./assets/images/menu/${props.color.palette}.png` })
+const url = computed(() => { return props.color.palette && `./assets/images/menu/${props.color.palette}.png` })
 
 const max = ref(1)
 function calculMax() {
+    if (!url.value)
+        return
     const img = new Image();
     img.src = url.value;
     img.onload = function () {
@@ -42,9 +56,14 @@ watch(url, () => {
 const keyUpdate = computed(() => { return tint.value.palette + tint.value.tints.reduce((a, b) => a + b, 0) })
 
 function getStyleTint(index) {
+    if (tint.value.palette == 'rgb')
+        return {
+            'background-color': tint.value.tints[index]
+        }
+
     let value = tint.value.tints[index]
 
-    let percent = (value / max.value) * 100
+    let percent = Math.min((value / max.value) * 100, 100)
     return {
         backgroundImage: "url(" + url.value + ")",
         backgroundPosition: percent + "% 0px"
@@ -128,5 +147,9 @@ function getStyleTint(index) {
             }
         }
     }
+}
+
+.sprites .color-custom .border {
+    display: none;
 }
 </style>

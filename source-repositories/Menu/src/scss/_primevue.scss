@@ -1,0 +1,19 @@
+:root {
+  --p-surface-50: var(--p-neutral-50);
+  --p-surface-100: var(--p-neutral-100);
+  --p-surface-200: var(--p-neutral-200);
+  --p-surface-300: var(--p-neutral-300);
+  --p-surface-400: var(--p-neutral-400);
+  --p-surface-500: var(--p-neutral-500);
+  --p-surface-600: var(--p-neutral-600);
+  --p-surface-700: var(--p-neutral-700);
+  --p-surface-800: var(--p-neutral-800);
+  --p-surface-900: var(--p-neutral-900);
+  --p-surface-950: var(--p-neutral-950);
+  --p-tooltip-background: var(--p-surface-700);
+}
+
+.p-tooltip {
+  font-family: Hapna;
+  font-weight: bold;
+}

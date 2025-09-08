@@ -1,3 +1,7 @@
+-------------
+-- DEPRECATED
+-------------
+
 HorseComponents = {
   horse_saddles = {
     {

@@ -17,6 +17,8 @@ files {
 	"modules/**/*client.lua",
 	"modules/component/clothesList.lua",
 	"modules/component/horseComponents.lua",
+	"modules/component/data/horseComponents.lua",
+	"modules/component/data/playerComponents.lua",
 	"modules/game-events/data.lua",
 	"modules/raw-keys/vk_azerty.lua",
 	"modules/raw-keys/vk_qwerty.lua",
@@ -45,4 +47,9 @@ shared_scripts {
 
 jo_libs {
 	"version-checker"
+}
+
+dependencies {
+	"/onesync",
+	"/server:14901"
 }

@@ -1,5 +1,5 @@
 <template>
-  <template v-if="props.slider.values.length > 1">
+  <template v-if="props.slider.values.length > 1 || props.slider.forceDisplay">
     <div :data-slider-index="props.index" class="slider">
       <h2 v-if="props.slider.title">{{ title() }}</h2>
       <div class="arrows">
@@ -13,6 +13,7 @@
           <img src="/assets/images/menu/tank_meter_marker.png" v-if="vIndex + 1 == props.slider.current" class="current" />
         </div>
       </div>
+      <div :class="['slider-description hapna', { last: props.last }]" v-if="slider.description" v-html="slider.description" />
     </div>
   </template>
 </template>
@@ -25,7 +26,7 @@ const lang = useLangStore().lang
 
 const menuStore = useMenuStore()
 
-const props = defineProps(['slider', 'index'])
+const props = defineProps(['slider', 'index', 'last'])
 
 const API = inject('API')
 

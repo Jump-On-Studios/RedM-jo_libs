@@ -1,5 +1,5 @@
 <template>
-  <template v-if="slider.values.length > 1">
+  <template v-if="slider.values.length > 1 || slider.forceDisplay">
     <div :data-slider-index="index" class="slider">
       <h2 v-if="slider.title">{{ title() }}</h2>
       <div class="arrows">
@@ -10,12 +10,16 @@
       <div :class="['sprites', { 'center': slider.values.length <= 8 }]" id="scroller">
         <div v-for="(value, vIndex) in slider.values" :key="vIndex + 1" :class="['sprite clicker', { 'current': (vIndex + 1) == slider.current }]" :id="'sprite-' + (vIndex + 1)" @click="click(vIndex + 1)">
           <ColorPaletteBox v-if="slider.type == 'color'" :color="value" />
-          <img v-else :src="`./assets/images/${value.sprite}.png`" />
+          <img v-else-if="value.sprite" :class="value.class" :src="API.isNUIImage(value.sprite) ? value.sprite : `./assets/images/${value.sprite}.png`" />
+          <div class="empty" v-else-if="value.rgb && typeof value.rgb == 'string'" :class="value.class" :style="{ 'background-color': value.rgb }" />
+          <ColorPaletteBox v-else-if="value.rgb" :color="value" />
+          <ColorPaletteBox v-else-if="value.palette" :color="value.palette" />
           <div class="tick" v-if="slider.displayTick && slider.tickIndex == vIndex">
             <img src="/assets/images/menu/tick.png">
           </div>
         </div>
       </div>
+      <div :class="['slider-description hapna', { last: props.last }]" v-if="slider.description" v-html="slider.description" />
     </div>
   </template>
 </template>
@@ -28,7 +32,7 @@ import { useMenuStore } from '../../../stores/menus';
 const lang = useLangStore().lang
 const menuStore = useMenuStore()
 
-const props = defineProps(['slider', 'index'])
+const props = defineProps(['slider', 'index', 'last'])
 
 const API = inject('API')
 
