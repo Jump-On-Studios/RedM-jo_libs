@@ -120,6 +120,13 @@ local categoryNotClothes = {
   neckerchiefs = true
 }
 jo.component.data.pedClothes = table.filter(jo.component.data.pedCategories, function(cat) return not categoryNotClothes[cat] end)
+jo.component.data.clothesCategories = {}
+
+for i = 1, #jo.component.data.pedClothes do
+  local category = jo.component.data.pedClothes[i]
+  local hash = jo.component.getCategoryHash(category)
+  jo.component.data.clothesCategories[hash] = category
+end
 
 jo.component.data.categoryName = {}
 for i = 1, #jo.component.data.order do
@@ -1378,3 +1385,8 @@ end
 -------------
 -- END CONVERT HASH
 -------------
+
+function jo.component.isCategoryAClothes(category)
+  category = jo.component.getCategoryHash(category)
+  return jo.component.data.clothesCategories[category] ~= nil
+end
