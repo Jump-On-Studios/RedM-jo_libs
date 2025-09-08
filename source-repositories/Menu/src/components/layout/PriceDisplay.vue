@@ -39,8 +39,8 @@
               {{ formatPrice(props.price.gold) }}
             </span>
           </template>
-          <template v-if="moneyPrice">
-            <span class="dollar" v-if="moneyPrice">
+          <template v-if="moneyPrice !== null">
+            <span class="dollar">
               <span class="devise">{{ devise(moneyPrice) }}</span>
               <span class="round">{{ priceRounded(moneyPrice) }}</span>
               <span class="centime">{{ centimes(moneyPrice) }}</span>
@@ -64,10 +64,10 @@ function formatPrice(price) {
 }
 
 const moneyPrice = computed(() => {
-  if (typeof props.price == 'number') return props.price
-  if (props.price.money) return props.price.money
-  return false
-})
+  if (typeof props.price === "number") return props.price;
+  if ("money" in props.price) return props.price.money;
+  return null;
+});
 
 function priceRounded(price) {
   if (!price || price == 0)
