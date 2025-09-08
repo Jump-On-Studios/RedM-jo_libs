@@ -396,6 +396,37 @@ end
 -- SKIN & CLOTHES
 -------------
 
+local function getBodyUpperHash(sex, skin)
+  for skinTint = 1, 6 do
+    for index = 1, 5 do
+      local value = jo.component.getBodiesUpperFromSkinTone(sex, index, skinTint)
+      if (skin.BodyType == value) then
+        return value, skinTint, index
+      end
+      if (skin.Torso == value) then
+        return value, skinTint, index
+      end
+      if (skin.Body == value) then
+        return value, skinTint, index
+      end
+    end
+  end
+end
+
+local function getBodyLowerHash(sex, skin)
+  for skinTint = 1, 6 do
+    for index = 1, 5 do
+      local value = jo.component.getBodiesLowerFromSkinTone(sex, index, skinTint)
+      if (skin.LegsType == value) then
+        return value, skinTint, index
+      end
+      if (skin.Legs == value) then
+        return value, skinTint, index
+      end
+    end
+  end
+end
+
 function jo.framework:standardizeSkinInternal(skin)
   local standard = {}
 
@@ -405,10 +436,10 @@ function jo.framework:standardizeSkinInternal(skin)
 
   standard.model = table.extract(skin, "sex")
   standard.headHash = table.extract(skin, "HeadType")
-  standard.bodyUpperHash = skin.BodyType ~= 0 and skin.BodyType or skin.Torso
+  standard.bodyUpperHash = getBodyUpperHash(standard.model, skin)
   skin.BodyType = nil
   skin.Torso = nil
-  standard.bodyLowerHash = skin.Legs ~= 0 and skin.Legs or skin.LegsType
+  standard.bodyLowerHash = getBodyLowerHash(standard.model, skin)
   skin.LegsType = nil
   skin.Legs = nil
   standard.eyesHash = table.extract(skin, "Eyes")
