@@ -294,8 +294,8 @@ function jo.framework:createInventory(id, name, invConfig)
     acceptWeapons = GetValue(invConfig.acceptWeapons, false),
     shared = GetValue(invConfig.shared, true),
     ignoreItemStackLimit = GetValue(invConfig.ignoreStackLimit, true),
-    whitelistItems   = GetValue(invConfig.useWhitelist, invConfig.whitelist and true or false),
-    UseBlackList     = GetValue(invConfig.useBlackList, invConfig.blacklist and true or false),
+    whitelistItems = GetValue(invConfig.useWhitelist, invConfig.whitelist and true or false),
+    UseBlackList = GetValue(invConfig.useBlackList, invConfig.blacklist and true or false),
     whitelistWeapons = GetValue(invConfig.useWeaponlist, invConfig.weaponlist and true or false),
   }
 
@@ -408,7 +408,7 @@ function jo.framework:standardizeSkinInternal(skin)
   standard.bodyUpperHash = skin.BodyType ~= 0 and skin.BodyType or skin.Torso
   skin.BodyType = nil
   skin.Torso = nil
-  standard.bodyLowerHash = skin.LegsType ~= 0 and skin.LegsType or skin.Legs
+  standard.bodyLowerHash = skin.Legs ~= 0 and skin.Legs or skin.LegsType
   skin.LegsType = nil
   skin.Legs = nil
   standard.eyesHash = table.extract(skin, "Eyes")
