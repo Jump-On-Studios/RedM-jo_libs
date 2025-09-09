@@ -398,8 +398,8 @@ end
 
 local function getBodyUpperHash(sex, skin)
   for skinTint = 1, 6 do
-    for index = 1, 5 do
-      local value = jo.component.getBodiesUpperFromSkinTone(sex, index, skinTint)
+    for index = 1, 6 do
+      local value = joaat(jo.component.getBodiesUpperFromSkinTone(sex, index, skinTint))
       if (skin.BodyType == value) then
         return value, skinTint, index
       end
@@ -411,12 +411,16 @@ local function getBodyUpperHash(sex, skin)
       end
     end
   end
+  dprint("No Upper body found for:")
+  dprint("BodyType:", skin.BodyType)
+  dprint("Torso:", skin.Torso)
+  dprint("Body:", skin.Body)
 end
 
 local function getBodyLowerHash(sex, skin)
   for skinTint = 1, 6 do
-    for index = 1, 5 do
-      local value = jo.component.getBodiesLowerFromSkinTone(sex, index, skinTint)
+    for index = 1, 6 do
+      local value = joaat(jo.component.getBodiesLowerFromSkinTone(sex, index, skinTint))
       if (skin.LegsType == value) then
         return value, skinTint, index
       end
@@ -425,6 +429,9 @@ local function getBodyLowerHash(sex, skin)
       end
     end
   end
+  dprint("No Lower body found for:")
+  dprint("LegsType:", skin.LegsType)
+  dprint("Legs:", skin.Legs)
 end
 
 function jo.framework:standardizeSkinInternal(skin)
