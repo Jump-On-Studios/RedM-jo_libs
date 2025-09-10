@@ -94,7 +94,7 @@ local function menuNUIChange(data)
     Wait(100)
   end
 
-  if not currentData.item.bufferOnChange or table.find(data.item.sliders, function(slider) return slider.type == "grid" end) then
+  if not currentData.item.bufferOnChange or table.find(currentData.item.sliders, function(slider) return slider.type == "grid" end) then
     waiter = function() while menuNuiChangeInProgress do Wait(0) end end
   end
 
@@ -319,9 +319,11 @@ function MenuClass:addItem(index, item)
     menusNeedRefresh[self.id] = true
   end
 
+  local menu = self
+
   ---@ignore
   function item:getParentMenu()
-    return self
+    return menu
   end
 
   return item
@@ -388,7 +390,7 @@ function jo.menu.addItems(id, items) menus[id]:addItems(items) end
 ---@param key string (The property name to update)
 ---@param value any (The new value for the property)
 function MenuClass:updateItem(index, key, value)
-  self.items[index]:updateValue(key, value)
+  self.items[index][key] = value
 end
 
 --- Update a specific property of a menu item by menu ID
@@ -634,6 +636,7 @@ function jo.menu.setCurrentMenu(id, keepHistoric, resetMenu)
   if not keepHistoric then
     previousData = {}
   end
+
   SendNUIMessage({
     event = "setCurrentMenu",
     menu = id,
@@ -837,9 +840,9 @@ end
 ---@param menuEvent? boolean (Whether to run menu events)
 ---@param itemEvent? boolean (Whether to run item events)
 function jo.menu.runRefreshEvents(menuEvent, itemEvent)
-  menuEvent = menuEvent or false
-  ItemEvent = itemEvent or false
-  menuNUIChange({ menu = jo.menu.getCurrentMenu().id, item = { index = jo.menu.getCurrentIndex() }, forceMenuEvent = menuEvent, forceItemEvent = itemEvent })
+  menuEvent = GetValue(menuEvent, false)
+  itemEvent = GetValue(itemEvent, false)
+  menuNUIChange({ menu = jo.menu.getCurrentMenuId(), index = jo.menu.getCurrentIndex(), forceMenuEvent = menuEvent, forceItemEvent = itemEvent })
 end
 
 --- A function to get the current menu id
