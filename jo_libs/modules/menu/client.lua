@@ -9,6 +9,7 @@ local menuNuiChangeInProgress = false
 CreateThread(function()
   Wait(100)
   if GetResourceMetadata(GetCurrentResourceName(), "ui_page") == "nui://jo_libs/nui/menu/index.html" then
+    nuiLoaded = true
     return
   end
   nuiLoaded = true
