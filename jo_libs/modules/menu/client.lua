@@ -12,8 +12,9 @@ CreateThread(function()
     nuiLoaded = true
     return
   end
-  nuiLoaded = true
   jo.nui.load("jo_menu", "nui://jo_libs/nui/menu/index.html")
+  Wait(500)
+  nuiLoaded = true
 end)
 
 local menus = {}
