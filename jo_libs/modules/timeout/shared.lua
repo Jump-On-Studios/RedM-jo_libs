@@ -134,13 +134,14 @@ end
 function jo.timeout.noSpam(id, msec, cb, ...)
   if delays[id] then
     delays[id]:clear()
+    delays[id] = nil
     delays[id] = jo.timeout.set(msec, cb, ...)
     delays[id].id = id
     return delays[id]
   else
-    cb(...)
     delays[id] = jo.timeout.set(msec, function() end)
     delays[id].id = id
+    cb(...)
     return delays[id]
   end
 end
