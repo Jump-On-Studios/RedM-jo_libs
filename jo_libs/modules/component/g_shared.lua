@@ -78,7 +78,6 @@ function jo.component.getCategoryHash(category)
   return joaat(category)
 end
 
-
 --- A function to get the head component hash from head index and skin tone
 ---@param ped integer (The entity ID)
 ---@param headIndex? integer (The head index, defaults to 1)
