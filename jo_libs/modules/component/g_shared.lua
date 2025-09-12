@@ -88,7 +88,7 @@ function jo.component.getHeadFromSkinTone(ped, headIndex, skinTone)
   local ped = ped or PlayerPedId()
   local sex = "M"
   if type(ped) == "string" then
-    sex = "mp_male" and "M" or "F"
+    sex = (ped == "mp_male") and "M" or "F"
   else
     sex = IsPedMale(ped) and "M" or "F"
   end
@@ -104,7 +104,7 @@ function jo.component.getBodiesLowerFromSkinTone(ped, bodiesIndex, skinTone)
   local ped = ped or PlayerPedId()
   local sex = "M"
   if type(ped) == "string" then
-    sex = "mp_male" and "M" or "F"
+    sex = (ped == "mp_male") and "M" or "F"
   else
     sex = IsPedMale(ped) and "M" or "F"
   end
@@ -120,7 +120,7 @@ function jo.component.getBodiesUpperFromSkinTone(ped, bodiesIndex, skinTone)
   local ped = ped or PlayerPedId()
   local sex = "M"
   if type(ped) == "string" then
-    sex = "mp_male" and "M" or "F"
+    sex = (ped == "mp_male") and "M" or "F"
   else
     sex = IsPedMale(ped) and "M" or "F"
   end
@@ -135,7 +135,7 @@ function jo.component.getEyesFromIndex(ped, index)
   local ped = ped or PlayerPedId()
   local sex = "M"
   if type(ped) == "string" then
-    sex = "mp_male" and "M" or "F"
+    sex = (ped == "mp_male") and "M" or "F"
   else
     sex = IsPedMale(ped) and "M" or "F"
   end
@@ -150,7 +150,7 @@ function jo.component.getTeethFromIndex(ped, index)
   local ped = ped or PlayerPedId()
   local sex = "M"
   if type(ped) == "string" then
-    sex = "mp_male" and "M" or "F"
+    sex = (ped == "mp_male") and "M" or "F"
   else
     sex = IsPedMale(ped) and "M" or "F"
   end
