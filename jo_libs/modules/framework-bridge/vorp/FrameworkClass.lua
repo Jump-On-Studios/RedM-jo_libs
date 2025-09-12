@@ -490,12 +490,19 @@ function jo.framework:standardizeSkinInternal(skin)
   local skinTint = 1
   local bodyIndex = 1
   standard.headHash, skinTint = getHeadHash(standard.model, skin)
+  if standard.headHash == 0 then
+    standard.headHash = jo.component.getHeadFromSkinTone(standard.model, 1, 1)
+    skinTint = 1
+  end
   skin.HeadType = nil
   standard.bodyUpperHash, _, bodyIndex = getBodyUpperHash(standard.model, skin)
   if bodyIndex == 6 then
     standard.bodyUpperHash = jo.component.getBodiesUpperFromSkinTone(standard.model, 5, skinTint)
   end
   if bodyIndex == 0 then
+    standard.bodyUpperHash = jo.component.getBodiesUpperFromSkinTone(standard.model, 1, skinTint)
+  end
+  if standard.bodyUpperHash == 0 then
     standard.bodyUpperHash = jo.component.getBodiesUpperFromSkinTone(standard.model, 1, skinTint)
   end
   skin.BodyType = nil
@@ -505,6 +512,9 @@ function jo.framework:standardizeSkinInternal(skin)
     standard.bodyLowerHash = jo.component.getBodiesLowerFromSkinTone(standard.model, 5, skinTint)
   end
   if bodyIndex == 0 then
+    standard.bodyLowerHash = jo.component.getBodiesLowerFromSkinTone(standard.model, 1, skinTint)
+  end
+  if standard.bodyLowerHash == 0 then
     standard.bodyLowerHash = jo.component.getBodiesLowerFromSkinTone(standard.model, 1, skinTint)
   end
   skin.LegsType = nil
