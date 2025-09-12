@@ -69,6 +69,8 @@ jo.component.data.pedCategories = {
   "jewelry_rings_right",
   "jewelry_rings_left",
   "jewelry_bracelets",
+  "jewelry_earrings",
+  "jewelry_necklaces",
   "aprons",
   "chaps",
   "badges",
@@ -672,7 +674,6 @@ function jo.component.refreshPed(ped)
   end
   refreshPed(ped)
 end
-
 
 --- A function to wait the refresh of ped
 --- @param ped integer (The entity ID)
