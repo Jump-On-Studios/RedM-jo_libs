@@ -915,17 +915,23 @@ function jo.component.applySkin(ped, skin)
 
   local headHash = skin.headHash or jo.component.getHeadFromSkinTone(ped, skin.headIndex, skin.skinTone)
   dprint("headHash", headHash)
-  jo.component.apply(ped, "heads", headHash)
+  if headHash and headHash ~= 0 then
+    jo.component.apply(ped, "heads", headHash)
+  end
 
   local bodies_upper = skin.bodyUpperHash or
       jo.component.getBodiesUpperFromSkinTone(ped, skin.bodiesIndex, skin.skinTone)
   dprint("bodies_upper", bodies_upper)
-  jo.component.apply(ped, "bodies_upper", bodies_upper)
+  if bodies_upper and bodies_upper ~= 0 then
+    jo.component.apply(ped, "bodies_upper", bodies_upper)
+  end
 
   local bodies_lower = skin.bodyLowerHash or
       jo.component.getBodiesLowerFromSkinTone(ped, skin.bodiesIndex, skin.skinTone)
   dprint("bodies_lower", bodies_lower)
-  jo.component.apply(ped, "bodies_lower", bodies_lower)
+  if bodies_lower and bodies_lower ~= 0 then
+    jo.component.apply(ped, "bodies_lower", bodies_lower)
+  end
 
   dprint("apply outfit")
   if skin.bodyType then
