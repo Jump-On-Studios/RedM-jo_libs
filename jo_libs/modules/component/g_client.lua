@@ -50,6 +50,7 @@ jo.component.data.pedCategories = {
   "coats",
   "coats_closed",
   "vests",
+  "corsets",
   "suspenders",
   "neckties",
   "shirts_full",
