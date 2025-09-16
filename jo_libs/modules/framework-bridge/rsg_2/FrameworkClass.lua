@@ -43,10 +43,20 @@ function jo.framework:openInventory(source, id)
 end
 
 function jo.framework:addItemInInventory(source, invId, item, quantity, metadata, needWait)
+  if not invId then
+    return false, eprint("jo.framework:addItemInInventory: Inventory ID is missing")
+  end
   if not Inventory:GetInventory(invId) then
     Inventory:CreateInventory(invId, {})
   end
-  return Inventory:AddItem(invId, item, quantity, false, metadata)
+  local isAdded = Inventory:AddItem(invId, item, quantity, false, metadata)
+  if not isAdded then
+    return false, eprint("Item " .. item .. " was not added to inventory: " .. invId)
+  end
+  jo.timeout.delay("SaveStash:" .. invId, 1000, function()
+    Inventory:SaveStash(invId)
+  end)
+  return true
 end
 
 function jo.framework:getItemsFromInventory(invId)
