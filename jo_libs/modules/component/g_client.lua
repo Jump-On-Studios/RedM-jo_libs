@@ -849,6 +849,7 @@ end
 ---@param ped integer (The entity ID)
 ---@param components table (Table of components indexed by category name with component data)
 function jo.component.applyComponents(ped, components)
+  dprint("COMPONENTS ------------ : ", components)
   if not ped then return end
   if not DoesEntityExist(ped) then return end
   if not components then return end

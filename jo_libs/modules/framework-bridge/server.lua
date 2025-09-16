@@ -247,10 +247,13 @@ local function formatComponentData(data)
       data.hash = data.comp
       data.comp = nil
     end
-    if not data.hash or data.hash == 0 or data.hash == -1 then return nil end
+
+    if (not data.hash or data.hash == 0 or data.hash == -1) and not data.drawable then return nil end
+
     if type(data.hash) == "table" then
       return data.hash
     end
+
     return data
   end
   if type(data) ~= "number" then data = tonumber(data) end
@@ -332,7 +335,9 @@ function jo.framework:standardizeClothes(clothes)
   end
 
   table.merge(standard, clothes)
+  dprint("Before clear", standard)
   clearClothesTable(standard)
+  dprint("After clear", standard)
 
   return standard
 end
