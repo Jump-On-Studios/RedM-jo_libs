@@ -597,6 +597,7 @@ export const useMenuStore = defineStore('menus', {
           current2 = Math.min(Math.max(current2, values[1].min), values[1].max)
           if (current2 != values[1].current) {
             values[1].current = current2
+            this.addDataToSend(["sliders", data.index, "values", 1, "current"], values[1].current)
             change = true
           }
         }
@@ -605,15 +606,16 @@ export const useMenuStore = defineStore('menus', {
         current = Math.min(Math.max(current, values[0].min), values[0].max)
         if (current != values[0].current) {
           values[0].current = current
+          this.addDataToSend(["sliders", data.index, "values", 0, "current"], values[0].current)
           change = true
         }
         if (!change) return
       } else {
         if (slider.current == data.value) return
         slider.current = data.value
+        this.addDataToSend(["sliders", data.index, "current"], slider.current)
       }
       API.PlayAudio('button')
-      this.addDataToSend(["sliders", data.index, "current"], slider.current)
       this.updatePreview()
     },
     gridLeft(index) {
