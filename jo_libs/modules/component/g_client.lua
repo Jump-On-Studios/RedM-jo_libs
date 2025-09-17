@@ -46,29 +46,52 @@ jo.component.data.pedCategories = {
   "cloaks",
   "hair_accessories",
   "dresses",
+  "shawls",
+  "chemises",
+  "knickers",
   "gloves",
   "coats",
   "coats_closed",
+  "coat_accessories",
+  "coats_heavy",
   "vests",
+  "vest_accessories",
   "corsets",
   "suspenders",
   "neckties",
   "shirts_full",
+  "shirts_full_overpants",
+  "unionsuit_legs",
+  "unionsuits_full",
   "spats",
   "gunbelts",
   "gauntlets",
+  "wrist_bindings",
   "holsters_left",
+  "holsters_right",
+  "holsters_center",
+  "holsters_crossdraw",
+  "holsters_knife",
+  "holsters_quivers",
   "loadouts",
+  "outfits",
   "belt_buckles",
   "belts",
   "skirts",
   "boots",
   "pants",
+  "pants_accessories",
+  "overalls_full",
+  "overalls_modular_uppers",
+  "overalls_modular_lowers",
   "boot_accessories",
+  "ankle_bindings",
   "accessories",
   "satchels",
+  "satchel_straps",
   "jewelry_rings_right",
   "jewelry_rings_left",
+  "jewelry_rings",
   "jewelry_bracelets",
   "jewelry_earrings",
   "jewelry_necklaces",
@@ -80,6 +103,8 @@ jo.component.data.pedCategories = {
   "masks",
   "masks_large",
   "hats",
+  "hat_accessories",
+  "headwear",
   "hair",
   "beards_complete",
   "teeth",
@@ -87,6 +112,7 @@ jo.component.data.pedCategories = {
   "neckerchiefs",
   "armor",
 }
+
 jo.component.data.horseCategories = {
   "horse_heads",
   "horse_bodies",
@@ -778,6 +804,8 @@ function jo.component.apply(ped, category, _data)
   end
   resetCachedColor(ped, categoryHash)
 
+
+
   if data.hash or data.albedo or data.palette then
     if data.hash or data.albedo then
       if data.hash and category ~= "horse_bridles" then
@@ -820,6 +848,9 @@ function jo.component.apply(ped, category, _data)
     end
 
     addCachedComponent(ped, nil, categoryHash, data.hash, data.wearableState, data.drawable, data.albedo, data.normal, data.material, data.palette, data.tint0, data.tint1, data.tint2)
+  elseif data.wearableState then
+    local comp = jo.component.getComponentEquiped(ped, categoryHash)
+    updateComponentWearableState(ped, categoryHash, comp, data.wearableState)
   else
     RemoveTagFromMetaPed(ped, categoryHash, 0)
     if categoryHash == `neckwear` then
