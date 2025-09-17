@@ -1,4 +1,5 @@
 jo.require("table")
+jo.require("string")
 
 -- todo document this file
 
@@ -136,7 +137,10 @@ function bprint(...)
 end
 
 function dprint(cb, ...)
-  if not Config?.debug and not jo.debug then return end
+  local info = debug.getinfo(2, "S")
+  local module = info.source:split("/")[3]
+  print("DPRINT FOR MODULE:", module)
+  if not Config?.debug and not jo.debug and not jo.debugModules[module] then return end
   local args = encodeTable(...)
   local printFunc = printWithColor
   if type(cb) == "function" then

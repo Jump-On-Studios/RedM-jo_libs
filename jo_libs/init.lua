@@ -123,6 +123,29 @@ local function readAndLoadFile(path)
   return success
 end
 
+local function addDebugListener(module)
+  if jo.debugModules[module] ~= nil then return end
+  local convarDebugName = resourceName .. ":debug:" .. module
+
+  if GetConvar(convarDebugName, "off") == "on" then
+    oprint(("/!\\ %s module '%s' is in debug mode /!\\"):format(resourceName, module))
+    oprint("Don't use this in production!")
+    jo.debugModules[module] = true
+  else
+    jo.debugModules[module] = false
+  end
+
+  AddConvarChangeListener(convarDebugName, function()
+    jo.debugModules[module] = GetConvar(convarDebugName, "off") == "on"
+    if jo.debugModules[module] then
+      oprint(("/!\\ %s module '%s' is in debug mode /!\\"):format(resourceName, module))
+      oprint("Don't use this in production!")
+    else
+      oprint(("/!\\ %s module '%s' debug mode turned OFF /!\\"):format(resourceName, module))
+    end
+  end)
+end
+
 local function loadModule(name, needLocal)
   if needLocal == nil then needLocal = true end
   local folder = alias[name] or name
@@ -158,6 +181,8 @@ local function loadModule(name, needLocal)
   moduleInLoading[name] = nil
   moduleInLoading[folder] = nil
 
+  addDebugListener(folder)
+
   return true
 end
 
@@ -180,6 +205,7 @@ end
 local jo = setmetatable({
   libLoaded = false,
   debug = false,
+  debugModules = {},
   name = jo_libs,
   resourceName = resourceName,
   context = context,

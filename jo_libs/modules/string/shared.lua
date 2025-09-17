@@ -1,3 +1,4 @@
+jo.string = {}
 -- todo add usePostProcess=false
 ---@format disable-next
 local accentMap = {
@@ -173,5 +174,3 @@ function string.compare(a, b, caseSensitive)
   end
   return #sa < #sb and -1 or 1
 end
-
-jo.string = {}
