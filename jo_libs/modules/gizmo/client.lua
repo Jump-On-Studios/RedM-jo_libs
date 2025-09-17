@@ -346,7 +346,7 @@ function jo.gizmo.moveEntity(entity, cfg, allowPlace)
     dprint("[GIZMO DEBUG] *** jo.gizmo.moveEntity called at:", GetGameTimer(), "***")
     dprint("[GIZMO DEBUG] Current gizmoActive state:", gizmoActive)
 
-    if gizmoActive then return edprint("Gizmo is already started") end
+    if gizmoActive then return dprint("Gizmo is already started") end
     if not entity then
         dprint("[GIZMO DEBUG] ERROR: No entity provided")
         return
