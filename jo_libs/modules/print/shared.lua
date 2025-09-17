@@ -139,7 +139,6 @@ end
 function dprint(cb, ...)
   local info = debug.getinfo(2, "S")
   local module = info.source:split("/")[3]
-  print("DPRINT FOR MODULE:", module)
   if not Config?.debug and not jo.debug and not jo.debugModules[module] then return end
   local args = encodeTable(...)
   local printFunc = printWithColor
