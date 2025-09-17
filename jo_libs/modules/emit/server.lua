@@ -75,6 +75,15 @@ local function triggerClient(eventName, source, ...)
   fireClientEvent(eventName, source, payload, payloadLen)
 end
 
+--- Trigger an event on the server side and keep the source injection
+---@param source integer (The source player ID to send the event to)
+---@param event string (The name of the event to trigger)
+---@param ... any (Additional parameters to pass to the event)
+function jo.emit.triggerServerWithSource(source, event, ...)
+  TriggerClientEvent("jo_libs:emit:client:redirect", source, event, ...)
+end
+
+
 jo.emit.triggerClient = setmetatable({
   latent = triggerClientLatent
 }, {
