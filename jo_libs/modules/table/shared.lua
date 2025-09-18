@@ -343,7 +343,7 @@ function table.deleteAndClear(t, keys)
   for i = 1, keysLen - 1 do
     local key = keys[i]
     local next = current[key]
-    if type(next) ~= "table" then return false, eprint("table.deleteAndClear: an intermediate key is not a table: %s", key) end
+    if type(next) ~= "table" then return false, dprint("table.deleteAndClear: an intermediate key is not a table: %s", key) end
     parentsCount = parentsCount + 1
     parents[parentsCount] = current
     parents[parentsCount + keysLen] = key
