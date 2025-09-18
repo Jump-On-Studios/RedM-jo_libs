@@ -326,3 +326,64 @@ function table.deleteDeepValue(t, keys)
   deep[last] = nil
   return t, true
 end
+
+--- A function to delete a deep value in a table and clear the table if it's empty
+---@param t table (The table)
+---@param keys any (The keys to deep)
+---@return boolean (Returns `true` if the value was deleted)
+function table.deleteAndClear(t, keys)
+  if type(t) ~= "table" then return false end
+  local keysLen = #keys
+  if keysLen == 0 then return false end
+
+  local parents = {}
+  local current = t
+  local parentsCount = 0
+
+  for i = 1, keysLen - 1 do
+    local key = keys[i]
+    local next = current[key]
+    if type(next) ~= "table" then return false, eprint("table.deleteAndClear: an intermediate key is not a table: %s", key) end
+    parentsCount = parentsCount + 1
+    parents[parentsCount] = current
+    parents[parentsCount + keysLen] = key
+    current = next
+  end
+
+  local lastKey = keys[keysLen]
+  if current[lastKey] == nil then return false end
+  if (table.type(current) == "array") then
+    table.remove(current, lastKey)
+  else
+    current[lastKey] = nil
+  end
+
+  if table.isEmpty(current) then
+    for i = parentsCount, 1, -1 do
+      local parent = parents[i]
+      local key = parents[i + keysLen]
+      parent[key] = nil
+      if not table.isEmpty(parent) or parent == t then break end
+    end
+  end
+
+  return true
+end
+
+
+
+function table.getDeep(t, keys)
+  if not t then return nil, false, error("table.getDeep: t is not a table") end
+  if type(t) ~= "table" then return nil, false, error("table.getDeep: t is not a table") end
+  local last = keys[#keys]
+  local deep = t
+  for i = 1, #keys - 1 do
+    local key = keys[i]
+    if not deep[key] then
+      return nil, false, keys[i]
+    end
+    deep = deep[key]
+  end
+  if not deep[last] then return nil, false end
+  return deep[last], true
+end
