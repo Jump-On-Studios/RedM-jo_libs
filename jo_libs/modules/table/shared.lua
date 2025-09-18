@@ -326,3 +326,38 @@ function table.deleteDeepValue(t, keys)
   deep[last] = nil
   return t, true
 end
+
+function table.deleteAndClear(t, keys)
+  log("keys", keys)
+  if not t then return t, false, error("table.deleteAndClear: t is not a table") end
+  if type(t) ~= "table" then return t, false, error("table.deleteAndClear: t is not a table") end
+  table.deleteDeepValue(t, keys)
+  while #keys > 0 do
+    table.remove(keys, #keys)
+    local value, exist = table.getDeep(t, keys)
+    log("=>", value, exist)
+    if not exist then break end
+    if table.isEmpty(value) then
+      table.deleteDeepValue(t, keys)
+    else
+      break
+    end
+  end
+  return t, true
+end
+
+function table.getDeep(t, keys)
+  if not t then return t, false, error("table.getDeep: t is not a table") end
+  if type(t) ~= "table" then return t, false, error("table.getDeep: t is not a table") end
+  local last = keys[#keys]
+  local deep = t
+  for i = 1, #keys - 1 do
+    local key = keys[i]
+    if not deep[key] then
+      return t, false
+    end
+    deep = deep[key]
+  end
+  if not deep[last] then return t, false end
+  return deep[last], true
+end
