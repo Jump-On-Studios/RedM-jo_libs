@@ -700,10 +700,19 @@ export const useMenuStore = defineStore('menus', {
           }
           switch (element.action) {
             case "delete":
-              delete current[lastKey]
+              if (Array.isArray(current)) {
+                current.splice(lastKey, 1)
+              } else {
+                delete current[lastKey]
+              }
               break;
             case "update":
               current[lastKey] = element.value
+              if (lastKey == "currentIndex") {
+                current.currentIndex = current.items.findIndex(item => item.index == element.value)
+                if (data.menu == this.currentMenuId)
+                  this.updatePreview()
+              }
               break;
           }
         });

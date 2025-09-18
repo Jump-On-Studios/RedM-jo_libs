@@ -113,16 +113,25 @@ if (import.meta.env.DEV) {
     {
       keys: ["items", 1, "price"],
       action: "delete"
-    }
+    },
+    {
+      keys: ["items", 2],
+      action: "delete"
+    },
+    // {
+    //   keys: ["currentIndex"],
+    //   action: "update",
+    //   value: 4
+    // }
   ]
 
-  // setTimeout(() => {
-  //   window.postMessage({
-  //     event: "updateMenuValues",
-  //     menu: "home",
-  //     updated: newValues,
-  //   })
-  // }, 2000);
+  setTimeout(() => {
+    window.postMessage({
+      event: "updateMenuValues",
+      menu: "home",
+      updated: newValues,
+    })
+  }, 2000);
 
   // window.postMessage({
   //   event: 'setCurrentIndex',

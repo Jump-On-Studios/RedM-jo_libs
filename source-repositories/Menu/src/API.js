@@ -11,7 +11,7 @@ class API {
   constructor() {
     window.addEventListener('message', (event) => {
       const eventType = event.data.event
-      if (eventType == undefined) return
+      if (eventType == undefined) return this.post('messageReceived', { success: false })
       if (typeof this[eventType] === 'function') {
         this[eventType](event.data)
       } else {
@@ -23,6 +23,7 @@ class API {
           console.log(event)
         }
       }
+      this.post('messageReceived', { success: true })
     })
   }
 
