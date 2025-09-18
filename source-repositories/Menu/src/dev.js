@@ -103,26 +103,14 @@ if (import.meta.env.DEV) {
 
   let newValues = [
     {
-      keys: ["items", 1, "sliders", 1, "title"],
-      value: "New title"
-    },
-    {
-      keys: ["items", 1, "sliders", 1, "description"],
-      value: "New description"
-    },
-    {
-      keys: ["items", 1, "price"],
+      keys: ["items", 1],
       action: "delete"
     },
     {
-      keys: ["items", 2],
-      action: "delete"
-    },
-    // {
-    //   keys: ["currentIndex"],
-    //   action: "update",
-    //   value: 4
-    // }
+      keys: ["currentIndex"],
+      action: "update",
+      value: 1
+    }
   ]
 
   setTimeout(() => {

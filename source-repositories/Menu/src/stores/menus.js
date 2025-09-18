@@ -710,6 +710,8 @@ export const useMenuStore = defineStore('menus', {
               current[lastKey] = element.value
               if (lastKey == "currentIndex") {
                 current.currentIndex = current.items.findIndex(item => item.index == element.value)
+                current.currentIndex = Math.max(current.currentIndex, 0)
+                current.currentIndex = Math.min(current.currentIndex, current.items.length - 1)
                 if (data.menu == this.currentMenuId)
                   this.updatePreview()
               }
