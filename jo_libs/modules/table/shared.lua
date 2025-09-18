@@ -328,36 +328,54 @@ function table.deleteDeepValue(t, keys)
 end
 
 function table.deleteAndClear(t, keys)
-  log("keys", keys)
-  if not t then return t, false, error("table.deleteAndClear: t is not a table") end
-  if type(t) ~= "table" then return t, false, error("table.deleteAndClear: t is not a table") end
-  table.deleteDeepValue(t, keys)
-  while #keys > 0 do
-    table.remove(keys, #keys)
-    local value, exist = table.getDeep(t, keys)
-    log("=>", value, exist)
-    if not exist then break end
-    if table.isEmpty(value) then
-      table.deleteDeepValue(t, keys)
-    else
-      break
+  if type(t) ~= "table" then return t, false end
+  local keysLen = #keys
+  if keysLen == 0 then return t, false end
+
+  local parents = {}
+  local current = t
+  local parentsCount = 0
+
+  for i = 1, keysLen - 1 do
+    local key = keys[i]
+    local next = current[key]
+    if type(next) ~= "table" then return t, false, eprint("table.deleteAndClear: an intermediate key is not a table: %s", key) end
+    parentsCount = parentsCount + 1
+    parents[parentsCount] = current
+    parents[parentsCount + keysLen] = key
+    current = next
+  end
+
+  local lastKey = keys[keysLen]
+  if current[lastKey] == nil then return t, false end
+  current[lastKey] = nil
+
+  if table.isEmpty(current) then
+    for i = parentsCount, 1, -1 do
+      local parent = parents[i]
+      local key = parents[i + keysLen]
+      parent[key] = nil
+      if not table.isEmpty(parent) or parent == t then break end
     end
   end
+
   return t, true
 end
 
+
+
 function table.getDeep(t, keys)
-  if not t then return t, false, error("table.getDeep: t is not a table") end
-  if type(t) ~= "table" then return t, false, error("table.getDeep: t is not a table") end
+  if not t then return nil, false, error("table.getDeep: t is not a table") end
+  if type(t) ~= "table" then return nil, false, error("table.getDeep: t is not a table") end
   local last = keys[#keys]
   local deep = t
   for i = 1, #keys - 1 do
     local key = keys[i]
     if not deep[key] then
-      return t, false
+      return nil, false
     end
     deep = deep[key]
   end
-  if not deep[last] then return t, false end
+  if not deep[last] then return nil, false end
   return deep[last], true
 end
