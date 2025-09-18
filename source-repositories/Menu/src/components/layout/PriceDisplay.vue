@@ -10,7 +10,7 @@
               </span>
               {{ formatPrice(price.gold) }}
             </span>
-            <span v-else-if="price.money || props.price.length == 1" class="dollar">
+            <span v-else-if="(price.money && price.money > 0)" class="dollar">
               <span class="devise">{{ devise(price.money) }}</span>
               <span class="round">{{ priceRounded(price.money) }}</span>
               <span class="centime">{{ centimes(price.money) }}</span>

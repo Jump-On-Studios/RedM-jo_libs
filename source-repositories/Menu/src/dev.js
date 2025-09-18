@@ -14,12 +14,8 @@ let menu = {
       icon: "female",
       iconSize: "small",
       priceTitle: "Price",
-      price: [
-        { item: 'apple', quantity: 1, label: "Trainer Licence", image: "https://femga.com/images/samples/ui_textures_no_bg/inventory_items/document_business_card_rock_carvings.png" },
-        { item: 'apple', quantity: 1, label: "Trainer Licence", image: "https://femga.com/images/samples/ui_textures_no_bg/inventory_items/document_business_card_rock_carvings.png" },
-        { money: 1 },
-        { gold: 10 },
-      ],
+      price:
+        [{ item: "horseLicense", keep: true }],
       // footer: "The footer",
       child: "test",
       quantity: 5,
@@ -78,11 +74,11 @@ let menu = {
     },
     {
       title: 'This is the title',
-      price: { money: 4 },
+      price: { money: 0 },
     },
     {
       title: 'This is the title',
-      price: { gold: 4 },
+      price: 0,
     },
     {
       title: 'This is the title',
@@ -113,13 +109,13 @@ if (import.meta.env.DEV) {
     }
   ]
 
-  setTimeout(() => {
-    window.postMessage({
-      event: "updateMenuValues",
-      menu: "home",
-      updated: newValues,
-    })
-  }, 2000);
+  // setTimeout(() => {
+  //   window.postMessage({
+  //     event: "updateMenuValues",
+  //     menu: "home",
+  //     updated: newValues,
+  //   })
+  // }, 2000);
 
   // window.postMessage({
   //   event: 'setCurrentIndex',
