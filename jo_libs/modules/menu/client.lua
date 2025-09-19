@@ -367,18 +367,20 @@ function jo.menu.updateItem(id, index, key, value) menus[id]:updateItem(index, k
 --- Update a specific property of a menu. Requires MenuClass:push() to be called to apply the changes
 ---@param keys string|table (The list of property name to access to the value)
 ---@param value any (The new value)
+---@return boolean (true if the update was successful, false otherwise)
 function MenuClass:updateValue(keys, value)
   if type(keys) ~= "table" then keys = { keys } end
   if keys[#keys] == "price" then
     value = jo.menu.formatPrice(value)
   end
   local v = table.copy(value)
+  table.upsert(self, keys, v)
   table.insert(self.updatedValues, {
     keys = keys,
     action = "update",
     value = v
   })
-  table.upsert(self, keys, v)
+  return true
 end
 
 --- Delete a specific property of a menu. Requires MenuClass:push() to be called to apply the changes
@@ -428,12 +430,15 @@ function MenuClass:push()
   if not self.updatedValues then return dprint("") end
 
   if jo.menu.isCurrentMenu(self.id) then
-    self.currentIndex = math.min(self.currentIndex, #self.items)
-    table.insert(self.updatedValues, {
-      keys = { "currentIndex" },
-      action = "update",
-      value = self.currentIndex
-    })
+    local newIndex = math.min(self.currentIndex, #self.items)
+    if newIndex ~= self.currentIndex then
+      self.currentIndex = newIndex
+      table.insert(self.updatedValues, {
+        keys = { "currentIndex" },
+        action = "update",
+        value = newIndex
+      })
+    end
   end
 
   local updated = clearDataForNui(self.updatedValues)
