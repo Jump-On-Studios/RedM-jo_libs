@@ -370,11 +370,13 @@ function table.deleteAndClear(t, keys)
   return true
 end
 
-
-
+--- A function to get a deep value in a table
+---@param t table (The table)
+---@param keys any (The keys to deep)
+---@return any, boolean, string (Returns the value and `true` if the value exists, else `false` and the missing key)
 function table.getDeep(t, keys)
-  if not t then return nil, false, error("table.getDeep: t is not a table") end
-  if type(t) ~= "table" then return nil, false, error("table.getDeep: t is not a table") end
+  if not t then return nil, false, "", error("table.getDeep: t is not a table") end
+  if type(t) ~= "table" then return nil, false, "", error("table.getDeep: t is not a table") end
   local last = keys[#keys]
   local deep = t
   for i = 1, #keys - 1 do
@@ -384,6 +386,6 @@ function table.getDeep(t, keys)
     end
     deep = deep[key]
   end
-  if not deep[last] then return nil, false end
-  return deep[last], true
+  if not deep[last] then return nil, false, last end
+  return deep[last], true, ""
 end
