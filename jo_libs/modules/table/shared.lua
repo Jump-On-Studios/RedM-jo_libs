@@ -386,6 +386,6 @@ function table.getDeep(t, keys)
     end
     deep = deep[key]
   end
-  if not deep[last] then return nil, false, last end
+  if deep[last] == nil then return nil, false, last end
   return deep[last], true, ""
 end
