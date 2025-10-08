@@ -630,7 +630,7 @@ export const useMenuStore = defineStore('menus', {
       let values = slider.values
       values[0].current = Math.max(values[0].min, values[0].current - (values[0].gap || 1))
       API.PlayAudio('button')
-      this.addDataToSend(["sliders", index, "values", 1, "current"], values[0].current)
+      this.addDataToSend(["sliders", index, "values", 0, "current"], values[0].current)
       this.updatePreview()
     },
     gridRight(index) {
@@ -645,7 +645,7 @@ export const useMenuStore = defineStore('menus', {
       let values = slider.values
       values[0].current = Math.min(values[0].max, values[0].current + (values[0].gap || 1))
       API.PlayAudio('button')
-      this.addDataToSend(["sliders", index, "values", 2, "current"], values[0].current)
+      this.addDataToSend(["sliders", index, "values", 0, "current"], values[0].current)
       this.updatePreview()
     },
     gridUp(index) {
@@ -669,7 +669,7 @@ export const useMenuStore = defineStore('menus', {
       let values = slider.values
       values[1].current = Math.min(values[1].max, values[1].current + (values[1].gap || 1))
       API.PlayAudio('button')
-      this.addDataToSend(["sliders", index, "values", 2, "current"], values[1].current)
+      this.addDataToSend(["sliders", index, "values", 1, "current"], values[1].current)
       this.updatePreview()
     },
     updatePreview() {
