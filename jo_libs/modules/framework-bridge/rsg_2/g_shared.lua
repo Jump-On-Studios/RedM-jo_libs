@@ -10,7 +10,7 @@ function jo.framework:getInventoryItems()
       label = item.label,
       type = item.type,
       description = item.description,
-      image = "nui://rsg_inventory/html/imgages/" .. item.image .. ".png"
+      image = "nui://rsg_inventory/html/images/" .. item.image .. ".png"
     }
   end
   return items
