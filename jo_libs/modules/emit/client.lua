@@ -61,3 +61,11 @@ RegisterNetEvent("jo_libs:client:emit:start", function(eventName)
     dprint(("Emit: %s takes %dms"):format(eventName, GetGameTimer() - time))
   end)
 end)
+
+--- A function to trigger client(s)
+---@param eventName string (The event name)
+---@param source integer|table (The player ID or list of players ID)
+---@param ... any (Other arguments)
+function jo.emit.triggerClient(eventName, source, ...)
+  TriggerServerEvent("jo_libs:server:emit:dispatch", eventName, source, ...)
+end
