@@ -9,11 +9,7 @@
       </div>
       <div :class="['sprites', { 'center': slider.values.length <= 8 }]" id="scroller">
         <div v-for="(value, vIndex) in slider.values" :key="vIndex + 1" :class="['sprite clicker', { 'current': (vIndex + 1) == slider.current }]" :id="'sprite-' + (vIndex + 1)" @click="click(vIndex + 1)">
-          <ColorPaletteBox v-if="slider.type == 'color'" :color="value" />
-          <img v-else-if="value.sprite" :class="value.class" :src="API.isNUIImage(value.sprite) ? value.sprite : `./assets/images/${value.sprite}.png`" />
-          <div class="empty" v-else-if="value.rgb && typeof value.rgb == 'string'" :class="value.class" :style="{ 'background-color': value.rgb }" />
-          <ColorPaletteBox v-else-if="value.rgb" :color="value" />
-          <ColorPaletteBox v-else-if="value.palette" :color="value.palette" />
+          <SpriteBox :sprite="value" />
           <div class="tick" v-if="slider.displayTick && slider.tickIndex == vIndex">
             <img src="/assets/images/menu/tick.png">
           </div>
@@ -26,6 +22,7 @@
 
 <script setup>
 import ColorPaletteBox from '../ColorPaletteBox.vue';
+import SpriteBox from '../SpriteBox.vue';
 import { inject, onMounted, nextTick } from 'vue';
 import { useLangStore } from '../../../stores/lang';
 import { useMenuStore } from '../../../stores/menus';

@@ -8,7 +8,6 @@
             <div v-for="index in numberColor" :key="index" :class="'tint tint' + (index - 1)" :style="getStyleTint(index - 1)"></div>
             <div class="border"></div>
         </template>
-
     </div>
 </template>
 
@@ -16,11 +15,24 @@
 import { computed, onMounted, ref, watch } from 'vue';
 const props = defineProps(['color'])
 const tint = computed(() => {
-    if (props.color.rgb)
+    if (props.color.rgb) {
+        let rgb = props.color.rgb
+        if (typeof rgb == 'string')
+            return {
+                palette: 'rgb',
+                tints: rgb.split(',')
+            }
         return {
             palette: 'rgb',
-            tints: props.color.rgb
+            tints: rgb
         }
+    }
+    if (props.color.tints) {
+        return {
+            palette: props.color.palette,
+            tints: props.color.tints
+        }
+    }
     const tints = [props.color.tint0]
     if (Number.isInteger(props.color.tint1))
         tints.push(props.color.tint1)
@@ -30,6 +42,14 @@ const tint = computed(() => {
         palette: props.color.palette,
         tints: tints
     }
+})
+
+const icon = computed(() => {
+    return props.color.icon
+})
+
+const iconClass = computed(() => {
+    return props.color.iconClass
 })
 
 const numberColor = computed(() => { return tint.value.tints.length })
@@ -53,7 +73,15 @@ watch(url, () => {
     calculMax()
 })
 
-const keyUpdate = computed(() => { return tint.value.palette + tint.value.tints.reduce((a, b) => a + b, 0) })
+const keyUpdate = computed(() => {
+    let key = ""
+    if (tint.value.palette)
+        key += tint.value.palette
+    if (tint.value.tints)
+        key += tint.value.tints.reduce((a, b) => a + b, 0)
+
+    return key
+})
 
 function getStyleTint(index) {
     if (tint.value.palette == 'rgb')
@@ -70,6 +98,16 @@ function getStyleTint(index) {
     }
 }
 
+function isNUIImage(url) {
+    return url.includes('://')
+}
+
+function getImage(url) {
+    if (isNUIImage(url))
+        return url
+    return `./assets/images/icons/${url}.png`
+}
+
 </script>
 
 <style lang="scss" scoped>
@@ -80,7 +118,6 @@ function getStyleTint(index) {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-top: -0.1vh;
 
     .tint,
     .border {

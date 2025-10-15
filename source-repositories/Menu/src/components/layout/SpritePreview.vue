@@ -1,39 +1,24 @@
 <template>
   <div class="preview-slider">
-    <ColorPaletteBox v-if="isColor" :color="getColor()" />
-    <img v-else :src="`./assets/images/${getSprite()}.png`" />
+    <SpriteBox v-if="getValue" :sprite="getValue" />
   </div>
 </template>
 
 <script setup>
 import { computed } from 'vue';
-import ColorPaletteBox from './ColorPaletteBox.vue';
+import SpriteBox from './SpriteBox.vue';
 
 const props = defineProps(['sliders'])
 
-const isColor = computed(() => {
+const getValue = computed(() => {
   for (const slider of props.sliders) {
-    if (slider.type == "color" && slider.values.length > 0) {
-      return true
-    }
-  }
-  return false
-})
-
-function getSprite() {
-  for (const slider of props.sliders) {
-    if (slider.type == "sprite" && slider.values.length > 0) {
-      return slider.values[slider.current - 1]?.sprite
-    }
-  }
-}
-function getColor() {
-  for (const slider of props.sliders) {
-    if (slider.type == "color" && slider.values.length > 0) {
+    if ((slider.type == "color" || slider.type == "sprite") && slider.values.length > 0) {
       return slider.values[slider.current - 1]
     }
   }
-}
+  return null
+})
+
 </script>
 
 <style scoped>

@@ -1,3 +1,5 @@
+import PreviewSlider from "./components/layout/PreviewSlider.vue"
+
 export default {}
 
 let menu = {
@@ -14,6 +16,7 @@ let menu = {
       icon: "female",
       iconSize: "small",
       priceTitle: "Price",
+      previewSlider: true,
       price:
         [{ item: "horseLicense", keep: true }],
       // footer: "The footer",
@@ -22,49 +25,49 @@ let menu = {
       quantityCircleClass: 'fgold',
       iconClass: 'fgold',
       sliders: [
-        {
-          type: "switch",
-          values: [{ label: "good" }, { label: "bad" }]
-        },
-        {
-          type: 'grid',
-          values: [{ current: 1, min: -10, max: 10 }]
-        },
-        {
-          type: 'sprite',
-          forceDisplay: true,
-          values: [
-            { palette: { tint0: 1, tint1: 20, tint2: 30, palette: 'tint_generic_clean' } },
-            { palette: { tint0: 1, tint1: 20, palette: 'tint_generic_clean' } },
-            { rgb: 'red' },
-            { rgb: ['red', 'blue', "green"] },
-            { sprite: 'tints/metal_engraving_2' }
-          ],
-          description: 'My item description<br>Second line',
-        },
+        // {
+        //   type: "switch",
+        //   values: [{ label: "good" }, { label: "bad" }]
+        // },
+        // {
+        //   type: 'grid',
+        //   values: [{ current: 1, min: -10, max: 10 }]
+        // },
         {
           type: 'sprite',
           forceDisplay: true,
           values: [
-            { palette: { tint0: 1, tint1: 20, tint2: 30, palette: 'tint_generic_clean' } },
-            { palette: { tint0: 1, tint1: 20, palette: 'tint_generic_clean' } },
-            { rgb: 'red' },
-            { rgb: ['red', 'blue', "green"] },
-            { sprite: 'tints/metal_engraving_2' },
-            { sprite: 'tints/metal_engraving_2' },
-            { sprite: 'tints/metal_engraving_2' },
-            { sprite: 'tints/metal_engraving_2' },
-            { sprite: 'tints/metal_engraving_2' },
-            { sprite: 'tints/metal_engraving_2' },
-            { sprite: 'tints/metal_engraving_2' },
-            { sprite: 'tints/metal_engraving_2' },
-            { sprite: 'tints/metal_engraving_2' },
-            { sprite: 'tints/metal_engraving_2' },
-            { sprite: 'tints/metal_engraving_2' },
-            { sprite: 'tints/metal_engraving_2' },
+            { palette: { tint0: 1, tint1: 20, tint2: 30, palette: 'tint_generic_clean' }, icon: 'lock', iconClass: 'fred' },
+            { palette: { tint0: 1, tint1: 20, palette: 'tint_generic_clean' }, icon: 'star', iconClass: 'fgold' },
+            { rgb: 'red', icon: 'star', iconClass: 'fgold' },
+            { rgb: ['red', 'blue', "green"], icon: 'star', iconClass: 'fgold' },
+            { sprite: 'tints/metal_engraving_2', icon: 'star', iconClass: 'fgold' }
           ],
           description: 'My item description<br>Second line',
-        }
+        },
+        // {
+        //   type: 'sprite',
+        //   forceDisplay: true,
+        //   values: [
+        //     { palette: { tint0: 1, tint1: 20, tint2: 30, palette: 'tint_generic_clean' } },
+        //     { palette: { tint0: 1, tint1: 20, palette: 'tint_generic_clean' } },
+        //     { rgb: 'red' },
+        //     { rgb: ['red', 'blue', "green"] },
+        //     { sprite: 'tints/metal_engraving_2' },
+        //     { sprite: 'tints/metal_engraving_2' },
+        //     { sprite: 'tints/metal_engraving_2' },
+        //     { sprite: 'tints/metal_engraving_2' },
+        //     { sprite: 'tints/metal_engraving_2' },
+        //     { sprite: 'tints/metal_engraving_2' },
+        //     { sprite: 'tints/metal_engraving_2' },
+        //     { sprite: 'tints/metal_engraving_2' },
+        //     { sprite: 'tints/metal_engraving_2' },
+        //     { sprite: 'tints/metal_engraving_2' },
+        //     { sprite: 'tints/metal_engraving_2' },
+        //     { sprite: 'tints/metal_engraving_2' },
+        //   ],
+        //   description: 'My item description<br>Second line',
+        // }
       ]
     }, {
       title: 'This is the title',
