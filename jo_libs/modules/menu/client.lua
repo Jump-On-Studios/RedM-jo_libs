@@ -427,7 +427,8 @@ end
 
 --- Push the updated values to the NUI layer
 function MenuClass:push()
-  if not self.updatedValues then return dprint("") end
+  if not self.updatedValues then return end
+  if table.isEmpty(self.updatedValues) then return end
 
   if jo.menu.isCurrentMenu(self.id) then
     local newIndex = math.min(self.currentIndex, #self.items)
