@@ -516,7 +516,8 @@ function jo.menu.sort(id, first, last) menus[id]:sort(first, last) end
 --- Send the menu data to the NUI layer
 function MenuClass:send()
   if self.sentToNUI then
-    return error("Menu already sent, please use menu:refresh(): " .. self.id)
+    self:refresh()
+    return
   end
   local datas = clearDataForNui(self)
   SendNUIMessage({
@@ -583,6 +584,18 @@ function jo.menu.create(id, data)
   menus[id].id = id
   -- menus[id]:send()
   return menus[id]
+end
+
+--- Create a new menu if it doesn't exist
+---@param id string (Unique ID of the menu)
+---@param data? table (Menu configuration data)
+---@return MenuClass (The newly created menu object)
+---@return boolean (Returns `true` if the menu was created)
+function jo.menu.createIfNotExist(id, data)
+  if jo.menu.isExist(id) then
+    return jo.menu.get(id), false
+  end
+  return jo.menu.create(id, data), true
 end
 
 --- Delete a menu from memory
