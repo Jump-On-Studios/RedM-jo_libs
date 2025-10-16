@@ -538,7 +538,8 @@ export const useMenuStore = defineStore('menus', {
         index = Math.max(item.sliders.findIndex(slider => slider.type == "switch"), 0)
         slider = item.sliders[index]
       } else {
-        slider = item.sliders[Math.min(index, item.sliders.length - 1)]
+        index = Math.min(index, item.sliders.length - 1)
+        slider = item.sliders[index]
       }
       if (!slider) return;
 
@@ -565,7 +566,8 @@ export const useMenuStore = defineStore('menus', {
         index = Math.max(item.sliders.findIndex(slider => slider.type == "switch"), 0)
         slider = item.sliders[index]
       } else {
-        slider = item.sliders[Math.min(index, item.sliders.length - 1)]
+        index = Math.min(index, item.sliders.length - 1)
+        slider = item.sliders[index]
       }
       if (!slider) return;
 
