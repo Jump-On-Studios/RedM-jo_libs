@@ -13,7 +13,7 @@
 
             <input v-if="entry.type == 'text'" @keydown.enter="enterPressed" :ref="(el) => { entry.dom = el }" type="text" :style="style(entry)" :class="[entry.class, { error: entry.error }]" :placeholder="entry.placeholder" v-model="entry.value" />
 
-            <label v-if="entry.type == 'label'" @keydown.enter="enterPressed" :ref="(el) => { entry.dom = el }" :style="style(entry)" :class="[entry.class, { error: entry.error }]" v-html="entry.value" />
+            <label v-if="entry.type == 'label'" @keydown.enter="enterPressed" :ref="(el) => { entry.dom = el }" :style="style(entry)" :class="[entry.class, { error: entry.error }]" v-html="entry.value" :for="entry.for" />
 
             <input v-if="entry.type == 'number'" @keydown.enter="enterPressed" :ref="(el) => { entry.dom = el }" type="number" :style="style(entry)" :class="[entry.class, { error: entry.error }]" :placeholder="entry.placeholder" :min="entry.min" :max="entry.max" :step="entry.step" :value="entry.value" v-model="entry.value" />
 
