@@ -16,38 +16,27 @@ jo.player.playerId = PlayerId()
 jo.player.serverId = GetPlayerServerId(jo.player.playerId)
 jo.player.isMale = IsPedMale(jo.player.ped)
 
-local function addUpdater()
-  exports.jo_libs:loadGlobalModule("player")
-  exports.jo_libs:jo_player_update(function(values)
-    local now = GetGameTimer()
-    for i = 1, #values do
-      local key, value = values[i][1], values[i][2]
-      jo.player[key] = value
-      if key == "coords" and numberMoveCallback > 0 then
-        lastMoveEvent = now
-        for c = 1, numberMoveCallback do
-          local callback = moveCallbacks[c]
-          if not callback.inProgress and (callback.lastExec + callback.interval) < now then
-            CreateThreadNow(function()
-              callback.lastExec = now
-              callback.inProgress = true
-              callback.cb()
-              callback.inProgress = false
-            end)
-          end
+AddEventHandler("jo_libs:player:update", function(values)
+  local now = GetGameTimer()
+  for i = 1, #values do
+    local key, value = values[i][1], values[i][2]
+    jo.player[key] = value
+    if key == "coords" and numberMoveCallback > 0 then
+      lastMoveEvent = now
+      for c = 1, numberMoveCallback do
+        local callback = moveCallbacks[c]
+        if not callback.inProgress and (callback.lastExec + callback.interval) < now then
+          CreateThread(function()
+            callback.lastExec = now
+            callback.inProgress = true
+            pcall(callback.cb)
+            callback.inProgress = false
+          end)
         end
       end
     end
-  end)
-end
-
-jo.ready(addUpdater)
-
-AddEventHandler("onResourceStart", function(resourceName)
-  if resourceName ~= "jo_libs" then return end
-  addUpdater()
+  end
 end)
-
 
 --- A function to force the update of module value
 function jo.player.forceUpdate()
@@ -67,8 +56,8 @@ function jo.player.move(cb, interval)
     inProgress = true
   }
   local currentMove = numberMoveCallback
-  CreateThreadNow(function()
-    cb()
+  CreateThread(function()
+    pcall(cb)
     moveCallbacks[currentMove].inProgress = false
   end)
 end

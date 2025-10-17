@@ -15,37 +15,9 @@ jo.player.playerId = PlayerId()
 jo.player.serverId = GetPlayerServerId(jo.player.playerId)
 jo.player.isMale = IsPedMale(jo.player.ped)
 
-local listeners = {}
-
-exports("jo_player_update", function(cb)
-  local resource = GetInvokingResource() or GetCurrentResourceName()
-  listeners[#listeners + 1] = {
-    send = cb,
-    resource = resource
-  }
-  if jo.debug then
-    bprint("%s listens player module", resource)
-  end
-end)
-
-AddEventHandler("onResourceStop", function(resourceName)
-  for i = 1, #listeners do
-    if listeners[i].resource == resourceName then
-      table.remove(listeners, i)
-      if jo.debug then
-        bprint("%s stops listening player module", resourceName)
-      end
-    end
-  end
-end)
-
 local function sendUpdate(values)
   if #values == 0 then return end
-  CreateThreadNow(function()
-    for i = 1, #listeners do
-      listeners[i].send(values)
-    end
-  end)
+  TriggerEvent("jo_libs:player:update", values)
 end
 
 local function updateValues()
