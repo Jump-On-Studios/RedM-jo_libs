@@ -29,7 +29,7 @@
   --dp-menu-width: 70vw;
   --dp-border-radius: 0;
   --dp-font-family: var(--font);
-  --dp-input-padding: 0.625em 1.1em;
+  --dp-input-padding: var(--padding-input-X) var(--padding-input-Y);
 }
 
 .dp__input {

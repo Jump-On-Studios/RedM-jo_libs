@@ -22,6 +22,13 @@ if (import.meta.env.DEV) {
             { type: "number", value: undefined, placeholder: "A number input", min: 0, max: 10, step: 0.01, required: true },
           ],
           [
+            {
+              type: "select", value: { value: 1, label: "Option 1" }, placeholder: "A select input", options: [
+                { value: 1, label: "Option 1" }, { value: 2, label: "Option 2" }, { value: 3, label: "Option 3" }
+              ], required: true
+            },
+          ],
+          [
             { type: "action", value: "Confirm", id: "confirm", }, { type: "action", class: "bg-green", value: "Delete", id: 'delete', ignoreRequired: true }, { type: "action", id: "close", value: "X", width: 5, ignoreRequired: true }
           ],
         ]
