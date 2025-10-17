@@ -25,3 +25,11 @@ body {
 .bg-green {
   background-color: var(--color-green) !important;
 }
+
+.prime-darkmode {
+  color-scheme: light !important;
+}
+
+#app {
+  color-scheme: dark;
+}
