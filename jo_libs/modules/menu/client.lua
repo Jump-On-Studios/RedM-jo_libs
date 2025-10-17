@@ -413,16 +413,14 @@ function MenuClass:refresh()
     menu = self.id,
     data = datas
   })
-  -- if menusNeedRefresh[self.id] then
+  if self.currentIndex > #self.items then
+    self:setCurrentIndex(#self.items)
+  end
+  self.currentIndex = math.min(self.currentIndex, #self.items)
   if jo.menu.isCurrentMenu(self.id) then
-    if self.currentIndex > #self.items then
-      self:setCurrentIndex(#self.items)
-    end
-    self.currentIndex = math.min(self.currentIndex, #self.items)
     jo.menu.runRefreshEvents(false, true)
   end
   menusNeedRefresh[self.id] = nil
-  -- end
 end
 
 --- Push the updated values to the NUI layer
