@@ -504,6 +504,55 @@ jo.framework:loadFile("_custom", "FrameworkClass")
 jo.framework:loadFile("server")
 jo.framework:loadFile("_custom", "server")
 
+local SourceFromIdentifiers = {}
+local IdentifiersFromSource = {}
+
+local function generateKey(identifier, charid)
+  return ("%s|%s"):format(identifier, charid)
+end
+
+local function dropIdentifiersLink(source)
+  local identifiers = IdentifiersFromSource[source]
+  if not identifiers then return end
+  local key = generateKey(identifiers.identifier, identifiers.charid)
+  SourceFromIdentifiers[key] = nil
+  IdentifiersFromSource[source] = nil
+end
+
+local function addIdentifiersLink(source)
+  dropIdentifiersLink(source)
+  local identifiers = jo.framework:getUserIdentifiers(source)
+  if not identifiers then return end
+  local key = generateKey(identifiers.identifier, identifiers.charid)
+  SourceFromIdentifiers[key] = source
+  IdentifiersFromSource[source] = identifiers
+end
+
+jo.framework:onCharacterSelected(function(source)
+  addIdentifiersLink(source)
+end)
+
+CreateThread(function()
+  local players = GetPlayers()
+  for i = 1, #players do
+    addIdentifiersLink(tonumber(players[i]))
+  end
+end)
+
+--- Retrieves the source ID from identifiers
+---@param identifier string (The identifier to search for)
+---@param charid string (The character ID to search for)
+---@return integer|boolean (Return the source ID if found, otherwise return false)
+function jo.framework:getSourceFromIdentifiers(identifier, charid)
+  local key = generateKey(identifier, charid)
+  return SourceFromIdentifiers[key] or false
+end
+
+AddEventHandler("playerDropped", function()
+  local source = source
+  dropIdentifiersLink(source)
+end)
+
 -- -----------
 -- END LOAD CUSTOM FUNCTIONS
 -- -----------

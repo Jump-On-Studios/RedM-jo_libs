@@ -969,6 +969,7 @@ end
 
 
 function jo.framework:onCharacterSelected(cb)
+  RegisterNetEvent("RSGCore:Server:OnPlayerLoaded")
   AddEventHandler("RSGCore:Server:OnPlayerLoaded", function()
     local source = source
     cb(source)
