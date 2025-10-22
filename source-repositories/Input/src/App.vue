@@ -19,7 +19,7 @@
 
             <VueDatePicker v-if="entry.type == 'date'" @keydown.enter="enterPressed" :ref="(el) => { entry.dom = el }" :style="style(entry)" :class="[entry.class, { error: entry.error }]" :dark="true" position="left" :start-date="new Date('01/01/' + entry.yearRange[0])" :enable-time-picker="false" :placeholder="entry.placeholder" :year-range="entry.yearRange" v-model="entry.value" :format="entry.format" :model-type="entry.format" auto-apply prevent-min-max-navigation />
 
-            <button v-if="entry.type == 'action'" :style="style(entry)" :class="['action', entry.class]" v-html="entry.value" @click="click(entry.id, entry.ignoreRequired)" />
+            <button v-if="entry.type == 'action' || entry.type == 'button'" :style="style(entry)" :class="['action', entry.class]" v-html="entry.value" @click="click(entry.id, entry.ignoreRequired)" />
 
             <Select v-if="entry.type == 'select'" v-model="entry.value" :options="entry.options" optionLabel="label" :placeholder="entry.placeholder" :style="style(entry)" :class="[entry.class, { error: entry.error }]" fluid />
 
@@ -116,8 +116,9 @@ function click(id, ignoreRequired) {
     result = processInputs()
     if (!result) return
   }
+  if (!result[id]) result[id] = true
   post('jo_input:click', {
-    action: id.toLowerCase(),
+    action: id,
     result: result
   })
   visible.value = false;
