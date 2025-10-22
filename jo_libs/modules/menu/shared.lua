@@ -162,6 +162,15 @@ function jo.menu.isPriceFree(price)
   return type(price) == "table" and #price == 1 and (price[1].money == 0 or price[1][1].money == 0)
 end
 
+--- Merge prices
+---@param ... table (The prices to merge)
+---@return table (The merged prices)
+function jo.menu.mergePrices(...)
+  local prices = table.copy({ ... })
+  prices.operator = "and"
+  return jo.menu.formatPrices(prices)
+end
+
 local function runTests()
   local tests = {
     { name = "Simple number", price = 5 },
