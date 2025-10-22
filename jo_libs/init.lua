@@ -252,6 +252,88 @@ function jo.stopped(cb)
   end)
 end
 
+-------------
+-- ASYNC
+-------------
+--- Wraps a function to run inside a thread and return a promise
+local function asyncWrap(func)
+  return function(...)
+    local args = { ... }
+    local waiter = promise.new()
+    CreateThread(function()
+      local results = { pcall(func, table.unpack(args)) }
+      local ok = results[1]
+      if ok then
+        -- Pack results to return multiple values
+        waiter:resolve({ table.unpack(results, 2) })
+      else
+        waiter:reject(results[2])
+      end
+    end)
+
+    -- Wrap the promise to add .next() and .await() methods
+    return setmetatable({}, {
+      __index = function(_, key)
+        if key == "next" then
+          return function(_, callback, errorCallback)
+            return waiter:next(function(results)
+              return callback(table.unpack(results))
+            end, errorCallback)
+          end
+        elseif key == "await" then
+          return function()
+            local results = Citizen.Await(waiter)
+            return table.unpack(results)
+          end
+        else
+          -- Proxy all other methods to the original promise
+          return waiter[key]
+        end
+      end
+    })
+  end
+end
+
+--- Creates a lazy async proxy for a table/module
+local function createAsyncProxy(tbl)
+  return setmetatable({}, {
+    __index = function(proxy, key)
+      local value = rawget(tbl, key)
+      if value == nil then
+        value = tbl[key]
+      end
+      return wrapValue(proxy, key, value)
+    end
+  })
+end
+
+--- Wraps values into async proxies (caches wrapped functions/proxies in the parent proxy)
+local function wrapValue(proxy, key, value)
+  if not value then return end
+
+  local valueType = type(value)
+  if valueType == "function" then
+    local wrapped = asyncWrap(value)
+    rawset(proxy, key, wrapped)
+    return wrapped
+  elseif valueType == "table" then
+    local nested = createAsyncProxy(value)
+    rawset(proxy, key, nested)
+    return nested
+  end
+end
+
+--- Global jo.async namespace (looks up jo.* first, then _G.*)
+jo.async = setmetatable({}, {
+  __index = function(proxy, key)
+    local value = rawget(jo, key)
+    if value == nil then
+      value = rawget(_G, key)
+    end
+    return wrapValue(proxy, key, value)
+  end
+})
+
 _ENV.jo = jo
 
 
