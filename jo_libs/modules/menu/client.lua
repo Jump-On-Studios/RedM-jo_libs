@@ -387,6 +387,10 @@ end
 ---@param keys string|table (The list of property name to access to the value)
 function MenuClass:deleteValue(keys)
   if type(keys) ~= "table" then keys = { keys } end
+  if (#keys == 2 and keys[1] == "items") then
+    self:deleteItem(keys[2])
+    return
+  end
   table.insert(self.updatedValues, {
     keys = keys,
     action = "delete"
@@ -400,6 +404,13 @@ function MenuClass:deleteItem(index)
     keys = { "items", index },
     action = "delete"
   })
+  if (jo.menu.isCurrentMenu(self.id)) and self.currentIndex == index then
+    table.insert(self.updatedValues, {
+      keys = { "currentIndex" },
+      action = "update",
+      value = index
+    })
+  end
 end
 
 
@@ -940,9 +951,9 @@ end)
 ---@param ...? any (Additional arguments to pass to the event handler)
 function jo.menu.fireEvent(item, eventName, ...)
   if not item then return end
-  if item[eventName .. "ClientEvent"] then TriggerEvent(item[eventName .. "ClientEvent"], currentData, ...) end
-  if item[eventName .. "ServerEvent"] then TriggerServerEvent(item[eventName .. "ServerEvent"], currentData, ...) end
-  if item[eventName] then item[eventName](currentData, ...) end
+  if item[eventName .. "ClientEvent"] then TriggerEvent(item[eventName .. "ClientEvent"], jo.menu.getCurrentData(), ...) end
+  if item[eventName .. "ServerEvent"] then TriggerServerEvent(item[eventName .. "ServerEvent"], jo.menu.getCurrentData(), ...) end
+  if item[eventName] then item[eventName](jo.menu.getCurrentData(), ...) end
 end
 
 --- Fire an event across all menu levels (current menu and current item)

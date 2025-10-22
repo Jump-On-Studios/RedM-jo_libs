@@ -674,18 +674,21 @@ export const useMenuStore = defineStore('menus', {
       this.addDataToSend(["sliders", index, "values", 1, "current"], values[1].current)
       this.updatePreview()
     },
-    updatePreview() {
+    updatePreview(forceItemEvent = false, forceMenuEvent = false) {
       if (this.cItem == undefined) return
       API.post('updatePreview', {
         menu: this.currentMenuId,
         index: this.cItem.index,
         item: this.dataToSend,
+        forceItemEvent,
+        forceMenuEvent
       })
       this.dataToSend = {}
     },
     updateMenuValues(data) {
       if (!this.menus[data.menu]) return
       this.$patch((state) => {
+        let needRefresh = false
         data.updated.forEach(element => {
           let keys = element.keys
           let lastKey = keys[keys.length - 1]
@@ -712,14 +715,17 @@ export const useMenuStore = defineStore('menus', {
               current[lastKey] = element.value
               if (lastKey == "currentIndex") {
                 current.currentIndex = current.items.findIndex(item => item.index == element.value)
-                current.currentIndex = Math.max(current.currentIndex, 0)
                 current.currentIndex = Math.min(current.currentIndex, current.items.length - 1)
+                current.currentIndex = Math.max(current.currentIndex, 0)
                 if (data.menu == this.currentMenuId)
-                  this.updatePreview()
+                  needRefresh = true
               }
               break;
           }
         });
+        if (needRefresh) {
+          this.updatePreview(true)
+        }
       })
     },
   },
