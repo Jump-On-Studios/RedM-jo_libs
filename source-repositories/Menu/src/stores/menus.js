@@ -691,16 +691,15 @@ export const useMenuStore = defineStore('menus', {
         let needRefresh = false
         data.updated.forEach(element => {
           let keys = element.keys
-          let lastKey = keys[keys.length - 1]
-          if (typeof lastKey == "number") { //Fixed the array start at 1 in LUA
-            lastKey -= 1
+          for (let i = 0; i < keys.length; i++) {
+            if (typeof keys[i] == "number") { //Fixed the array start at 1 in LUA
+              keys[i] -= 1
+            }
           }
+          let lastKey = keys[keys.length - 1]
           let current = state.menus[data.menu]
           for (let i = 0; i < keys.length - 1; i++) {
             let key = keys[i]
-            if (typeof key == "number") { //Fixed the array start at 1 in LUA
-              key -= 1
-            }
             current = current[key]
           }
           switch (element.action) {

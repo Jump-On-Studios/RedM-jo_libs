@@ -404,6 +404,14 @@ function MenuClass:deleteItem(index)
     keys = { "items", index },
     action = "delete"
   })
+  for i = index, #self.items do
+    self.items[i].index = i
+    table.insert(self.updatedValues, {
+      action = "update",
+      keys = { "items", i, "index" },
+      value = i
+    })
+  end
   if (jo.menu.isCurrentMenu(self.id)) and self.currentIndex == index then
     table.insert(self.updatedValues, {
       keys = { "currentIndex" },
