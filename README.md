@@ -20,6 +20,12 @@
 
 For the full documentation, visit [docs.jumpon-studios.com](https://docs.jumpon-studios.com/jo_libs).
 
+## 🌐 Global Functions
+
+* [jo.async](https://docs.jumpon-studios.com/jo_libs/global-functions#jo-async)
+* [jo.ready](https://docs.jumpon-studios.com/jo_libs/global-functions#jo-ready)
+* [jo.stopped](https://docs.jumpon-studios.com/jo_libs/global-functions#jo-stopped)
+
 ## 🧷 Modules
 
 * [Animation](https://docs.jumpon-studios.com/jo_libs/modules/animation/)
@@ -40,20 +46,20 @@ For the full documentation, visit [docs.jumpon-studios.com](https://docs.jumpon-
 * [Input](https://docs.jumpon-studios.com/jo_libs/modules/input/)
 * [Light](https://docs.jumpon-studios.com/jo_libs/modules/light/)
 * [Math](https://docs.jumpon-studios.com/jo_libs/modules/math/)
-* [Me](https://docs.jumpon-studios.com/jo_libs/modules/me/)
 * [Menu](https://docs.jumpon-studios.com/jo_libs/modules/menu/)
 * [Notification](https://docs.jumpon-studios.com/jo_libs/modules/notification/)
 * [Nui](https://docs.jumpon-studios.com/jo_libs/modules/nui/)
 * [Ped Texture](https://docs.jumpon-studios.com/jo_libs/modules/ped-texture/)
+* [Player](https://docs.jumpon-studios.com/jo_libs/modules/player/)
 * [Print](https://docs.jumpon-studios.com/jo_libs/modules/print/)
 * [Promise](https://docs.jumpon-studios.com/jo_libs/modules/promise/)
 * [Prompts](https://docs.jumpon-studios.com/jo_libs/modules/prompts/)
+* [Prompts NUI](https://docs.jumpon-studios.com/jo_libs/modules/prompts/prompt-nui/)
 * [Keys](https://docs.jumpon-studios.com/jo_libs/modules/raw-keys/)
 * [Screen](https://docs.jumpon-studios.com/jo_libs/modules/screen/)
 * [String](https://docs.jumpon-studios.com/jo_libs/modules/string/)
 * [Table](https://docs.jumpon-studios.com/jo_libs/modules/table/)
 * [Timeout](https://docs.jumpon-studios.com/jo_libs/modules/timeout/)
-* [Event](https://docs.jumpon-studios.com/jo_libs/modules/trigger-event/)
 * [UI](https://docs.jumpon-studios.com/jo_libs/modules/ui/)
 * [Utils](https://docs.jumpon-studios.com/jo_libs/modules/utils/)
 * [Waiter](https://docs.jumpon-studios.com/jo_libs/modules/waiter/)
