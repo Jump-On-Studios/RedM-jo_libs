@@ -1,6 +1,6 @@
 author "JUMP ON studios : https://jumpon-studios.com"
 documentation "https://docs.jumpon-studios.com"
-version "2.4.0"
+version "2.4.1"
 package_id "1"
 
 fx_version "cerulean"
