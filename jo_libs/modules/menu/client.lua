@@ -43,7 +43,6 @@ local disabledKeys = {
   `INPUT_GAME_MENU_CANCEL`,
   `INPUT_FRONTEND_PAUSE_ALTERNATE`,
 }
-local menusNeedRefresh = {}
 
 local function updateSliderCurrentValue(item)
   if not item or not item.sliders then return end
@@ -314,9 +313,6 @@ function MenuClass:addItem(index, item)
       end
     end
   end
-  if jo.menu.isCurrentMenu(self.id) and (jo.menu.getCurrentIndex() >= index or #self.items == 1) then
-    menusNeedRefresh[self.id] = true
-  end
 
   local menu = self
 
@@ -439,7 +435,6 @@ function MenuClass:refresh()
   if jo.menu.isCurrentMenu(self.id) then
     jo.menu.runRefreshEvents(false, true)
   end
-  menusNeedRefresh[self.id] = nil
 end
 
 --- Push the updated values to the NUI layer
@@ -1008,9 +1003,6 @@ function MenuClass:removeItem(index)
     for i = 1, #self.items do
       self.items[i].index = i
     end
-  end
-  if jo.menu.isCurrentMenu(self.id) and jo.menu.getCurrentIndex() >= index then
-    menusNeedRefresh[self.id] = true
   end
 end
 

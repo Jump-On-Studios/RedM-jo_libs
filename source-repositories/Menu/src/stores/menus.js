@@ -675,7 +675,6 @@ export const useMenuStore = defineStore('menus', {
       this.updatePreview()
     },
     updatePreview(forceItemEvent = false, forceMenuEvent = false) {
-      if (this.cItem == undefined) return
       API.post('updatePreview', {
         menu: this.currentMenuId,
         index: this.cItem.index,
