@@ -271,6 +271,8 @@ function jo.framework:registerUseItem(item, closeAfterUsed, callback)
   end)
 end
 
+
+
 function jo.framework:giveItem(source, item, quantity, meta)
   if Inventory:canCarryItem(source, item, quantity) then
     Inventory:addItem(source, item, quantity, meta)
@@ -391,6 +393,14 @@ function jo.framework:getItemsFromInventory(invId)
 
   return items
 end
+
+-- Listener for item removed of the player inventory
+RegisterNetEvent("vorp_inventory:Server:OnItemRemoved", function(data,source)
+  local item = data.name
+  local quantity = data.count
+  jo.framework:fireListenerItemRemoved(source, item, quantity, meta, "dropped")
+end)
+
 
 -------------
 -- SKIN & CLOTHES
