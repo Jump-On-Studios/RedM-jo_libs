@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+    <title>Clipboard</title>
+</head>
+
+<body>
+</body>
+
+<script>
+
+    const copyToClipboard = str => {
+        const el = document.createElement('textarea');
+        el.value = str;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+    };
+
+    window.addEventListener('message', (event) => {
+
+        switch (event.data.type) {
+            case "copy":
+                copyToClipboard(event.data.value);
+                break;
+        }
+
+    });
+</script>
+
+</html>
