@@ -393,3 +393,8 @@ end
 function jo.framework:onCharacterSelected(cb)
   return false
 end
+
+-- Listener for item removed of the player inventory
+RegisterNetEvent("event_item_removed", function(source, item, quantity, meta)
+  jo.framework:fireListenerItemRemoved(source, item, quantity, meta, "dropped")
+end)

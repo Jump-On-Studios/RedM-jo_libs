@@ -226,6 +226,35 @@ function jo.framework:removeItem(source, item, quantity, meta)
   return self:canUseItem(source, item, quantity, meta, true)
 end
 
+local listenerItemRemoved = {}
+--- Listen when an item is removed of the player inventory
+---@param item string|function (The name of the item)
+---@param callback function (The function fired after remove the item <br> 1st argument: source <br> 2nd argument: the quantity removed <br> 3rd argument: metadata of the item <br> 4th argument: reason of the removal)
+function jo.framework:listenItemRemoved(...)
+  local args = { ... }
+  local item, callback = args[1], args[2]
+  if #args == 1 then
+    item, callback = "_global", args[1]
+  end
+  listenerItemRemoved[item] = listenerItemRemoved[item] or {}
+  table.insert(listenerItemRemoved[item], {
+    callback = callback
+  })
+end
+
+AddEventHandler("jo_libs:inventory:listenerItemRemoved", function(source, item, data)
+  if listenerItemRemoved[item] then
+    for i = 1, #listenerItemRemoved[item] do
+      pcall(listenerItemRemoved[item][i].callback, source, item, data)
+    end
+  end
+  if listenerItemRemoved["_global"] then
+    for i = 1, #listenerItemRemoved["_global"] do
+      pcall(listenerItemRemoved["_global"][i].callback, source, item, data)
+    end
+  end
+end)
+
 --- Converts a value to a percentage (between 0-1) whether input is in percentage or decimal form
 ---@param value number (The value to convert to percentage)
 ---@return number (Return the value as a decimal between -1 and 1)
