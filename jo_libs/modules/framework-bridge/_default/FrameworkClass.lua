@@ -25,14 +25,6 @@ function jo.framework:registerUseItem(item, closeAfterUsed, callback)
   return false
 end
 
---- Listen when an item is removed of the player inventory
----@param item string (The name of the item)
----@param reason string (The reason of the item removal)
----@param callback function (The function fired after remove the item <br> 1st argument: source <br> 2nd argument: metadata of the item)
-function jo.framework:listenItemRemoved(item, reason, callback)
-  return false
-end
-
 --- Adds an item to a player's inventory with optional metadata
 ---@param source integer (The source ID of the player)
 ---@param item string (The name of the item)

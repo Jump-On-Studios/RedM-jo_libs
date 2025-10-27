@@ -57,7 +57,7 @@ end
 ---@param cb? function (Function to receive the result of the event)
 ---@param ...? any (The list of parameters to send to the callback event)
 function jo.callback.triggerServer(name, cb, ...)
-  if not registeredCallback[name] then return false, eprint("No server callback for:", name) end
+  if not registeredCallback[name] then return false, eprint("Function: No server callback for:", name) end
 
   local cbType = isAFunction(cb) and "function" or "other"
   local args = { ... }
@@ -74,7 +74,7 @@ end
 
 RegisterServerEvent("jo_libs:triggerCallback", function(name, requestId, fromRessource, ...)
   local source = source
-  if not registeredCallback[name] then return eprint("No server callback for:", name) end
+  if not registeredCallback[name] then return eprint("Event: No server callback for:", name) end
 
   local trigger = registeredCallback[name].latent and jo.emit.triggerClient.latent or TriggerClientEvent
 

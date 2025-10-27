@@ -47,3 +47,11 @@ function jo.framework:getInventoryItems()
   waitInitInventoryItems()
   return jo.framework.inventoryItems
 end
+
+-- Listener for item removed of the player inventory
+RegisterNetEvent("vorp_inventory:Server:OnItemRemoved", function(data, source)
+  local item = data.name
+  local quantity = data.count
+  local metadata = data.metadata
+  TriggerEvent("jo_libs:inventory:listenerItemRemoved", source, item, { quantity = quantity, metadata = metadata }, "dropped")
+end)
