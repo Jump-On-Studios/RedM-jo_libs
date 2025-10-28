@@ -186,7 +186,7 @@ end
 ---@param model string (The model name of the entity to create)
 ---@param keepEntity? boolean (Whether to keep the entity after placement <br> default:true)
 ---@param networked? boolean (Whether the entity should be networked <br> default:false)
----@return integer,vector3,number (The created entity ID, final position, final heading)
+---@return integer,vector3,number,boolean (The created entity ID, final position, final heading, is canceled)
 function jo.entity.createWithMouse(model, keepEntity, networked)
 	networked = networked or false
 	if keepEntity == nil then keepEntity = true end
@@ -199,6 +199,7 @@ function jo.entity.createWithMouse(model, keepEntity, networked)
 	local heading = 0
 	local entity = jo.entity.create(model, origin, heading, false)
 	local maxDistanceCreate = 10
+	local canceled = false
 
 	SetEntityCompletelyDisableCollision(entity, false, false)
 	SetEntityAlpha(entity, 200, false)
@@ -235,14 +236,19 @@ function jo.entity.createWithMouse(model, keepEntity, networked)
 		end
 
 		if jo.prompt.isCompleted(groupPrompt, "INPUT_CONTEXT_LT") then
-			previousCoord = false
+			canceled = true
 			break
 		end
 		Wait(0)
 	end
-	jo.prompt.deleteGroup(groupPrompt)
 
+	jo.prompt.deleteGroup(groupPrompt)
 	jo.entity.delete(entity)
+
+	if canceled then
+		return false
+	end
+
 	if keepEntity then
 		entity = jo.entity.create(model, previousCoord, heading, networked)
 	end
