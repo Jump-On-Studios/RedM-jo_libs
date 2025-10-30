@@ -1,6 +1,13 @@
 jo.menu = {}
 jo.require("table")
 
+local validPriceKeys = {
+  money = true,
+  gold = true,
+  rol = true,
+  item = true,
+}
+
 --- Helper function to normalize a single entry
 ---@param entry any
 ---@return table
@@ -15,7 +22,7 @@ local function normalizeEntry(entry)
       quantity = entry.quantity or 1,
       keep = entry.keep or false,
       meta = entry.meta
-    }, jo.framework:getItemData(entry.item))
+    }, entry, jo.framework:getItemData(entry.item))
   end
 
   return entry
@@ -40,14 +47,23 @@ function jo.menu.formatPrice(price)
         result[size] = normalizeEntry(value)
         size += 1
       else
+        local extra = {}
+        local start = size
         for k, v in pairs(value) do
           if type(k) == "string" then
-            result[size] = normalizeEntry({ [k] = v })
-            size += 1
+            if validPriceKeys[k] then
+              result[size] = normalizeEntry({ [k] = v })
+              size += 1
+            else
+              extra[k] = v
+            end
           else
             result[size] = normalizeEntry(v)
             size += 1
           end
+        end
+        for i = start, size - 1 do
+          result[i] = table.merge(result[i], extra)
         end
       end
     else
@@ -107,12 +123,13 @@ function jo.menu.formatPrices(prices)
 
     for j = 1, #price do
       local item = price[j]
-      if item.money then
-        moneyTotal = moneyTotal + item.money
-      elseif item.gold then
-        goldTotal = goldTotal + item.gold
-      elseif item.rol then
-        rolTotal = rolTotal + item.rol
+      local itemSize = table.count(item)
+      if itemSize == 1 and item.money then
+        moneyTotal += item.money
+      elseif itemSize == 1 and item.gold then
+        goldTotal += item.gold
+      elseif itemSize == 1 and item.rol then
+        rolTotal += item.rol
       elseif item.item then
         local key = item.item .. ":" .. tostring(item.keep)
         if not items[key] then
