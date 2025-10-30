@@ -22,36 +22,44 @@ function table.copy(t)
   return setmetatable(copy, getmetatable(t))
 end
 
---- Merges two tables together.
----@param t1 table (The main table)
----@param t2 table (The table to merge)
+--- Merges multiple tables together.
+---@param ... table (The tables to merge)
 ---@return table (The merged table. If the same key exists in both tables, only the value of t2 is kept)
-function table.merge(t1, t2)
-  t1 = t1 or {}
-  if not t2 then return t1 end
-  for k, v in pairs(t2 or {}) do
-    if type(v) == "table" then
-      if type(t1[k] or false) == "table" then
-        table.merge(t1[k] or {}, t2[k] or {})
+function table.merge(...)
+  local args = { ... }
+  if #args < 2 then return args[1] end
+
+  local t1 = args[1]
+  for t = 2, #args do
+    local t2 = args[t]
+    for k, v in pairs(t2 or {}) do
+      if type(v) == "table" then
+        if type(t1[k] or false) == "table" then
+          table.merge(t1[k] or {}, t2[k] or {})
+        else
+          t1[k] = v
+        end
       else
         t1[k] = v
       end
-    else
-      t1[k] = v
     end
   end
   return t1
 end
 
 --- Merges the values of the second table sequentially into the first table.
----@param t1 table (The target table to merge into)
----@param t2 table (The table whose values will be appended)
+---@param ... table (The tables to merge)
 ---@return table (The merged table with values from t2 added at the end of t1)
-function table.mergeAfter(t1, t2)
-  t1 = t1 or {}
-  if not t2 then return t1 end
-  for _, v in pairs(t2 or {}) do
-    t1[#t1 + 1] = v
+function table.mergeAfter(...)
+  local args = { ... }
+  if #args < 2 then return args[1] end
+
+  local t1 = args[1]
+  for t = 2, #args do
+    local t2 = args[t]
+    for _, v in pairs(t2 or {}) do
+      t1[#t1 + 1] = v
+    end
   end
   return t1
 end
