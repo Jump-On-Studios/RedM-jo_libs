@@ -47,7 +47,7 @@ function jo.framework:registerUseItem(item, closeAfterUsed, callback)
     TPZInv.registerUsableItem(item, "jo_libs", function(data)
       if closeAfterUsed then
 
-        TPZ.closeInventory(data.source)
+        TPZInv.closeInventory(data.source)
       end
       return callback(data.source, { metadata = data.item.metadata })
     end)
