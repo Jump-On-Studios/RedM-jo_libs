@@ -49,7 +49,7 @@ function jo.framework:registerUseItem(item, closeAfterUsed, callback)
 
         TPZInv.closeInventory(data.source)
       end
-      return callback(data.source, { metadata = data.item.metadata })
+      return callback(data.source, { metadata = data.metadata })
     end)
   end)
 
