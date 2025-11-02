@@ -52,6 +52,7 @@ local config = {
     allowRotateX = GetConvarBool("jo_libs:gizmo:allowRotateX", true),                                     -- Allow rotation on X-axis
     allowRotateY = GetConvarBool("jo_libs:gizmo:allowRotateY", true),                                     -- Allow rotation on Y-axis
     allowRotateZ = GetConvarBool("jo_libs:gizmo:allowRotateZ", true),                                     -- Allow rotation on Z-axis
+    allowSnapToGround = GetConvarBool("jo_libs:gizmo:allowSnapToGround", true),                           -- Allow snapping to ground
     rotationSnap = GetConvarInt("jo_libs:gizmo:rotationSnap", 5),                                         -- Rotation snap value
     keys = {
         moveX = GetConvarInt("jo_libs:gizmo:keys:moveX", `INPUT_SCRIPTED_FLY_LR`),                        -- Move left/right
@@ -78,6 +79,7 @@ local gizmoActive = false
 local responseData = nil
 local mode = "translate"
 local cam = nil
+local previousCam = -1
 local enableCam = false
 local maxDistance = 0
 local maxCamDistance = 0
@@ -91,6 +93,7 @@ local allowTranslateZ = true
 local allowRotateX = true
 local allowRotateY = true
 local allowRotateZ = true
+local allowSnapToGround = true
 local stored = nil
 local hookedFunc = nil
 local target = 0
@@ -117,19 +120,33 @@ local function showNUI(bool)
 
         if enableCam then
             dprint("[GIZMO DEBUG] Setting up camera, enableCam:", enableCam)
-            local coords = GetGameplayCamCoord()
-            local rot = GetGameplayCamRot(2)
-            local fov = GetGameplayCamFov()
+            local currentCam = GetRenderingCam()
+            previousCam = currentCam
+            local coords, rot, fov
+            if currentCam == -1 then
+                coords = GetGameplayCamCoord()
+                rot = GetGameplayCamRot(2)
+                fov = GetGameplayCamFov()
+            else
+                coords = GetCamCoord(currentCam)
+                rot = GetCamRot(currentCam, 2)
+                fov = GetCamFov(currentCam)
+            end
             dprint("[GIZMO DEBUG] Camera coords:", coords.x, coords.y, coords.z)
             dprint("[GIZMO DEBUG] Camera rotation:", rot.x, rot.y, rot.z)
             dprint("[GIZMO DEBUG] Camera FOV:", fov)
 
-            cam = CreateCam("DEFAULT_SCRIPTED_CAMERA", true)
+            cam = CreateCam("DEFAULT_SCRIPTED_CAMERA", false)
             dprint("[GIZMO DEBUG] Camera created, cam handle:", cam)
 
             SetCamCoord(cam, coords.x, coords.y, coords.z + 0.5)
             SetCamFov(cam, fov)
-            RenderScriptCams(true, true, 500, true, true)
+            if currentCam == -1 then
+                SetCamActive(cam, true)
+                RenderScriptCams(true, true, 500, true, true)
+            else
+                SetCamActiveWithInterp(cam, currentCam, 500)
+            end
             FreezeEntityPosition(PlayerPedId(), true)
             dprint("[GIZMO DEBUG] Camera setup complete, focusEntity:", focusEntity)
             if focusEntity then
@@ -153,7 +170,11 @@ local function showNUI(bool)
 
         if cam then
             dprint("[GIZMO DEBUG] Cleaning up camera, cam handle:", cam)
-            RenderScriptCams(false, true, 500, true, true)
+            if previousCam == -1 then
+                RenderScriptCams(false, true, 500, true, true)
+            else
+                SetCamActiveWithInterp(previousCam, cam, 500)
+            end
             SetCamActive(cam, false)
             DetachCam(cam)
             DestroyCam(cam, true)
@@ -338,6 +359,7 @@ end
 --- cfg.allowRotateX boolean (Allow rotation on X-axis - default `true`)
 --- cfg.allowRotateY boolean (Allow rotation on Y-axis - default `true`)
 --- cfg.allowRotateZ boolean (Allow rotation on Z-axis - default `true`)
+--- cfg.allowSnapToGround boolean (Allow snapping to ground - default `true`)
 --- cfg.rotationSnap number (Rotation snap value - default `5`)
 --- cfg.onMove function (Optional function fired when the entity move with the gizmo)
 ---@param allowPlace? function (Optional callback to validate placement - receives proposed position as parameter)
@@ -360,19 +382,20 @@ function jo.gizmo.moveEntity(entity, cfg, allowPlace)
     target = entity
     dprint("[GIZMO DEBUG] Target entity set to:", target)
 
-    enableCam = cfg?.enableCam == nil and config.enableCam or cfg.enableCam
-    maxDistance = cfg?.maxDistance == nil and config.maxDistance or cfg.maxDistance
-    maxCamDistance = cfg?.maxCamDistance == nil and config.maxCamDistance or cfg.maxCamDistance
-    minY = cfg?.minY == nil and config.minY or cfg.minY
-    maxY = cfg?.maxY == nil and config.maxY or cfg.maxY
-    movementSpeed = cfg?.movementSpeed == nil and config.movementSpeed or cfg.movementSpeed
-    allowTranslateX = cfg?.allowTranslateX == nil and config.allowTranslateX or cfg.allowTranslateX
-    allowTranslateY = cfg?.allowTranslateY == nil and config.allowTranslateY or cfg.allowTranslateY
-    allowTranslateZ = cfg?.allowTranslateZ == nil and config.allowTranslateZ or cfg.allowTranslateZ
-    allowRotateX = cfg?.allowRotateX == nil and config.allowRotateX or cfg.allowRotateX
-    allowRotateY = cfg?.allowRotateY == nil and config.allowRotateY or cfg.allowRotateY
-    allowRotateZ = cfg?.allowRotateZ == nil and config.allowRotateZ or cfg.allowRotateZ
-    rotationSnap = (cfg?.rotationSnap == nil and config.rotationSnap or cfg.rotationSnap) * math.pi / 180
+    enableCam = GetValue(cfg?.enableCam, config.enableCam)
+    maxDistance = GetValue(cfg?.maxDistance, config.maxDistance)
+    maxCamDistance = GetValue(cfg?.maxCamDistance, config.maxCamDistance)
+    minY = GetValue(cfg?.minY, config.minY)
+    maxY = GetValue(cfg?.maxY, config.maxY)
+    movementSpeed = GetValue(cfg?.movementSpeed, config.movementSpeed)
+    allowTranslateX = GetValue(cfg?.allowTranslateX, config.allowTranslateX)
+    allowTranslateY = GetValue(cfg?.allowTranslateY, config.allowTranslateY)
+    allowTranslateZ = GetValue(cfg?.allowTranslateZ, config.allowTranslateZ)
+    allowRotateX = GetValue(cfg?.allowRotateX, config.allowRotateX)
+    allowRotateY = GetValue(cfg?.allowRotateY, config.allowRotateY)
+    allowRotateZ = GetValue(cfg?.allowRotateZ, config.allowRotateZ)
+    allowSnapToGround = GetValue(cfg?.allowSnapToGround, config.allowSnapToGround)
+    rotationSnap = GetValue(cfg?.rotationSnap, config.rotationSnap) * math.pi / 180
     mode = "translate"
     onMove = cfg?.onMove
 
@@ -410,7 +433,8 @@ function jo.gizmo.moveEntity(entity, cfg, allowPlace)
             allowRotateX = allowRotateX,
             allowRotateY = allowRotateY,
             allowRotateZ = allowRotateZ,
-            rotationSnap = rotationSnap
+            rotationSnap = rotationSnap,
+            allowSnapToGround = allowSnapToGround,
         }
     })
 
@@ -431,7 +455,9 @@ function jo.gizmo.moveEntity(entity, cfg, allowPlace)
     jo.prompt.create(groupName, "Cancel", config.keys.cancel)
     jo.prompt.create(groupName, "Confirm", config.keys.confirm)
     jo.prompt.create(groupName, "Switch to Rotate Mode", config.keys.switchMode)
-    jo.prompt.create(groupName, "Snap to Ground", config.keys.snapToGround)
+    if allowSnapToGround then
+        jo.prompt.create(groupName, "Snap to Ground", config.keys.snapToGround)
+    end
     jo.prompt.create(groupName, "Finish", config.keys.enter)
     jo.prompt.create(groupName, "Free cam", config.keys.focusEntity)
     jo.prompt.create(groupName, ("Camera speed: x%.3f"):format(movementSpeed),
@@ -467,7 +493,7 @@ function jo.gizmo.moveEntity(entity, cfg, allowPlace)
             jo.prompt.setVisible(groupName, config.keys.rotationSnap, mode == "rotate")
         end
 
-        if jo.prompt.isCompleted(groupName, config.keys.snapToGround) then
+        if allowSnapToGround and jo.prompt.isCompleted(groupName, config.keys.snapToGround) then
             dprint("[GIZMO DEBUG] Snapping entity to ground")
             PlaceObjectOnGroundProperly(entity)
             local newPos = GetEntityCoords(entity)
@@ -557,7 +583,7 @@ function jo.gizmo.moveEntity(entity, cfg, allowPlace)
             })
         end
 
-        Wait(10)
+        Wait(0)
     end
 
     dprint("[GIZMO DEBUG] Exited main loop, cleaning up prompts")
@@ -581,8 +607,8 @@ RegisterNUICallback("gizmo:UpdateEntity", function(data, cb)
     dprint("[GIZMO DEBUG] Callback data received:", json.encode(data))
 
     local entity = data.handle
-    local position = data.position
-    local rotation = data.rotation
+    local position = vec3(data.position.x, data.position.y, data.position.z)
+    local rotation = vec3(data.rotation.x, data.rotation.y, data.rotation.z)
 
     dprint("[GIZMO DEBUG] Entity handle:", entity)
     dprint("[GIZMO DEBUG] Position:", position and json.encode(position) or "nil")
@@ -591,7 +617,7 @@ RegisterNUICallback("gizmo:UpdateEntity", function(data, cb)
     dprint("[GIZMO DEBUG] MaxDistance:", maxDistance)
     dprint("[GIZMO DEBUG] HookedFunc exists:", hookedFunc ~= nil)
 
-    if (maxDistance and #(vec3(position.x, position.y, position.z) - stored.coords) <= maxDistance) and (not hookedFunc or hookedFunc(position)) then
+    if (maxDistance and #(position - stored.coords) <= maxDistance) and (not hookedFunc or hookedFunc(position)) then
         dprint("[GIZMO DEBUG] Position validation passed, updating entity")
         SetEntityCoordsNoOffset(entity, position.x, position.y, position.z)
         SetEntityRotation(entity, rotation.x, rotation.y, rotation.z)
@@ -609,8 +635,8 @@ RegisterNUICallback("gizmo:UpdateEntity", function(data, cb)
 
     local response = {
         status = "Distance is too far",
-        position = { x = position.x, y = position.y, z = position.z },
-        rotation = { x = rotation.x, y = rotation.y, z = rotation.z }
+        position = position,
+        rotation = rotation
     }
     dprint("[GIZMO DEBUG] Sending error response:", json.encode(response))
     cb(response)
