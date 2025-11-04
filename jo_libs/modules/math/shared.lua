@@ -16,4 +16,13 @@ function math.round(number, precision)
   return math.floor(number * 10 ^ precision) / 10 ^ precision
 end
 
+--- Clamps a number between a minimum and maximum value.
+---@param x number (The number to clamp)
+---@param min number (The minimum value)
+---@param max number (The maximum value)
+---@return number (The clamped number)
+function math.clamp(x, min, max)
+  return math.max(math.min(x, max), min)
+end
+
 jo.math = {}
