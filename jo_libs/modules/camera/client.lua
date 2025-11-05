@@ -211,9 +211,9 @@ function jo.camera.freeCamera.getCam()
 end
 
 --- A function to get the freecam prompt group
----@return integer (The prompt group)
+---@return string (The prompt group name)
 function jo.camera.freeCamera.getPromptGroup()
-  return jo.prompt.getGroup(promptGroup)
+  return promptGroup
 end
 
 --- A function to check if the freecam is active
