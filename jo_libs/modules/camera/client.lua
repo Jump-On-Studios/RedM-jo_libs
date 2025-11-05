@@ -230,9 +230,9 @@ end
 
 --- A function to start the freecam
 ---@param options? table (The freecam option options)
---- options?.interpolate? number (The interpolate time - default `0`)
---- options?.showPrompts? boolean (Whether to show prompts - default `true`)
---- options?.range? number (The range of the freecam - default `10000`)
+--- options.interpolate number (The interpolate time - default `0`)
+--- options.showPrompts boolean (Whether to show prompts - default `true`)
+--- options.range number (The range of the freecam - default `10000`)
 ---@alias jo.camera.freeCamera function
 function jo.camera.freeCamera.start(options)
   if jo.camera.freeCamera.isActive() then return end
