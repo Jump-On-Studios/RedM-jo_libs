@@ -1,7 +1,7 @@
 <template>
   <li v-if="item" :id="`item-${id}`" :class="['item grid clicker with-icon', { 'disabled': item.disabled, 'active': active }]" @click="click()">
     <div :class="[{ 'bw opacity50': item.disabled }, 'image', item.iconClass]">
-      <img :src="getImage(item.icon)" />
+      <img :src="API.getImage(item.icon)" />
     </div>
     <div class="current" v-if="isCurrent">
       <div class="tick">
@@ -9,7 +9,7 @@
       </div>
     </div>
     <div :class="['icon-right', item.iconClass]" v-if="item.iconRight">
-      <img :src="getImage(item.iconRight)">
+      <img :src="API.getImage(item.iconRight)">
     </div>
     <div class="quantity" v-if="typeof item.quantity != 'boolean'">
       <span class="text">{{ item.quantity }}</span>
@@ -57,16 +57,6 @@ function click() {
     menuStore.setCurrentIndex(menuStore.currentMenuId, props.item.id)
   }
   API.PlayAudio('button')
-}
-
-function isNUIImage(url) {
-  return url.includes('://')
-}
-
-function getImage(url) {
-  if (isNUIImage(url))
-    return url
-  return `./assets/images/icons/${url}.png`
 }
 </script>
 

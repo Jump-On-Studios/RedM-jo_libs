@@ -171,11 +171,12 @@ class API {
   }
 
   isNUIImage = function (url) {
-    if (url == undefined) return false
+    if (!url || url == undefined) return false
     return url.includes('://')
   }
 
   getImage = function (url) {
+    if (!url || url == undefined) return ""
     if (this.isNUIImage(url))
       return url
     return `./assets/images/icons/${url}.png`

@@ -5,11 +5,12 @@ export default {}
 let menu = {
   id: 'home',
   title: 'Main title',
-  // type: 'tile',
+  type: 'tile',
   numberOnLine: 4,
   numberLineOnScreen: 2,
   subtitle: 'The menu title',
-  numberOnScreen: 8,
+  numberOnScreen: 3,
+  numberLineOnScreen: 1,
   items: [
     {
       title: 'This is the title',
