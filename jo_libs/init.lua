@@ -294,8 +294,10 @@ local function asyncWrap(func)
   end
 end
 
+local wrapValue
+local createAsyncProxy
 --- Creates a lazy async proxy for a table/module
-local function createAsyncProxy(tbl)
+function createAsyncProxy(tbl)
   return setmetatable({}, {
     __index = function(proxy, key)
       local value = rawget(tbl, key)
@@ -308,7 +310,7 @@ local function createAsyncProxy(tbl)
 end
 
 --- Wraps values into async proxies (caches wrapped functions/proxies in the parent proxy)
-local function wrapValue(proxy, key, value)
+function wrapValue(proxy, key, value)
   if not value then return end
 
   local valueType = type(value)
