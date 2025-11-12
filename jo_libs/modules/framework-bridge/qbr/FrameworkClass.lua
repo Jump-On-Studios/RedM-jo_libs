@@ -41,7 +41,10 @@ end
 ---@param closeAfterUsed boolean if inventory needs to be closes
 ---@return boolean
 function jo.framework:registerUseItem(item, closeAfterUsed, callback)
-  closeAfterUsed = GetValue(closeAfterUsed, true)
+  if type(closeAfterUsed) == "function" then
+    callback = closeAfterUsed
+    closeAfterUsed = true
+  end
   local isAdded = self.core:AddItem(item, nil)
   if isAdded then
     return eprint(item .. " < item does not exist in the core configuration")

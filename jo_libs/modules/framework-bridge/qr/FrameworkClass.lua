@@ -39,7 +39,10 @@ end
 ---@param closeAfterUsed boolean if inventory needs to be closes
 ---@return boolean
 function jo.framework:registerUseItem(item, closeAfterUsed, callback)
-  closeAfterUsed = GetValue(closeAfterUsed, true)
+    if type(closeAfterUsed) == "function" then
+    callback = closeAfterUsed
+    closeAfterUsed = true
+  end
   local isAdded = QRCore.Functions.AddItem(item, nil)
   if isAdded then
     return false, eprint(item .. " < item does not exist in the core configuration")

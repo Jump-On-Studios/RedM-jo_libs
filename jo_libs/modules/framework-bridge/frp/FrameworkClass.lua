@@ -47,6 +47,10 @@ end
 ---@param closeAfterUsed boolean if inventory needs to be closes
 ---@return boolean
 function jo.framework:registerUseItem(item, closeAfterUsed, callback)
+  if type(closeAfterUsed) == "function" then
+    callback = closeAfterUsed
+    closeAfterUsed = true
+  end
   exports.ox_inventory:CreateUseableItem(item, function(source, data)
     callback(source, { metadata = data.metadata })
     if closeAfterUsed then

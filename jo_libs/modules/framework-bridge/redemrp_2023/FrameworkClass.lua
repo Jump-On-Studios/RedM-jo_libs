@@ -305,6 +305,10 @@ end
 ---@param closeAfterUsed? boolean if inventory needs to be closes (default: true)
 ---@return boolean
 function jo.framework:registerUseItem(item, closeAfterUsed, callback)
+  if type(closeAfterUsed) == "function" then
+    callback = closeAfterUsed
+    closeAfterUsed = true
+  end
   if not item then return false, eprint("Item has to be defined") end
   if not callback then return false, eprint("Callback has to be defined") end
   closeAfterUsed = GetValue(closeAfterUsed, true)

@@ -256,6 +256,10 @@ function jo.framework:canUseItem(source, item, amount, meta, remove)
 end
 
 function jo.framework:registerUseItem(item, closeAfterUsed, callback)
+  if type(closeAfterUsed) == "function" then
+    callback = closeAfterUsed
+    closeAfterUsed = true
+  end
   CreateThread(function()
     if (closeAfterUsed == nil) then closeAfterUsed = true end
     -- local isExist = Inventory:getItemDB(item)

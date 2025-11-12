@@ -285,6 +285,10 @@ function jo.framework:canUseItem(source, item, amount, meta, remove)
 end
 
 function jo.framework:registerUseItem(item, closeAfterUsed, callback)
+  if type(closeAfterUsed) == "function" then
+    callback = closeAfterUsed
+    closeAfterUsed = true
+  end
   local isAdded = RSGCore.Functions.AddItem(item, nil)
   if isAdded then
     return eprint(item .. " < item does not exist in the core configuration")
