@@ -1214,6 +1214,81 @@ return {
       title = "skin",
       variations = { 0x9F275113, } --trapperblanket + bridle
     },
+    {
+      title = "workTask",
+      variations = { 0x960C7C0A, 0x75DACEFA, 0x128B885D } -- p_c_horse_01_task_001_alt
+    },
+    {
+      title = "random",
+      variations = {
+        -- 0xF2D73E79, already available in components
+        -- 0xFBC20910, not working
+        -- 0x86155956, combo can be make with components
+        -- 0x738F5DD0,
+        -- 0xED3BD0C7,
+        -- 0xE389BD63,
+        -- 0x51B8F7EF,
+        -- 0x3B84CB87,
+        -- 0xB9EF485E,
+        -- 0x6C262CC9,
+        -- 0x02829B48,
+        -- 0x2966690F,
+        -- 0xB3C18CAB,
+        -- 0xE0FBE71F,
+        -- 0xD0144550,
+        -- 0xDE748DAC,
+        -- 0x404CC574,
+        -- 0x4E5E6197,
+        -- 0xD038E54E,
+        -- 0x9E8601E9,
+        -- 0xBB6D3BB7,
+        -- 0x9B9012A0
+      }
+    },
+    {
+      title = "ropeBridles",
+      variations = { 0x68D00BFF }
+    },
+    -- {
+    --   title = "trapper",
+    --   variations = { 0xD3C7AE66 } -- saddlecombotrapper_hr1_002
+    -- },
+    {
+      title = "moneybag",
+      variations = { "meta_wearable_moneybags" } -- p_c_horse_01_moneybags
+    },
+    -- {
+    --   title = "arrow",
+    --   variations = { 0xABB8A3F1 } -- arrow_horse_mr1_001
+    -- },
+    -- {
+    --   title = "workTaskHead",
+    --   variations = { 0x814DF94D } -- p_c_horse_01_uppr_002
+    -- },
+    {
+      title = "light",
+      variations = { 0xEA0F04C9 } -- mp_afghanpolo_001
+    },
+    {
+      title = "flag",
+      variations = { 0x03CE3847 } -- mp_afghanpolo_002
+    },
+    -- {
+    --   title = "lantern",
+    --   variations = { 0xF08D4D50 } -- mp_horselantern_lantern_001
+    -- },
+    {
+      title = "sack",
+      variations = { "mp_horsesack_001" } -- mp_horsesack_001
+    },
+    -- {
+    --   title = "mask",
+    --   variations = { 0x35AB3F38, 0x79DBC798, 0x881A6415, 0x5A510883 } -- mp_mask_hr1_000
+    -- },
+    -- {
+    --   title = "saddleOnly",
+    --   variations = { "meta_horse_saddle_only" }
+    -- }
   },
   horse_accessories = {
     {
