@@ -492,14 +492,17 @@ function jo.framework:standardizeSkinInternal(skin)
 
   standard.model = table.extract(skin, "sex")
   local skinTint = 1
+  local bodySkinTint = 1
   local bodyIndex = 1
-  standard.headHash, skinTint = getHeadHash(standard.model, skin)
+  local headIndex = 1
+  standard.headHash, skinTint, headIndex = getHeadHash(standard.model, skin)
   if standard.headHash == 0 then
     standard.headHash = jo.component.getHeadFromSkinTone(standard.model, 1, 1)
     skinTint = 1
+    headIndex = 1
   end
   skin.HeadType = nil
-  standard.bodyUpperHash, _, bodyIndex = getBodyUpperHash(standard.model, skin)
+  standard.bodyUpperHash, bodySkinTint, bodyIndex = getBodyUpperHash(standard.model, skin)
   if bodyIndex == 6 then
     standard.bodyUpperHash = jo.component.getBodiesUpperFromSkinTone(standard.model, 5, skinTint)
   end
@@ -508,6 +511,10 @@ function jo.framework:standardizeSkinInternal(skin)
   end
   if standard.bodyUpperHash == 0 then
     standard.bodyUpperHash = jo.component.getBodiesUpperFromSkinTone(standard.model, 1, skinTint)
+  end
+  --Fixed the VORP head component issue
+  if bodySkinTint ~= skinTint then
+    standard.headHash = jo.component.getHeadFromSkinTone(standard.model, headIndex, bodySkinTint)
   end
   skin.BodyType = nil
   skin.Torso = nil
