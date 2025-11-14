@@ -1,10 +1,12 @@
 local promptGroups = {}
 local lastKey = 0
 local promptHidden = {}
+local promptLabels = {}
 
 jo.prompt = {}
 
 jo.require("timeout")
+jo.require("table")
 
 local function UiPromptHasHoldMode(...) return Citizen.InvokeNative(0xB60C9F9ED47ABB76, ...) end
 local function UiPromptSetEnabled(...) return Citizen.InvokeNative(0x8A0FB4D03A630D21, ...) end
@@ -101,6 +103,14 @@ function jo.prompt.editKeyLabel(group, key, label, page)
   if not jo.prompt.isExist(group, key, page) then return end
   local str = CreateVarString(10, "LITERAL_STRING", label)
   PromptSetText(promptGroups[group].prompts[page][key], str)
+  table.upsert(promptLabels, { group, page, key }, label)
+end
+
+function jo.prompt.getKeyLabel(group, key, page)
+  if not group or not key then return false end
+  page = page or jo.prompt.getPage(group)
+  if not jo.prompt.isExist(group, key, page) then return end
+  return table.getDeep(promptLabels, { group, page, key })
 end
 
 --- A function to test if the prompt is pressed and completed.
@@ -216,8 +226,9 @@ function jo.prompt.create(group, str, key, holdTime, page)
   else
     PromptSetControlAction(promptId, GetHashFromString(key))
   end
-  str = CreateVarString(10, "LITERAL_STRING", str)
-  PromptSetText(promptId, str)
+  local _str = CreateVarString(10, "LITERAL_STRING", str)
+  PromptSetText(promptId, _str)
+  table.upsert(promptLabels, { group, page, _key }, str)
   PromptSetPriority(promptId, 2)
   PromptSetEnabled(promptId, true)
   PromptSetVisible(promptId, true)
