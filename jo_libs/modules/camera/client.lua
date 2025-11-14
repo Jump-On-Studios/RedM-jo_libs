@@ -180,6 +180,13 @@ end
 --- A function to stop the free camera
 function jo.camera.freeCamera.stop()
   if not jo.camera.freeCamera.isActive() then return end
+
+
+  if freecamOptions.showPrompts then
+    jo.prompt.deleteGroup(promptGroup)
+    freecamOptions.showPrompts = false
+  end
+
   if previousCamera == -1 then
     SetCamActive(freeCamera, false)
     RenderScriptCams(false, true, freecamOptions.interpolate, true, true)
