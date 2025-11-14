@@ -830,6 +830,7 @@ function jo.menu.softHide(cb, animation)
   SendNUIMessage({ event = "updateShow", show = false, cancelAnimation = not animation })
 
   cb()
+  Wait(1)
 
   SetNuiFocus(true, not hideCursor)
   SetNuiFocusKeepInput(keepInput)
