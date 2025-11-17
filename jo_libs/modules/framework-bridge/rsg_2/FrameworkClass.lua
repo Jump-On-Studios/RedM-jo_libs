@@ -99,7 +99,12 @@ function jo.framework:canUseItem(source, item, amount, meta, remove)
         end
       end
     else
-      return true
+      if data.amount >= amount then
+        if remove then
+          Inventory:RemoveItem(source, item, amount, data.slot)
+        end
+        return true
+      end
     end
   end
 
