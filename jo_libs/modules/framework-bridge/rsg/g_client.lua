@@ -1,6 +1,6 @@
 RegisterNetEvent("rsg-clothes:ApplyClothes", function(clothes, ped, skin)
   ped = ped or PlayerPedId()
-  TriggerServerEvent("jo_libs:server:applySkinAndClothes'", ped, skin, clothes)
+  TriggerServerEvent("jo_libs:server:applySkinAndClothes", ped, skin, clothes)
 end)
 
 RegisterNetEvent("jo_libs:client:openInventory", function(name, config)
