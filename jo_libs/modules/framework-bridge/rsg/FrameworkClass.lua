@@ -722,11 +722,11 @@ function jo.framework:standardizeSkinInternal(skin)
   skin.foundation_op = nil
 
   -- WORK
-  -- standard.overlays.hair = {}, 
+  -- standard.overlays.hair = {},
   -- standard.overlays.acne = {},
   -- standard.overlays.complex = {},
   -- standard.overlays.disc = {},
-  
+
   -- NOT WORK
   -- standard.overlays.foundation = {},
   -- standard.overlays.grime = {},
@@ -1013,7 +1013,7 @@ function jo.framework:updateUserClothesInternal(source, clothes)
   local identifiers = self:getUserIdentifiers(source)
   MySQL.scalar("SELECT clothes FROM playerskins WHERE citizenid=? ", { identifiers.identifier }, function(oldClothes)
     local decoded = UnJson(oldClothes)
-    table.merge(decoded, clothes)
+    table.merge(false, decoded, clothes)
     MySQL.update("UPDATE playerskins SET clothes=? WHERE citizenid=?", { json.encode(decoded), identifiers.identifier })
   end)
 end
