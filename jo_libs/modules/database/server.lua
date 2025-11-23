@@ -7,7 +7,7 @@ jo.file.load("@oxmysql.lib.MySQL")
 ---@param definition string (The definition of the table)
 ---@return boolean (Return `true` if the table is created, `false` otherwise)
 function jo.database.addTable(tableName, definition)
-  local isExist = MySQL.single.await("SHOW TABLES LIKE ?", { tableName })
+  local isExist = jo.database.doesTableExist(tableName)
   if isExist then
     return false
   end
@@ -51,4 +51,15 @@ function jo.database.addColumn(tableName, name, definition)
   gprint("Database column " .. name .. " added to " .. tableName)
   MySQL.update.await("ALTER TABLE `" .. tableName .. "` ADD `" .. name .. "` " .. definition)
   return true
+end
+
+--- A function to check if a table exists
+---@param tableName string (The name of the table)
+---@return boolean (Return `true` if the table exists, `false` otherwise)
+function jo.database.doesTableExist(tableName)
+  local isExist = MySQL.single.await("SHOW TABLES LIKE ?", { tableName })
+  if isExist then
+    return true
+  end
+  return false
 end
