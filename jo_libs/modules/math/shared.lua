@@ -25,4 +25,27 @@ function math.clamp(x, min, max)
   return math.max(math.min(x, max), min)
 end
 
+--- Converts a number to hexadecimal string representation.
+---@param n integer (The integer to convert)
+---@param prefix? boolean (Add "0x" prefix, default: false)
+---@return string (The hexadecimal string representation)
+function math.toHex(n, prefix)
+  local hex = string.format("%X", n)
+  return prefix and "0x" .. hex or hex
+end
+
+--- Converts a hexadecimal string to an integer.
+---@param hex string (The hexadecimal string to convert, with or without "0x" prefix)
+---@return integer (The integer representation)
+function math.fromHex(hex)
+  return tonumber(hex, 16)
+end
+
+function math.toSigned(n)
+  if n >= 2147483648 then
+    return n - 4294967296
+  end
+  return n
+end
+
 jo.math = {}

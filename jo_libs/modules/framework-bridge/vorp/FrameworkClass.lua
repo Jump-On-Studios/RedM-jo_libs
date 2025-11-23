@@ -406,11 +406,12 @@ local function getHeadHash(sex, skin)
   if skin.HeadType == 0 then
     return skin.HeadType, 1, 1
   end
+  local headType = math.toSigned(skin.HeadType)
   for skinTint = 1, 6 do
     for index = 1, 28 do
       local value = jo.component.getHeadFromSkinTone(sex, index, skinTint)
       local hash = joaat(value)
-      if (skin.HeadType == hash) then
+      if (headType == hash) then
         dprint("getHeadHash", value, skinTint, index)
         return hash, skinTint, index
       end
@@ -426,21 +427,23 @@ local function getBodyUpperHash(sex, skin)
   if skin.BodyType == 0 and skin.Torso == 0 then
     return skin.BodyType, 1, 1
   end
+  local bodyType = math.toSigned(skin.BodyType)
   for skinTint = 1, 6 do
     for index = 0, 6 do
       local value = jo.component.getBodiesUpperFromSkinTone(sex, index, skinTint)
       local hash = joaat(value)
-      if (skin.BodyType == hash) then
+      if (bodyType == hash) then
         dprint("getBodyUpperHash", "BodyType", value, hash, skinTint, index)
         return hash, skinTint, index
       end
     end
   end
+  local torso = math.toSigned(skin.Torso)
   for skinTint = 1, 6 do
     for index = 0, 6 do
       local value = jo.component.getBodiesUpperFromSkinTone(sex, index, skinTint)
       local hash = joaat(value)
-      if (skin.Torso == hash) then
+      if (torso == hash) then
         dprint("getBodyUpperHash", "Torso", value, hash, skinTint, index)
         return hash, skinTint, index
       end
@@ -496,6 +499,7 @@ function jo.framework:standardizeSkinInternal(skin)
   local bodyIndex = 1
   local headIndex = 1
   standard.headHash, skinTint, headIndex = getHeadHash(standard.model, skin)
+  dprint("Head", standard.headHash, skinTint, headIndex)
   if standard.headHash == 0 then
     standard.headHash = jo.component.getHeadFromSkinTone(standard.model, 1, 1)
     skinTint = 1
@@ -503,6 +507,7 @@ function jo.framework:standardizeSkinInternal(skin)
   end
   skin.HeadType = nil
   standard.bodyUpperHash, bodySkinTint, bodyIndex = getBodyUpperHash(standard.model, skin)
+  dprint("Head", standard.bodyUpperHash, bodySkinTint, bodyIndex)
   if bodyIndex == 6 then
     standard.bodyUpperHash = jo.component.getBodiesUpperFromSkinTone(standard.model, 5, skinTint)
   end
@@ -514,6 +519,7 @@ function jo.framework:standardizeSkinInternal(skin)
   end
   --Fixed the VORP head component issue
   if bodySkinTint ~= skinTint then
+    dprint("Wrong head tint. Switch it")
     standard.headHash = jo.component.getHeadFromSkinTone(standard.model, headIndex, bodySkinTint)
   end
   skin.BodyType = nil
