@@ -1,5 +1,6 @@
 jo.require("table")
 jo.require("string")
+jo.require("math")
 
 -- -----------
 -- LOAD FRAMEWORK

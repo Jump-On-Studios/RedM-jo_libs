@@ -2,13 +2,13 @@ local eventListened = {}
 local groupListened = {}
 local allEventListened = false
 
-jo.require('dataview')
-jo.require('file')
-jo.file.load('game-events.data')
+jo.require("dataview")
+jo.require("file")
+jo.file.load("game-events.data")
 
 local function GetEventData(...) return Citizen.InvokeNative(0x57EC5FA4D4D6AFCA, ...) end
 
-AddEventHandler('jo_libs:gameEvents:register', function(eventName)
+AddEventHandler("jo_libs:gameEvents:register", function(eventName)
   if eventName == "all" then
     allEventListened = true
     groupListened[0] = true
@@ -27,7 +27,7 @@ local function getDataFromEvent(eventHash, index)
   local eventData = AllGameEvents[eventHash]
 
   local datas = {}
-  datas['event_name'] = eventData.name
+  datas["event_name"] = eventData.name
 
   local size = eventData.size
   local dataStruct = DataView.ArrayBuffer(8 * size)
@@ -52,7 +52,7 @@ local function getDataFromEvent(eventHash, index)
     elseif info.type == "bool" then
       datas[info.name] = dataStruct:GetInt32(8 * i)
     end
-    datas['value_' .. i] = dataStruct:GetInt32(8 * i)
+    datas["value_" .. i] = dataStruct:GetInt32(8 * i)
   end
   return datas
 end
@@ -68,10 +68,10 @@ local function processEvent(groupId, index)
   if not data then return false end
   local eventData = AllGameEvents[eventHash]
   if eventListened[eventHash] then
-    TriggerEvent('jo_libs:gameEvents:' .. eventData.name, data)
+    TriggerEvent("jo_libs:gameEvents:" .. eventData.name, data)
   end
   if allEventListened then
-    TriggerEvent('jo_libs:gameEvents:all', data)
+    TriggerEvent("jo_libs:gameEvents:all", data)
   end
 end
 

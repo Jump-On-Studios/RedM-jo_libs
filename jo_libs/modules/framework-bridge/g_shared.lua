@@ -1,4 +1,3 @@
-jo.require("math")
 jo.framework:loadFile("g_shared")
 jo.framework:loadFile("_custom", "g_shared")
 
