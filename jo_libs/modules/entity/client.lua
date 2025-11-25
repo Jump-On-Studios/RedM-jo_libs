@@ -187,10 +187,12 @@ end
 ---@param keepEntity? boolean (Whether to keep the entity after placement <br> default:true)
 ---@param networked? boolean (Whether the entity should be networked <br> default:false)
 ---@param mouse? vector2 (Mouse coordinates normalized between 0-1 <br> default:`vec2(0.5, 0.5)`)
+---@param heading? number (The heading direction for the entity <br> default:0)
 ---@return integer,vector3,number,boolean (The created entity ID, final position, final heading, is canceled)
-function jo.entity.createWithMouse(model, keepEntity, networked, mouse)
+function jo.entity.createWithMouse(model, keepEntity, networked, mouse, heading)
 	networked = networked or false
 	mouse = mouse or vec2(0.5, 0.5)
+	heading = heading or 0
 	if keepEntity == nil then keepEntity = true end
 	model = GetHashFromString(model)
 	camFov = GetFinalRenderedCamFov()
@@ -198,7 +200,6 @@ function jo.entity.createWithMouse(model, keepEntity, networked, mouse)
 
 	local origin = GetOffsetFromEntityInWorldCoords(jo.me, 0.0, 5.0, 0.0)
 	local previousCoord = origin
-	local heading = 0
 	local entity = jo.entity.create(model, origin, heading, false)
 	local maxDistanceCreate = 10
 	local canceled = false
