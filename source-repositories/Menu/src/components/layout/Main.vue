@@ -41,20 +41,14 @@ const menuStore = useMenuStore()
 const lang = useLangStore().lang
 const API = inject('API')
 
-const keyPressed = {}
 let focus = false
 let mountedDate = 0
 
 function handleKeyUp(e) {
-  keyPressed[e.key] = false
-}
-function handleKeydown(e) {
   if (e.code == "KeyQ")
     datas.defineQwerty(e.key == "q")
   if (focus) return
-  if (keyPressed[e.key]) return
 
-  keyPressed[e.key] = true
   if (Date.now() - mountedDate < 100) return
   switch (e.key) {
     case 'Enter':
@@ -86,7 +80,6 @@ function showItems() {
   return !datas.showLoader && menuStore.cMenuItems.length > 0
 }
 onBeforeMount(() => {
-  window.addEventListener('keydown', handleKeydown);
   window.addEventListener('keyup', handleKeyUp);
   document.addEventListener('focusin', focusIn);
   document.addEventListener('focusout', focusOut);
@@ -97,7 +90,6 @@ onMounted(() => {
   API.PlayAudio('menu_open');
 })
 onBeforeUnmount(() => {
-  window.removeEventListener('keydown', handleKeydown);
   window.removeEventListener('keyup', handleKeyUp);
   document.removeEventListener('focusin', focusIn);
   document.removeEventListener('focusout', focusOut);
