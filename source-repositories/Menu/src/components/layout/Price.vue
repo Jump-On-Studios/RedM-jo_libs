@@ -1,11 +1,11 @@
 <template>
-  <div class="price" v-if="menuStore.cItemPrice !== false">
+  <div class="price" v-if="menuStore.cItemPrice !== false || menuStore.cMenuPrice !== false">
     <div class="divider"></div>
     <div class="content">
       <h4 v-if="menuStore.cItem.priceTitle">{{ menuStore.cItem.priceTitle }}</h4>
       <h4 v-else>{{ lang('price') }}</h4>
       <div class="amount">
-        <PriceDisplay :price="menuStore.cItemPrice" />
+        <PriceDisplay :price="menuStore.cItemPrice || menuStore.cMenuPrice" />
       </div>
     </div>
     <!-- <div class="divider bottom"></div> -->

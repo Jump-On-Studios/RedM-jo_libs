@@ -188,6 +188,7 @@ class Menu {
   disableEscape = true;
   refreshKey = 0;
   onBeforeEnter = false;
+  price = false;
 
   constructor(data) {
     this.setTitle(data.title);
@@ -246,6 +247,7 @@ class Menu {
     if (data.numberLineOnScreen != undefined) this.setNumberLineOnScreen(data.numberLineOnScreen)
     if (data.numberOnLine != undefined) this.setNumberOnLine(data.numberOnLine)
     if (data.onBeforeEnter != undefined) this.setOnBeforeEnter(data.onBeforeEnter)
+    if (data.price !== undefined) this.setPrice(data.price)
     this.refreshKey = Math.random();
   }
 
@@ -303,6 +305,13 @@ class Menu {
   setOnBeforeEnter(value) {
     this.onBeforeEnter = value
   }
+
+  setPrice(price) {
+    if (typeof (price) != "object")
+      this.price = { money: price }
+    else
+      this.price = price
+  }
 }
 
 export const useMenuStore = defineStore('menus', {
@@ -329,6 +338,9 @@ export const useMenuStore = defineStore('menus', {
         }
       }
       return cItem.price || false
+    },
+    cMenuPrice() {
+      return this.cMenu.price || false
     },
   },
   actions: {
