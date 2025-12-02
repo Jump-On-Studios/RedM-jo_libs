@@ -1,14 +1,14 @@
-import { defineStore } from 'pinia'
-import API from '../API'
+import { defineStore } from "pinia";
+import API from "../API";
 
 class MenuItem {
-  title = '';
-  subtitle = '';
-  footer = '';
+  title = "";
+  subtitle = "";
+  footer = "";
   icon = false;
   iconRight = false;
-  iconClass = '';
-  iconSize = 'normal'
+  iconClass = "";
+  iconSize = "normal";
   child = false;
   sliders = [];
   price = false;
@@ -18,7 +18,7 @@ class MenuItem {
   preview = false;
   index = 0;
   visible = true;
-  description = '';
+  description = "";
   action = false;
   translate = false;
   translateDescription = false;
@@ -28,153 +28,161 @@ class MenuItem {
   grid = false;
   id = 0;
   textRight = false;
-  textRightClass = '';
+  textRightClass = "";
   translateTextRight = false;
   previewSlider = false;
   refreshKey = 0;
   quantity = false;
-  quantityCircleClass = '';
+  quantityCircleClass = "";
   quality = false;
   qualityClass = "";
 
   constructor(id) {
-    this.id = id
+    this.id = id;
 
-    this.refreshKey = Math.random()
+    this.refreshKey = Math.random();
   }
 
   setTitle(title) {
-    this.title = title
+    this.title = title;
   }
 
   setIcon(icon) {
-    this.icon = icon
+    this.icon = icon;
   }
   setSliders(sliders) {
-    this.sliders = []
+    this.sliders = [];
 
-    sliders = Array.isArray(sliders) ? sliders : [sliders]
+    sliders = Array.isArray(sliders) ? sliders : [sliders];
 
-    sliders.forEach(slid => {
-      this.sliders.push({ ...{ current: 1, values: [], translate: false, type: 'slider', looped: true, forceDisplay: false }, ...slid })
-    })
+    sliders.forEach((slid) => {
+      this.sliders.push({
+        ...{
+          current: 1,
+          values: [],
+          translate: false,
+          type: "slider",
+          looped: true,
+          forceDisplay: false,
+        },
+        ...slid,
+      });
+    });
   }
   setChild(value) {
-    this.child = value
+    this.child = value;
   }
   setPrice(price) {
-    if (typeof (price) != "object")
-      this.price = { money: price }
-    else
-      this.price = price
+    if (typeof price != "object") this.price = { money: price };
+    else this.price = price;
   }
   setData(data) {
-    this.data = data
+    this.data = data;
   }
   setPreview(value) {
-    this.preview = value
+    this.preview = value;
   }
   setIndex(value) {
-    this.index = value
+    this.index = value;
   }
   setVisible(value) {
-    this.visible = value
+    this.visible = value;
   }
   setDescription(value) {
-    this.description = value
+    this.description = value;
   }
   setAction(value) {
-    this.action = value
+    this.action = value;
   }
   setTranslate(value) {
-    this.translate = value
+    this.translate = value;
   }
   setTranslateDescription(value) {
-    this.translateDescription = value
+    this.translateDescription = value;
   }
   setData(data) {
-    this.data = data
+    this.data = data;
   }
   setPrefix(value) {
-    this.prefix = value
+    this.prefix = value;
   }
   setStatistics(values) {
-    const stat = new ItemStatistic()
+    const stat = new ItemStatistic();
     for (var p in values) {
-      this.statistics.push({ ...stat, ...values[p] })
+      this.statistics.push({ ...stat, ...values[p] });
     }
   }
   setIconClass(value) {
-    this.iconClass = value
+    this.iconClass = value;
   }
   setDisabled(value) {
-    this.disabled = value
+    this.disabled = value;
   }
   setIconRight(value) {
-    this.iconRight = value
+    this.iconRight = value;
   }
   setPriceTitle(value) {
-    this.priceTitle = value
+    this.priceTitle = value;
   }
   setPriceRight(value) {
-    this.priceRight = value
+    this.priceRight = value;
   }
   setGrid(value) {
-    this.grid = value
+    this.grid = value;
   }
   setTextRight(value) {
-    this.textRight = value
+    this.textRight = value;
   }
   setTextRightClass(value) {
-    this.textRightClass = value
+    this.textRightClass = value;
   }
   setTranslateTextRight(value) {
-    this.translateTextRight = value
+    this.translateTextRight = value;
   }
   setSubtitle(value) {
-    this.subtitle = value
+    this.subtitle = value;
   }
   setFooter(value) {
-    this.footer = value
+    this.footer = value;
   }
   setPreviewSlider(value) {
-    this.previewSlider = value
+    this.previewSlider = value;
   }
   setQuantity(value) {
-    this.quantity = value
+    this.quantity = value;
   }
   setQuantityCircleClass(value) {
-    this.quantityCircleClass = value
+    this.quantityCircleClass = value;
   }
   setQuality(value) {
-    this.quality = value * 1.0
+    this.quality = value * 1.0;
   }
   setQualityClass(value) {
-    this.qualityClass = value
+    this.qualityClass = value;
   }
   setStars(value) {
-    this.stars = value
+    this.stars = value;
   }
   setStarsClass(value) {
-    this.starsClass = value
+    this.starsClass = value;
   }
   setIconSize(value) {
-    this.iconSize = value
+    this.iconSize = value;
   }
 }
 
 class ItemStatistic {
-  label = ""
-  type = "bar"
-  class = ""
-  value = [0, 0, 10]
-  translateLabel = false
-  translateValue = false
+  label = "";
+  type = "bar";
+  class = "";
+  value = [0, 0, 10];
+  translateLabel = false;
+  translateValue = false;
 }
 
 class Menu {
   title = "Menu";
-  id = 'id'
+  id = "id";
   translateTitle = false;
   subtitle = "Elements";
   translateSubtitle = false;
@@ -188,318 +196,362 @@ class Menu {
   disableEscape = true;
   refreshKey = 0;
   onBeforeEnter = false;
+  price = false;
+  priceTitle = false;
 
   constructor(data) {
     this.setTitle(data.title);
-    this.id = data.id
+    this.id = data.id;
     if (data.items) {
-      data.items.forEach(item => {
-        const newItem = new MenuItem(this.items.length)
-        if (item.title) newItem.setTitle(item.title)
-        if (item.subtitle) newItem.setSubtitle(item.subtitle)
-        if (item.footer) newItem.setFooter(item.footer)
-        if (item.icon) newItem.setIcon(item.icon)
-        if (item.slider) newItem.setSliders(item.slider)
-        if (item.sliders) newItem.setSliders(item.sliders)
-        if (item.child) newItem.setChild(item.child)
-        if (item.price !== false) newItem.setPrice(item.price)
-        if (item.priceRight !== false) newItem.setPriceRight(item.priceRight)
-        if (item.priceTitle) newItem.setPriceTitle(item.priceTitle)
-        if (item.data) newItem.setData(item.data)
-        if (item.preview) newItem.setPreview(item.preview)
-        if (item.index != undefined) { newItem.setIndex(item.index) } else { newItem.setIndex(this.items.length) }
-        if (item.description) newItem.setDescription(item.description)
-        if (item.action) newItem.setAction(item.action)
-        if (item.data) newItem.setData(item.data)
-        if (item.prefix) newItem.setPrefix(item.prefix)
-        if (item.statistics) newItem.setStatistics(item.statistics)
-        if (item.translate != undefined) newItem.setTranslate(item.translate)
-        if (item.translateDescription != undefined) newItem.setTranslateDescription(item.translateDescription)
-        if (item.disabled != undefined) newItem.setDisabled(item.disabled)
-        if (item.visible != undefined) newItem.setVisible(item.visible)
-        if (item.iconClass) newItem.setIconClass(item.iconClass)
-        if (item.iconRight) newItem.setIconRight(item.iconRight)
-        if (item.grid) newItem.setGrid(item.grid)
-        if (item.textRight) newItem.setTextRight(item.textRight)
-        if (item.textRightClass) newItem.setTextRightClass(item.textRightClass)
-        if (item.translateTextRight != undefined) newItem.setTranslateTextRight(item.translateTextRight)
-        if (item.previewSlider != undefined) newItem.setPreviewSlider(item.previewSlider)
-        if (item.previewPalette != undefined) newItem.setPreviewSlider(item.previewPalette)
-        if (item.quantity != undefined) newItem.setQuantity(item.quantity)
-        if (item.quantityCircleClass != undefined) newItem.setQuantityCircleClass(item.quantityCircleClass)
-        if (item.quality != undefined) newItem.setQuality(item.quality)
-        if (item.qualityClass != undefined) newItem.setQualityClass(item.qualityClass)
-        if (item.stars != undefined) newItem.setStars(item.stars)
-        if (item.starsClass != undefined) newItem.setStarsClass(item.starsClass)
-        if (item.iconSize) newItem.setIconSize(item.iconSize)
-        this.items.push(newItem)
+      data.items.forEach((item) => {
+        const newItem = new MenuItem(this.items.length);
+        if (item.title) newItem.setTitle(item.title);
+        if (item.subtitle) newItem.setSubtitle(item.subtitle);
+        if (item.footer) newItem.setFooter(item.footer);
+        if (item.icon) newItem.setIcon(item.icon);
+        if (item.slider) newItem.setSliders(item.slider);
+        if (item.sliders) newItem.setSliders(item.sliders);
+        if (item.child) newItem.setChild(item.child);
+        if (item.price !== false) newItem.setPrice(item.price);
+        if (item.priceRight !== false) newItem.setPriceRight(item.priceRight);
+        if (item.priceTitle) newItem.setPriceTitle(item.priceTitle);
+        if (item.data) newItem.setData(item.data);
+        if (item.preview) newItem.setPreview(item.preview);
+        if (item.index != undefined) {
+          newItem.setIndex(item.index);
+        } else {
+          newItem.setIndex(this.items.length);
+        }
+        if (item.description) newItem.setDescription(item.description);
+        if (item.action) newItem.setAction(item.action);
+        if (item.data) newItem.setData(item.data);
+        if (item.prefix) newItem.setPrefix(item.prefix);
+        if (item.statistics) newItem.setStatistics(item.statistics);
+        if (item.translate != undefined) newItem.setTranslate(item.translate);
+        if (item.translateDescription != undefined)
+          newItem.setTranslateDescription(item.translateDescription);
+        if (item.disabled != undefined) newItem.setDisabled(item.disabled);
+        if (item.visible != undefined) newItem.setVisible(item.visible);
+        if (item.iconClass) newItem.setIconClass(item.iconClass);
+        if (item.iconRight) newItem.setIconRight(item.iconRight);
+        if (item.grid) newItem.setGrid(item.grid);
+        if (item.textRight) newItem.setTextRight(item.textRight);
+        if (item.textRightClass) newItem.setTextRightClass(item.textRightClass);
+        if (item.translateTextRight != undefined)
+          newItem.setTranslateTextRight(item.translateTextRight);
+        if (item.previewSlider != undefined)
+          newItem.setPreviewSlider(item.previewSlider);
+        if (item.previewPalette != undefined)
+          newItem.setPreviewSlider(item.previewPalette);
+        if (item.quantity != undefined) newItem.setQuantity(item.quantity);
+        if (item.quantityCircleClass != undefined)
+          newItem.setQuantityCircleClass(item.quantityCircleClass);
+        if (item.quality != undefined) newItem.setQuality(item.quality);
+        if (item.qualityClass != undefined)
+          newItem.setQualityClass(item.qualityClass);
+        if (item.stars != undefined) newItem.setStars(item.stars);
+        if (item.starsClass != undefined)
+          newItem.setStarsClass(item.starsClass);
+        if (item.iconSize) newItem.setIconSize(item.iconSize);
+        this.items.push(newItem);
       });
     }
-    if (data.numberOnScreen) this.setNumberOnScreen(data.numberOnScreen)
-    if (data.equipedColor) this.setEquipedColor(data.equipedColor)
-    if (data.translateTitle != undefined) this.setTranslateTitle(data.translateTitle)
-    if (data.subtitle != undefined) this.setSubtitle(data.subtitle)
-    if (data.translateSubtitle != undefined) this.setTranslateSubtitle(data.translateSubtitle)
-    if (data.type) this.setType(data.type)
-    if (data.disableEscape != undefined) this.setDisableEscape(data.disableEscape)
-    if (data.currentIndex != undefined) this.setCurrentIndex(data.currentIndex - 1)
-    if (data.numberLineOnScreen != undefined) this.setNumberLineOnScreen(data.numberLineOnScreen)
-    if (data.numberOnLine != undefined) this.setNumberOnLine(data.numberOnLine)
-    if (data.onBeforeEnter != undefined) this.setOnBeforeEnter(data.onBeforeEnter)
+    if (data.numberOnScreen) this.setNumberOnScreen(data.numberOnScreen);
+    if (data.equipedColor) this.setEquipedColor(data.equipedColor);
+    if (data.translateTitle != undefined)
+      this.setTranslateTitle(data.translateTitle);
+    if (data.subtitle != undefined) this.setSubtitle(data.subtitle);
+    if (data.translateSubtitle != undefined)
+      this.setTranslateSubtitle(data.translateSubtitle);
+    if (data.type) this.setType(data.type);
+    if (data.disableEscape != undefined)
+      this.setDisableEscape(data.disableEscape);
+    if (data.currentIndex != undefined)
+      this.setCurrentIndex(data.currentIndex - 1);
+    if (data.numberLineOnScreen != undefined)
+      this.setNumberLineOnScreen(data.numberLineOnScreen);
+    if (data.numberOnLine != undefined) this.setNumberOnLine(data.numberOnLine);
+    if (data.onBeforeEnter != undefined)
+      this.setOnBeforeEnter(data.onBeforeEnter);
+    if (data.price !== undefined) this.setPrice(data.price);
+    if (data.priceTitle !== undefined) this.setPriceTitle(data.priceTitle);
     this.refreshKey = Math.random();
   }
 
   setTitle(title) {
-    this.title = title
+    this.title = title;
   }
 
   setSubtitle(subtitle) {
-    this.subtitle = subtitle
+    this.subtitle = subtitle;
   }
 
   setType(value) {
-    if (value == "list" || value == "tile")
-      this.type = value
-    else
-      this.type = "list"
+    if (value == "list" || value == "tile") this.type = value;
+    else this.type = "list";
   }
 
   setCurrentIndex(value) {
-    this.currentIndex = value
+    this.currentIndex = value;
   }
 
   setNumberOnScreen(value) {
-    this.numberOnScreen = value
+    this.numberOnScreen = value;
   }
 
   setNumberLineOnScreen(value) {
-    this.numberLineOnScreen = value
+    this.numberLineOnScreen = value;
   }
 
   setNumberOnLine(value) {
-    this.numberOnLine = value
+    this.numberOnLine = value;
   }
 
   setEquipedColor(value) {
-    this.equipedColor = value
+    this.equipedColor = value;
   }
 
   reset() {
-    this.currentIndex = 0
+    this.currentIndex = 0;
   }
 
   setTranslateTitle(value) {
-    this.translateTitle = value
+    this.translateTitle = value;
   }
 
   setTranslateSubtitle(value) {
-    this.translateSubtitle = value
+    this.translateSubtitle = value;
   }
 
   setDisableEscape(value) {
-    this.disableEscape = value
+    this.disableEscape = value;
   }
 
   setOnBeforeEnter(value) {
-    this.onBeforeEnter = value
+    this.onBeforeEnter = value;
+  }
+
+  setPrice(price) {
+    if (typeof price != "object") this.price = { money: price };
+    else this.price = price;
+  }
+
+  setPriceTitle(title) {
+    this.priceTitle = title;
   }
 }
 
-export const useMenuStore = defineStore('menus', {
+export const useMenuStore = defineStore("menus", {
   state: () => ({
     parentTree: [],
-    currentMenuId: '',
+    currentMenuId: "",
     menus: {},
-    dataToSend: {}
+    dataToSend: {},
   }),
   getters: {
     cMenu: (state) => state.menus[state.currentMenuId] || new Menu({}),
-    cMenuItems() { return this.cMenu.items.filter(item => item.visible) },
-    cItem() { return this.cMenuItems[this.cMenu.currentIndex] || {} },
+    cMenuItems() {
+      return this.cMenu.items.filter((item) => item.visible);
+    },
+    cItem() {
+      return this.cMenuItems[this.cMenu.currentIndex] || {};
+    },
     cItemPrice() {
-      const cItem = this.cItem
+      const cItem = this.cItem;
       if (cItem.sliders) {
         for (let index = 0; index < cItem.sliders.length; index++) {
           const slider = cItem.sliders[index];
-          if (slider.type == "grid") continue
-          if (slider.type == "palette") continue
-          const current = slider.current - 1
-          if (slider.values[current] && typeof (slider.values[current]) == 'object' && (slider.values[current].price !== undefined))
-            return slider.values[current].price
+          if (slider.type == "grid") continue;
+          if (slider.type == "palette") continue;
+          const current = slider.current - 1;
+          if (
+            slider.values[current] &&
+            typeof slider.values[current] == "object" &&
+            slider.values[current].price !== undefined
+          )
+            return slider.values[current].price;
         }
       }
-      return cItem.price || false
+      return cItem.price || false;
+    },
+    cMenuPrice() {
+      return this.cMenu.price || false;
     },
   },
   actions: {
     addDataToSend(keys, value) {
-      let current = this.dataToSend
-      let lastKey = keys[keys.length - 1]
+      let current = this.dataToSend;
+      let lastKey = keys[keys.length - 1];
       for (let i = 0; i < keys.length - 1; i++) {
         if (!current[keys[i]]) {
           if (typeof keys[i + 1] == "number") {
-            current[keys[i]] = []
+            current[keys[i]] = [];
           } else {
-            current[keys[i]] = {}
+            current[keys[i]] = {};
           }
         }
-        current = current[keys[i]]
+        current = current[keys[i]];
       }
-      current[lastKey] = value
+      current[lastKey] = value;
     },
     resetMenu(data) {
-      if (this.menus[data.menu])
-        this.menus[data.menu].reset()
+      if (this.menus[data.menu]) this.menus[data.menu].reset();
     },
     resetAllMenu() {
       for (const [key, value] of Object.entries(this.menus)) {
-        value.reset()
+        value.reset();
       }
     },
     updateMenu(data) {
-      let current = data.menu.currentIndex ? (data.menu.currentIndex - 1) : -1
+      let current = data.menu.currentIndex ? data.menu.currentIndex - 1 : -1;
       if (this.menus[data.menu.id] && data.menu.currentIndex == undefined) {
-        current = this.menus[data.menu.id].currentIndex
+        current = this.menus[data.menu.id].currentIndex;
       }
-      this.menus[data.menu.id] = new Menu(data.menu)
+      this.menus[data.menu.id] = new Menu(data.menu);
       if (current >= this.menus[data.menu.id].items.length) {
-        data.reset = true
+        data.reset = true;
       }
       if (current > -1) {
-        this.menus[data.menu.id].setCurrentIndex(current)
+        this.menus[data.menu.id].setCurrentIndex(current);
       }
       if (data.reset) {
-        this.menus[data.menu.id].reset()
+        this.menus[data.menu.id].reset();
       }
       if (data.switch) {
         window.postMessage({
           event: "menuSwitch",
           reset: data.reset || false,
-          menu: data.menu.id
-        })
+          menu: data.menu.id,
+        });
       }
     },
     removeMenu(data) {
-      if (this.menus[data.menu] == undefined) return
-      delete this.menus[data.menu]
+      if (this.menus[data.menu] == undefined) return;
+      delete this.menus[data.menu];
     },
     updateMenuData(data) {
-      if (!this.menus[data.menu]) return
-      let newData = new Menu(data.data)
-      newData.currentIndex = this.menus[data.menu].currentIndex
-      this.menus[data.menu] = newData
-      this.refreshKey = Math.random()
+      if (!this.menus[data.menu]) return;
+      let newData = new Menu(data.data);
+      newData.currentIndex = this.menus[data.menu].currentIndex;
+      this.menus[data.menu] = newData;
+      this.refreshKey = Math.random();
     },
     updateItem(data) {
-      let Index = this.menus[data.menu].items.findIndex((item => item.index == data.index));
-      if (Index == -1)
-        return
-      this.menus[data.menu].items[Index] = API.deepMerge(this.menus[data.menu].items[Index], data.item)
+      let Index = this.menus[data.menu].items.findIndex(
+        (item) => item.index == data.index
+      );
+      if (Index == -1) return;
+      this.menus[data.menu].items[Index] = API.deepMerge(
+        this.menus[data.menu].items[Index],
+        data.item
+      );
     },
     setMenuVisible(data) {
       for (var category in this.menus) {
-        this.menus[category].items.forEach(item => {
+        this.menus[category].items.forEach((item) => {
           if (item.child == data.menu) {
-            item.setVisible(data.visible)
+            item.setVisible(data.visible);
           }
-        })
+        });
       }
     },
     setCurrentIndex(menu, index) {
-      if (this.menus[menu] == undefined) return
-      this.menus[menu].setCurrentIndex(index)
-      if (menu == this.currentMenuId)
-        this.updatePreview()
+      if (this.menus[menu] == undefined) return;
+      this.menus[menu].setCurrentIndex(index);
+      if (menu == this.currentMenuId) this.updatePreview();
     },
     goToMenu(id) {
-      const parent = this.currentMenuId
-      if (!this.openMenu(id)) return
-      if (this.parentTree.at(-1) != parent)
-        this.parentTree.push(parent)
+      const parent = this.currentMenuId;
+      if (!this.openMenu(id)) return;
+      if (this.parentTree.at(-1) != parent) this.parentTree.push(parent);
     },
     backToParentMenu() {
-      const id = this.parentTree.pop()
-      this.openMenu(id)
+      const id = this.parentTree.pop();
+      this.openMenu(id);
     },
     async openMenu(id) {
       if (!this.menus.hasOwnProperty(id)) {
-        API.post('missingMenu', {
-          menu: id
-        })
-        return false
+        API.post("missingMenu", {
+          menu: id,
+        });
+        return false;
       }
       if (this.menus[id].onBeforeEnter)
-        await API.post('onBeforeEnter', { menu: id })
-      this.currentMenuId = id
-      this.refreshKey = Math.random()
-      this.updatePreview()
-      return true
+        await API.post("onBeforeEnter", { menu: id });
+      this.currentMenuId = id;
+      this.refreshKey = Math.random();
+      this.updatePreview();
+      return true;
     },
     setCurrentMenu(data) {
-      if (this.menus[data.menu] == undefined) return console.log("ERROR ! No menu : " + data.menu)
-      if (data.reset) this.menus[data.menu].reset()
-      this.goToMenu(data.menu)
+      if (this.menus[data.menu] == undefined)
+        return console.log("ERROR ! No menu : " + data.menu);
+      if (data.reset) this.menus[data.menu].reset();
+      this.goToMenu(data.menu);
       if (!data.keepHistoric) {
-        this.parentTree = []
+        this.parentTree = [];
       }
     },
     menuEnter() {
-      let item = this.cItem
-      if (item.disabled) return
-      API.PlayAudio('button')
+      let item = this.cItem;
+      if (item.disabled) return;
+      API.PlayAudio("button");
       if (item.child) {
-        this.goToMenu(item.child)
+        this.goToMenu(item.child);
       } else {
-        API.post('click', {
+        API.post("click", {
           menu: this.currentMenuId,
-          item: this.cItem
-        })
+          item: this.cItem,
+        });
       }
     },
     menuBack() {
-      API.post('backMenu', {
+      API.post("backMenu", {
         menu: this.currentMenuId,
-        item: this.cItem
-      })
+        item: this.cItem,
+      });
       if (this.parentTree.length > 0) {
-        API.PlayAudio('button')
-        this.backToParentMenu()
+        API.PlayAudio("button");
+        this.backToParentMenu();
       }
     },
     menuRight() {
-      let menu = this.cMenu
-      let items = this.cMenuItems
-      if (menu.type == "list") return
+      let menu = this.cMenu;
+      let items = this.cMenuItems;
+      if (menu.type == "list") return;
 
       if (menu.currentIndex < items.length - 1) {
         menu.currentIndex++;
       } else {
         menu.currentIndex = 0;
       }
-      API.PlayAudio('button')
-      this.updatePreview()
+      API.PlayAudio("button");
+      this.updatePreview();
     },
     menuLeft() {
-      let menu = this.cMenu
-      let items = this.cMenuItems
-      if (menu.type == "list") return
+      let menu = this.cMenu;
+      let items = this.cMenuItems;
+      if (menu.type == "list") return;
 
       if (menu.currentIndex > 0) {
         menu.currentIndex--;
       } else {
-        menu.currentIndex = items.length - 1
+        menu.currentIndex = items.length - 1;
       }
-      API.PlayAudio('button')
-      this.updatePreview()
+      API.PlayAudio("button");
+      this.updatePreview();
     },
     menuDown() {
-      let menu = this.cMenu
-      let items = this.cMenuItems
+      let menu = this.cMenu;
+      let items = this.cMenuItems;
       if (menu.type == "tile") {
         if (menu.currentIndex == items.length - 1) {
-          menu.currentIndex = 0
+          menu.currentIndex = 0;
         } else {
-          menu.currentIndex = Math.min(menu.currentIndex + menu.numberOnLine, items.length - 1)
+          menu.currentIndex = Math.min(
+            menu.currentIndex + menu.numberOnLine,
+            items.length - 1
+          );
         }
       } else {
         if (menu.currentIndex < items.length - 1) {
@@ -508,223 +560,285 @@ export const useMenuStore = defineStore('menus', {
           menu.currentIndex = 0;
         }
       }
-      API.PlayAudio('button')
-      this.updatePreview()
+      API.PlayAudio("button");
+      this.updatePreview();
     },
     menuUp() {
-      let menu = this.cMenu
-      let items = this.cMenuItems
+      let menu = this.cMenu;
+      let items = this.cMenuItems;
       if (menu.type == "tile") {
         if (menu.currentIndex > 0) {
-          menu.currentIndex = Math.max(menu.currentIndex - menu.numberOnLine, 0)
+          menu.currentIndex = Math.max(
+            menu.currentIndex - menu.numberOnLine,
+            0
+          );
         } else {
-          menu.currentIndex = items.length - 1
+          menu.currentIndex = items.length - 1;
         }
       } else {
         if (menu.currentIndex > 0) {
           menu.currentIndex--;
         } else {
-          menu.currentIndex = items.length - 1
+          menu.currentIndex = items.length - 1;
         }
       }
-      API.PlayAudio('button')
-      this.updatePreview()
+      API.PlayAudio("button");
+      this.updatePreview();
     },
     sliderLeft(index) {
-      if (this.cItem.disabled) return
-      let item = this.cItem
-      let slider = undefined
+      if (this.cItem.disabled) return;
+      let item = this.cItem;
+      let slider = undefined;
       if (index == undefined) {
-        index = Math.max(item.sliders.findIndex(slider => slider.type == "switch"), 0)
-        slider = item.sliders[index]
+        index = Math.max(
+          item.sliders.findIndex((slider) => slider.type == "switch"),
+          0
+        );
+        slider = item.sliders[index];
       } else {
-        index = Math.min(index, item.sliders.length - 1)
-        slider = item.sliders[index]
+        index = Math.min(index, item.sliders.length - 1);
+        slider = item.sliders[index];
       }
       if (!slider) return;
 
       if (slider.type == "palette") {
-        if (slider.current <= 0) return
+        if (slider.current <= 0) return;
         slider.current--;
       } else if (slider.type == "grid") {
-        return this.gridLeft(index)
+        return this.gridLeft(index);
       } else {
-        if (slider.current == 1 && !slider.looped) return
-        if (slider.values.length == 1) return
-        slider.current--
-        if (slider.current <= 0) slider.current = slider.values.length
+        if (slider.current == 1 && !slider.looped) return;
+        if (slider.values.length == 1) return;
+        slider.current--;
+        if (slider.current <= 0) slider.current = slider.values.length;
       }
-      API.PlayAudio('button')
-      this.addDataToSend(["sliders", index, "current"], slider.current)
-      this.updatePreview()
+      API.PlayAudio("button");
+      this.addDataToSend(["sliders", index, "current"], slider.current);
+      this.updatePreview();
     },
     sliderRight(index) {
-      if (this.cItem.disabled) return
-      let item = this.cItem
-      let slider = undefined
+      if (this.cItem.disabled) return;
+      let item = this.cItem;
+      let slider = undefined;
       if (index == undefined) {
-        index = Math.max(item.sliders.findIndex(slider => slider.type == "switch"), 0)
-        slider = item.sliders[index]
+        index = Math.max(
+          item.sliders.findIndex((slider) => slider.type == "switch"),
+          0
+        );
+        slider = item.sliders[index];
       } else {
-        index = Math.min(index, item.sliders.length - 1)
-        slider = item.sliders[index]
+        index = Math.min(index, item.sliders.length - 1);
+        slider = item.sliders[index];
       }
       if (!slider) return;
 
       if (slider.type == "palette") {
-        if (slider.current == slider.max) return
+        if (slider.current == slider.max) return;
         slider.current++;
       } else if (slider.type == "grid") {
-        return this.gridRight(index)
+        return this.gridRight(index);
       } else {
-        if (slider.current == slider.values.length && !slider.looped) return
-        if (slider.values.length == 1) return
+        if (slider.current == slider.values.length && !slider.looped) return;
+        if (slider.values.length == 1) return;
         slider.current++;
-        if (slider.current > slider.values.length) slider.current = 1
+        if (slider.current > slider.values.length) slider.current = 1;
       }
-      API.PlayAudio('button')
-      this.addDataToSend(["sliders", index, "current"], slider.current)
-      this.updatePreview()
+      API.PlayAudio("button");
+      this.addDataToSend(["sliders", index, "current"], slider.current);
+      this.updatePreview();
     },
     setSliderCurrent(data) {
-      let item = this.cItem
-      let slider = item.sliders[data.index]
+      let item = this.cItem;
+      let slider = item.sliders[data.index];
       if (!slider) return;
       if (slider.type == "grid") {
-        let values = slider.values
-        let change = false
+        let values = slider.values;
+        let change = false;
         if (slider.values.length == 2) {
-          let current2 = data.value[1] * (values[1].max - values[1].min) + values[1].min
-          current2 = Math.round(current2 / (values[1].gap || 1)) * (values[1].gap || 1)
-          current2 = Math.min(Math.max(current2, values[1].min), values[1].max)
+          let current2 =
+            data.value[1] * (values[1].max - values[1].min) + values[1].min;
+          current2 =
+            Math.round(current2 / (values[1].gap || 1)) * (values[1].gap || 1);
+          current2 = Math.min(Math.max(current2, values[1].min), values[1].max);
           if (current2 != values[1].current) {
-            values[1].current = current2
-            this.addDataToSend(["sliders", data.index, "values", 1, "current"], values[1].current)
-            change = true
+            values[1].current = current2;
+            this.addDataToSend(
+              ["sliders", data.index, "values", 1, "current"],
+              values[1].current
+            );
+            change = true;
           }
         }
-        let current = data.value[0] * (values[0].max - values[0].min) + values[0].min
-        current = Math.round(current / (values[0].gap || 1)) * (values[0].gap || 1)
-        current = Math.min(Math.max(current, values[0].min), values[0].max)
+        let current =
+          data.value[0] * (values[0].max - values[0].min) + values[0].min;
+        current =
+          Math.round(current / (values[0].gap || 1)) * (values[0].gap || 1);
+        current = Math.min(Math.max(current, values[0].min), values[0].max);
         if (current != values[0].current) {
-          values[0].current = current
-          this.addDataToSend(["sliders", data.index, "values", 0, "current"], values[0].current)
-          change = true
+          values[0].current = current;
+          this.addDataToSend(
+            ["sliders", data.index, "values", 0, "current"],
+            values[0].current
+          );
+          change = true;
         }
-        if (!change) return
+        if (!change) return;
       } else {
-        if (slider.current == data.value) return
-        slider.current = data.value
-        this.addDataToSend(["sliders", data.index, "current"], slider.current)
+        if (slider.current == data.value) return;
+        slider.current = data.value;
+        this.addDataToSend(["sliders", data.index, "current"], slider.current);
       }
-      API.PlayAudio('button')
-      this.updatePreview()
+      API.PlayAudio("button");
+      this.updatePreview();
     },
     gridLeft(index) {
-      let item = this.cItem
-      index = index || item.sliders.findIndex(slider => slider.type == "grid" && slider.values.length == 2)
+      let item = this.cItem;
+      index =
+        index ||
+        item.sliders.findIndex(
+          (slider) => slider.type == "grid" && slider.values.length == 2
+        );
       if (index == -1)
-        index = item.sliders.findIndex(slider => slider.type == "grid")
-      if (index == -1)
-        return
-      let slider = item.sliders[index]
-      if (!slider) return
-      let values = slider.values
-      values[0].current = Math.max(values[0].min, values[0].current - (values[0].gap || 1))
-      API.PlayAudio('button')
-      this.addDataToSend(["sliders", index, "values", 0, "current"], values[0].current)
-      this.updatePreview()
+        index = item.sliders.findIndex((slider) => slider.type == "grid");
+      if (index == -1) return;
+      let slider = item.sliders[index];
+      if (!slider) return;
+      let values = slider.values;
+      values[0].current = Math.max(
+        values[0].min,
+        values[0].current - (values[0].gap || 1)
+      );
+      API.PlayAudio("button");
+      this.addDataToSend(
+        ["sliders", index, "values", 0, "current"],
+        values[0].current
+      );
+      this.updatePreview();
     },
     gridRight(index) {
-      let item = this.cItem
-      index = index || item.sliders.findIndex(slider => slider.type == "grid" && slider.values.length == 2)
+      let item = this.cItem;
+      index =
+        index ||
+        item.sliders.findIndex(
+          (slider) => slider.type == "grid" && slider.values.length == 2
+        );
       if (index == -1)
-        index = item.sliders.findIndex(slider => slider.type == "grid")
-      if (index == -1)
-        return
-      let slider = item.sliders[index]
-      if (!slider) return
-      let values = slider.values
-      values[0].current = Math.min(values[0].max, values[0].current + (values[0].gap || 1))
-      API.PlayAudio('button')
-      this.addDataToSend(["sliders", index, "values", 0, "current"], values[0].current)
-      this.updatePreview()
+        index = item.sliders.findIndex((slider) => slider.type == "grid");
+      if (index == -1) return;
+      let slider = item.sliders[index];
+      if (!slider) return;
+      let values = slider.values;
+      values[0].current = Math.min(
+        values[0].max,
+        values[0].current + (values[0].gap || 1)
+      );
+      API.PlayAudio("button");
+      this.addDataToSend(
+        ["sliders", index, "values", 0, "current"],
+        values[0].current
+      );
+      this.updatePreview();
     },
     gridUp(index) {
-      let item = this.cItem
-      index = index || item.sliders.findIndex(slider => slider.type == "grid" && slider.values.length == 2)
-      if (index == -1) return
-      let slider = item.sliders[index]
-      if (!slider) return
-      let values = slider.values
-      values[1].current = Math.max(values[1].min, values[1].current - (values[1].gap || 1))
-      API.PlayAudio('button')
-      this.addDataToSend(["sliders", index, "values", 1, "current"], values[1].current)
-      this.updatePreview()
+      let item = this.cItem;
+      index =
+        index ||
+        item.sliders.findIndex(
+          (slider) => slider.type == "grid" && slider.values.length == 2
+        );
+      if (index == -1) return;
+      let slider = item.sliders[index];
+      if (!slider) return;
+      let values = slider.values;
+      values[1].current = Math.max(
+        values[1].min,
+        values[1].current - (values[1].gap || 1)
+      );
+      API.PlayAudio("button");
+      this.addDataToSend(
+        ["sliders", index, "values", 1, "current"],
+        values[1].current
+      );
+      this.updatePreview();
     },
     gridDown(index) {
-      let item = this.cItem
-      index = index || item.sliders.findIndex(slider => slider.type == "grid" && slider.values.length == 2)
-      if (index == -1) return
-      let slider = item.sliders[index]
-      if (!slider) return
-      let values = slider.values
-      values[1].current = Math.min(values[1].max, values[1].current + (values[1].gap || 1))
-      API.PlayAudio('button')
-      this.addDataToSend(["sliders", index, "values", 1, "current"], values[1].current)
-      this.updatePreview()
+      let item = this.cItem;
+      index =
+        index ||
+        item.sliders.findIndex(
+          (slider) => slider.type == "grid" && slider.values.length == 2
+        );
+      if (index == -1) return;
+      let slider = item.sliders[index];
+      if (!slider) return;
+      let values = slider.values;
+      values[1].current = Math.min(
+        values[1].max,
+        values[1].current + (values[1].gap || 1)
+      );
+      API.PlayAudio("button");
+      this.addDataToSend(
+        ["sliders", index, "values", 1, "current"],
+        values[1].current
+      );
+      this.updatePreview();
     },
     updatePreview(forceItemEvent = false, forceMenuEvent = false) {
-      API.post('updatePreview', {
+      API.post("updatePreview", {
         menu: this.currentMenuId,
         index: this.cItem.index,
         item: this.dataToSend,
         forceItemEvent,
-        forceMenuEvent
-      })
-      this.dataToSend = {}
+        forceMenuEvent,
+      });
+      this.dataToSend = {};
     },
     updateMenuValues(data) {
-      if (!this.menus[data.menu]) return
+      if (!this.menus[data.menu]) return;
       this.$patch((state) => {
-        let needRefresh = false
-        data.updated.forEach(element => {
-          let keys = element.keys
+        let needRefresh = false;
+        data.updated.forEach((element) => {
+          let keys = element.keys;
           for (let i = 0; i < keys.length; i++) {
-            if (typeof keys[i] == "number") { //Fixed the array start at 1 in LUA
-              keys[i] -= 1
+            if (typeof keys[i] == "number") {
+              //Fixed the array start at 1 in LUA
+              keys[i] -= 1;
             }
           }
-          let lastKey = keys[keys.length - 1]
-          let current = state.menus[data.menu]
+          let lastKey = keys[keys.length - 1];
+          let current = state.menus[data.menu];
           for (let i = 0; i < keys.length - 1; i++) {
-            let key = keys[i]
-            current = current[key]
+            let key = keys[i];
+            current = current[key];
           }
           switch (element.action) {
             case "delete":
               if (Array.isArray(current)) {
-                current.splice(lastKey, 1)
+                current.splice(lastKey, 1);
               } else {
-                delete current[lastKey]
+                delete current[lastKey];
               }
               break;
             case "update":
-              current[lastKey] = element.value
+              current[lastKey] = element.value;
               if (lastKey == "currentIndex") {
-                current.currentIndex = current.items.findIndex(item => item.index == element.value)
-                current.currentIndex = Math.min(current.currentIndex, current.items.length - 1)
-                current.currentIndex = Math.max(current.currentIndex, 0)
-                if (data.menu == this.currentMenuId)
-                  needRefresh = true
+                current.currentIndex = current.items.findIndex(
+                  (item) => item.index == element.value
+                );
+                current.currentIndex = Math.min(
+                  current.currentIndex,
+                  current.items.length - 1
+                );
+                current.currentIndex = Math.max(current.currentIndex, 0);
+                if (data.menu == this.currentMenuId) needRefresh = true;
               }
               break;
           }
         });
         if (needRefresh) {
-          this.updatePreview(true)
+          this.updatePreview(true);
         }
-      })
+      });
     },
   },
-})
+});
