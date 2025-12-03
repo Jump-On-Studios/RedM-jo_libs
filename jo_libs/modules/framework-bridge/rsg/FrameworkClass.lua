@@ -500,6 +500,7 @@ function jo.framework:standardizeSkinInternal(skin)
   standard.headIndex = GetValue(fromFrameworkToStandard.heads[standard.model][math.ceil(head / 6)], math.ceil(head / 6))
   standard.skinTone = fromFrameworkToStandard.skin_tone[table.extract(skin, "skin_tone")]
   standard.teethIndex = table.extract(skin, "teeth")
+  standard.teethHash = table.extract(skin, "teethHash")
   standard.hair = table.extract(skin, "hair")
   if standard.model == "mp_male" then
     standard.beards_complete = table.extract(skin, "beard")
@@ -713,6 +714,7 @@ function jo.framework:revertSkinInternal(standard)
   _, reverted.skin_tone = table.find(fromFrameworkToStandard.skin_tone, function(value, i) return value == standard.skinTone end)
   standard.skinTone = nil
   reverted.teeth = table.extract(standard, "teethIndex")
+  reverted.teethHash = table.extract(standard, "teethHash")
   reverted.hair = table.extract(standard, "hair")
   if standard.model == "mp_male" then
     reverted.beard = table.extract(standard, "beards_complete")

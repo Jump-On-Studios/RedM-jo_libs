@@ -441,7 +441,7 @@ function jo.framework:revertSkin(standard)
     skin.expressions = nil
   end
 
-  if config and Config.debug then
+  if jo.debug then
     if table.count(standard) > 0 then
       eprint("Skin keys not reverted")
       for key, value in pairs(standard) do
