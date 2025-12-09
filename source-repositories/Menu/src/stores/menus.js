@@ -1,6 +1,15 @@
 import { defineStore } from "pinia";
 import API from "../API";
 
+class ItemStatistic {
+  label = ""
+  type = "bar"
+  class = ""
+  value = [0, 0, 10]
+  translateLabel = false
+  translateValue = false
+}
+
 class MenuItem {
   title = "";
   subtitle = "";
@@ -107,7 +116,8 @@ class MenuItem {
     this.prefix = value;
   }
   setStatistics(values) {
-    const stat = new ItemStatistic();
+    this.statistics = []
+    const stat = new ItemStatistic()
     for (var p in values) {
       this.statistics.push({ ...stat, ...values[p] });
     }
@@ -169,15 +179,6 @@ class MenuItem {
   setIconSize(value) {
     this.iconSize = value;
   }
-}
-
-class ItemStatistic {
-  label = "";
-  type = "bar";
-  class = "";
-  value = [0, 0, 10];
-  translateLabel = false;
-  translateValue = false;
 }
 
 class Menu {
@@ -820,7 +821,11 @@ export const useMenuStore = defineStore("menus", {
               }
               break;
             case "update":
-              current[lastKey] = element.value;
+              const lastKeyUpper = typeof (lastKey) == "string" ? lastKey.replace(/^./, lastKey[0].toUpperCase()) : null
+              if (lastKeyUpper && current['set' + lastKeyUpper])
+                current['set' + lastKeyUpper](element.value)
+              else
+                current[lastKey] = element.value
               if (lastKey == "currentIndex") {
                 current.currentIndex = current.items.findIndex(
                   (item) => item.index == element.value
