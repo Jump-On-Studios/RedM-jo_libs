@@ -45,14 +45,16 @@ function setStyle() {
 
 let previousMenu = ''
 let previousItem = ''
+let numberOnScreen = 0
 onUpdated(() => {
-  if (previousItem == menuStore.cMenu.currentIndex && previousMenu == menuStore.currentMenuId)
+  if (previousItem == menuStore.cMenu.currentIndex && previousMenu == menuStore.currentMenuId && numberOnScreen == menuStore.cMenu.numberOnScreen)
     return
   const currentIndex = document.getElementById('item-' + menuStore.cMenu.currentIndex)
   if (!currentIndex) return
   let firstScroll = previousMenu != menuStore.currentMenuId
   previousMenu = menuStore.currentMenuId
   previousItem = menuStore.cMenu.currentIndex
+  numberOnScreen = menuStore.cMenu.numberOnScreen
   currentIndex.scrollIntoView({ behavior: firstScroll ? 'instant' : 'instant', block: "nearest" })
 })
 
