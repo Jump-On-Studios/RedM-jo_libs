@@ -166,6 +166,10 @@ function jo.menu.formatPrices(prices)
       size += 1
     end
 
+    if #sanitized == 0 then
+      sanitized = { { money = 0 } }
+    end
+
     formattedPrices[i] = sanitized
   end
 
@@ -190,10 +194,10 @@ end
 
 local function runTests()
   local tests = {
-    { name = "Simple number", price = 5 },
-    { name = "Complex mixed", price = { 10, { item = "water", money = 5, gold = 3, { gold = 7 }, { 10 } }, operator = "or" } },
-    { name = "Multi currency", price = { money = 5, gold = 3, operator = "or" } },
-    { name = "Merge same meta", price = { { money = 10, gold = 1, { item = "water", quantity = 2, meta = { a = 1 } } }, { money = 10, gold = 1, { item = "water", quantity = 2, meta = { a = 1 } } }, operator = "and" } },
+    { name = "Simple number",        price = 5 },
+    { name = "Complex mixed",        price = { 10, { item = "water", money = 5, gold = 3, { gold = 7 }, { 10 } }, operator = "or" } },
+    { name = "Multi currency",       price = { money = 5, gold = 3, operator = "or" } },
+    { name = "Merge same meta",      price = { { money = 10, gold = 1, { item = "water", quantity = 2, meta = { a = 1 } } }, { money = 10, gold = 1, { item = "water", quantity = 2, meta = { a = 1 } } }, operator = "and" } },
     { name = "Merge meta different", price = { { { item = "water", quantity = 2, meta = { a = 1, b = 1 } } }, { { item = "water", quantity = 2, meta = { a = 1 } } }, operator = "and" } },
   }
 
