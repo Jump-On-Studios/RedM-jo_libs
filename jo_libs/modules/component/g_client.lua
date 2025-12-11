@@ -673,7 +673,6 @@ function jo.component.refreshPed(ped)
   refreshPed(ped)
 end
 
-
 --- A function to wait the refresh of ped
 --- @param ped integer (The entity ID)
 function jo.component.waitPedLoaded(ped)
