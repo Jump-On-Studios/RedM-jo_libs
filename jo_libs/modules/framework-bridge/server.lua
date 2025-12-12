@@ -197,6 +197,28 @@ function jo.framework:canUserPayWith(source, prices, removeIfCan)
   return true, 0
 end
 
+--- A function to refund a player with multiple prices
+---@param source integer (The source ID of the player)
+---@param prices table (The prices to refund)
+---@return nil
+function jo.framework:refundUserWith(source, prices)
+  if type(prices) ~= "table" then return end
+  if table.type(prices) ~= "array" then prices = { prices } end
+
+  for i = 1, #prices do
+    local price = prices[i]
+    if price.item and not price.keep then
+      jo.framework:giveItem(source, price.item, price.quantity or 1, price.meta)
+    elseif price.money then
+      jo.framework:addMoney(source, price.money, 0)
+    elseif price.gold then
+      jo.framework:addMoney(source, price.gold, 1)
+    elseif price.rol then
+      jo.framework:addMoney(source, price.rol, 2)
+    end
+  end
+end
+
 --- A function to give money to a player
 ---@param source integer (The source ID of the player)
 ---@param amount number (The amount of money to add)
