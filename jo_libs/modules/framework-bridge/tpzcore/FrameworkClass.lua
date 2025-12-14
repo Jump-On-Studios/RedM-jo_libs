@@ -91,7 +91,7 @@ end
 ---@param invName string (Unique id of the inventory)
 function jo.framework:removeInventory(invName)
   -- @param containerName: requires a container name.
-  TriggerEvent("tpz_inventory:unregisterCustomContainer", invName)
+  TriggerEvent("tpz_inventory:unregisterCustomContainerByName", invName)
 end
 
 --- Opens a specific inventory
@@ -103,7 +103,7 @@ function jo.framework:openInventory(source, invName, header)
     header = "Storage"
   end
 
-  TriggerClientEvent("tpz_inventory:openInventoryContainerById", _source, invName, header)
+  TriggerClientEvent('tpz_inventory:openInventoryContainerByName', _source, invName, header)
 end
 
 --- Adds a specific item to a custom inventory with optional metadata and wait parameter
