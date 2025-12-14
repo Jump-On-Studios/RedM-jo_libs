@@ -84,7 +84,7 @@ function jo.framework:createInventory(invName, name, invConfig)
   -- @param containerWeight: requires the maximum container weight.
   -- @param insert : requires a boolean value (false / true) to insert to the containers database the new registered container inventory / not.
   -- @param contents: a non-required parameter which requires a table form (only experienced developers).
-  TriggerEvent("tpz_inventory:registerContainerInventory", name, invConfig.maxWeight, true)
+  TriggerEvent("tpz_inventory:registerContainerInventory", invName, invConfig.maxWeight, true)
 end
 
 --- Removes an inventory from the *server cache*, useful for reloading inventory data from the database
