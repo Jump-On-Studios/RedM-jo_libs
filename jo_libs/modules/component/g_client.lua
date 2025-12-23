@@ -124,6 +124,7 @@ end
 local function getComponentIndexOfCategory(ped, category)
   category = jo.component.getCategoryHash(category)
   local numComponent = GetNumComponentsInPed(ped)
+
   for index = 0, numComponent - 1, 1 do
     if GetCategoryOfComponentAtIndex(ped, index) == category then
       return index
@@ -506,6 +507,9 @@ function jo.component.apply(ped, category, _data)
     end
 
     addCachedComponent(ped, nil, categoryHash, data.hash, data.wearableState, data.drawable, data.albedo, data.normal, data.material, data.palette, data.tint0, data.tint1, data.tint2)
+  elseif data.wearableState then
+    local comp = jo.component.getComponentEquiped(ped, categoryHash)
+    updateComponentWearableState(ped, categoryHash, comp, data.wearableState)
   else
     RemoveTagFromMetaPed(ped, categoryHash, 0)
     if categoryHash == `neckwear` then
@@ -525,6 +529,8 @@ end
 --- A function to remove all clothing components from a ped
 ---@param ped integer (The entity ID)
 function jo.component.removeAllClothes(ped)
+  jo.component.setWearableState(ped, "bodies_lower", nil, "BASE")
+  jo.component.setWearableState(ped, "bodies_upper", nil, "BASE")
   for i = 1, #jo.component.data.pedClothes do
     local category = jo.component.data.pedClothes[i]
     jo.component.remove(ped, category)
@@ -546,6 +552,15 @@ function jo.component.applyComponents(ped, components)
     if components[category] then
       jo.component.apply(ped, category, components[category])
     end
+  end
+
+  jo.component.waitPedLoaded(ped)
+
+  if components.bodies_lower then
+    jo.component.apply(ped, "bodies_lower", components.bodies_lower)
+  end
+  if components.bodies_upper then
+    jo.component.apply(ped, "bodies_upper", components.bodies_upper)
   end
 end
 
@@ -702,6 +717,7 @@ function jo.component.setWearableState(ped, category, data, state)
   local categoryHash = jo.component.getCategoryHash(category)
 
   local index = getComponentIndexOfCategory(ped, categoryHash)
+
   if index >= 0 then
     local _, wearableState = GetShopItemComponentAtIndex(ped, index)
     if wearableState == state then
@@ -710,8 +726,11 @@ function jo.component.setWearableState(ped, category, data, state)
   end
 
   data = formatComponentData(data) or {}
+
   local oldComp = getComponentAtIndex(ped, index)
+
   data.hash = data.hash or oldComp.hash
+
 
   if categoryHash == `neckwear` then
     if stateHash == `base` then
