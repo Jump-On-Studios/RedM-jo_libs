@@ -275,8 +275,6 @@ function jo.framework:registerUseItem(item, closeAfterUsed, callback)
   end)
 end
 
-
-
 function jo.framework:giveItem(source, item, quantity, meta)
   if Inventory:canCarryItem(source, item, quantity) then
     Inventory:addItem(source, item, quantity, meta)
@@ -1226,9 +1224,13 @@ end
 function jo.framework:updateUserClothesInternal(source, clothes)
   local newClothes = {}
   for category, value in pairs(clothes) do
-    newClothes[category] = value
+    newClothes[category] = table.copy(value)
     if type(value) == "table" then
-      newClothes[category].comp = GetValue(value?.hash, 0)
+      if not value.drawable then
+        newClothes[category].comp = GetValue(value?.hash, 0)
+      else
+        newClothes[category].comp = value
+      end
     end
   end
   local user = self.UserClass:get(source)
