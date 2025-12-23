@@ -299,7 +299,7 @@ local function formatComponentData(data)
       data.hash = data.comp
       data.comp = nil
     end
-    if not data.hash or data.hash == 0 or data.hash == -1 then return nil end
+    if (not data.hash or data.hash == 0 or data.hash == -1) and not data.drawable and not data.wearableState then return nil end
     if type(data.hash) == "table" then
       return data.hash
     end
