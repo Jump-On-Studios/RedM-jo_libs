@@ -84,14 +84,14 @@ function jo.framework:createInventory(invName, name, invConfig)
   -- @param containerWeight: requires the maximum container weight.
   -- @param insert : requires a boolean value (false / true) to insert to the containers database the new registered container inventory / not.
   -- @param contents: a non-required parameter which requires a table form (only experienced developers).
-  TriggerEvent("tpz_inventory:registerContainerInventory", name, invConfig.maxWeight, true)
+  TriggerEvent("tpz_inventory:registerContainerInventory", invName, invConfig.maxWeight, true)
 end
 
 --- Removes an inventory from the *server cache*, useful for reloading inventory data from the database
 ---@param invName string (Unique id of the inventory)
 function jo.framework:removeInventory(invName)
   -- @param containerName: requires a container name.
-  TriggerEvent("tpz_inventory:unregisterCustomContainer", invName)
+  TriggerEvent("tpz_inventory:unregisterCustomContainerByName", invName)
 end
 
 --- Opens a specific inventory
@@ -103,7 +103,7 @@ function jo.framework:openInventory(source, invName, header)
     header = "Storage"
   end
 
-  TriggerClientEvent("tpz_inventory:openInventoryContainerById", _source, invName, header)
+  TriggerClientEvent('tpz_inventory:openInventoryContainerByName', _source, invName, header)
 end
 
 --- Adds a specific item to a custom inventory with optional metadata and wait parameter
