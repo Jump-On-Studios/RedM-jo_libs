@@ -490,7 +490,7 @@ function jo.framework:standardizeSkinInternal(skin)
   local standard = {}
 
   local function decrease(value)
-    return GetValue(value, 1) - 1
+    return math.max(GetValue(value, 1) - 1, 0)
   end
 
   standard.model = table.extract(skin, "sex")
