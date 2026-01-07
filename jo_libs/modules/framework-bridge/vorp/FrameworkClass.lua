@@ -1222,11 +1222,12 @@ function jo.framework:getUserClothesInternal(source)
 end
 
 function jo.framework:updateUserClothesInternal(source, clothes)
+  log("inupdateUserClothesInternal", clothes)
   local newClothes = {}
   for category, value in pairs(clothes) do
     newClothes[category] = table.copy(value)
     if type(value) == "table" then
-      if not value.drawable then
+      if not value.drawable and not value.wearableState then
         newClothes[category].comp = GetValue(value?.hash, 0)
       else
         newClothes[category].comp = value
@@ -1254,6 +1255,7 @@ function jo.framework:updateUserClothesInternal(source, clothes)
       value = nil
     end
   end
+  log("newClothes", newClothes)
   TriggerClientEvent("vorpcharacter:updateCache", source, false, newClothes)
   user.data.updateCompTints(json.encode(tints))
 end
