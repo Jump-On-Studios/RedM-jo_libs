@@ -23,10 +23,15 @@ function table.copy(t)
 end
 
 --- Merges multiple tables together.
+---@param deepMerge? boolean (Whether to deep merge tables)
 ---@param ... table (The tables to merge)
 ---@return table (The merged table. If the same key exists in both tables, only the value of t2 is kept)
-function table.merge(...)
+function table.merge(deepMerge, ...)
   local args = { ... }
+  if type(deepMerge) ~= "boolean" then
+    table.insert(args, 1, deepMerge)
+    deepMerge = true
+  end
   if #args < 2 then return args[1] end
 
   local t1 = args[1]
@@ -34,8 +39,8 @@ function table.merge(...)
     local t2 = args[t]
     for k, v in pairs(t2 or {}) do
       if type(v) == "table" then
-        if type(t1[k] or false) == "table" then
-          table.merge(t1[k] or {}, t2[k] or {})
+        if type(t1[k] or false) == "table" and deepMerge then
+          table.merge(deepMerge, t1[k] or {}, t2[k] or {})
         else
           t1[k] = v
         end
