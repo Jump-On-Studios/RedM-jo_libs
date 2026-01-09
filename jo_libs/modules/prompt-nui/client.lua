@@ -239,7 +239,7 @@ function GroupClass:isVisible()
 end
 
 --- Adds a new prompt to the group on a specified page. <br>Creates or initializes pages as necessary, assigns the prompt's position, and returns the new prompt.
---- @param key string|table (A key string or table of key strings for the prompt.)
+--- @param key string (A key string for the prompt.)
 --- @param label string (The descriptive label for the prompt.)
 --- @param holdTime number|boolean (Duration to hold the key before the prompt triggers. <br> Set it to `false` if no hold time is required)
 --- @param page? number (The page number to add the prompt to<br> defaults to 1.)
