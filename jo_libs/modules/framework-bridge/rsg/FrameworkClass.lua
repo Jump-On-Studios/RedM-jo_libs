@@ -1011,11 +1011,7 @@ end
 
 function jo.framework:updateUserClothesInternal(source, clothes)
   local identifiers = self:getUserIdentifiers(source)
-  MySQL.scalar("SELECT clothes FROM playerskins WHERE citizenid=? ", { identifiers.identifier }, function(oldClothes)
-    local decoded = UnJson(oldClothes)
-    table.merge(decoded, clothes)
-    MySQL.update("UPDATE playerskins SET clothes=? WHERE citizenid=?", { json.encode(decoded), identifiers.identifier })
-  end)
+  MySQL.update("UPDATE playerskins SET clothes=? WHERE citizenid=?", { json.encode(clothes), identifiers.identifier })
 end
 
 function jo.framework:getUserSkinInternal(source)
