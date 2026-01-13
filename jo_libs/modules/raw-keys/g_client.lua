@@ -51,7 +51,9 @@ AddEventHandler("jo_libs:rawKeys:remove", function(key)
 end)
 
 local function getVKValue(key)
-    if type(key) == "number" then return key end
+    if type(key) == "number" then
+        return vk_azerty_hexa[key] or key
+    end
     return _G["vk_" .. keyboard_layout]?[key] or vk_qwerty[key]
 end
 
