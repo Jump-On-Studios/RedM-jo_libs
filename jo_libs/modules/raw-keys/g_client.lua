@@ -1,11 +1,10 @@
-
 jo.file.load("raw-keys.vk_qwerty")
 jo.file.load("raw-keys.vk_azerty")
 
 local listenedKeys = {}
 local linkedResources = {}
 
-local keyboard_layout = GetConvar('jo_libs:keyboard_layout','qwerty')
+local keyboard_layout = GetConvar("jo_libs:keyboard_layout", "qwerty")
 keyboard_layout = string.lower(keyboard_layout)
 
 -- Listen if other scripts ask to register a new key to listen and add it to listenedKeys (multiple scripts can ask for the same key, so we increment a counter)
@@ -52,7 +51,8 @@ AddEventHandler("jo_libs:rawKeys:remove", function(key)
 end)
 
 local function getVKValue(key)
-    return  _G["vk_"..keyboard_layout]?[key] or vk_qwerty[key]
+    if type(key) == "number" then return key end
+    return _G["vk_" .. keyboard_layout]?[key] or vk_qwerty[key]
 end
 
 
@@ -80,8 +80,8 @@ CreateThread(function()
 end)
 
 
-AddConvarChangeListener("jo_libs:keyboard_layout",function()
-    keyboard_layout = GetConvar('jo_libs:keyboard_layout','qwerty')
+AddConvarChangeListener("jo_libs:keyboard_layout", function()
+    keyboard_layout = GetConvar("jo_libs:keyboard_layout", "qwerty")
     keyboard_layout = string.lower(keyboard_layout)
     print(keyboard_layout)
 end)
@@ -95,8 +95,8 @@ end)
 -- debug
 -- CreateThread(function()
 --     while true do
---         for key,value in pairs(vk_qwerty) do
---             if IsRawKeyPressed(value) then print(key,value) end
+--         for key, value in pairs(vk_qwerty) do
+--             if IsRawKeyPressed(value) then print(key, value) end
 --         end
 --         Wait(0)
 --     end
