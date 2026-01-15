@@ -500,7 +500,7 @@ function jo.component.apply(ped, category, _data)
       end
 
       local state = data.wearableState or Entity(ped).state["wearableState:" .. category]
-      if state then
+      if state and (data.wearableState or state ~= `base`) then
         updateComponentWearableState(ped, category, data, state)
       end
     end
