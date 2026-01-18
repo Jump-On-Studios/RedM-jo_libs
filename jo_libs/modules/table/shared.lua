@@ -73,10 +73,8 @@ end
 ---@param t table (The table to check)
 ---@return boolean (Returns true if the table is empty)
 function table.isEmpty(t)
-  for _ in pairs(t or {}) do
-    return false
-  end
-  return true
+  local _type = table.type(t)
+  return (_type == nil) or (_type == "empty")
 end
 
 --- Counts the number of values inside a table.
