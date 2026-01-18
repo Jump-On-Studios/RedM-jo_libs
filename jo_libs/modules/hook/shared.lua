@@ -38,11 +38,14 @@ exports("registerAction", jo.hook.registerAction)
 ---@param ...? any (Additional arguments which are passed on the functions hooked.)
 function jo.hook.doActions(name, ...)
   if jo.debug then
-    bprint("Action fired: %s", name)
+    bprint("Action fired: %s on %d functions", name, listActions[name] and #listActions[name] or 0)
   end
   if not listActions[name] then return end
   for i = 1, #listActions[name] do
-    pcall(listActions[name][i].cb, ...)
+    local status, err = pcall(listActions[name][i].cb, ...)
+    if not status then
+      log("Error in action %s: %s", name, err)
+    end
   end
 end
 
@@ -86,6 +89,8 @@ function jo.hook.applyFilters(name, value, ...)
     local status, result = pcall(listFilters[name][i].cb, value, ...)
     if status then
       value = result
+    else
+      log("Error in filter %s: %s", name, result)
     end
   end
   return value
