@@ -1,5 +1,5 @@
-@import '_font.scss';
-@import '_reset.scss';
-@import '_colorpicker.scss';
-@import '_style.scss';
-@import 'primevue.scss';
+@use '_font.scss' as *;
+@use '_reset.scss' as *;
+@use '_colorpicker.scss' as *;
+@use '_style.scss' as *;
+@use 'primevue.scss' as *;

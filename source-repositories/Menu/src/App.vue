@@ -5,7 +5,7 @@
 </template>
 
 <style lang="scss">
-@import "./scss/_main.scss";
+@use "./scss/_main.scss" as *;
 </style>
 
 <script setup>
