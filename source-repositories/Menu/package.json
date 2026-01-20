@@ -7,16 +7,16 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@primeuix/themes": "^1.1.1",
+    "@primeuix/themes": "^2.0.3",
     "lodash": "^4.17.21",
-    "pinia": "^2.1.7",
-    "primevue": "^4.3.5",
+    "pinia": "^3.0.4",
+    "primevue": "^4.5.4",
     "util": "^0.12.5",
-    "vue": "^3.2.41"
+    "vue": "^3.5.27"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^3.2.0",
-    "sass": "^1.77.6",
-    "vite": "^3.2.10"
+    "@vitejs/plugin-vue": "^6.0.3",
+    "sass": "^1.97.2",
+    "vite": "^7.3.1"
   }
 }
