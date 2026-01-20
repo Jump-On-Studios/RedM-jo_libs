@@ -1105,13 +1105,12 @@ return {
         { hash = -1652128408, hashname = "HORSE_EQUIPMENT_HORSE_BEDROLL_01_NEW_001" },
         { hash = 1929162841, hashname = "HORSE_EQUIPMENT_HORSE_BEDROLL_01_NEW_002" },
         { hash = 1773313477, hashname = "HORSE_EQUIPMENT_HORSE_BEDROLL_01_NEW_003" },
-        { hash = -7659235 },
+        { hash = -765923568, hashname = "HORSE_EQUIPMENT_HORSE_BEDROLL_01_NEW_004" },
         { hash = -1742648548, hashname = "HORSE_EQUIPMENT_HORSE_BEDROLL_01_USED_000" },
         { hash = 1174316760, hashname = "HORSE_EQUIPMENT_HORSE_BEDROLL_01_USED_001" },
         { hash = -1505531892, hashname = "HORSE_EQUIPMENT_HORSE_BEDROLL_01_USED_002" },
         { hash = 2089424026, hashname = "HORSE_EQUIPMENT_HORSE_BEDROLL_01_USED_003" },
         { hash = -1915242699, hashname = "HORSE_EQUIPMENT_HORSE_BEDROLL_01_USED_004" },
-        { hash = -765923568, hashname = "HORSE_EQUIPMENT_HORSE_BEDROLL_01_NEW_004" }
       }
     },
     {
