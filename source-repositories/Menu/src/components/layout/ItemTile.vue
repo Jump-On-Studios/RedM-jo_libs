@@ -1,31 +1,33 @@
 <template>
   <li v-if="item" :id="`item-${id}`" :class="['item grid clicker with-icon', { 'disabled': item.disabled, 'active': active }]" @click="click()">
-    <div :class="[{ 'bw opacity50': item.disabled }, 'image', item.iconClass]">
-      <img :src="API.getImage(item.icon)" />
-    </div>
-    <div class="current" v-if="isCurrent">
-      <div class="tick">
-        <img src="/assets/images/menu/tick.png">
+    <template v-if="render">
+      <div :class="[{ 'bw opacity50': item.disabled }, 'image', item.iconClass]">
+        <img :src="API.getImage(item.icon)" />
       </div>
-    </div>
-    <div :class="['icon-right', item.iconClass]" v-if="item.iconRight">
-      <img :src="API.getImage(item.iconRight)">
-    </div>
-    <div class="quantity" v-if="typeof item.quantity != 'boolean'">
-      <span class="text">{{ item.quantity }}</span>
-      <span :class="['circle', item.quantityCircleClass]"></span>
-    </div>
-    <div :class="['quality', item.qualityClass]" v-if="item.quality != false">
-      <div v-for="i in 3" :key="i" :class="['star', 'star-' + i, { disabled: i > item.quality }]">
-        <img src="/assets/images/icons/star.png" />
+      <div class="current" v-if="isCurrent">
+        <div class="tick">
+          <img src="/assets/images/menu/tick.png">
+        </div>
       </div>
-    </div>
-    <div :class="['stars', item.starsClass]" v-if="item.stars">
-      <div v-for="i in item.stars[1]" :key="i" :class="['star', 'star-' + i, { disabled: i > item.stars[0] }]">
-        <img src="/assets/images/icons/star.png" />
+      <div :class="['icon-right', item.iconClass]" v-if="item.iconRight">
+        <img :src="API.getImage(item.iconRight)">
       </div>
-    </div>
-    <div class="background"></div>
+      <div class="quantity" v-if="typeof item.quantity != 'boolean'">
+        <span class="text">{{ item.quantity }}</span>
+        <span :class="['circle', item.quantityCircleClass]"></span>
+      </div>
+      <div :class="['quality', item.qualityClass]" v-if="item.quality != false">
+        <div v-for="i in 3" :key="i" :class="['star', 'star-' + i, { disabled: i > item.quality }]">
+          <img src="/assets/images/icons/star.png" />
+        </div>
+      </div>
+      <div :class="['stars', item.starsClass]" v-if="item.stars">
+        <div v-for="i in item.stars[1]" :key="i" :class="['star', 'star-' + i, { disabled: i > item.stars[0] }]">
+          <img src="/assets/images/icons/star.png" />
+        </div>
+      </div>
+      <div class="background"></div>
+    </template>
   </li>
 </template>
 
@@ -47,7 +49,8 @@ const props = defineProps({
     default: false,
     type: Boolean
   },
-  id: Number
+  id: Number,
+  render: Boolean
 })
 
 function click() {

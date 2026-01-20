@@ -5,7 +5,8 @@ export default {};
 let menu = {
   id: "home",
   title: "Main title",
-  type: "tile",
+  // type: "tile",
+  numberLineOnScreen: 3,
   subtitle: "The menu title",
   items: [
     {
@@ -756,6 +757,110 @@ let menu = {
     },
     {
       icon: "eyewear",
+      title: "This is the title",
+    },
+    {
+      icon: "boots",
+      title: "This is the title",
+    },
+    {
+      icon: "boots",
+      title: "This is the title",
+    },
+    {
+      icon: "boots",
+      title: "This is the title",
+    },
+    {
+      icon: "boots",
+      title: "This is the title",
+    },
+    {
+      icon: "boots",
+      title: "This is the title",
+    },
+    {
+      icon: "boots",
+      title: "This is the title",
+    },
+    {
+      icon: "boots",
+      title: "This is the title",
+    },
+    {
+      icon: "boots",
+      title: "This is the title",
+    },
+    {
+      icon: "boots",
+      title: "This is the title",
+    },
+    {
+      icon: "boots",
+      title: "This is the title",
+    },
+    {
+      icon: "boots",
+      title: "This is the title",
+    },
+    {
+      icon: "boots",
+      title: "This is the title",
+    },
+    {
+      icon: "boots",
+      title: "This is the title",
+    },
+    {
+      icon: "boots",
+      title: "This is the title",
+    },
+    {
+      icon: "boots",
+      title: "This is the title",
+    },
+    {
+      icon: "boots",
+      title: "This is the title",
+    },
+    {
+      icon: "boots",
+      title: "This is the title",
+    },
+    {
+      icon: "boots",
+      title: "This is the title",
+    },
+    {
+      icon: "boots",
+      title: "This is the title",
+    },
+    {
+      icon: "boots",
+      title: "This is the title",
+    },
+    {
+      icon: "boots",
+      title: "This is the title",
+    },
+    {
+      icon: "boots",
+      title: "This is the title",
+    },
+    {
+      icon: "boots",
+      title: "This is the title",
+    },
+    {
+      icon: "boots",
+      title: "This is the title",
+    },
+    {
+      icon: "boots",
+      title: "This is the title",
+    },
+    {
+      icon: "boots",
       title: "This is the title",
     },
     {

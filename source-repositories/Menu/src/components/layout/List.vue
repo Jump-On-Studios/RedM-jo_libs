@@ -2,7 +2,9 @@
   <div style="position:relative">
     <Scroller direction='top' :parent="listEl" :key=scrollTop />
     <ul ref="listEl" id="list-items" :class="['list-items', 'type-' + menuStore.cMenu.type]" :style="setStyle()" @scroll="updateScroller()">
-      <component :is="getItemComponent()" v-for="(item, index) in menuStore.cMenuItems" :key="`${item.refreshKey}`" :title="getTitle(item)" :icon="item.icon" :item="item" :active="menuStore.cMenu.currentIndex == index" :id=index />
+      <template v-for="(item, index) in menuStore.cMenuItems" :key="`${item.refreshKey}`">
+        <component :render="isRendered(index)" :is="getItemComponent()" :title="getTitle(item)" :icon="item.icon" :item="item" :active="menuStore.cMenu.currentIndex == index" :id=index />
+      </template>
     </ul>
     <Scroller direction='bottom' :parent="listEl" :key=scrollTop />
   </div>
@@ -41,6 +43,17 @@ function setStyle() {
   return {
     '--numberOnScreen': menuStore.cMenu.numberOnScreen
   }
+}
+
+function isRendered(index) {
+  let gap = 0
+  const currentIndex = menuStore.cMenu.currentIndex
+  if (menuStore.cMenu.type == "tile") {
+    gap = menuStore.cMenu.numberOnLine * (menuStore.cMenu.numberLineOnScreen)
+  } else {
+    gap = menuStore.cMenu.numberOnScreen
+  }
+  return (index > currentIndex - gap && index < currentIndex + gap)
 }
 
 let previousMenu = ''
