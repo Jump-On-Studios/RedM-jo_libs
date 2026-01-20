@@ -5,43 +5,45 @@
     { 'with-icon': icon, 'disabled': item.disabled, 'active': active, },
     `icon-size-${item.iconSize}`
   ]" @click="click()">
-    <div :class="[{ 'bw opacity50': item.disabled }, 'image', item.iconClass]" v-if="icon">
-      <img :src="getImage(item.icon)" />
-    </div>
-    <div class="current" v-if="item.iconRight">
-      <div class="tick">
-        <img :src="getImage(item.iconRight)">
+    <template v-if="render">
+      <div :class="[{ 'bw opacity50': item.disabled }, 'image', item.iconClass]" v-if="icon">
+        <img :src="getImage(item.icon)" />
       </div>
-    </div>
-    <h3>
-      <div v-if="item.prefix" :class="['prefix', { 'bw opacity50': item.disabled }]">
-        <img :class="item.prefix" :src="getImage(item.prefix)" />
-      </div>
-      <div class="title">
-        <span class="main" v-html="item.title"></span>
-        <span class="subtitle hapna" v-if="item.subtitle.length > 0" v-html="item.subtitle"></span>
-      </div>
-      <template v-if="!item.disabled && item.sliders">
-        <template v-for="(slider, index) in item.sliders" :key="index">
-          <template v-if="slider.type == 'switch'">
-            <Switch :slider="slider" :index="index" :isCurrent="item.index == menuStore.cItem.index" />
-          </template>
-        </template>
-      </template>
-      <PreviewSlider :item="item" />
-      <div class="sufix" v-if="item.textRight">
-        <div :class="['textRight', item.textRightClass]">
-          <span v-if="item.translateTextRight" v-html="lang(item.textRight)">
-          </span>
-          <span v-else v-html="item.textRight">
-          </span>
+      <div class="current" v-if="item.iconRight">
+        <div class="tick">
+          <img :src="getImage(item.iconRight)">
         </div>
       </div>
-      <div class="priceRight" v-if="!item.iconRight && price !== undefined && price !== false">
-        <PriceDisplay :price="price" />
-      </div>
-    </h3>
-    <div class="background"></div>
+      <h3>
+        <div v-if="item.prefix" :class="['prefix', { 'bw opacity50': item.disabled }]">
+          <img :class="item.prefix" :src="getImage(item.prefix)" />
+        </div>
+        <div class="title">
+          <span class="main" v-html="item.title"></span>
+          <span class="subtitle hapna" v-if="item.subtitle.length > 0" v-html="item.subtitle"></span>
+        </div>
+        <template v-if="!item.disabled && item.sliders">
+          <template v-for="(slider, index) in item.sliders" :key="index">
+            <template v-if="slider.type == 'switch'">
+              <Switch :slider="slider" :index="index" :isCurrent="item.index == menuStore.cItem.index" />
+            </template>
+          </template>
+        </template>
+        <PreviewSlider :item="item" />
+        <div class="sufix" v-if="item.textRight">
+          <div :class="['textRight', item.textRightClass]">
+            <span v-if="item.translateTextRight" v-html="lang(item.textRight)">
+            </span>
+            <span v-else v-html="item.textRight">
+            </span>
+          </div>
+        </div>
+        <div class="priceRight" v-if="!item.iconRight && price !== undefined && price !== false">
+          <PriceDisplay :price="price" />
+        </div>
+      </h3>
+      <div class="background"></div>
+    </template>
   </li>
 </template>
 
@@ -65,7 +67,8 @@ const props = defineProps({
     default: false,
     type: Boolean
   },
-  id: Number
+  id: Number,
+  render: Boolean
 })
 
 const price = computed(() => {

@@ -8,11 +8,13 @@
         <div class="arrow right clicker" @click="menuStore.sliderRight(index)"><img src="/assets/images/menu/selection_arrow_right.png"></div>
       </div>
       <div :class="['sprites', { 'center': slider.values.length <= 8 }]" id="scroller">
-        <div v-for="(value, vIndex) in slider.values" :key="vIndex + 1" :class="['sprite clicker', { 'current': (vIndex + 1) == slider.current }]" :id="'sprite-' + (vIndex + 1)" @click="click(vIndex + 1)">
-          <SpriteBox :sprite="value" />
-          <div class="tick" v-if="slider.displayTick && slider.tickIndex == vIndex">
-            <img src="/assets/images/menu/tick.png">
-          </div>
+        <div v-for="(value, vIndex) in slider.values" :key="vIndex + 1" :class="['sprite clicker', { 'current': (vIndex + 1) == slider.current, 'hidden': !isRendered(vIndex) }]" :id="'sprite-' + (vIndex + 1)" @click="click(vIndex + 1)">
+          <template v-if="isRendered(vIndex)">
+            <SpriteBox :sprite="value" />
+            <div class="tick" v-if="slider.displayTick && slider.tickIndex == vIndex">
+              <img src="/assets/images/menu/tick.png">
+            </div>
+          </template>
         </div>
       </div>
       <div :class="['slider-description hapna', { last: props.last }]" v-if="slider.description" v-html="slider.description" />
@@ -45,6 +47,10 @@ function numItem() {
 function click(vIndex) {
   if (vIndex == props.slider.current) return
   menuStore.setSliderCurrent({ index: props.index, value: parseInt(vIndex) })
+}
+function isRendered(vIndex) {
+  const gap = 10
+  return vIndex >= props.slider.current - gap && vIndex <= props.slider.current + gap
 }
 
 let firstScroll = true
