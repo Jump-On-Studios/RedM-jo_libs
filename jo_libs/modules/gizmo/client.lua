@@ -499,6 +499,9 @@ function jo.gizmo.moveEntity(entity, cfg, allowPlace)
             PlaceObjectOnGroundProperly(entity)
             local newPos = GetEntityCoords(entity)
             local newRot = GetEntityRotation(entity)
+            if onMove then
+                onMove(newPos, newRot)
+            end
             dprint("[GIZMO DEBUG] Entity snapped - New pos:", json.encode(newPos), "New rot:", json.encode(newRot))
             SendNUIMessage({
                 action = "SetupGizmo",
@@ -563,7 +566,7 @@ function jo.gizmo.moveEntity(entity, cfg, allowPlace)
                 rotation = stored.rotation
             }
 
-            SetEntityCoordsNoOffset(entity, stored.coords.x, stored.coords.y, stored.coords.z)
+            SetEntityCoordsNoOffset(entity, stored.coords.x, stored.coords.y, stored.coords.z, true, true, true)
             SetEntityRotation(entity, stored.rotation.x, stored.rotation.y, stored.rotation.z)
 
             showNUI(false)
