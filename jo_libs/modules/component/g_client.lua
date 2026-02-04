@@ -508,8 +508,10 @@ function jo.component.apply(ped, category, _data)
 
     addCachedComponent(ped, nil, categoryHash, data.hash, data.wearableState, data.drawable, data.albedo, data.normal, data.material, data.palette, data.tint0, data.tint1, data.tint2)
   elseif data.wearableState then
-    local comp = jo.component.getComponentEquiped(ped, categoryHash)
-    updateComponentWearableState(ped, categoryHash, comp, data.wearableState)
+    if data.wearableState ~= 0 then
+      local comp = jo.component.getComponentEquiped(ped, categoryHash)
+      updateComponentWearableState(ped, categoryHash, comp, data.wearableState)
+    end
   else
     RemoveTagFromMetaPed(ped, categoryHash, 0)
     if categoryHash == `neckwear` then
