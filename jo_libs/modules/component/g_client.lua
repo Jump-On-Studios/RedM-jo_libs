@@ -233,6 +233,14 @@ end
 ---@param state string|integer
 local function updateComponentWearableState(ped, category, hash, state)
   category = jo.component.getCategoryNameFromHash(category)
+  if state == 0 then
+    Entity(ped).state:set("wearableState:" .. category, nil)
+    if hash then
+      jo.component.remove(ped, category)
+      jo.component.apply(ped, category, hash)
+    end
+    return
+  end
   state = GetHashFromString(state)
   Entity(ped).state:set("wearableState:" .. category, state)
   UpdateShopItemWearableState(ped, type(hash) == "table" and hash.hash or hash, state)
@@ -508,10 +516,8 @@ function jo.component.apply(ped, category, _data)
 
     addCachedComponent(ped, nil, categoryHash, data.hash, data.wearableState, data.drawable, data.albedo, data.normal, data.material, data.palette, data.tint0, data.tint1, data.tint2)
   elseif data.wearableState then
-    if data.wearableState ~= 0 then
-      local comp = jo.component.getComponentEquiped(ped, categoryHash)
-      updateComponentWearableState(ped, categoryHash, comp, data.wearableState)
-    end
+    local comp = jo.component.getComponentEquiped(ped, categoryHash)
+    updateComponentWearableState(ped, categoryHash, comp, data.wearableState)
   else
     RemoveTagFromMetaPed(ped, categoryHash, 0)
     if categoryHash == `neckwear` then
