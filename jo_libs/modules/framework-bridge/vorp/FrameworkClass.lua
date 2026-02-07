@@ -1221,8 +1221,17 @@ function jo.framework:getUserClothesInternal(source)
   return clothes
 end
 
-function jo.framework:updateUserClothesInternal(source, clothes)
+function jo.framework:updateUserClothesInternal(source, clothes, overwrite)
   local newClothes = {}
+  if overwrite then
+    newClothes = self:getUserClothes(source)
+    newClothes.bodies_upper = nil
+    newClothes.bodies_lower = nil
+    for _, data in pairs(newClothes) do
+      data.hash = 0
+    end
+    newClothes = self:revertClothes(newClothes)
+  end
   for category, value in pairs(clothes) do
     newClothes[category] = table.copy(value)
     if type(value) == "table" then
@@ -1234,7 +1243,7 @@ function jo.framework:updateUserClothesInternal(source, clothes)
     end
   end
   local user = self.UserClass:get(source)
-  local tints = UnJson(user.data.comptTints)
+  local tints = overwrite and {} or UnJson(user.data.comptTints)
   for category, value in pairs(clothes) do
     if type(value) == "table" and GetValue(value?.hash, 0) ~= 0 then
       local tint = {
@@ -1255,7 +1264,7 @@ function jo.framework:updateUserClothesInternal(source, clothes)
     end
   end
 
-  TriggerClientEvent("vorpcharacter:updateCache", source, false, newClothes)
+  TriggerClientEvent("vorpcharacter:updateCache", source, nil, newClothes)
   user.data.updateCompTints(json.encode(tints))
 end
 

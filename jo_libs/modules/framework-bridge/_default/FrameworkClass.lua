@@ -363,7 +363,7 @@ function jo.framework:getUserClothesInternal(source)
 end
 
 ---@autodoc:config ignore:true
-function jo.framework:updateUserClothesInternal(source, clothes)
+function jo.framework:updateUserClothesInternal(source, clothes, overwrite)
   return {}
 end
 

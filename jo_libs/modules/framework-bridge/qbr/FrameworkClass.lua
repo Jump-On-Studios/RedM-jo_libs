@@ -193,13 +193,17 @@ function jo.framework:getUserClothesInternal(source)
   return UnJson(clothes)
 end
 
-function jo.framework:updateUserClothesInternal(source, clothes)
+function jo.framework:updateUserClothesInternal(source, clothes, overwrite)
   local identifiers = self:getUserIdentifiers(source)
-  MySQL.scalar("SELECT clothes FROM playerskins WHERE citizenid=? ", { identifiers.identifier }, function(oldClothes)
-    local decoded = UnJson(oldClothes)
-    table.merge(decoded, clothes)
-    MySQL.update("UPDATE playerskins SET clothes=? WHERE citizenid=?", { json.encode(decoded), identifiers.identifier })
-  end)
+  if overwrite then
+    MySQL.update("UPDATE playerskins SET clothes=? WHERE citizenid=?", { json.encode(clothes), identifiers.identifier })
+  else
+    MySQL.scalar("SELECT clothes FROM playerskins WHERE citizenid=? ", { identifiers.identifier }, function(oldClothes)
+      local decoded = UnJson(oldClothes)
+      table.merge(decoded, clothes)
+      MySQL.update("UPDATE playerskins SET clothes=? WHERE citizenid=?", { json.encode(decoded), identifiers.identifier })
+    end)
+  end
 end
 
 function jo.framework:getUserSkinInternal(source)

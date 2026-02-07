@@ -171,10 +171,15 @@ function jo.framework:getUserClothesInternal(source)
   return UnJson(clothes)
 end
 
-function jo.framework:updateUserClothesInternal(source, clothes)
+function jo.framework:updateUserClothesInternal(source, clothes, overwrite)
   local user = self.UserClass:get(source)
-  local newClothes = table.merge(user.data.clothes, clothes)
-  return user.data.SetClothesData(newClothes)
+  local data = user.data.clothes
+  if overwrite then
+    data = clothes
+  else
+    table.merge(data, clothes)
+  end
+  return user.data.SetClothesData(data)
 end
 
 function jo.framework:getUserSkinInternal(source)

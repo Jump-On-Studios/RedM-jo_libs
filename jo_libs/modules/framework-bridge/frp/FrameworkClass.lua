@@ -264,7 +264,7 @@ function jo.framework:getUserClothesInternal(source)
   return clothesStandardized
 end
 
-function jo.framework:updateUserClothesInternal(source, clothes)
+function jo.framework:updateUserClothesInternal(source, clothes, overwrite)
   -- #TODO
 end
 

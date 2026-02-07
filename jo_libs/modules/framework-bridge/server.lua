@@ -481,14 +481,23 @@ end
 --- - With 2 arguments to save multiple clothes
 --- - With 3 arguments to save one piece of clothing
 ---@param source integer (The source ID of the player)
----@param _clothes table (The list of clothes to apply or the category name)
+---@param clothes table (The list of clothes to apply or the category name)
 ---@param value? table (The clothing data if updating a single category)
-function jo.framework:updateUserClothes(source, _clothes, value)
-  if value then
-    _clothes = { [_clothes] = formatComponentData(value) }
+---@param overwrite? boolean (If `true`, the new value overwrites the previous clothes. Else, it's merged)
+function jo.framework:updateUserClothes(...)
+  local args = { ... }
+  local source, clothes, overwrite = args[1], {}, false
+
+  if type(args[2]) == "string" then
+    clothes = { [args[2]] = args[3] }
+    overwrite = GetValue(args[math.max(4, #args)], overwrite)
+  else
+    clothes = args[2]
+    overwrite = GetValue(args[math.max(3, #args)], overwrite)
   end
-  local clothes = self:revertClothes(_clothes)
-  self:updateUserClothesInternal(source, clothes)
+
+  clothes = self:revertClothes(clothes)
+  self:updateUserClothesInternal(source, clothes, overwrite)
 end
 
 --- Retrieves a player's clothing data with standardized category names

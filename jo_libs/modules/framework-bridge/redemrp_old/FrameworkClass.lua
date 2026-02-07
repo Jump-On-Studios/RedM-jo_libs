@@ -152,11 +152,15 @@ function jo.framework:getUserClothesInternal(source)
   return UnJson(clothes)
 end
 
-function jo.framework:updateUserClothesInternal(source, clothes)
+function jo.framework:updateUserClothesInternal(source, clothes, overwrite)
   local identifiers = self:getUserIdentifiers(source)
   MySQL.scalar("SELECT clothes FROM clothes WHERE identifier=? AND charid=?;", { identifiers.identifier, identifiers.charid }, function(oldClothes)
     local decoded = UnJson(oldClothes)
-    table.merge(decoded, clothes)
+    if overwrite then
+      decoded = clothes
+    else
+      table.merge(decoded, clothes)
+    end
     local SQL = "UPDATE clothes SET clothes=@clothes WHERE identifier=@identifier AND charid=@charid"
     if not oldClothes then
       SQL = "INSERT INTO clothes VALUES(NULL,@identifier,@charid,@clothes)"

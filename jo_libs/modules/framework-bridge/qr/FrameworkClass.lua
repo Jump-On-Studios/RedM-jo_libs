@@ -39,7 +39,7 @@ end
 ---@param closeAfterUsed boolean if inventory needs to be closes
 ---@return boolean
 function jo.framework:registerUseItem(item, closeAfterUsed, callback)
-    if type(closeAfterUsed) == "function" then
+  if type(closeAfterUsed) == "function" then
     callback = closeAfterUsed
     closeAfterUsed = true
   end
@@ -159,13 +159,17 @@ function jo.framework:getUserClothesInternal(source)
   return UnJson(clothes)
 end
 
-function jo.framework:updateUserClothesInternal(source, clothes)
+function jo.framework:updateUserClothesInternal(source, clothes, overwrite)
   local identifiers = self:getUserIdentifiers(source)
-  MySQL.scalar("SELECT clothes FROM playerclothe WHERE citizenid=?", { identifiers.identifier }, function(oldClothes)
-    local decoded = UnJson(oldClothes)
-    table.merge(decoded, clothes)
-    MySQL.update("UPDATE playerclothe SET clothes=? WHERE citizenid=?", { json.encode(decoed), identifiers.identifier })
-  end)
+  if overwrite then
+    MySQL.update("UPDATE playerskins SET clothes=? WHERE citizenid=?", { json.encode(clothes), identifiers.identifier })
+  else
+    MySQL.scalar("SELECT clothes FROM playerclothe WHERE citizenid=?", { identifiers.identifier }, function(oldClothes)
+      local decoded = UnJson(oldClothes)
+      table.merge(decoded, clothes)
+      MySQL.update("UPDATE playerclothe SET clothes=? WHERE citizenid=?", { json.encode(decoed), identifiers.identifier })
+    end)
+  end
   return true
 end
 
