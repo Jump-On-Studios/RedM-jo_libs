@@ -1,25 +1,15 @@
 <template>
   <div class="sprite-box">
-    <div
-      class="tag"
-      :class="{ 'has-text': sprite.tagText }"
-      v-if="sprite.tagColor || sprite.tagText"
-      :style="{
-        backgroundColor: sprite.tagColor || 'white',
-        color: sprite.tagTextColor || 'black',
-      }"
-    >
+    <div class="tag" :class="{ 'has-text': sprite.tagText }" v-if="sprite.tagColor || sprite.tagText" :style="{
+      backgroundColor: sprite.tagColor || 'white',
+      color: sprite.tagTextColor || 'black',
+    }">
       {{ sprite.tagText }}
     </div>
-    <img
-      v-if="sprite.sprite"
-      :class="sprite.class"
-      :src="
-        API.isNUIImage(sprite.sprite)
-          ? sprite.sprite
-          : `./assets/images/${sprite.sprite}.png`
-      "
-    />
+    <img v-if="sprite.sprite" :class="sprite.class" :src="API.isNUIImage(sprite.sprite)
+      ? sprite.sprite
+      : `./assets/images/${sprite.sprite}.png`
+      " />
     <ColorPaletteBox v-else-if="sprite.rgb" :color="sprite" />
     <ColorPaletteBox v-else-if="sprite.palette" :color="sprite.palette" />
     <ColorPaletteBox v-else :color="sprite" />
@@ -60,6 +50,7 @@ import ColorPaletteBox from "./ColorPaletteBox.vue";
   justify-content: center;
   font-weight: bold;
   color: white;
+
   &.has-text {
     top: -1vh;
     right: -1vh;

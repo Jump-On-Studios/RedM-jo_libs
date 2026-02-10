@@ -12,7 +12,8 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, inject, onMounted, ref, watch } from 'vue';
+const API = inject('API')
 const props = defineProps(['color'])
 const tint = computed(() => {
     if (props.color.rgb) {
@@ -44,16 +45,8 @@ const tint = computed(() => {
     }
 })
 
-const icon = computed(() => {
-    return props.color.icon
-})
-
-const iconClass = computed(() => {
-    return props.color.iconClass
-})
-
 const numberColor = computed(() => { return tint.value.tints.length })
-const url = computed(() => { return props.color.palette && `./assets/images/menu/${props.color.palette}.png` })
+const url = computed(() => { return props.color.palette && `./assets/images/menu/${API.getPalette(props.color.palette)}.png` })
 
 const max = ref(1)
 function calculMax() {
@@ -97,17 +90,6 @@ function getStyleTint(index) {
         backgroundPosition: percent + "% 0px"
     }
 }
-
-function isNUIImage(url) {
-    return url.includes('://')
-}
-
-function getImage(url) {
-    if (isNUIImage(url))
-        return url
-    return `./assets/images/icons/${url}.png`
-}
-
 </script>
 
 <style lang="scss" scoped>
