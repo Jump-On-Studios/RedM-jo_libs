@@ -199,6 +199,8 @@ class API {
       case "metaped_tint_skirt_weathered":
         return "metaped_tint_generic_clean"
       case "metaped_tint_skirt_worn":
+        return "metaped_tint_generic"
+      case "metaped_tint_generic":
         return "metaped_tint_generic_clean"
 
     }

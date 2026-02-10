@@ -25,7 +25,7 @@
 <script setup>
 import ColorPaletteBox from '../ColorPaletteBox.vue';
 import SpriteBox from '../SpriteBox.vue';
-import { inject, onMounted, nextTick } from 'vue';
+import { inject, onMounted, watch } from 'vue';
 import { useLangStore } from '../../../stores/lang';
 import { useMenuStore } from '../../../stores/menus';
 const lang = useLangStore().lang
@@ -62,7 +62,7 @@ function updateScroll() {
     firstScroll = false
   }, 50);
 }
-menuStore.$subscribe(() => {
+watch(() => props.slider.current, () => {
   updateScroll()
 })
 onMounted(() => {
