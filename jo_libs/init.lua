@@ -14,7 +14,7 @@ InvokeNative = Citizen.InvokeNative
 
 local resourceName = GetCurrentResourceName()
 local jo_libs = "jo_libs"
-local modules = { "table", "print", "file", "trigger-event" }
+local modules = { "table", "print", "file", "math", "trigger-event" }
 local function noFunction() end
 local LoadResourceFile = LoadResourceFile
 local context = IsDuplicityVersion() and "server" or "client"
@@ -55,7 +55,7 @@ end
 function GetHashFromString(value)
   if type(value) == "string" then
     local number = tonumber(value)
-    if number then return number end
+    if number then return math.toSigned(number) end
     return joaat(value)
   end
   return value
@@ -396,7 +396,7 @@ local function createExport(name, cb)
 end
 
 --Sort module by priority
-local priorityModules = { table = 1, print = 2, file = 3, hook = 4 }
+local priorityModules = { table = 1, print = 2, file = 3, math = 4, hook = 5 }
 table.sort(modules, function(a, b)
   local prioA = priorityModules[a]
   local prioB = priorityModules[b]
