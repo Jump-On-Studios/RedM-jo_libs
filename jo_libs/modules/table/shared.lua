@@ -229,6 +229,7 @@ function table.addMultiLevels(...)
     table.remove(keys, 1)
   end
   local child = main
+  if type(keys[1]) == "table" then keys = keys[1] end
   for i = 1, #keys do
     local key = keys[i]
     if not child[key] then
@@ -297,6 +298,7 @@ end
 ---@return boolean, any (`true` if the value exists, else `false` / the value)
 function table.doesKeyExist(t, ...)
   local keys = { ... }
+  if type(keys[1] == "table") then keys = keys[1] end
   if not t then return false end
   local deep = t
   local numberKeys = #keys
