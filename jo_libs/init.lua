@@ -414,13 +414,11 @@ if resourceName == "jo_libs" then
   local resourceStarted = {}
 
   AddEventHandler("jo_libs:resourceStarted", function(resource)
-    log("Resource " .. resource .. " started")
     resourceStarted[resource] = true
     TriggerEvent("jo_libs:onResourceStart", resource)
   end)
 
   AddEventHandler("onResourceStop", function(resourceName)
-    log("Resource " .. resourceName .. " stopped")
     resourceStarted[resourceName] = nil
   end)
 
