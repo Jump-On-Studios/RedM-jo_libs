@@ -32,9 +32,9 @@
 </template>
 
 <script setup>
-import { onBeforeUnmount, inject, ref, computed, onBeforeMount } from 'vue';
-import palettesData from '../../../data/palettes.json'
+import { onBeforeUnmount, inject, ref, computed, watch } from 'vue';
 import { useLangStore } from '../../../stores/lang';
+import { getPaletteColors } from '../../../services/paletteLoader'
 const lang = useLangStore().lang
 import { useMenuStore } from '../../../stores/menus';
 const menuStore = useMenuStore()
@@ -47,7 +47,7 @@ if (menuStore.cMenu.type == 'tile')
 let mounted = false
 
 const paletteName = computed(() => API.getPalette(props.slider.palette || props.slider.tint))
-const colors = computed(() => palettesData[paletteName.value] || [])
+const colors = ref([])
 const stripRef = ref(null)
 const dragging = ref(false)
 
@@ -72,31 +72,61 @@ const cursorStyle = computed(() => {
   return style
 })
 
-onBeforeMount(() => {
+function normalizeSliderState() {
   const paletteMax = colors.value.length - 1
+
   if (props.slider.min == null) props.slider.min = 0
+  if (props.slider.current == null) props.slider.current = props.slider.min
+
+  if (paletteMax < 0) {
+    props.slider.max = -1
+    return
+  }
+
   if (props.slider.max == null || props.slider.max > paletteMax)
     props.slider.max = paletteMax
   if (props.slider.min > props.slider.max)
     props.slider.min = 0
   if (props.slider.current < props.slider.min)
     props.slider.current = props.slider.min
+  if (props.slider.current > props.slider.max)
+    props.slider.current = props.slider.max
   if (disabledSet.value.has(props.slider.current)) {
     const enabled = enabledIndices.value
     if (enabled.length)
       props.slider.current = enabled[0]
   }
-  mounted = true
-})
+}
 
+let paletteRequestId = 0
+watch(paletteName, async (name) => {
+  const requestId = ++paletteRequestId
+  colors.value = []
+
+  if (!name) {
+    normalizeSliderState()
+    mounted = true
+    return
+  }
+
+  const loadedColors = await getPaletteColors(name)
+  if (requestId !== paletteRequestId) return
+  colors.value = loadedColors
+  normalizeSliderState()
+  mounted = true
+}, { immediate: true })
+
+// Format the current visible tint index against the total.
 function numItem() {
   const visibleIndex = enabledIndices.value.indexOf(props.slider.current)
   return API.sprintf(lang('of'), visibleIndex + 1, enabledIndices.value.length)
 }
+// Return the slider title, translated when needed.
 function getTitle() {
   if (!props.slider.translate) return props.slider.title
   return lang(props.slider.title)
 }
+// Update the slider value when a new tint is selected.
 function selectColor(index) {
   if (!mounted) return
   if (index === props.slider.current) return
@@ -106,12 +136,15 @@ function selectColor(index) {
 let cachedRect = null
 let rafId = null
 
+// Convert a pointer X position to the corresponding enabled tint.
 function getCellIndexFromX(clientX) {
   const x = Math.max(0, Math.min(clientX - cachedRect.left, cachedRect.width - 1))
   const count = enabledIndices.value.length
+  if (!count) return props.slider.current
   const visibleIndex = Math.min(Math.floor((x / cachedRect.width) * count), count - 1)
   return enabledIndices.value[visibleIndex]
 }
+// Start dragging on the palette and attach drag listeners.
 function onDragStart(e) {
   e.preventDefault()
   dragging.value = true
@@ -120,6 +153,7 @@ function onDragStart(e) {
   window.addEventListener('mousemove', onDragMove)
   window.addEventListener('mouseup', onDragEnd)
 }
+// Throttle drag updates to once per animation frame.
 function onDragMove(e) {
   if (rafId) return
   rafId = requestAnimationFrame(() => {
@@ -127,6 +161,7 @@ function onDragMove(e) {
     rafId = null
   })
 }
+// Stop dragging and remove temporary listeners.
 function onDragEnd() {
   dragging.value = false
   if (rafId) {
@@ -136,6 +171,7 @@ function onDragEnd() {
   window.removeEventListener('mousemove', onDragMove)
   window.removeEventListener('mouseup', onDragEnd)
 }
+// Resolve the left helper key label for the active row.
 function leftKey() {
   if (fakeIndex.value == 0) return '←'
   if (fakeIndex.value == 1) {
@@ -146,11 +182,13 @@ function leftKey() {
   }
   if (fakeIndex.value == 2) return "4"
 }
+// Resolve the right helper key label for the active row.
 function rightKey() {
   if (fakeIndex.value == 0) return '→'
   if (fakeIndex.value == 1) return "E"
   if (fakeIndex.value == 2) return "6"
 }
+// Clean up listeners when the component is destroyed.
 onBeforeUnmount(() => {
   mounted = false
   window.removeEventListener('mousemove', onDragMove)

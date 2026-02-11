@@ -6,8 +6,8 @@
 </template>
 
 <script setup>
-import { computed, inject } from 'vue';
-import palettesData from '../../data/palettes.json'
+import { computed, inject, ref, watch } from 'vue';
+import { getPaletteColors } from '../../services/paletteLoader'
 const API = inject('API')
 const props = defineProps(['color'])
 const tint = computed(() => {
@@ -52,17 +52,34 @@ const keyUpdate = computed(() => {
     return key
 })
 
+const paletteColors = ref([])
+const resolvedPaletteName = computed(() => {
+    if (tint.value.palette == 'rgb') return ''
+    return API.getPalette(tint.value.palette)
+})
+
+let paletteRequestId = 0
+watch(resolvedPaletteName, async (paletteName) => {
+    const requestId = ++paletteRequestId
+    if (!paletteName) {
+        paletteColors.value = []
+        return
+    }
+
+    const colors = await getPaletteColors(paletteName)
+    if (requestId !== paletteRequestId) return
+    paletteColors.value = colors
+}, { immediate: true })
+
 function getStyleTint(index) {
     if (tint.value.palette == 'rgb')
         return {
             'background-color': tint.value.tints[index]
         }
 
-    const paletteName = API.getPalette(tint.value.palette)
-    const colors = palettesData[paletteName]
-    const value = tint.value.tints[index]
+    const value = Number(tint.value.tints[index])
     return {
-        'background-color': colors?.[value] || '#000000'
+        'background-color': paletteColors.value?.[value] || '#000000'
     }
 }
 </script>
