@@ -603,8 +603,11 @@ export const useMenuStore = defineStore("menus", {
       if (!slider) return;
 
       if (slider.type == "palette") {
-        if (slider.current <= (slider.min || 0)) return;
-        slider.current--;
+        const disabled = new Set(slider.disabledTints || [])
+        let next = slider.current - 1
+        while (next >= (slider.min || 0) && disabled.has(next)) next--
+        if (next < (slider.min || 0)) return;
+        slider.current = next;
       } else if (slider.type == "grid") {
         return this.gridLeft(index);
       } else {
@@ -634,8 +637,11 @@ export const useMenuStore = defineStore("menus", {
       if (!slider) return;
 
       if (slider.type == "palette") {
-        if (slider.current == slider.max) return;
-        slider.current++;
+        const disabled = new Set(slider.disabledTints || [])
+        let next = slider.current + 1
+        while (next <= slider.max && disabled.has(next)) next++
+        if (next > slider.max) return;
+        slider.current = next;
       } else if (slider.type == "grid") {
         return this.gridRight(index);
       } else {
