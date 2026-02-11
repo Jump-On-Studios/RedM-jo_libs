@@ -17,6 +17,7 @@ local function normalizeEntry(entry)
   end
 
   if entry.item then
+    jo.require("framework", true)
     return table.merge({
       item = entry.item,
       quantity = entry.quantity or 1,

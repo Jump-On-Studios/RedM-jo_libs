@@ -201,10 +201,12 @@ local function waitInventoryItems()
   while table.isEmpty(jo.framework.inventoryItems) do Wait(10) end
 end
 
-jo.ready(function()
-  Wait(1000)
-  jo.framework.inventoryItems = exports.jo_libs:jo_framework_getInventoryItems()
-end)
+if jo.resourceName ~= "jo_libs" then
+  jo.ready(function()
+    Wait(1000)
+    jo.framework.inventoryItems = exports.jo_libs:jo_framework_getInventoryItems()
+  end)
+end
 
 --- A function to get the list of items
 ---@return table (The list of items)
