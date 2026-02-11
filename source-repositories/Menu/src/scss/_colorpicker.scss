@@ -30,7 +30,8 @@
     gap: 0.25em;
     align-items: center;
     margin-top: 1vh;
-    padding-bottom: 0.25em;
+    padding: 0.5vh 1.4vh 0.25em;
+    overflow: clip;
 
     .keyHelpers {
       &>div {
