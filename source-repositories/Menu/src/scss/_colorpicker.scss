@@ -1,29 +1,27 @@
 .colorPicker {
-  input {
-    -webkit-appearance: none;
+  .palette-strip {
     flex: 1;
+    display: flex;
     height: 2vh;
-    background-color: transparent;
-    background-size: calc(100% - 2.4vh) 100%;
-    background-position-x: 1.2vh;
-    background-repeat: no-repeat;
-    background-color: transparent;
-    color: white;
-    image-rendering: pixelated;
-  }
-
-  .palette::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    box-shadow: none;
-    border-color: transparent;
-    background-image: url('/assets/images/menu/circle-target.png');
-    background-size: 100%;
-    background-position: 0 0;
-    background-repeat: no-repeat;
-    height: 2.8vh;
-    width: 2.8vh;
     position: relative;
-    margin-top: -0.1vh;
+
+    .palette-cell {
+      flex: 1;
+      cursor: pointer;
+    }
+
+    .palette-cursor {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 2.8vh;
+      height: 2.8vh;
+      background-image: url('/assets/images/menu/circle-target.png');
+      background-size: 100%;
+      background-repeat: no-repeat;
+      pointer-events: none;
+      transition: left 0.05s ease-out;
+    }
   }
 
   .colorSlider {

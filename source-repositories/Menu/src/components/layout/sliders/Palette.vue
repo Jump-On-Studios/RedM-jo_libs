@@ -12,7 +12,16 @@
           {{ leftKey() }}
         </div>
       </div>
-      <input type="range" min=0 :max="max" :class="['palette', 'max-' + max]" :style="background()" :value="props.slider.current" @input="change" />
+      <div class="palette-strip">
+        <div
+          v-for="(color, i) in colors"
+          :key="i"
+          class="palette-cell"
+          :style="{ backgroundColor: color }"
+          @click="selectColor(i)"
+        />
+        <div class="palette-cursor" :style="cursorStyle" />
+      </div>
       <div :class="['keyHelpers', 'index-' + fakeIndex]" v-if="fakeIndex > 0">
         <div class=" right" ref="keyRight">
           {{ rightKey() }}
@@ -24,7 +33,8 @@
 </template>
 
 <script setup>
-import { onBeforeUnmount, inject, ref, computed, onBeforeMount, watch } from 'vue';
+import { onBeforeUnmount, inject, ref, computed, onBeforeMount } from 'vue';
+import palettesData from '../../../data/palettes.json'
 import { useLangStore } from '../../../stores/lang';
 const lang = useLangStore().lang
 import { useMenuStore } from '../../../stores/menus';
@@ -35,46 +45,34 @@ const props = defineProps(['index', 'slider', 'last'])
 let fakeIndex = ref(props.index)
 if (menuStore.cMenu.type == 'tile')
   fakeIndex.value += 1
-const max = ref(1)
 let mounted = false
 
-const url = computed(() => { return `./assets/images/menu/${API.getPalette(props.slider.palette || props.slider.tint)}.png` })
+const paletteName = computed(() => API.getPalette(props.slider.palette || props.slider.tint))
+const colors = computed(() => palettesData[paletteName.value] || [])
 
-function CalculMaxValue() {
-  const img = new Image();
-  img.src = url.value;
-
-  img.onload = function () {
-    max.value = img.naturalWidth - 1; // Largeur originale de l'image
-  };
-}
+const cursorStyle = computed(() => {
+  const total = colors.value.length
+  if (!total) return {}
+  const percent = (props.slider.current / total) * 100
+  const halfCell = 100 / total / 2
+  return { left: `calc(${percent + halfCell}% - 1.4vh)` }
+})
 
 onBeforeMount(() => {
-  CalculMaxValue()
   mounted = true
 })
-watch(url, () => {
-  CalculMaxValue()
-})
 
-function background() {
-  return { backgroundImage: `url(${url.value}` }
-}
 function numItem() {
-  return API.sprintf(lang('of'), props.slider.current + 1, max.value + 1)
+  return API.sprintf(lang('of'), props.slider.current + 1, props.slider.max + 1)
 }
 function getTitle() {
   if (!props.slider.translate) return props.slider.title
   return lang(props.slider.title)
 }
-function change(e) {
+function selectColor(index) {
   if (!mounted) return
-
-  let value = e.target.value
-  e.target.blur()
-
-  if (value == props.slider.current) return
-  menuStore.setSliderCurrent({ index: props.index, value: parseInt(value) })
+  if (index === props.slider.current) return
+  menuStore.setSliderCurrent({ index: props.index, value: index })
 }
 function leftKey() {
   if (fakeIndex.value == 0) return '←'
