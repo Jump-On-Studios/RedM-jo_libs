@@ -62,6 +62,9 @@ const cursorStyle = computed(() => {
 })
 
 onBeforeMount(() => {
+  const paletteMax = colors.value.length - 1
+  if (props.slider.max == null || props.slider.max > paletteMax)
+    props.slider.max = paletteMax
   mounted = true
 })
 
