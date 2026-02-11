@@ -1,18 +1,13 @@
 <template>
-    <div :class="['color-custom color-' + numberColor, props.color.style]" :key="keyUpdate" ref="boxParent">
-        <template v-if="tint.palette == 'rgb'">
-            <div v-for="index in numberColor" :key="index" :class="'tint tint' + (index - 1)" :style="getStyleTint(index - 1)"></div>
-            <div class="border"></div>
-        </template>
-        <template v-else>
-            <div v-for="index in numberColor" :key="index" :class="'tint tint' + (index - 1)" :style="getStyleTint(index - 1)"></div>
-            <div class="border"></div>
-        </template>
+    <div :class="['color-custom color-' + numberColor, props.color.style]" :key="keyUpdate">
+        <div v-for="index in numberColor" :key="index" :class="'tint tint' + (index - 1)" :style="getStyleTint(index - 1)"></div>
+        <div class="border"></div>
     </div>
 </template>
 
 <script setup>
-import { computed, inject, onMounted, ref, watch } from 'vue';
+import { computed, inject } from 'vue';
+import palettesData from '../../data/palettes.json'
 const API = inject('API')
 const props = defineProps(['color'])
 const tint = computed(() => {
@@ -46,25 +41,6 @@ const tint = computed(() => {
 })
 
 const numberColor = computed(() => { return tint.value.tints.length })
-const url = computed(() => { return props.color.palette && `./assets/images/menu/${API.getPalette(props.color.palette)}.png` })
-
-const max = ref(1)
-function calculMax() {
-    if (!url.value)
-        return
-    const img = new Image();
-    img.src = url.value;
-    img.onload = function () {
-        max.value = img.naturalWidth - 1; // Largeur originale de l'image
-    };
-}
-
-onMounted(() => {
-    calculMax()
-})
-watch(url, () => {
-    calculMax()
-})
 
 const keyUpdate = computed(() => {
     let key = ""
@@ -82,12 +58,11 @@ function getStyleTint(index) {
             'background-color': tint.value.tints[index]
         }
 
-    let value = tint.value.tints[index]
-
-    let percent = Math.min((value / max.value) * 100, 100)
+    const paletteName = API.getPalette(tint.value.palette)
+    const colors = palettesData[paletteName]
+    const value = tint.value.tints[index]
     return {
-        backgroundImage: "url(" + url.value + ")",
-        backgroundPosition: percent + "% 0px"
+        'background-color': colors?.[value] || '#000000'
     }
 }
 </script>

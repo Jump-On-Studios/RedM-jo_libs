@@ -37,10 +37,10 @@ let menu = {
           values: [
             {
               palette: {
-                tint0: 1,
-                tint1: 20,
-                tint2: 30,
-                palette: "tint_generic_clean",
+                tint0: 23,
+                tint1: 35,
+                tint2: 42,
+                palette: "metaped_tint_makeup",
               },
               icon: "lock",
               iconClass: "fred",
