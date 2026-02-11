@@ -735,9 +735,17 @@ let menu = {
     {
       title: "This is the title",
       icon: "male",
-      price: 4,
       description: "test",
       textRight: "The text right",
+      sliders: [
+        {
+          type: "palette",
+          title: "tint",
+          tint: "tint_makeup",
+          max: 63,
+          current: 14,
+        },
+      ],
     },
     {
       icon: "outfit",
