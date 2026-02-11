@@ -408,6 +408,48 @@ table.sort(modules, function(a, b)
   return a < b
 end)
 -------------
+-- SYNC STARTS
+-------------
+if resourceName == "jo_libs" then
+  local resourceStarted = {}
+
+  AddEventHandler("jo_libs:resourceStarted", function(resource)
+    log("Resource " .. resource .. " started")
+    resourceStarted[resource] = true
+    TriggerEvent("jo_libs:onResourceStart", resource)
+  end)
+
+  AddEventHandler("onResourceStop", function(resourceName)
+    log("Resource " .. resourceName .. " stopped")
+    resourceStarted[resourceName] = nil
+  end)
+
+  exports("isResourceStarted", function(resource)
+    return resourceStarted[resource] == true
+  end)
+end
+
+local onReadyActions = {}
+function jo.onResourceStart(resource, cb)
+  jo.waitLibLoading()
+  onReadyActions[resource] = onReadyActions[resource] or {}
+  table.insert(onReadyActions[resource], cb)
+  local isStarted = exports.jo_libs:isResourceStarted(resource)
+  if isStarted then
+    CreateThreadNow(cb)
+  end
+end
+
+AddEventHandler("jo_libs:onResourceStart", function(resource)
+  if not onReadyActions[resource] then return end
+  for i = 1, #onReadyActions[resource] do
+    CreateThreadNow(onReadyActions[resource][i])
+  end
+end)
+
+
+
+-------------
 -- LOAD REQUIRED MODULES
 -------------
 for i = 1, #modules do
@@ -424,3 +466,6 @@ for i = 1, #modules do
   end
 end
 jo.libLoaded = true
+jo.ready(function()
+  TriggerEvent("jo_libs:resourceStarted", resourceName)
+end)
