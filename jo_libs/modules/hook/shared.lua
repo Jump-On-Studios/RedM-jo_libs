@@ -17,7 +17,8 @@ function jo.hook.registerAction(name, fct, priority)
   if not listActions[name] then listActions[name] = {} end
   local pos = 1
   priority = priority or 10
-  for i, action in ipairs(listActions[name]) do
+  for i = 1, #listActions[name] do
+    local action = listActions[name][i]
     if action.priority <= priority then
       pos = i + 1
     else
@@ -62,7 +63,8 @@ function jo.hook.registerFilter(name, fct, priority)
   if not listFilters[name] then listFilters[name] = {} end
   local pos = 1
   priority = priority or 10
-  for i, filter in ipairs(listFilters[name]) do
+  for i = 1, #listFilters[name] do
+    local filter = listFilters[name][i]
     if filter.priority <= priority then
       pos = i + 1
     else

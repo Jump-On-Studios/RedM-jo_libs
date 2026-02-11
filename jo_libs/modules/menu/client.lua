@@ -987,7 +987,8 @@ end
 ---@deprecated since v2.4.0. Use MenuClass:addItem in a loop instead
 function MenuClass:addItems(items)
   oprint("Warning : addItems has potential memory leak, use addItem in a loop instead")
-  for _, item in ipairs(items) do
+  for i = 1, #items do
+    local item = items[i]
     self:addItem(item)
   end
 end
