@@ -14,7 +14,7 @@
       </div>
       <div class="palette-strip" ref="stripRef" @mousedown="onDragStart">
         <div
-          v-for="(color, i) in colors.slice(0, props.slider.max + 1)"
+          v-for="(color, i) in colors.slice(props.slider.min, props.slider.max + 1)"
           :key="i"
           class="palette-cell"
           :style="{ backgroundColor: color }"
@@ -52,9 +52,9 @@ const stripRef = ref(null)
 const dragging = ref(false)
 
 const cursorStyle = computed(() => {
-  const total = props.slider.max + 1
+  const total = props.slider.max - props.slider.min + 1
   if (!total) return {}
-  const percent = (props.slider.current / total) * 100
+  const percent = ((props.slider.current - props.slider.min) / total) * 100
   const halfCell = 100 / total / 2
   const style = { left: `calc(${percent + halfCell}% - 1.4vh)` }
   if (dragging.value) style.transition = 'none'
@@ -63,13 +63,18 @@ const cursorStyle = computed(() => {
 
 onBeforeMount(() => {
   const paletteMax = colors.value.length - 1
+  if (props.slider.min == null) props.slider.min = 0
   if (props.slider.max == null || props.slider.max > paletteMax)
     props.slider.max = paletteMax
+  if (props.slider.min > props.slider.max)
+    props.slider.min = 0
+  if (props.slider.current < props.slider.min)
+    props.slider.current = props.slider.min
   mounted = true
 })
 
 function numItem() {
-  return API.sprintf(lang('of'), props.slider.current + 1, props.slider.max + 1)
+  return API.sprintf(lang('of'), props.slider.current - props.slider.min + 1, props.slider.max - props.slider.min + 1)
 }
 function getTitle() {
   if (!props.slider.translate) return props.slider.title
@@ -86,8 +91,10 @@ let rafId = null
 
 function getCellIndexFromX(clientX) {
   const x = Math.max(0, Math.min(clientX - cachedRect.left, cachedRect.width - 1))
+  const min = props.slider.min
   const max = props.slider.max
-  return Math.min(Math.floor((x / cachedRect.width) * (max + 1)), max)
+  const count = max - min + 1
+  return min + Math.min(Math.floor((x / cachedRect.width) * count), count - 1)
 }
 function onDragStart(e) {
   e.preventDefault()
