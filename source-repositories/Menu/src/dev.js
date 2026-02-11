@@ -744,7 +744,7 @@ let menu = {
           title: "tint",
           tint: "tint_makeup",
           max: 63,
-          current: 14,
+          current: 0,
         },
       ],
     },
