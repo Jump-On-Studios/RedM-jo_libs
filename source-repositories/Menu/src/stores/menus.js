@@ -603,7 +603,7 @@ export const useMenuStore = defineStore("menus", {
       if (!slider) return;
 
       if (slider.type == "palette") {
-        if (slider.current <= 0) return;
+        if (slider.current <= (slider.min || 0)) return;
         slider.current--;
       } else if (slider.type == "grid") {
         return this.gridLeft(index);
