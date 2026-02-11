@@ -14,10 +14,10 @@
       </div>
       <div class="palette-strip" ref="stripRef" @mousedown="onDragStart">
         <div
-          v-for="(color, i) in colors.slice(props.slider.min, props.slider.max + 1)"
-          :key="i"
+          v-for="(idx, i) in enabledIndices"
+          :key="idx"
           class="palette-cell"
-          :style="{ backgroundColor: color }"
+          :style="{ backgroundColor: colors[idx] }"
         />
         <div class="palette-cursor" :style="cursorStyle" />
       </div>
@@ -51,10 +51,21 @@ const colors = computed(() => palettesData[paletteName.value] || [])
 const stripRef = ref(null)
 const dragging = ref(false)
 
+const disabledSet = computed(() => new Set(props.slider.disabledTints || []))
+const enabledIndices = computed(() => {
+  const result = []
+  for (let i = props.slider.min; i <= props.slider.max; i++) {
+    if (!disabledSet.value.has(i)) result.push(i)
+  }
+  return result
+})
+
 const cursorStyle = computed(() => {
-  const total = props.slider.max - props.slider.min + 1
+  const total = enabledIndices.value.length
   if (!total) return {}
-  const percent = ((props.slider.current - props.slider.min) / total) * 100
+  const visibleIndex = enabledIndices.value.indexOf(props.slider.current)
+  if (visibleIndex === -1) return {}
+  const percent = (visibleIndex / total) * 100
   const halfCell = 100 / total / 2
   const style = { left: `calc(${percent + halfCell}% - 1.4vh)` }
   if (dragging.value) style.transition = 'none'
@@ -70,11 +81,17 @@ onBeforeMount(() => {
     props.slider.min = 0
   if (props.slider.current < props.slider.min)
     props.slider.current = props.slider.min
+  if (disabledSet.value.has(props.slider.current)) {
+    const enabled = enabledIndices.value
+    if (enabled.length)
+      props.slider.current = enabled[0]
+  }
   mounted = true
 })
 
 function numItem() {
-  return API.sprintf(lang('of'), props.slider.current - props.slider.min + 1, props.slider.max - props.slider.min + 1)
+  const visibleIndex = enabledIndices.value.indexOf(props.slider.current)
+  return API.sprintf(lang('of'), visibleIndex + 1, enabledIndices.value.length)
 }
 function getTitle() {
   if (!props.slider.translate) return props.slider.title
@@ -91,10 +108,9 @@ let rafId = null
 
 function getCellIndexFromX(clientX) {
   const x = Math.max(0, Math.min(clientX - cachedRect.left, cachedRect.width - 1))
-  const min = props.slider.min
-  const max = props.slider.max
-  const count = max - min + 1
-  return min + Math.min(Math.floor((x / cachedRect.width) * count), count - 1)
+  const count = enabledIndices.value.length
+  const visibleIndex = Math.min(Math.floor((x / cachedRect.width) * count), count - 1)
+  return enabledIndices.value[visibleIndex]
 }
 function onDragStart(e) {
   e.preventDefault()
