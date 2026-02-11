@@ -12,13 +12,12 @@
           {{ leftKey() }}
         </div>
       </div>
-      <div class="palette-strip">
+      <div class="palette-strip" ref="stripRef" @mousedown="onDragStart">
         <div
-          v-for="(color, i) in colors"
+          v-for="(color, i) in colors.slice(0, props.slider.max + 1)"
           :key="i"
           class="palette-cell"
           :style="{ backgroundColor: color }"
-          @click="selectColor(i)"
         />
         <div class="palette-cursor" :style="cursorStyle" />
       </div>
@@ -49,13 +48,17 @@ let mounted = false
 
 const paletteName = computed(() => API.getPalette(props.slider.palette || props.slider.tint))
 const colors = computed(() => palettesData[paletteName.value] || [])
+const stripRef = ref(null)
+const dragging = ref(false)
 
 const cursorStyle = computed(() => {
-  const total = colors.value.length
+  const total = props.slider.max + 1
   if (!total) return {}
   const percent = (props.slider.current / total) * 100
   const halfCell = 100 / total / 2
-  return { left: `calc(${percent + halfCell}% - 1.4vh)` }
+  const style = { left: `calc(${percent + halfCell}% - 1.4vh)` }
+  if (dragging.value) style.transition = 'none'
+  return style
 })
 
 onBeforeMount(() => {
@@ -74,6 +77,39 @@ function selectColor(index) {
   if (index === props.slider.current) return
   menuStore.setSliderCurrent({ index: props.index, value: index })
 }
+
+let cachedRect = null
+let rafId = null
+
+function getCellIndexFromX(clientX) {
+  const x = Math.max(0, Math.min(clientX - cachedRect.left, cachedRect.width - 1))
+  const max = props.slider.max
+  return Math.min(Math.floor((x / cachedRect.width) * (max + 1)), max)
+}
+function onDragStart(e) {
+  e.preventDefault()
+  dragging.value = true
+  cachedRect = stripRef.value.getBoundingClientRect()
+  selectColor(getCellIndexFromX(e.clientX))
+  window.addEventListener('mousemove', onDragMove)
+  window.addEventListener('mouseup', onDragEnd)
+}
+function onDragMove(e) {
+  if (rafId) return
+  rafId = requestAnimationFrame(() => {
+    selectColor(getCellIndexFromX(e.clientX))
+    rafId = null
+  })
+}
+function onDragEnd() {
+  dragging.value = false
+  if (rafId) {
+    cancelAnimationFrame(rafId)
+    rafId = null
+  }
+  window.removeEventListener('mousemove', onDragMove)
+  window.removeEventListener('mouseup', onDragEnd)
+}
 function leftKey() {
   if (fakeIndex.value == 0) return '←'
   if (fakeIndex.value == 1) {
@@ -91,5 +127,7 @@ function rightKey() {
 }
 onBeforeUnmount(() => {
   mounted = false
+  window.removeEventListener('mousemove', onDragMove)
+  window.removeEventListener('mouseup', onDragEnd)
 })
 </script>
