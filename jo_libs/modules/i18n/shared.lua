@@ -69,10 +69,10 @@ end
 --- Register a callback to be called when the locale changes
 ---@param callback function (The callback to register)
 ---@param priority number (The priority of the callback)
-function jo.i18n.onLocaleChanged(callback, priority)
-  jo.hook.registerAction("jo_i18n_locale_changed", callback, priority)
+function jo.i18n.onLocaleChange(callback, priority)
+  jo.hook.registerAction("jo_i18n_locale_change", callback, priority)
 end
-exports("onLocaleChanged", jo.i18n.onLocaleChanged)
+exports("onLocaleChange", jo.i18n.onLocaleChange)
 
 --- Find missing keys in a locale
 ---@param locale string (The locale to check)
