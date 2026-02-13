@@ -1,4 +1,4 @@
-jo.nui = {}
+jo.createModule("nui")
 local nuiLoaded = {}
 
 --- Loads a NUI interface

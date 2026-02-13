@@ -1,4 +1,4 @@
-jo.gameEvents = {}
+jo.createModule("gameEvents")
 
 jo.gameEvents.eventListened = {}
 

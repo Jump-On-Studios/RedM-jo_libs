@@ -1,4 +1,4 @@
-jo.file = {}
+jo.createModule("file")
 
 local function convertModName(modname)
   local modpath = modname:gsub("%.", "/")
@@ -27,7 +27,8 @@ function jo.file.load(modname)
   local file, resource, modpath = jo.file.read(modname)
 
   if not file then
-    return false, eprint(modname, ": Impossible to load. File doesn't exist.")
+    print(("\n^1Impossible to load. File doesn't exist: %s^0"):format(modname))
+    return false
   end
 
   local fn, err = load(file, ("@@%s/%s.lua"):format(resource, modpath))
@@ -41,7 +42,8 @@ function jo.file.load(modname)
   local success, result = pcall(fn)
 
   if not success then
-    return false, eprint(("Error loading file (%s):\n %s"):format(modname, result))
+    print(("\n^1Error loading file (%s): %s^0"):format(modname, result))
+    return false
   end
   return result
 end

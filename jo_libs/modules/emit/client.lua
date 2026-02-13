@@ -1,4 +1,4 @@
-jo.emit = {}
+jo.createModule("emit")
 
 local eventsInProgress = {}
 

@@ -1,4 +1,4 @@
-jo.debugger = {}
+jo.createModule("debugger")
 
 --- Measures the performance of a callback function execution.
 ---@param title? string (Title for the performance measurement - default:"")

@@ -1,4 +1,4 @@
-jo.pedTexture = {}
+jo.createModule("pedTexture")
 
 jo.require("utils")
 jo.require("table")

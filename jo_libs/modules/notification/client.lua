@@ -1,4 +1,4 @@
-jo.notif = {}
+jo.createModule("notif")
 
 if not DataView then
   jo.require("dataview")

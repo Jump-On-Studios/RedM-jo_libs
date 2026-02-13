@@ -1,5 +1,5 @@
 local delays = {}
-jo.timeout = {}
+jo.createModule("timeout")
 
 jo.require("table")
 

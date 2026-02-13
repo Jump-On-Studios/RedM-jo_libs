@@ -223,6 +223,13 @@ local jo = setmetatable({
   __call = noFunction
 })
 
+function jo.createModule(name)
+  if not rawget(jo, name) then
+    rawset(jo, name, {})
+  end
+  return rawget(jo, name)
+end
+
 function jo.waitLibLoading()
   while not jo.libLoaded do
     Wait(0)

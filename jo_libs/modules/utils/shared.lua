@@ -1,4 +1,4 @@
-jo.utils = {}
+jo.createModule("utils")
 
 --- A function to convert a value to table if it's not already a table
 ---@param value any (The value to move inside a table)

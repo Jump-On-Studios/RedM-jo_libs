@@ -1,4 +1,4 @@
-jo.screen = {}
+jo.createModule("screen")
 
 --- Fades the screen in with specified duration
 ---@param duration? integer (Duration of the fade in ms <br> default: 500)

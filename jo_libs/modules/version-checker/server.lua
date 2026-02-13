@@ -4,7 +4,7 @@
 
 jo.require("string")
 
-jo.versionChecker = {}
+jo.createModule("versionChecker")
 
 if GetCurrentResourceName() == "jo_libs" then
   AddEventHandler("jo_libs:kill:resource", function(resource)

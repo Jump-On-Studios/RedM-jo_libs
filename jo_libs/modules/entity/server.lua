@@ -1,4 +1,4 @@
-jo.entity = {}
+jo.createModule("entity")
 
 --- Delete an entity if it exists
 ---@param entity integer (The entity ID to delete)

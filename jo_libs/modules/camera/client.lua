@@ -1,4 +1,4 @@
-jo.camera = {}
+jo.createModule("camera")
 
 jo.require("prompt")
 jo.require("math")

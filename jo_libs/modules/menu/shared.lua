@@ -1,4 +1,4 @@
-jo.menu = {}
+jo.createModule("menu")
 jo.require("table")
 
 local validPriceKeys = {

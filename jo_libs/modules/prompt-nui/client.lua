@@ -1,4 +1,4 @@
-jo.promptNui = {}
+jo.createModule("promptNui")
 jo.require("table")
 jo.require("raw-keys")
 

@@ -51,4 +51,4 @@ function math.toSigned(n)
   return n
 end
 
-jo.math = {}
+jo.createModule("math")

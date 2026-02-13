@@ -1,4 +1,4 @@
-jo.input = {}
+jo.createModule("input")
 
 local nuiResult = nil
 local nuiOpened = false

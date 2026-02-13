@@ -1,4 +1,4 @@
-jo.clipboard = {}
+jo.createModule("clipboard")
 
 
 --- Copy a string to the user clipboard

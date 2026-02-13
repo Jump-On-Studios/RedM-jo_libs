@@ -1,4 +1,4 @@
-jo.hook = {}
+jo.createModule("hook")
 
 if not table.filter then
   jo.require("table")

@@ -7,7 +7,7 @@ local unpack = table.unpack
 local insert = table.insert
 jo.require("emit")
 
-jo.callback = {}
+jo.createModule("callback")
 
 local function isAFunction(cb)
   local cbType = type(cb)
@@ -52,12 +52,18 @@ local function executeCallback(name, ...)
   return registeredCallback[name].cb(...)
 end
 
+local function doesCallbackExist(name)
+  if registeredCallback[name] ~= nil then return true end
+  Wait(5000)
+  return registeredCallback[name] ~= nil
+end
+
 --- A function to trigger a server callback
 ---@param name string (Name of the callback event)
 ---@param cb? function (Function to receive the result of the event)
 ---@param ...? any (The list of parameters to send to the callback event)
 function jo.callback.triggerServer(name, cb, ...)
-  if not registeredCallback[name] then return false, eprint("Function: No server callback for:", name) end
+  if not doesCallbackExist(name) then return false, eprint("Function: No server callback for:", name) end
 
   local cbType = isAFunction(cb) and "function" or "other"
   local args = { ... }
@@ -74,7 +80,7 @@ end
 
 RegisterServerEvent("jo_libs:triggerCallback", function(name, requestId, fromRessource, ...)
   local source = source
-  if not registeredCallback[name] then return eprint("Event: No server callback for:", name) end
+  if not doesCallbackExist(name) then return eprint("Event: No server callback for:", name) end
 
   local trigger = registeredCallback[name].latent and jo.emit.triggerClient.latent or TriggerClientEvent
 

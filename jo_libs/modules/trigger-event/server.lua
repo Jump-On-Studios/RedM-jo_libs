@@ -1,4 +1,4 @@
-jo.triggerEvent = {}
+jo.createModule("triggerEvent")
 
 --- Trigger an event on the server side
 ---@deprecated since v2.3.7. Use jo.emit.triggerServerWithSource instead

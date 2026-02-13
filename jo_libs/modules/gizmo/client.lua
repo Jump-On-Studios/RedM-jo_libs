@@ -1,4 +1,4 @@
-jo.gizmo = {}
+jo.createModule("gizmo")
 
 jo.require("nui")
 jo.require("prompt")

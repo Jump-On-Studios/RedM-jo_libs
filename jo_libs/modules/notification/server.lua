@@ -1,4 +1,4 @@
-jo.notif = {}
+jo.createModule("notif")
 
 
 --- Notification on the right with icon, color and sound

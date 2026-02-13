@@ -1,5 +1,5 @@
 local Blips = {}
-jo.blip = {}
+jo.createModule("blip")
 
 jo.stopped(function()
   for _, blip in pairs(Blips) do

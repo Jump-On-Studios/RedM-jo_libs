@@ -1,4 +1,4 @@
-jo.date = {}
+jo.createModule("date")
 
 --- A function to get the current time
 ---@return integer (The current time in ms)

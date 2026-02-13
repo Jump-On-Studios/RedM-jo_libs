@@ -6,7 +6,7 @@ local pack = table.pack
 local unpack = table.unpack
 local insert = table.insert
 
-jo.callback = {}
+jo.createModule("callback")
 
 --- Function to check if a variable is a callable function.
 --- Checks both direct functions and tables with __call metamethod.

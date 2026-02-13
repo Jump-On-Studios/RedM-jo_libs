@@ -2,11 +2,11 @@
 ---@field core table (The link with the framework)
 ---@field inv table (The link with the inventory)
 ---@field inventoryItems table (The list of items)
-jo.framework = {
-  core = {},
-  inv = {},
-  inventoryItems = {},
-}
+jo.createModule("framework")
+jo.framework.core = {}
+jo.framework.inv = {}
+jo.framework.inventoryItems = {}
+
 
 local frameworkDetected
 

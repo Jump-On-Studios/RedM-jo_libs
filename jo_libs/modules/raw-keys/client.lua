@@ -1,4 +1,4 @@
-jo.rawKeys = {}
+jo.createModule("rawKeys")
 
 local events = {}
 

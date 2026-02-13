@@ -3,7 +3,7 @@ local lastKey = 0
 local promptHidden = {}
 local promptLabels = {}
 
-jo.prompt = {}
+jo.createModule("prompt")
 
 jo.require("timeout")
 jo.require("table")

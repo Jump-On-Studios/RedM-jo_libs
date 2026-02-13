@@ -1,4 +1,4 @@
-jo.string = {}
+jo.createModule("string")
 -- todo add usePostProcess=false
 ---@format disable-next
 local accentMap = {

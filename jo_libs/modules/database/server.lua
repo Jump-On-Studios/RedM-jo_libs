@@ -1,4 +1,4 @@
-jo.database = {}
+jo.createModule("database")
 
 jo.file.load("@oxmysql.lib.MySQL")
 

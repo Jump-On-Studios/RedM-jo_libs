@@ -1,4 +1,4 @@
-jo.ui = {}
+jo.createModule("ui")
 
 --- Updates the rank element on the top left of weapon wheel
 ---@param level integer (The level printed in the left of the element)

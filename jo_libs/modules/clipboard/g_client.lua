@@ -1,4 +1,4 @@
-jo.clipboard = {}
+jo.createModule("clipboard")
 
 jo.require("nui")
 

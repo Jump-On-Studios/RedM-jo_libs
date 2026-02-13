@@ -1,4 +1,4 @@
-jo.animation = {}
+jo.createModule("animation")
 
 jo.animation.easeIn = 4.0
 jo.animation.easeOut = -4.

@@ -1,4 +1,4 @@
-jo.waiter = {}
+jo.createModule("waiter")
 local context = IsDuplicityVersion() and "server" or "client"
 
 local function getTime()

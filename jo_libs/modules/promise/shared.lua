@@ -1,4 +1,4 @@
-jo.promise = {}
+jo.createModule("promise")
 
 --- Creates a new Promise that wraps a callback function
 --- This utility transforms callback-style functions into Promise-returning functions

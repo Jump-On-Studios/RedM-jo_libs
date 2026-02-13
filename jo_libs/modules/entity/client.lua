@@ -1,7 +1,7 @@
 jo.require("utils")
 jo.require("dataview")
 
-jo.entity = {}
+jo.createModule("entity")
 local Entities = {}
 
 -------------

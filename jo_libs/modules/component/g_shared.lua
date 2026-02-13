@@ -1,6 +1,6 @@
 jo.require("file")
 
-jo.component = {}
+jo.createModule("component")
 
 --- A fonction to get the category hash from its string
 ---@param category string|integer (The category string)

@@ -1,7 +1,7 @@
-jo.emit = {}
+jo.createModule("emit")
 
 local msgpack_pack_args = msgpack.pack_args
-local emitBps = GetConvarInt("jo_libs:emit:bps", 20000) --Default bit/s for latent events
+local emitBps = GetConvarInt("jo_libs:emit:bps", 100000) --Default bit/s for latent events
 
 AddConvarChangeListener("jo_libs:emit:bps", function(value)
   bprint("New bit/s for emit module: ", value)

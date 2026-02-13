@@ -1,4 +1,4 @@
-jo.light = {}
+jo.createModule("light")
 local lightActives = {}
 
 jo.require("table")

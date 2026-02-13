@@ -1,4 +1,4 @@
-jo.table = {}
+jo.createModule("table")
 
 local type = type
 local setmetatable = setmetatable
