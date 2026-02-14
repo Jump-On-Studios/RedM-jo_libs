@@ -49,6 +49,7 @@ end
 local function UpdatePedVariation(ped) return InvokeNative(0xCC8CA3E88256E58F, ped, false, true, true, true, false) end
 local function IsPedReadyToRender(...) return InvokeNative(0xA0BC8FAED8CFEB3C, ...) end
 local function IsThisModelAHorse(...) return InvokeNative(0x772A1969F649E902, ...) == 1 end
+local function IsMetaPedUsingComponentCategory(ped, category) return InvokeNative(0xFB4891BD7578CDC1, ped, GetHashFromString(category)) == 1 end
 local function ApplyShopItemToPed(ped, hash, immediatly, isMp, p4)
   return InvokeNative(0xD3A7B003ED343FD9, ped,
     GetHashFromString(hash), immediatly, isMp, p4)
@@ -938,8 +939,9 @@ end
 ---@return boolean (Return `true` if the category is equiped)
 ---@return integer (Return the index of the category)
 function jo.component.isCategoryEquiped(ped, category)
+  if not IsMetaPedUsingComponentCategory(ped, category) then return false, -1 end
   local index = getComponentIndexOfCategory(ped, category)
-  return index >= 0, index
+  return true, index
 end
 
 --- A function to get the hash of the component equiped in a category
