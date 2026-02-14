@@ -8,10 +8,10 @@ jo.createModule("prompt")
 jo.require("timeout")
 jo.require("table")
 
-local function UiPromptHasHoldMode(...) return Citizen.InvokeNative(0xB60C9F9ED47ABB76, ...) end
-local function UiPromptSetEnabled(...) return Citizen.InvokeNative(0x8A0FB4D03A630D21, ...) end
-local function UiPromptIsEnabled(...) return Citizen.InvokeNative(0x0D00EDDFB58B7F28, ...) end
-local function UiPromptGetProgress(...) return Citizen.InvokeNative(0x81801291806DBC50, ..., Citizen.ResultAsFloat()) end
+local function UiPromptHasHoldMode(...) return InvokeNative(0xB60C9F9ED47ABB76, ...) end
+local function UiPromptSetEnabled(...) return InvokeNative(0x8A0FB4D03A630D21, ...) end
+local function UiPromptIsEnabled(...) return InvokeNative(0x0D00EDDFB58B7F28, ...) end
+local function UiPromptGetProgress(...) return InvokeNative(0x81801291806DBC50, ..., Citizen.ResultAsFloat()) end
 
 --- A function to display a prompt group during this frame.
 --- Needs to be called each frame.

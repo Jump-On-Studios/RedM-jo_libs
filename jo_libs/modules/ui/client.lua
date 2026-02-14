@@ -28,7 +28,7 @@ end
 function jo.ui.initTimer()
     jo.ui.TimerUI = {}
     jo.ui.TimerUI.data = {}
-    jo.ui.TimerUI.data.uiFlowblock = Citizen.InvokeNative(0xC0081B34E395CE48, -119209833)
+    jo.ui.TimerUI.data.uiFlowblock = InvokeNative(0xC0081B34E395CE48, -119209833)
 
     local temp = 0
     while not UiflowblockIsLoaded(jo.ui.TimerUI.data.uiFlowblock) do
@@ -39,7 +39,7 @@ function jo.ui.initTimer()
         Citizen.Wait(1)
     end
 
-    if not Citizen.InvokeNative(0x10A93C057B6BD944, jo.ui.TimerUI.data.uiFlowblock) then
+    if not InvokeNative(0x10A93C057B6BD944, jo.ui.TimerUI.data.uiFlowblock) then
         return
     end
 

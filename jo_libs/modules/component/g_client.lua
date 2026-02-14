@@ -32,40 +32,38 @@ jo.cache.component = {
 -------------
 -- LOCAL FUNCTIONS
 -------------
-
-local invokeNative = Citizen.InvokeNative
 local function SetTextureOutfitTints(ped, category, palette, tint0, tint1, tint2)
   if not palette then return end
   if palette == 0 then return end
-  return invokeNative(0x4EFC1F8FF1AD94DE, ped, jo.component.getCategoryHash(category), GetHashFromString(palette), tint0, tint1,
+  return InvokeNative(0x4EFC1F8FF1AD94DE, ped, jo.component.getCategoryHash(category), GetHashFromString(palette), tint0, tint1,
     tint2)
 end
-local function SetActiveMetaPedComponentsUpdated(ped) return invokeNative(0xAAB86462966168CE, ped, true) end
-local function N_0x704C908E9C405136(ped) return invokeNative(0x704C908E9C405136, ped) end
+local function SetActiveMetaPedComponentsUpdated(ped) return InvokeNative(0xAAB86462966168CE, ped, true) end
+local function N_0x704C908E9C405136(ped) return InvokeNative(0x704C908E9C405136, ped) end
 local function GetShopItemBaseLayers(hash, metapedType, isMp)
-  return invokeNative(0x63342C50EC115CE8,
+  return InvokeNative(0x63342C50EC115CE8,
     GetHashFromString(hash), 0, 0, metapedType, isMp, Citizen.PointerValueInt(), Citizen.PointerValueInt(),
     Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt(),
     Citizen.PointerValueInt(), Citizen.PointerValueInt())
 end
-local function UpdatePedVariation(ped) return invokeNative(0xCC8CA3E88256E58F, ped, false, true, true, true, false) end
-local function IsPedReadyToRender(...) return invokeNative(0xA0BC8FAED8CFEB3C, ...) end
-local function IsThisModelAHorse(...) return invokeNative(0x772A1969F649E902, ...) == 1 end
+local function UpdatePedVariation(ped) return InvokeNative(0xCC8CA3E88256E58F, ped, false, true, true, true, false) end
+local function IsPedReadyToRender(...) return InvokeNative(0xA0BC8FAED8CFEB3C, ...) end
+local function IsThisModelAHorse(...) return InvokeNative(0x772A1969F649E902, ...) == 1 end
 local function ApplyShopItemToPed(ped, hash, immediatly, isMp, p4)
-  return invokeNative(0xD3A7B003ED343FD9, ped,
+  return InvokeNative(0xD3A7B003ED343FD9, ped,
     GetHashFromString(hash), immediatly, isMp, p4)
 end
 local function GetMetaPedAssetTint(ped, index)
-  return invokeNative(0xE7998FEC53A33BBE, ped, index,
+  return InvokeNative(0xE7998FEC53A33BBE, ped, index,
     Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt())
 end
-local function GetNumComponentsInPed(ped) return invokeNative(0x90403E8107B60E81, ped) or 0 end
-local function GetShopItemComponentCategory(...) return invokeNative(0x5FF9A878C3D115B8, ...) end
+local function GetNumComponentsInPed(ped) return InvokeNative(0x90403E8107B60E81, ped) or 0 end
+local function GetShopItemComponentCategory(...) return InvokeNative(0x5FF9A878C3D115B8, ...) end
 local function UpdateShopItemWearableState(ped, hash, state)
-  return invokeNative(0x66B957AAC2EAAEAB, ped, GetHashFromString(hash), GetHashFromString(state), 0, true, 1)
+  return InvokeNative(0x66B957AAC2EAAEAB, ped, GetHashFromString(hash), GetHashFromString(state), 0, true, 1)
 end
 local function SetMetaPedTag(ped, drawable, albedo, normal, material, palette, tint0, tint1, tint2)
-  return invokeNative(
+  return InvokeNative(
     0xBC6DF00D7A4A6819, ped, GetHashFromString(drawable), GetHashFromString(albedo), GetHashFromString(normal),
     GetHashFromString(material), GetHashFromString(palette), tint0, tint1, tint2)
 end
@@ -78,7 +76,7 @@ end
 
 local function GetCategoryOfComponentAtIndex(ped, componentIndex)
   local pedType = IsThisModelAHorse(GetEntityModel(ped)) and 6 or 0
-  local category = invokeNative(0x9b90842304c938a7, ped, componentIndex, pedType, Citizen.ResultAsInteger())
+  local category = InvokeNative(0x9b90842304c938a7, ped, componentIndex, pedType, Citizen.ResultAsInteger())
   --patch neckerchiefs
   if category == `neckerchiefs` then
     category = `neckwear`
@@ -89,9 +87,9 @@ end
 --- @return integer (Hash)
 --- @return integer (WearableState)
 local function GetShopItemComponentAtIndex(ped, index)
-  local componentHash, a, wearableState = GetShopPedComponentAtIndex(ped, index, true, Citizen.ResultAsInteger(), Citizen.ResultAsInteger())
+  local componentHash, _, wearableState = GetShopPedComponentAtIndex(ped, index, true, Citizen.ResultAsInteger(), Citizen.ResultAsInteger())
   if not componentHash or componentHash == 0 then
-    componentHash, a, wearableState = GetShopPedComponentAtIndex(ped, index, false, Citizen.ResultAsInteger(), Citizen.ResultAsInteger())
+    componentHash, _, wearableState = GetShopPedComponentAtIndex(ped, index, false, Citizen.ResultAsInteger(), Citizen.ResultAsInteger())
   end
   return componentHash, wearableState
 end

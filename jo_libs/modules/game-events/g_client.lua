@@ -6,7 +6,7 @@ jo.require("dataview")
 jo.require("file")
 jo.file.load("game-events.data")
 
-local function GetEventData(...) return Citizen.InvokeNative(0x57EC5FA4D4D6AFCA, ...) end
+local function GetEventData(...) return InvokeNative(0x57EC5FA4D4D6AFCA, ...) end
 
 AddEventHandler("jo_libs:gameEvents:register", function(eventName)
   if eventName == "all" then

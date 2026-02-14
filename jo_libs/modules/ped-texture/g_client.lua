@@ -10,28 +10,28 @@ local delays = {}
 local maxForceUpdate = 5
 local currentUpdate = 0
 
-local function AddTextureLayer(...) return Citizen.InvokeNative(0x86BB5FF45F193A02, ...) end
-local function ApplyTextureOnPed(...) return Citizen.InvokeNative(0x0B46E25761519058, ...) end
-local function ClearPedTexture(...) return Citizen.InvokeNative(0xB63B9178D0F58D82, ...) end
+local function AddTextureLayer(...) return InvokeNative(0x86BB5FF45F193A02, ...) end
+local function ApplyTextureOnPed(...) return InvokeNative(0x0B46E25761519058, ...) end
+local function ClearPedTexture(...) return InvokeNative(0xB63B9178D0F58D82, ...) end
 local function GetCategoryOfComponentAtIndex(ped, componentIndex)
-  return Citizen.InvokeNative(0x9b90842304c938a7, ped,
+  return InvokeNative(0x9b90842304c938a7, ped,
     componentIndex, 0, Citizen.ResultAsInteger())
 end
 local function GetMetaPedAssetGuids(ped, index)
-  return Citizen.InvokeNative(0xA9C28516A6DC9D56, ped, index,
+  return InvokeNative(0xA9C28516A6DC9D56, ped, index,
     Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt(), Citizen.PointerValueInt())
 end
-local function GetNumComponentsInPed(ped) return Citizen.InvokeNative(0x90403E8107B60E81, ped) end
-local function IsTextureValid(...) return Citizen.InvokeNative(0x31DC8D3F216D8509, ...) end
-local function ReleaseTexture(...) return Citizen.InvokeNative(0x6BEFAA907B076859, ...) end
-local function RequestTexture(...) return Citizen.InvokeNative(0xC5E7204F322E49EB, ...) end
-local function SetTextureLayerAlpha(...) return Citizen.InvokeNative(0x6C76BC24F8BB709A, ...) end
-local function SetTextureLayerPallete(...) return Citizen.InvokeNative(0x1ED8588524AC9BE1, ...) end
-local function SetTextureLayerSheetGridIndex(...) return Citizen.InvokeNative(0x3329AAE2882FC8E4, ...) end
-local function SetTextureLayerTint(...) return Citizen.InvokeNative(0x2DF59FFE6FFD6044, ...) end
-local function UpdatePedTexture(...) return Citizen.InvokeNative(0x92DAABA2C1C10B0E, ...) end
-local function N_0x704C908E9C405136(...) return Citizen.InvokeNative(0x704C908E9C405136, ...) end
-local function UpdatePedVariation(ped) return Citizen.InvokeNative(0xCC8CA3E88256E58F, ped, false, true, true, true, false) end
+local function GetNumComponentsInPed(ped) return InvokeNative(0x90403E8107B60E81, ped) end
+local function IsTextureValid(...) return InvokeNative(0x31DC8D3F216D8509, ...) end
+local function ReleaseTexture(...) return InvokeNative(0x6BEFAA907B076859, ...) end
+local function RequestTexture(...) return InvokeNative(0xC5E7204F322E49EB, ...) end
+local function SetTextureLayerAlpha(...) return InvokeNative(0x6C76BC24F8BB709A, ...) end
+local function SetTextureLayerPallete(...) return InvokeNative(0x1ED8588524AC9BE1, ...) end
+local function SetTextureLayerSheetGridIndex(...) return InvokeNative(0x3329AAE2882FC8E4, ...) end
+local function SetTextureLayerTint(...) return InvokeNative(0x2DF59FFE6FFD6044, ...) end
+local function UpdatePedTexture(...) return InvokeNative(0x92DAABA2C1C10B0E, ...) end
+local function N_0x704C908E9C405136(...) return InvokeNative(0x704C908E9C405136, ...) end
+local function UpdatePedVariation(ped) return InvokeNative(0xCC8CA3E88256E58F, ped, false, true, true, true, false) end
 local function _updatePedVariation(ped)
   N_0x704C908E9C405136(ped)
   return UpdatePedVariation(ped)

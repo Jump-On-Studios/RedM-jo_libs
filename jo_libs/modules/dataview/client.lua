@@ -42,7 +42,7 @@ end
         (2) {Get|Set|Next} offsets are zero-based.
     EXAMPLES:
         local view = DataView.ArrayBuffer(512)
-        if Citizen.InvokeNative(0x79923CD21BECE14E, 1, view:Buffer(), Citizen.ReturnResultAnyway()) then
+        if InvokeNative(0x79923CD21BECE14E, 1, view:Buffer(), Citizen.ReturnResultAnyway()) then
             local dlc = {
                 validCheck = view:GetInt64(0),
                 weaponHash = view:GetInt32(8),
@@ -71,18 +71,18 @@ DataView = {
         Int64 = { code = "i8", size = 8 },
         Uint64 = { code = "I8", size = 8 },
 
-        LuaInt = { code = "j", size = 8 }, -- a lua_Integer
-        UluaInt = { code = "J", size = 8 }, -- a lua_Unsigned
-        LuaNum = { code = "n", size = 8}, -- a lua_Number
-        Float32 = { code = "f", size = 4 }, -- a float (native size)
-        Float64 = { code = "d", size = 8 }, -- a double (native size)
+        LuaInt = { code = "j", size = 8 },   -- a lua_Integer
+        UluaInt = { code = "J", size = 8 },  -- a lua_Unsigned
+        LuaNum = { code = "n", size = 8 },   -- a lua_Number
+        Float32 = { code = "f", size = 4 },  -- a float (native size)
+        Float64 = { code = "d", size = 8 },  -- a double (native size)
         String = { code = "z", size = -1, }, -- zero terminated string
     },
 
     FixedTypes = {
         String = { code = "c", size = -1, }, -- a fixed-sized string with n bytes
-        Int = { code = "i", size = -1, }, -- a signed int with n bytes
-        Uint = { code = "I", size = -1, }, -- an unsigned int with n bytes
+        Int = { code = "i", size = -1, },    -- a signed int with n bytes
+        Uint = { code = "I", size = -1, },   -- an unsigned int with n bytes
     },
 }
 DataView.__index = DataView
@@ -118,11 +118,11 @@ function DataView:SubView(offset)
 end
 
 --[[ Create the API by using DataView.Types. --]]
-for label,datatype in pairs(DataView.Types) do
+for label, datatype in pairs(DataView.Types) do
     DataView["Get" .. label] = function(self, offset, endian)
         local o = self.offset + offset
         if _ib(o, self.length, datatype) then
-            local v,_ = string.unpack(_ef(endian) .. datatype.code, self.blob, o)
+            local v, _ = string.unpack(_ef(endian) .. datatype.code, self.blob, o)
             return v
         end
         return nil -- Out of bounds
@@ -144,12 +144,12 @@ for label,datatype in pairs(DataView.Types) do
     end
 end
 
-for label,datatype in pairs(DataView.FixedTypes) do
+for label, datatype in pairs(DataView.FixedTypes) do
     DataView["GetFixed" .. label] = function(self, offset, typelen, endian)
         local o = self.offset + offset
         if o + (typelen - 1) <= self.length then
             local code = _ef(endian) .. "c" .. tostring(typelen)
-            local v,_ = string.unpack(code, self.blob, o)
+            local v, _ = string.unpack(code, self.blob, o)
             return v
         end
         return nil -- Out of bounds
@@ -167,8 +167,8 @@ end
 
 --[[ Helper function for setting fixed datatypes within a buffer --]]
 SetFixed = function(self, offset, value, code)
-    local fmt = { }
-    local values = { }
+    local fmt = {}
+    local values = {}
 
     -- All bytes prior to the offset
     if self.offset < offset then

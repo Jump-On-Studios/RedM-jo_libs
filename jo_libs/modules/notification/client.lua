@@ -16,19 +16,19 @@ local function LoadDictFile(dict, waiter)
 end
 
 local function UiFeedPostSampleToastRight(...)
-  return Citizen.InvokeNative(0xB249EBCB30DD88E0, ...)
+  return InvokeNative(0xB249EBCB30DD88E0, ...)
 end
 
 local function UiFeedPostSampleToast(...)
-  return Citizen.InvokeNative(0x26E87218390E6729, ...)
+  return InvokeNative(0x26E87218390E6729, ...)
 end
 
 local function UiFeedClearAllChannels(...)
-  return Citizen.InvokeNative(0x6035E8FBCA32AC5E, ...)
+  return InvokeNative(0x6035E8FBCA32AC5E, ...)
 end
 
 function UiFeedPostTwoTextShard(...)
-  return Citizen.InvokeNative(0xA6F4216AB10EB08E, ...)
+  return InvokeNative(0xA6F4216AB10EB08E, ...)
 end
 
 RegisterNetEvent(GetCurrentResourceName() .. ":client:notif",
