@@ -199,6 +199,7 @@ class Menu {
   onBeforeEnter = false;
   price = false;
   priceTitle = false;
+  displayBackButton = false;
 
   constructor(data) {
     this.setTitle(data.title);
@@ -276,6 +277,7 @@ class Menu {
       this.setOnBeforeEnter(data.onBeforeEnter);
     if (data.price !== undefined) this.setPrice(data.price);
     if (data.priceTitle !== undefined) this.setPriceTitle(data.priceTitle);
+    if (data.displayBackButton !== undefined) this.setDisplayBackButton(data.displayBackButton);
     this.refreshKey = Math.random();
   }
 
@@ -339,6 +341,10 @@ class Menu {
 
   setPriceTitle(title) {
     this.priceTitle = title;
+  }
+
+  setDisplayBackButton(value) {
+    this.displayBackButton = value;
   }
 }
 

@@ -8,6 +8,7 @@ let menu = {
   // type: "tile",
   numberLineOnScreen: 3,
   subtitle: "The menu title",
+  displayBackButton: true,
   items: [
     {
       title: "This is the title",
@@ -892,36 +893,15 @@ if (import.meta.env.DEV) {
     },
   ];
 
-  // setTimeout(() => {
-  //   window.postMessage({
-  //     event: "updateMenuValues",
-  //     menu: "home",
-  //     updated: newValues,
-  //   })
-  // }, 2000);
-
-  // window.postMessage({
-  //   event: 'setCurrentIndex',
-  //   menu: 'home',
-  //   index: 5
-  // })
-
   setTimeout(function () {
     window.postMessage({
       event: "setCurrentMenu",
       menu: "home",
-      keepHistoric: true,
+      keepHistoric: false,
     });
     window.postMessage({
       event: "updateShow",
       show: true,
     });
   }, 200);
-
-  // setTimeout(() => {
-  //   window.postMessage({
-  //     event: "displayLoader",
-  //     show: true
-  //   })
-  // }, 3000);
 }
