@@ -74,7 +74,7 @@ end
 ---@return boolean (Returns true if the table is empty)
 function table.isEmpty(t)
   local _type = table.type(t)
-  return (_type == nil) or (_type == "empty")
+  return (_type == nil) or (_type == "empty") or table.count(t) == 0
 end
 
 --- Counts the number of values inside a table.
