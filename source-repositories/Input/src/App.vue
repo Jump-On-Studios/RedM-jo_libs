@@ -23,6 +23,8 @@
 
             <Select v-if="entry.type == 'select'" v-model="entry.value" :options="entry.options" optionLabel="label" :placeholder="entry.placeholder" :style="style(entry)" :class="[entry.class, { error: entry.error }]" fluid />
 
+            <PriceForm v-if="entry.type == 'price'" v-model="entry.value" :options="entry.options" :allow-or="entry.allowOR ?? true" :error="entry.error" :style="style(entry)" :class="[entry.class]" />
+
           </template>
         </div>
       </template>
@@ -34,6 +36,7 @@
 import { ref, onMounted, onUnmounted, nextTick, onUpdated } from 'vue'
 import VueDatePicker from '@vuepic/vue-datepicker';
 import Select from 'primevue/select';
+import PriceForm from './components/PriceForm.vue';
 
 const notif = ref({})
 const visible = ref(false)
@@ -42,7 +45,7 @@ let firstInput = null
 let ignoreEnter = false
 let lastMessageDate = 0
 
-const typeWithResult = ['text', 'number', 'date', 'select']
+const typeWithResult = ['text', 'number', 'date', 'select', 'price']
 
 function isDev() {
   return import.meta.env.DEV
@@ -165,7 +168,7 @@ window.addEventListener('message', (e) => {
             entry.value = ref(entry.value)
             entry.dom = null
             if (firstInput === null) {
-              if (entry.type == 'date')
+              if (entry.type == 'date' || entry.type == 'price')
                 firstInput = false
               else
                 firstInput = entry
