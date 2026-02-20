@@ -145,7 +145,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from "vue";
+import { ref, computed, watch, onMounted, nextTick } from "vue";
 import Select from "primevue/select";
 
 const props = defineProps({
@@ -205,7 +205,10 @@ function removeOption(idx) {
   }
 }
 
+let initializing = false;
+
 watch(useOr, (isOr) => {
+  if (initializing) return;
   if (isOr) {
     multiOptions.value[0] = {
       components: singleOption.value.components.map((c) => ({ ...c })),
@@ -259,42 +262,101 @@ watch(
   { deep: true },
 );
 
+function extractNumericEntries(obj) {
+  const entries = [];
+  for (let i = 1; obj[String(i)] != null; i++) {
+    entries.push(obj[String(i)]);
+  }
+  return entries;
+}
+
+function parseEntry(entry, components) {
+  if (entry.item != null) {
+    components.push({
+      type: "item",
+      value: 1,
+      itemName: entry.item || "",
+      quantity: entry.quantity || 1,
+      keep: entry.keep || false,
+    });
+  } else {
+    for (const key of ["money", "gold", "rol"]) {
+      if (entry[key] != null) {
+        components.push({
+          type: key,
+          value: entry[key],
+          itemName: "",
+          quantity: 1,
+          keep: false,
+        });
+        break;
+      }
+    }
+  }
+}
+
 function parseOption(opt) {
   const components = [];
-  if (opt.items) {
-    opt.items.forEach((item) => {
-      components.push({
-        type: "item",
-        value: 1,
-        itemName: item.item || "",
-        quantity: item.quantity || 1,
-        keep: item.keep || false,
-      });
-    });
+  if (!opt) return { components };
+
+  let entries = [];
+  let namedKeys = {};
+
+  if (Array.isArray(opt)) {
+    entries = opt;
+  } else {
+    entries = extractNumericEntries(opt);
+    for (const key of Object.keys(opt)) {
+      if (!/^\d+$/.test(key)) {
+        namedKeys[key] = opt[key];
+      }
+    }
   }
+
+  for (const entry of entries) {
+    parseEntry(entry, components);
+  }
+
+  if (Array.isArray(namedKeys.items)) {
+    for (const item of namedKeys.items) {
+      parseEntry(item, components);
+    }
+  }
+
   for (const key of ["money", "gold", "rol"]) {
-    if (opt[key] != null) {
+    if (namedKeys[key] != null) {
       components.push({
         type: key,
-        value: opt[key],
+        value: namedKeys[key],
         itemName: "",
         quantity: 1,
         keep: false,
       });
     }
   }
+
   return { components };
 }
 
 function parseInitialValue(val) {
   if (!val) return;
-  if (val.operator === "or" && Array.isArray(val.options)) {
+  initializing = true;
+  if (val.operator === "or") {
     useOr.value = true;
-    multiOptions.value = val.options.map((opt) => parseOption(opt));
+    let options;
+    if (Array.isArray(val.options)) {
+      options = val.options;
+    } else {
+      options = extractNumericEntries(val);
+    }
+    multiOptions.value = options.map((opt) => parseOption(opt));
   } else {
     useOr.value = false;
     singleOption.value = parseOption(val);
   }
+  nextTick(() => {
+    initializing = false;
+  });
 }
 
 onMounted(() => {

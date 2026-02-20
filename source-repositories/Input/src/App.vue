@@ -208,11 +208,13 @@ function missingEntry(entry) {
 
 function processInputs() {
   let result = {};
+  let priceIds = [];
   let error = false;
   notif.value.rows.forEach((rows) => {
     rows.forEach((entry) => {
       if (typeWithResult.includes(entry.type)) {
         result[entry.id] = entry.value;
+        if (entry.type === "price") priceIds.push(entry.id);
         if (
           entry.required &&
           (result[entry.id] === "" ||
@@ -226,19 +228,23 @@ function processInputs() {
     });
   });
   if (error) return false;
-  return result;
+  return { result, priceIds };
 }
 
 function click(id, ignoreRequired) {
   let result = {};
+  let priceIds = [];
   if (!ignoreRequired) {
-    result = processInputs();
-    if (!result) return;
+    const processed = processInputs();
+    if (!processed) return;
+    result = processed.result;
+    priceIds = processed.priceIds;
   }
   if (!result[id]) result[id] = true;
   post("jo_input:click", {
     action: id,
     result: result,
+    priceIds: priceIds,
   });
   visible.value = false;
 }

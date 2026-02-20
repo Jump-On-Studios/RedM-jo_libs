@@ -62,9 +62,8 @@ if (import.meta.env.DEV) {
               type: "price",
               id: "price",
               value: {
+                "1": { item: "horse_license", keep: true },
                 money: 10,
-                gold: 1,
-                items: [{ item: "horse_license", keep: true }],
               },
 
               allowOR: true,
