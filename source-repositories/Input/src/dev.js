@@ -72,14 +72,19 @@ if (import.meta.env.DEV) {
             },
           ],
           [
-            { type: "action", value: "Confirm", id: "confirm" },
             {
               type: "action",
+              value: "Confirm",
+              id: "confirm",
               class: "bg-green",
-              value: "Delete",
-              id: "delete",
-              ignoreRequired: false,
             },
+            // {
+            //   type: "action",
+            //   class: "bg-green",
+            //   value: "Delete",
+            //   id: "delete",
+            //   ignoreRequired: false,
+            // },
             {
               type: "action",
               id: "close",
