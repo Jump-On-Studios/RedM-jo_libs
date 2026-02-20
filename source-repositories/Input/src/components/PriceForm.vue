@@ -307,6 +307,8 @@ onMounted(() => {
   flex: 1;
   display: flex;
   flex-direction: column;
+  max-height: 320px;
+  overflow-y: auto;
   gap: var(--element-gap);
 
   &.error {
@@ -361,7 +363,7 @@ onMounted(() => {
 
 .pf-option-bordered {
   border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: var(--element-gap);
+  padding: calc(var(--element-gap) * 3);
 }
 
 .pf-option-header {
