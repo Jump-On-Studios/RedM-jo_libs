@@ -74,15 +74,7 @@ function jo.input.nui(options, cb)
   end
 end
 
-RegisterNuiCallback("jo_input:click", function(data, cb)
-  cb("ok")
-  nuiResult:resolve(data)
-end)
-
---- Convert a NUI price result into the standard Lua price format.
----@param price table|nil The price object from the NUI result
----@return table|nil The price in { {item=...}, money=X } format
-function jo.input.convertPrice(price)
+local function convertNUIPrice(price)
   if not price then return price end
 
   local function convertOption(opt)
@@ -111,3 +103,17 @@ function jo.input.convertPrice(price)
 
   return convertOption(price)
 end
+
+RegisterNuiCallback("jo_input:click", function(data, cb)
+  cb("ok")
+  if data and data.result and data.priceIds then
+    for i = 1, #data.priceIds do
+      local id = data.priceIds[i]
+      if data.result[id] then
+        data.result[id] = convertNUIPrice(data.result[id])
+      end
+    end
+    data.priceIds = nil
+  end
+  nuiResult:resolve(data)
+end)
