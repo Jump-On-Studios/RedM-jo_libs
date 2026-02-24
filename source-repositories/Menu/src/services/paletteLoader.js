@@ -65,7 +65,7 @@ async function loadPaletteColors(paletteName) {
     return [];
   }
 
-  const src = `/assets/images/palettes/${paletteName}.png`;
+  const src = `./assets/images/palettes/${paletteName}.png`;
   const image = await loadImage(src);
   return getColorsFromImage(image);
 }

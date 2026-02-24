@@ -5,6 +5,16 @@
   window.citFrames = {};
   window.lastMousePos = { x: 0, y: 0 };
 
+  function updateMousePos(x, y) {
+    window.lastMousePos.x = x
+    window.lastMousePos.y = y
+
+  }
+
+  window.addEventListener('mousemove', (event) => {
+    updateMousePos(event.screenX, event.screenY)
+  })
+
   const eventsToRedirect = [
     'keydown',
     'keyup',
@@ -102,6 +112,7 @@
 
     eventsToRedirect.forEach(eventType => {
       frame.contentWindow.addEventListener(eventType, (event) => {
+        if (eventType == "pointermove") updateMousePos(event.screenX, event.screenY)
         if (event.fake) return
         if (uiNameFocused !== "") return
         const redirectedEvent = new event.constructor('dispatchEvent', event);
@@ -115,7 +126,7 @@
 
 
     frame.contentWindow.addEventListener('mousemove', (event) => {
-      window.lastMousePos = { x: event.screenX, y: event.screenY };
+      updateMousePos(event.screenX, event.screenY)
       if (event.fake) return
       if (uiName == uiNameFocused) return
       const target = event.target
