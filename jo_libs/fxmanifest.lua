@@ -21,6 +21,7 @@ files {
 	"modules/component/horseComponents.lua",
 	"modules/component/data/horseComponents.lua",
 	"modules/component/data/playerComponents.lua",
+	"modules/component/data/tintShopItems.lua",
 	"modules/game-events/data.lua",
 	"modules/raw-keys/vk_azerty.lua",
 	"modules/raw-keys/vk_qwerty.lua",

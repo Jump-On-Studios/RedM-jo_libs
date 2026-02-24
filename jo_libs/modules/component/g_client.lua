@@ -174,6 +174,15 @@ function jo.component.getBaseLayer(ped, hash, inTable)
   if normal == 0 then normal = nil end
   if material == 0 then material = nil end
   if palette == 0 then palette = nil end
+  if not palette then
+    local shopItemData = jo.component.getShopItemTint(hash)
+    if shopItemData then
+      palette = shopItemData.p
+      tint0 = shopItemData.t0
+      tint1 = shopItemData.t1
+      tint2 = shopItemData.t2
+    end
+  end
   if inTable then
     return {
       drawable = drawable,

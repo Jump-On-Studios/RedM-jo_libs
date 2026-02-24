@@ -376,6 +376,26 @@ function jo.component.getFullHorseComponentList()
   return horseComponentsData
 end
 
+local tintsData = nil
+--- A function to get the list of tints
+---@return table tintsData
+function jo.component.getFullShopItemTintsList()
+  if tintsData then return tintsData end
+  tintsData = jo.file.load("component.data.tintShopItems")
+  return tintsData
+end
+
+--- A function to get the tint of a shop itemSet
+---@param shopItem? integer|string (The shop item name)
+---@return table tintsData
+function jo.component.getShopItemTint(shopItem)
+  shopItem = GetHashFromString(shopItem)
+  if not tintsData then
+    jo.component.getFullShopItemTintsList()
+  end
+  return tintsData[shopItem]
+end
+
 -------------
 -- END COMPONENT LISTS
 -------------
