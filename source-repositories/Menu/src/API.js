@@ -183,28 +183,31 @@ class API {
   }
 
   getPalette = function (palette) {
-    switch (palette) {
-      case "metaped_tint_generic_weathered":
-        return "metaped_tint_generic_clean"
-      case "metaped_tint_generic_worn":
-        return "metaped_tint_generic_clean"
-      case "metaped_tint_hat_clean":
-        return "metaped_tint_generic_clean"
-      case "metaped_tint_hat_weathered":
-        return "metaped_tint_generic_clean"
-      case "metaped_tint_hat_worn":
-        return "metaped_tint_generic_clean"
-      case "metaped_tint_skirt_clean":
-        return "metaped_tint_generic_clean"
-      case "metaped_tint_skirt_weathered":
-        return "metaped_tint_generic_clean"
-      case "metaped_tint_skirt_worn":
-        return "metaped_tint_generic"
-      case "metaped_tint_generic":
-        return "metaped_tint_generic_clean"
-
+    const matches = {
+      metaped_tint_generic_weathered: "metaped_tint_generic_clean",
+      metaped_tint_generic_worn: "metaped_tint_generic_clean",
+      metaped_tint_hat_clean: "metaped_tint_generic_clean",
+      metaped_tint_hat_weathered: "metaped_tint_generic_clean",
+      metaped_tint_hat_worn: "metaped_tint_generic_clean",
+      metaped_tint_skirt_clean: "metaped_tint_generic_clean",
+      metaped_tint_skirt_weathered: "metaped_tint_generic_clean",
+      metaped_tint_skirt_worn: "metaped_tint_generic",
+      metaped_tint_generic: "metaped_tint_generic_clean",
+      metaped_tint_combined_leather1: "metaped_tint_combined_leather",
+      metaped_tint_combined_leather2: "metaped_tint_combined_leather",
+      metaped_tint_combined_leather3: "metaped_tint_combined_leather",
+      metaped_tint_combined_leather4: "metaped_tint_combined_leather",
+      metaped_tint_combined_leather5: "metaped_tint_combined_leather",
+      metaped_tint_combined_leather6: "metaped_tint_combined_leather",
+      metaped_tint_si_template: "metaped_tint_combined_leather",
+      metaped_tint_hair1: "metaped_tint_hair",
+      metaped_tint_hair2: "metaped_tint_hair",
+      metaped_tint_hair_bed: "metaped_tint_hair",
+      metaped_tint_mpadv_deuteranopia: "metaped_tint_mpadv",
+      metaped_tint_mpadv_protanopia: "metaped_tint_mpadv",
+      metaped_tint_mpadv_tritanopia: "metaped_tint_mpadv",
     }
-    return palette
+    return matches[palette] || palette
   }
 }
 
