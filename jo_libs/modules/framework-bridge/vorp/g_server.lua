@@ -38,9 +38,11 @@ local function waitInitInventoryItems()
   while table.isEmpty(jo.framework.inventoryItems) do Wait(10) end
 end
 
-jo.callback.register.latent("jo_framework_getInventoryItems", function()
-  waitInitInventoryItems()
-  return jo.framework.inventoryItems
+jo.ready(function()
+  jo.callback.register.latent("jo_framework_getInventoryItems", function()
+    waitInitInventoryItems()
+    return jo.framework.inventoryItems
+  end)
 end)
 
 function jo.framework:getInventoryItems()

@@ -320,20 +320,23 @@ function jo.framework:createInventory(id, name, invConfig)
   end
 
   if invData.whitelistItems then
-    for _, item in ipairs(invConfig.whitelist or {}) do
+    for i = 1, #(invConfig.whitelist or {}) do
+      local item = invConfig.whitelist[i]
       exports.vorp_inventory:setCustomInventoryItemLimit(id, item.name or item.item, item.limit)
     end
   end
 
   if invData.whitelistWeapons then
-    for _, weapon in ipairs(invConfig.weaponlist or {}) do
-      exports.vorp_inventory:setCustomInventoryWeaponLimit(id, weapon.name or weapon.weapon, weapon.limit)
+    for i = 1, #(invConfig.weaponlist or {}) do
+      local weapon = invConfig.weaponlist[i]
+      exports.vorp_inventory:setCustomInventoryWeaponLimit(id, weapon.name or weapon.weapon or weapon.item, weapon.limit)
     end
   end
 
   if invData.UseBlackList then
-    for _, item in ipairs(invConfig.blacklist or {}) do
-      exports.vorp_inventory:BlackListCustomAny(id, item)
+    for i = 1, #(invConfig.blacklist or {}) do
+      local item = invConfig.blacklist[i]
+      exports.vorp_inventory:BlackListCustomAny(id, item.name or item.item)
     end
   end
 
