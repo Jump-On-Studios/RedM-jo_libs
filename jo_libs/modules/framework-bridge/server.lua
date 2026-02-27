@@ -618,6 +618,39 @@ AddEventHandler("playerDropped", function()
   dropIdentifiersLink(source)
 end)
 
+--- Merge inventory configuration
+---@param ... table (The inventory configurations to merge)
+---@return table (The merged inventory configuration)
+function jo.framework:mergeInventoriesConfiguration(...)
+  local configs = { ... }
+
+  local inventoryConfig = {
+    maxSlots = 0,
+    maxWeight = 0,
+    acceptWeapons = true,
+    shared = true,
+    ignoreStackLimit = true,
+    whitelist = {},
+    blacklist = {},
+    weaponlist = {},
+    permissions = {}
+  }
+
+  for c = 1, #configs do
+    local config = configs[c]
+    inventoryConfig.maxSlots += GetValue(config.maxSlots or 0)
+    inventoryConfig.maxWeight += GetValue(config.maxWeight or 0)
+    inventoryConfig.acceptWeapons = GetValue(config.acceptWeapons or true) and inventoryConfig.acceptWeapons
+    inventoryConfig.shared = GetValue(config.shared or true) and inventoryConfig.shared
+    inventoryConfig.ignoreStackLimit = GetValue(config.ignoreStackLimit or true) and inventoryConfig.ignoreStackLimit
+    inventoryConfig.whitelist = table.merge(inventoryConfig.whitelist, config.whitelist)
+    inventoryConfig.blacklist = table.merge(inventoryConfig.blacklist, config.blacklist)
+    inventoryConfig.weaponlist = table.merge(inventoryConfig.weaponlist, config.weaponlist)
+    inventoryConfig.permissions = table.merge(inventoryConfig.permissions, config.permissions)
+  end
+  return inventoryConfig
+end
+
 -- -----------
 -- END LOAD CUSTOM FUNCTIONS
 -- -----------
