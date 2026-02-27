@@ -231,3 +231,8 @@ function jo.framework:getItemData(item)
   end
   return jo.framework.inventoryItems[item]
 end
+
+-------------
+-- Shortcut
+-------------
+jo.fw = jo.framework
