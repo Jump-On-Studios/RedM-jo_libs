@@ -7,16 +7,13 @@ vk_qwerty = {
     XBUTTON2 = 0x06,
     -- 0x07: Reserved
     BACK = 0x08,
-    ["BACKSPACE"] = 0x08,
     TAB = 0x09,
     -- 0x0A-0x0B: Reserved
     CLEAR = 0x0C,
     RETURN = 0x0D,
-    ["ENTER"] = 0x0D,
     -- 0x0E-0x0F: Unassigned
     SHIFT = 0x10,
     CONTROL = 0x11,
-    ["CTRL"] = 0x11,
     MENU = 0x12,
     PAUSE = 0x13,
     CAPITAL = 0x14,
@@ -25,20 +22,16 @@ vk_qwerty = {
     IME_ON = 0x16,
     JUNJA = 0x17,
     FINAL = 0x18,
-    HANJA = 0x19,
     KANJI = 0x19,
     IME_OFF = 0x1A,
     ESCAPE = 0x1B,
-    ["Esc"] = 0x1B,
     CONVERT = 0x1C,
     NONCONVERT = 0x1D,
     ACCEPT = 0x1E,
     MODECHANGE = 0x1F,
     SPACE = 0x20,
     PRIOR = 0x21,
-    ["PAGEUP"] = 0x21,
     NEXT = 0x22,
-    ["PAGEDOWN"] = 0x22,
     END = 0x23,
     HOME = 0x24,
     LEFT = 0x25,
@@ -105,14 +98,10 @@ vk_qwerty = {
     NUMPAD8 = 0x68,
     NUMPAD9 = 0x69,
     MULTIPLY = 0x6A,
-    NUMPAD_MULTIPLY = 0x6A,
     ADD = 0x6B,
-    NUMPAD_ADD = 0x6B,
     SEPARATOR = 0x6C,
     SUBTRACT = 0x6D,
-    NUMPAD_SUBTRACT = 0x6D,
     DECIMAL = 0x6E,
-    NUMPAD_DECIMAL = 0x6E,
     DIVIDE = 0x6F,
     F1 = 0x70,
     F2 = 0x71,
@@ -144,17 +133,11 @@ vk_qwerty = {
     -- 0x92-0x96: OEM specific
     -- 0x97-0x9F: Unassigned
     LSHIFT = 0xA0,
-    ["L SHIFT"] = 0xA0,
     RSHIFT = 0xA1,
-    ["R SHIFT"] = 0xA1,
     LCONTROL = 0xA2,
-    ["L CTRL"] = 0xA2,
     RCONTROL = 0xA3,
-    ["R CTRL"] = 0xA3,
     LMENU = 0xA4,
-    ["L ALT"] = 0xA4,
     RMENU = 0xA5,
-    ["R ALT"] = 0xA5,
     BROWSER_BACK = 0xA6,
     BROWSER_FORWARD = 0xA7,
     BROWSER_REFRESH = 0xA8,
@@ -175,39 +158,17 @@ vk_qwerty = {
     LAUNCH_APP2 = 0xB7,
     -- 0xB8-B9: Reserved
     OEM_1 = 0xBA,
-    [";"] = 0xBA,
-
     OEM_PLUS = 0xBB,
-    ["+"] = 0xBB,
-
     OEM_COMMA = 0xBC,
-    [","] = 0xBC,
-
     OEM_MINUS = 0xBD,
-    ["-"] = 0xBD,
-
     OEM_PERIOD = 0xBE,
-    [";"] = 0xBE,
-
     OEM_2 = 0xBF,
-    ["/"] = 0xBF,
-
     OEM_3 = 0xC0,
-    ["`"] = 0xC0,
-
     -- 0xC1-0xDA: Reserved
     OEM_4 = 0xDB,
-    ["["] = 0xDB,
-
     OEM_5 = 0xDC,
-    ["\\"] = 0xDC,
-
     OEM_6 = 0xDD,
-    ["]"] = 0xDD,
-
     OEM_7 = 0xDE,
-    ["'"] = 0xDE,
-
     OEM_8 = 0xDF,
 
     -- 0xE0: Reserved
