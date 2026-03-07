@@ -74,7 +74,59 @@ function jo.input.nui(options, cb)
   end
 end
 
+--- Convert a NUI price result back into the standard Lua price format.
+--- The NUI outputs JSON-friendly objects: `{ items = { {item="x"} }, money = 10 }`
+--- This converts them to Lua mixed tables: `{ {item="x"}, money = 10 }`
+--- For OR mode, converts `{ operator = "or", options = { opt1, opt2 } }`
+--- into `{ operator = "or", opt1, opt2 }`
+---@param price table|nil The price object from the NUI result
+---@return table|nil The price in Lua mixed table format
+local function convertNUIPrice(price)
+  if not price then return price end
+
+  local function convertOption(opt)
+    local result = {}
+    -- Move items from the "items" array into the numeric part of the table
+    if opt.items then
+      for i = 1, #opt.items do
+        result[#result + 1] = opt.items[i]
+      end
+    end
+    -- Copy currency values as named keys
+    local keys = { "money", "gold", "rol" }
+    for i = 1, #keys do
+      if opt[keys[i]] ~= nil then
+        result[keys[i]] = opt[keys[i]]
+      end
+    end
+    return result
+  end
+
+  -- OR mode: convert each option and move them into the numeric part
+  if price.operator == "or" and price.options then
+    local result = { operator = "or" }
+    for i = 1, #price.options do
+      result[#result + 1] = convertOption(price.options[i])
+    end
+    return result
+  end
+
+  return convertOption(price)
+end
+
+--- NUI callback: resolves the input promise with the user's result.
+--- Automatically converts any price-type entries from JSON format to Lua format.
+--- Price entry IDs are provided by the NUI via `data.priceIds`.
 RegisterNuiCallback("jo_input:click", function(data, cb)
   cb("ok")
+  if data and data.result and data.priceIds then
+    for i = 1, #data.priceIds do
+      local id = data.priceIds[i]
+      if data.result[id] then
+        data.result[id] = convertNUIPrice(data.result[id])
+      end
+    end
+    data.priceIds = nil
+  end
   nuiResult:resolve(data)
 end)
