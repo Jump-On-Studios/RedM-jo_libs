@@ -214,9 +214,6 @@ const showKeyDown = () => {
         calculateProgress(durationMs.value, durationMs.value)
         clearInterval(animationTimer)
         animationTimer = null
-
-        resetAnimation()
-        isActive.value = false
         sendKeyCompletedFromNUI(false)
       } else {
         // Animation in progress
@@ -233,9 +230,17 @@ const showKeyUp = () => {
 
   if (props.holdTime) {
     // Clear forward animation timer
+    const wasCompleted = !animationTimer
     if (animationTimer) {
       clearInterval(animationTimer)
       animationTimer = null
+    }
+
+    // If animation was already completed, reset instantly
+    if (wasCompleted) {
+      resetAnimation()
+      endPressed = 0
+      return
     }
 
     // Calculate progress so far
