@@ -20,7 +20,7 @@ end
 ---@param name string (The name of the animation)
 ---@param duration? integer (Duration of the animation in ms - default:-1)
 ---@param flag? integer (The flag of the animation - default:0)
----@param offset? float (The offset of the animation 0.0 <> 1.0 - default: 0.0)
+---@param offset? number (The offset of the animation 0.0 <> 1.0 - default: 0.0)
 ---@return number
 function jo.animation.play(ped, dict, name, duration, flag, offset)
   if not duration then duration = -1 end
@@ -34,9 +34,9 @@ end
 --- Function to move a ped to a destination
 ---@param ped integer (The ped to move)
 ---@param coords vector (vec3 or vec4 - The coordinate of the destination <br> If vector4 is used, the ped will stop at the end and turn to the desired heading)
----@param speed? float (The speed of the walk - default:1.0)
+---@param speed? number (The speed of the walk - default:1.0)
 ---@param waiter? boolean (If need to wait the reach of location to end the function - default:false)
----@param distanceToStop? float (The distance between the ped and the destination to stop it - default:0.0)
+---@param distanceToStop? number (The distance between the ped and the destination to stop it - default:0.0)
 function jo.animation.goToCoords(ped, coords, speed, waiter, distanceToStop)
   speed = speed or 1.0
   if waiter or type(coords) == "vector4" then
