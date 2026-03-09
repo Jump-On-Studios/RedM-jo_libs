@@ -21,6 +21,7 @@ local menus = {}
 local menuCreators = {}
 jo.menu.listeners = {}
 local nuiShow = false
+local softHidden = false
 local timeoutClose = nil
 local currentMinimapType = GetMinimapType()
 local currentData = {}
@@ -822,6 +823,7 @@ end
 function jo.menu.softHide(cb, animation)
   animation = GetValue(animation, true)
   if not cb then return end
+  softHidden = true
   local keepInput = IsNuiFocusKeepingInput()
   local hideCursor = false
 
@@ -835,6 +837,11 @@ function jo.menu.softHide(cb, animation)
   SetNuiFocus(true, not hideCursor)
   SetNuiFocusKeepInput(keepInput)
   SendNUIMessage({ event = "updateShow", show = true, cancelAnimation = not animation })
+  softHidden = false
+end
+
+function jo.menu.isSoftHidden()
+  return softHidden
 end
 
 --- A function to know if the menu is the current one
