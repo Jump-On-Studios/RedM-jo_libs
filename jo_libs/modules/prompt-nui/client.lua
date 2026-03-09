@@ -2,20 +2,24 @@ jo.createModule("promptNui")
 jo.require("table")
 jo.require("raw-keys")
 
-local clockStart = GetGameTimer()
 local NativeSendNUIMessage = SendNUIMessage
+local nuiLoaded = false
+
 local function SendNUIMessage(data)
-    if clockStart + 1000 >= GetGameTimer() then Wait(1000) end
+    while not nuiLoaded do
+        Wait(100)
+    end
     data.messageTargetUiName = "jo_prompt"
     NativeSendNUIMessage(data)
 end
 
 CreateThread(function()
     Wait(100)
-    if GetResourceMetadata(GetCurrentResourceName(), "ui_page") == "nui://jo_libs/nui/prompt/index.html" then
-        return
+    if GetResourceMetadata(GetCurrentResourceName(), "ui_page") ~= "nui://jo_libs/nui/prompt/index.html" then
+        jo.nui.load("jo_prompt", "nui://jo_libs/nui/prompt/index.html")
+        Wait(1000)
     end
-    jo.nui.load("jo_prompt", "nui://jo_libs/nui/prompt/index.html")
+    nuiLoaded = true
 end)
 
 
