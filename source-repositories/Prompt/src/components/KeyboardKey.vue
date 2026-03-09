@@ -220,6 +220,8 @@ const showKeyDown = () => {
         calculateProgress(elapsed, durationMs.value)
       }
     }, 16) // ~60fps
+  } else {
+    sendKeyCompletedFromNUI(false)
   }
 }
 
