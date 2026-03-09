@@ -1,8 +1,10 @@
 jo.createModule("promptNui")
 jo.require("table")
+jo.require("raw-keys")
 
 local NativeSendNUIMessage = SendNUIMessage
 local nuiLoaded = false
+local keyListeners = {}
 
 local function SendNUIMessage(data)
     while not nuiLoaded do
@@ -48,7 +50,7 @@ local function removePage(group, pageNumber)
             SendNUIMessage({
                 type = "keyUp",
                 data = {
-                    key = key
+                    key = key:upper()
                 }
             })
         end
@@ -220,6 +222,20 @@ function GroupClass:addPrompt(key, label, holdTime, page)
     table.insert(self.prompts[page], prompt)
     prompt.page = page
     prompt.position = #self.prompts[page]
+
+    if not keyListeners[key] then
+        keyListeners[key] = true
+        jo.rawKeys.listen(key, function(isPressed)
+            if not jo.promptNui.isDisplayed() then return end
+            SendNUIMessage({
+                type = isPressed and "keyDown" or "keyUp",
+                data = {
+                    key = key:upper()
+                }
+            })
+        end)
+    end
+
     return prompt
 end
 
@@ -236,12 +252,11 @@ local loopStarted = false
 local function startLoop()
     if loopStarted then return end
     loopStarted = true
-    local isPreviousNuiFocused = IsNuiFocused()
-    local isPreviousKeepingInput = IsNuiFocusKeepingInput()
     CreateThread(function()
         while true do
-            if not currentGroupVisible then break end
-
+            if not jo.promptNui.isDisplayed() then
+                break
+            end
             -- Standard group display operations
             for i = 1, 12 do
                 UiPromptDisablePromptTypeThisFrame(i)
@@ -256,22 +271,16 @@ local function startLoop()
                 currentGroupVisible:forceDisplay()
             end
 
-            if not IsNuiFocused() then
-                SetNuiFocus(true, isPreviousNuiFocused and not isPreviousKeepingInput)
-                SetNuiFocusKeepInput(not isPreviousNuiFocused or isPreviousKeepingInput)
-            end
-
             Wait(0)
         end
-        SetNuiFocus(isPreviousNuiFocused, isPreviousNuiFocused and not isPreviousKeepingInput)
-        SetNuiFocusKeepInput(isPreviousKeepingInput)
+        loopStarted = false
     end)
 end
 
 --- Displays the prompt group on the NUI interface and sets up key listeners for the active page. If the group has multiple pages, it also configures pagination using the nextPageKey.
 --- @param page? number (The page number to display<br> defaults to the group's current page.)
 function GroupClass:display(page)
-    if currentGroupVisible then
+    if jo.promptNui.isDisplayed() then
         removePage(currentGroupVisible, currentGroupVisible.currentPage)
     end
 
@@ -299,7 +308,6 @@ function GroupClass:hide()
     currentGroupVisible = nil
     self.visible = false
     keysCompleted = {}
-    keysPressed = {}
     SendNUIMessage({
         type = "setGroup",
         data = {
@@ -358,7 +366,7 @@ function jo.promptNui.isCompleted(group, key, fireMultipleTimes)
 
     -- When a group is provided, only allow completion checks for the currently visible group.
     if group then
-        if not currentGroupVisible then return false end
+        if not jo.promptNui.isDisplayed() then return false end
 
         if type(group) == "table" then
             if currentGroupVisible.id ~= group.id then return false end
@@ -383,22 +391,29 @@ function jo.promptNui.isCompleted(group, key, fireMultipleTimes)
     return true
 end
 
+function jo.promptNui.isDisplayed()
+    return currentGroupVisible ~= nil
+end
+
 -- * ===============================================================================
 -- * RegisterNUICallback for NUI Driven
 -- * ===============================================================================
 RegisterNUICallback("keyCompleted", function(data, cb)
+    -- log("keyCompleted", data)
     local key = data.kkey:lower()
     keysCompleted[key] = GetGameTimer()
     cb({ ok = "ok" })
 end)
 
 RegisterNUICallback("keyUp", function(data, cb)
+    -- log("keyCompleted", data)
     local key = data.kkey:lower()
     keysCompleted[key] = nil
     cb({ ok = "ok" })
 end)
 
 RegisterNUICallback("keyDown", function(data, cb)
+    -- log("keyCompleted", data)
     local key = data.kkey:lower()
     keysCompleted[key] = nil
     cb({ ok = "ok" })
