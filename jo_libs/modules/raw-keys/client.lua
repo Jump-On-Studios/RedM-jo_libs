@@ -39,17 +39,26 @@ local keyboard_layout = GetConvar("jo_libs:keyboard_layout", "qwerty")
 keyboard_layout = string.lower(keyboard_layout)
 
 local reverseMap = {}
+local reverseMapQwerty = {}
+
+for key, vk in pairs(vk_qwerty) do
+    reverseMapQwerty[vk] = key:lower()
+end
+
 local function generateReverseMap()
     reverseMap = {}
-    local list = vk_qwerty
+    local list = table.clone(vk_qwerty)
     if keyboard_layout == "azerty" then
-        list = table.merge(vk_qwerty, vk_azerty)
+        table.merge(list, vk_azerty)
     end
+
     for key, vk in pairs(list) do
         reverseMap[vk] = key:lower()
     end
 end
 generateReverseMap()
+
+
 
 AddConvarChangeListener("jo_libs:keyboard_layout", function()
     keyboard_layout = GetConvar("jo_libs:keyboard_layout", "qwerty")
@@ -82,11 +91,13 @@ end
 --- @param callback function (The function to be executed when the key event occurs. It receives one parameter: <br> _boolean_ — `true` when the key is pressed, `false` when it is released.)
 function jo.rawKeys.listen(key, callback)
     if type(key) == "number" then
-        key = reverseMap[key]
+        key = reverseMapQwerty[key]
         if not key then return eprint("invalid vk key code") end
     end
     key = key:lower()
-    if alias[key] then key = alias[key] end
+    if alias[key] then
+        key = alias[key]
+    end
     events[key] = events[key] or {}
     table.insert(events[key], callback)
 end
@@ -95,7 +106,7 @@ end
 --- @param key string (The identifier of the key for which the listener should be removed.)
 function jo.rawKeys.remove(key)
     if type(key) == "number" then
-        key = reverseMap[key]
+        key = reverseMapQwerty[key]
         if not key then return eprint("invalid vk key code") end
     end
     key = key:lower()
