@@ -237,6 +237,7 @@ jo.component.data.wearableStates = {
     "shirt_009",
     "closed_collar_rolled_sleeve_vest_coat_open",
     "closed_collar_rolled_sleeve_coat_open",
+    "hidden"
   }
 }
 jo.component.data.wearableStatesName = {}
