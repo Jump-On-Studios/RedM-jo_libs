@@ -4,7 +4,6 @@ jo.require("raw-keys")
 
 local NativeSendNUIMessage = SendNUIMessage
 local nuiLoaded = false
-local keyListeners = {}
 
 local function SendNUIMessage(data)
     while not nuiLoaded do
@@ -29,7 +28,7 @@ end)
 
 local keysCompleted = {}
 local createdGroupsAmount = 0
-local currentGroupVisible = nil
+local currentGroupVisible = nil -- GroupClass|nil
 local forcedHide = false
 
 -- * =============================================================================
@@ -41,10 +40,14 @@ local forcedHide = false
 -- @param pageNumber number: The page number from which to remove key listeners.
 -- @return nil
 local function removePage(group, pageNumber)
+    jo.rawKeys.removeListener(group.nextPageListener)
+    group.nextPageListener = nil
     if not group.prompts[pageNumber] then return end
     for i = 1, #group.prompts[pageNumber] do
         local prompt = group.prompts[pageNumber][i]
         for j = 1, #prompt.keyboardKeys do
+            jo.rawKeys.removeListener(prompt.listener)
+            prompt.listener = nil
             local key = prompt.keyboardKeys[j]
             keysCompleted[key] = nil
             SendNUIMessage({
@@ -57,21 +60,79 @@ local function removePage(group, pageNumber)
     end
 end
 
+local function listenPage(group, pageNumber)
+    if not group.prompts[pageNumber] then return end
+    if #group.prompts > 1 then
+        group.nextPageListener = jo.rawKeys.listen(group.nextPageKey, function(isPressed)
+            SendNUIMessage({
+                type = isPressed and "keyDown" or "keyUp",
+                data = {
+                    key = group.nextPageKey
+                }
+            })
+            if isPressed then
+                SendNUIMessage({
+                    type = "nextPage",
+                })
+                removePage(group, group.currentPage)
+                group.currentPage = group.currentPage + 1
+                if (group.currentPage > #group.prompts) then group.currentPage = 1 end
+                listenPage(group, group.currentPage)
+            end
+        end)
+    end
+    for i = 1, #group.prompts[pageNumber] do
+        local prompt = group.prompts[pageNumber][i]
+        if (not prompt.disabled) then
+            for j = 1, #prompt.keyboardKeys do
+                local key = prompt.keyboardKeys[j]
+                if prompt.listener then
+                    jo.rawKeys.removeListener(prompt.listener)
+                    prompt.listener = nil
+                end
+                prompt.listener = jo.rawKeys.listen(key, function(isPressed)
+                    SendNUIMessage({
+                        type = isPressed and "keyDown" or "keyUp",
+                        data = {
+                            key = key
+                        }
+                    })
+                end)
+            end
+        end
+    end
+end
+
 -- * =============================================================================
 -- * PROMPT
 -- * =============================================================================
 
 ---@class PromptClass
-local PromptClass = {
-    label = "",
-    keyboardKeys = {},
-    holdTime = false,
-    disabled = false,
-    visible = true,
-    page = -1,
-    position = -1,
-    groupId = -1
-}
+---@field label string
+---@field keyboardKeys string[]
+---@field holdTime number|false
+---@field disabled boolean
+---@field visible boolean
+---@field page number
+---@field position number
+---@field groupId number
+---@field listener integer|nil
+local PromptClass = {}
+PromptClass.__index = PromptClass
+
+function PromptClass:new()
+    return setmetatable({
+        label = "",
+        keyboardKeys = {},
+        holdTime = false,
+        disabled = false,
+        visible = true,
+        page = -1,
+        position = -1,
+        groupId = -1,
+        listener = nil
+    }, self)
+end
 
 --- Refreshes the NUI interface for a prompt, updating a specific property. This update is only performed if the prompt belongs to the currently visible group.
 --- @param property string (The property name to update (e.g., "label", "disabled").)
@@ -146,16 +207,29 @@ end
 -- * =============================================================================
 
 ---@class GroupClass
-local GroupClass = {
-    id = -1,
-    title = "",
-    position = "bottom-right",
-    prompts = {},
-    visible = false,
-    nextPageKey = "A",
-    currentPage = 1,
+---@field id integer
+---@field title string
+---@field position string
+---@field prompts table<number, PromptClass[]>
+---@field visible boolean
+---@field nextPageKey string
+---@field nextPageListener integer|nil
+---@field currentPage number
+local GroupClass = {}
+GroupClass.__index = GroupClass
 
-}
+function GroupClass:new()
+    return setmetatable({
+        id = -1,
+        title = "",
+        position = "bottom-right",
+        prompts = {},
+        visible = false,
+        nextPageKey = "A",
+        nextPageListener = nil,
+        currentPage = 1,
+    }, self)
+end
 
 --- Refreshes the NUI interface for the group by updating a specified property. This update is only sent if the group is currently visible.
 --- @param property string (The group property to update (e.g., "title", "position",..).)
@@ -204,7 +278,7 @@ end
 --- @param page? number (The page number to add the prompt to<br> defaults to 1.)
 --- @return PromptClass (The newly created prompt object.)
 function GroupClass:addPrompt(key, label, holdTime, page)
-    local prompt = table.copy(PromptClass)
+    local prompt = PromptClass:new()
     key = key:lower()
     prompt.groupId = self.id
     prompt:setLabel(label)
@@ -223,19 +297,6 @@ function GroupClass:addPrompt(key, label, holdTime, page)
     prompt.page = page
     prompt.position = #self.prompts[page]
 
-    if not keyListeners[key] then
-        keyListeners[key] = true
-        jo.rawKeys.listen(key, function(isPressed)
-            if not jo.promptNui.isDisplayed() then return end
-            SendNUIMessage({
-                type = isPressed and "keyDown" or "keyUp",
-                data = {
-                    key = key:upper()
-                }
-            })
-        end)
-    end
-
     return prompt
 end
 
@@ -253,16 +314,13 @@ local function startLoop()
     if loopStarted then return end
     loopStarted = true
     CreateThread(function()
-        while true do
-            if not jo.promptNui.isDisplayed() then
-                break
-            end
+        while jo.promptNui.isDisplayed() do
             -- Standard group display operations
             for i = 1, 12 do
                 UiPromptDisablePromptTypeThisFrame(i)
             end
 
-            if isForcedHide() then
+            if currentGroupVisible and isForcedHide() then
                 currentGroupVisible:forceHide()
                 while isForcedHide() do
                     Wait(100)
@@ -280,7 +338,7 @@ end
 --- Displays the prompt group on the NUI interface and sets up key listeners for the active page. If the group has multiple pages, it also configures pagination using the nextPageKey.
 --- @param page? number (The page number to display<br> defaults to the group's current page.)
 function GroupClass:display(page)
-    if jo.promptNui.isDisplayed() then
+    if currentGroupVisible and jo.promptNui.isDisplayed() then
         removePage(currentGroupVisible, currentGroupVisible.currentPage)
     end
 
@@ -292,6 +350,7 @@ function GroupClass:display(page)
         type = "setGroup",
         data = table.clearForNui(self)
     })
+    listenPage(self, self.currentPage)
     startLoop()
 end
 
@@ -314,7 +373,6 @@ function GroupClass:hide()
             prompts = {}
         }
     })
-    -- jo.rawKeys.remove(self.nextPageKey)
     removePage(self, self.currentPage)
 end
 
@@ -335,7 +393,7 @@ end
 --- @param position? string (The screen position for the group. <br> Allowed values are : `"bottom-right"`,`"center-right"`,`"top-right"`,`"bottom-left"`,`"center-left"`,`"top-left"` <br> default : `"bottom-right"`)
 --- @return GroupClass (A new instance of a prompt group.)
 function jo.promptNui.createGroup(title, position)
-    local group = table.copy(GroupClass)
+    local group = GroupClass:new()
     group:setTitle(title)
     createdGroupsAmount = createdGroupsAmount + 1
     group.id = createdGroupsAmount
