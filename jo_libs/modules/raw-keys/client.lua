@@ -2,6 +2,8 @@ jo.createModule("rawKeys")
 jo.file.load("raw-keys.vk_qwerty")
 jo.file.load("raw-keys.vk_azerty")
 
+local nextListenerId = 1
+
 local alias = {
     backspace = "back",
     enter = "return",
@@ -69,14 +71,14 @@ end)
 local function keyDown(vk)
     local key = reverseMap[vk]
     for e = 1, #(events[key] or {}) do
-        events[key][e](true)
+        events[key][e].callback(true)
     end
 end
 
 local function keyUp(vk)
     local key = reverseMap[vk]
     for e = 1, #(events[key] or {}) do
-        events[key][e](false)
+        events[key][e].callback(false)
     end
 end
 
@@ -89,7 +91,10 @@ end
 --- Registers a listener for a specific key. When the key is pressed or released, the provided callback function is executed with a boolean value indicating the event state (true for pressed, false for released).
 --- @param key string (The identifier of the key to listen for. This should correspond to one of the keys defined in the [keyboard mappings](#keyboard-keys-mapping) (e.g., "A", "B", "F1", etc.) or the numerical key code)
 --- @param callback function (The function to be executed when the key event occurs. It receives one parameter: <br> _boolean_ — `true` when the key is pressed, `false` when it is released.)
+--- @return integer (The unique identifier for the listener, which can be used to remove it later.)
 function jo.rawKeys.listen(key, callback)
+    nextListenerId += 1
+    local id = nextListenerId
     if type(key) == "number" then
         key = reverseMapQwerty[key]
         if not key then return eprint("invalid vk key code") end
@@ -99,10 +104,12 @@ function jo.rawKeys.listen(key, callback)
         key = alias[key]
     end
     events[key] = events[key] or {}
-    table.insert(events[key], callback)
+    table.insert(events[key], { id = id, callback = callback })
+    return id
 end
 
---- Removes the listener associated with the specified key. Use this function to stop listening for events on a key when it is no longer needed.
+--- Removes all listeners associated with the specified key. Use this function to stop listening for events on a key when it is no longer needed.
+---@deprecated since v2.9.0. Use jo.rawKeys.removeListener instead
 --- @param key string (The identifier of the key for which the listener should be removed.)
 function jo.rawKeys.remove(key)
     if type(key) == "number" then
@@ -113,4 +120,19 @@ function jo.rawKeys.remove(key)
     if alias[key] then key = alias[key] end
     if not events[key] then return end
     events[key] = nil
+end
+
+--- Removes the listener associated with the specified ID. Use this function to stop listening for events on a key when it is no longer needed.
+---@param id string (The ID of the listener to remove.)
+function jo.rawKeys.removeListener(id)
+    if not id then return false end
+    for _, listeners in pairs(events) do
+        for l = 1, #listeners do
+            if listeners[l].id == id then
+                table.remove(listeners, l)
+                return true
+            end
+        end
+    end
+    return false
 end
