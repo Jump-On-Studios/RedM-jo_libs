@@ -326,7 +326,9 @@ local function startLoop()
                     Wait(100)
                 end
                 Wait(650)
-                currentGroupVisible:forceDisplay()
+                if currentGroupVisible then
+                    currentGroupVisible:forceDisplay()
+                end
             end
 
             Wait(0)
