@@ -346,6 +346,14 @@ function GroupClass:display(page)
 
     currentGroupVisible = self
 
+    if forcedHide then
+        forcedHide = false
+        SendNUIMessage({
+            type = "forceHide",
+            data = { value = false }
+        })
+    end
+
     self.currentPage = page and math.min(page, #self.prompts) or self.currentPage
     self.visible = true
     SendNUIMessage({
