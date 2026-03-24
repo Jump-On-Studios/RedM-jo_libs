@@ -509,8 +509,27 @@ end
 ---@return table (Return the list of clothes with standardized categories and properties)
 function jo.framework:getUserClothes(source)
   local clothes = self:getUserClothesInternal(source)
-  if table.isEmpty(clothes) then return {} end
-  return self:standardizeClothes(clothes)
+  local standardized
+  if not table.isEmpty(clothes) then
+    standardized = self:standardizeClothes(clothes)
+  else
+    standardized = {}
+  end
+
+  -- If murphy_clothing is running, overlay its clothes data
+  -- murphy_clothing stores clothes in its own DB and uses standardized category names
+  if GetResourceState('murphy_clothing') == 'started' then
+    local ok, murphyClothes = pcall(exports.murphy_clothing.GetPlayerClothes, exports.murphy_clothing, source)
+    if ok and murphyClothes and type(murphyClothes) == "table" and next(murphyClothes) then
+      for category, data in pairs(murphyClothes) do
+        if type(data) == "table" then
+          standardized[category] = data
+        end
+      end
+    end
+  end
+
+  return clearClothesTable(standardized)
 end
 
 --- Retrieves a player's skin data with standardized properties and formatting
