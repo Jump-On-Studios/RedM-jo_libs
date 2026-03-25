@@ -374,16 +374,20 @@ end
 
 --- Hides the prompt group from the NUI interface and removes its active key listeners.
 function GroupClass:hide()
-    currentGroupVisible = nil
     self.visible = false
-    keysCompleted = {}
-    SendNUIMessage({
-        type = "setGroup",
-        data = {
-            prompts = {}
-        }
-    })
     removePage(self, self.currentPage)
+
+    -- Only clear the global state if this group is still the active one
+    if currentGroupVisible == self then
+        currentGroupVisible = nil
+        keysCompleted = {}
+        SendNUIMessage({
+            type = "setGroup",
+            data = {
+                prompts = {}
+            }
+        })
+    end
 end
 
 function GroupClass:forceHide()
