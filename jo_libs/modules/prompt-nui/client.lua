@@ -32,76 +32,88 @@ local currentGroupVisible = nil -- GroupClass|nil
 local forcedHide = false
 
 -- * =============================================================================
--- * HELPERS
+-- * KEYS
 -- * =============================================================================
 
--- Removes key listeners and resets key states for all prompts on a specified page.
--- @param group table: The prompt group containing the page.
--- @param pageNumber number: The page number from which to remove key listeners.
--- @return nil
-local function removePage(group, pageNumber)
-    jo.rawKeys.removeListener(group.nextPageListener)
-    group.nextPageListener = nil
-    if not group.prompts[pageNumber] then return end
-    for i = 1, #group.prompts[pageNumber] do
-        local prompt = group.prompts[pageNumber][i]
-        for j = 1, #prompt.keyboardKeys do
-            jo.rawKeys.removeListener(prompt.listener)
-            prompt.listener = nil
-            local key = prompt.keyboardKeys[j]
-            keysCompleted[key] = nil
-            SendNUIMessage({
-                type = "keyUp",
-                data = {
-                    key = key:upper()
-                }
-            })
+local function doesKeyIsInVisiblePrompt(prompt, keys)
+    if not prompt.visible then return false end
+    for k = 1, #keys do
+        if table.find(prompt.keyboardKeys, keys[k]) then
+            return true, keys[k]
         end
     end
+    return false
 end
 
-local function listenPage(group, pageNumber)
-    if not group.prompts[pageNumber] then return end
-    if #group.prompts > 1 then
-        group.nextPageListener = jo.rawKeys.listen(group.nextPageKey, function(isPressed)
+local function keyDown(vk)
+    if not currentGroupVisible then return end
+    local group = currentGroupVisible
+    local page = group.currentPage
+    local prompts = group.prompts[page]
+    local key = jo.rawKeys.getKeyFromVK(vk)
+    if not key then return end
+    local alias = jo.rawKeys.getAliasFromStandardKey(key)
+    local keys = { key }
+    if alias ~= key then
+        keys[#keys + 1] = alias
+    end
+    for p = 1, #prompts do
+        local prompt = prompts[p]
+        local isValid, validKey = doesKeyIsInVisiblePrompt(prompt, keys)
+        if isValid then
             SendNUIMessage({
-                type = isPressed and "keyDown" or "keyUp",
+                type = "keyDown",
                 data = {
-                    key = group.nextPageKey
+                    key = validKey
                 }
             })
-            if isPressed then
+            if validKey == group.nextPageKey then
                 SendNUIMessage({
                     type = "nextPage",
                 })
-                removePage(group, group.currentPage)
                 group.currentPage = group.currentPage + 1
                 if (group.currentPage > #group.prompts) then group.currentPage = 1 end
-                listenPage(group, group.currentPage)
             end
-        end)
-    end
-    for i = 1, #group.prompts[pageNumber] do
-        local prompt = group.prompts[pageNumber][i]
-        if (not prompt.disabled) then
-            for j = 1, #prompt.keyboardKeys do
-                local key = prompt.keyboardKeys[j]
-                if prompt.listener then
-                    jo.rawKeys.removeListener(prompt.listener)
-                    prompt.listener = nil
-                end
-                prompt.listener = jo.rawKeys.listen(key, function(isPressed)
-                    SendNUIMessage({
-                        type = isPressed and "keyDown" or "keyUp",
-                        data = {
-                            key = key
-                        }
-                    })
-                end)
-            end
+            return true
         end
     end
 end
+
+local function keyUp(vk)
+    local key = jo.rawKeys.getKeyFromVK(vk)
+    SendNUIMessage({
+        type = "keyUp",
+        data = {
+            key = key
+        }
+    })
+    local alias = jo.rawKeys.getAliasFromStandardKey(key)
+    if alias == key then return end
+    SendNUIMessage({
+        type = "keyUp",
+        data = {
+            key = alias
+        }
+    })
+end
+
+local vks = jo.rawKeys.getAllVK()
+local vk_listener = {}
+jo.ready(function()
+    for k = 1, #vks do
+        local vk = vks[k]
+        local listener = jo.rawKeys.listen(vk, function(isPressed)
+            if isPressed then keyDown(vk) else keyUp(vk) end
+        end)
+        table.insert(vk_listener, listener)
+    end
+end)
+
+jo.stopped(function()
+    for l = 1, #vk_listener do
+        jo.rawKeys.removeListener(vk_listener[l])
+    end
+end)
 
 -- * =============================================================================
 -- * PROMPT
@@ -191,7 +203,7 @@ function PromptClass:setKeyboardKeys(keyboardKeys)
     if type(keyboardKeys) == "table" then
         self.keyboardKeys = keyboardKeys
     else
-        self.keyboardKeys = { string.upper(keyboardKeys) }
+        self.keyboardKeys = { keyboardKeys }
     end
 end
 
@@ -340,10 +352,6 @@ end
 --- Displays the prompt group on the NUI interface and sets up key listeners for the active page. If the group has multiple pages, it also configures pagination using the nextPageKey.
 --- @param page? number (The page number to display<br> defaults to the group's current page.)
 function GroupClass:display(page)
-    if currentGroupVisible and jo.promptNui.isDisplayed() then
-        removePage(currentGroupVisible, currentGroupVisible.currentPage)
-    end
-
     currentGroupVisible = self
 
     if forcedHide then
@@ -360,7 +368,6 @@ function GroupClass:display(page)
         type = "setGroup",
         data = table.clearForNui(self)
     })
-    listenPage(self, self.currentPage)
     startLoop()
 end
 
@@ -375,7 +382,6 @@ end
 --- Hides the prompt group from the NUI interface and removes its active key listeners.
 function GroupClass:hide()
     self.visible = false
-    removePage(self, self.currentPage)
 
     -- Only clear the global state if this group is still the active one
     if currentGroupVisible == self then

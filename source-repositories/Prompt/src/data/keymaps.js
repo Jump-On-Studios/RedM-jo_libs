@@ -1,47 +1,47 @@
 export const keymaps = {
-  LCONTROL: {
+  lcontrol: {
     text: 'CTRL',
   },
-  SPACE: {
+  space: {
     image: './assets/images/keys/SPACE.png',
   },
-  ENTER: {
+  enter: {
     image: './assets/images/keys/ENTER.png',
   },
-  RETURN: {
+  return: {
     image: './assets/images/keys/ENTER.png',
   },
-  PAGEUP: {
+  pageup: {
     image: './assets/images/keys/PAGE_UP.png',
   },
-  PRIOR: {
+  prior: {
     image: './assets/images/keys/PAGE_UP.png',
   },
-  PAGEDOWN: {
+  pagedown: {
     image: './assets/images/keys/PAGE_DOWN.png',
   },
-  NEXT: {
+  next: {
     image: './assets/images/keys/PAGE_DOWN.png',
   },
-  HOME: {
+  home: {
     image: './assets/images/keys/HOME.png',
   },
-  BACKSPACE: {
+  backspace: {
     image: './assets/images/keys/BACKSPACE.png',
   },
-  BACK: {
+  back: {
     image: './assets/images/keys/BACKSPACE.png',
   },
-  LEFT: {
+  left: {
     image: './assets/images/keys/ARROW_LEFT.png',
   },
-  UP: {
+  up: {
     image: './assets/images/keys/ARROW_TOP.png',
   },
-  RIGHT: {
+  right: {
     image: './assets/images/keys/ARROW_RIGHT.png',
   },
-  DOWN: {
+  down: {
     image: './assets/images/keys/ARROW_BOTTOM.png',
   },
 }

@@ -34,6 +34,8 @@ local alias = {
     ["]"] = "oem_6",
     ["'"] = "oem_7",
 }
+local reverseAlias = {}
+for alias, key in pairs(alias) do reverseAlias[key] = alias end
 
 local events = {}
 
@@ -60,8 +62,6 @@ local function generateReverseMap()
 end
 generateReverseMap()
 
-
-
 AddConvarChangeListener("jo_libs:keyboard_layout", function()
     keyboard_layout = GetConvar("jo_libs:keyboard_layout", "qwerty")
     keyboard_layout = string.lower(keyboard_layout)
@@ -85,8 +85,6 @@ end
 for key, vk in pairs(vk_qwerty) do
     RegisterRawKeymap(jo.resourceName .. ":rawKeys:" .. key:lower(), function() keyDown(vk) end, function() keyUp(vk) end, vk, true)
 end
-
-
 
 --- Registers a listener for a specific key. When the key is pressed or released, the provided callback function is executed with a boolean value indicating the event state (true for pressed, false for released).
 --- @param key string (The identifier of the key to listen for. This should correspond to one of the keys defined in the [keyboard mappings](#keyboard-keys-mapping) (e.g., "A", "B", "F1", etc.) or the numerical key code)
@@ -135,4 +133,24 @@ function jo.rawKeys.removeListener(id)
         end
     end
     return false
+end
+
+function jo.rawKeys.getKeyFromVK(vk)
+    local key = reverseMap[vk]
+    return key
+end
+
+function jo.rawKeys.getAliasFromStandardKey(key)
+    key = key:lower()
+    return reverseAlias[key] or key
+end
+
+local vks
+function jo.rawKeys.getAllVK()
+    if vks then return vks end
+    vks = {}
+    for _, vk in pairs(vk_qwerty) do
+        vks[#vks + 1] = vk
+    end
+    return vks
 end
