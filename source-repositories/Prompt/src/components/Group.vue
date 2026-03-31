@@ -9,36 +9,20 @@ const groupStore = useGroupStore()
 </script>
 
 <template>
-  <div id="group"
-       v-if="groupStore.prompts.length > 0"
-       :class="[groupStore.position]">
+  <div id="group" v-if="groupStore.prompts.length > 0" :class="[groupStore.position]">
     <div id="prompts">
-      <Prompt v-for="(prompt, index) in groupStore.prompts[groupStore.currentPageIndex]"
-              :key="index"
-              :prompt="prompt"
-              :isLeft="groupStore.position.includes('left')" />
+      <Prompt v-for="(prompt, index) in groupStore.prompts[groupStore.currentPageIndex]" :key="index" :prompt="prompt" :isLeft="groupStore.position.includes('left')" />
     </div>
 
-    <img id="line"
-         v-if="!(groupStore.title === false)"
-         src="/assets/images/ilo_title_line.webp"
-         alt="ilo_title_line" />
+    <img id="line" v-if="!(groupStore.title === false)" src="/assets/images/ilo_title_line.webp" alt="ilo_title_line" />
 
-    <div v-if="groupStore.title"
-         id="groupTitle"
-         class="crock">
+    <div v-if="groupStore.title" id="groupTitle" class="crock">
       <span v-html="groupStore.title"></span>
-      <KeyboardKey v-if="groupStore.prompts.length > 1"
-                   :kkey="groupStore.nextPageKey"
-                   :isNextPage="true"></KeyboardKey>
+      <KeyboardKey v-if="groupStore.prompts.length > 1" :kkey="groupStore.nextPageKey" :isNextPage="true"></KeyboardKey>
     </div>
 
-    <div id="dots"
-         v-if="groupStore.prompts.length > 1">
-      <div class="dot"
-           v-for="(prompt, index) in groupStore.prompts"
-           :key="index"
-           :class="{ active: groupStore.currentPageIndex === index }">
+    <div id="dots" v-if="groupStore.prompts.length > 1">
+      <div class="dot" v-for="(prompt, index) in groupStore.prompts" :key="index" :class="{ active: groupStore.currentPageIndex === index }">
 
       </div>
     </div>

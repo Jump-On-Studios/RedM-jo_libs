@@ -12,13 +12,7 @@ const props = defineProps({
       <span v-html="props.prompt.label"></span>
     </div>
     <div id="keyboardKeys">
-      <KeyboardKey
-        v-for="(keyboardKey, index) in props.prompt.keyboardKeys"
-        :key="index"
-        :holdTime="props.prompt.holdTime"
-        :kkey="keyboardKey"
-        :disabled="prompt.disabled"
-      />
+      <KeyboardKey v-for="(keyboardKey, index) in props.prompt.keyboardKeys" :key="index" :holdTime="props.prompt.holdTime" :kkey="keyboardKey" :disabled="prompt.disabled" />
     </div>
   </div>
 </template>

@@ -187,6 +187,7 @@ const calculateProgress = (elapsed, total) => {
 // Show key press state and start animation if applicable
 const showKeyDown = () => {
   if (props.disabled) return
+  if (isActive.value) return
   isActive.value = true
   if (props.holdTime) {
     // Clear any existing animation

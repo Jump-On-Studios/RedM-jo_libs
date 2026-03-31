@@ -99,7 +99,8 @@ end
 
 local vks = jo.rawKeys.getAllVK()
 local vk_listener = {}
-jo.ready(function()
+CreateThread(function()
+    while not nuiLoaded do Wait(100) end
     for k = 1, #vks do
         local vk = vks[k]
         local listener = jo.rawKeys.listen(vk, function(isPressed)
