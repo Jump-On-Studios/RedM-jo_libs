@@ -48,6 +48,11 @@ function jo.framework.UserClass:getJob()
   return ""
 end
 
+---@return number jobGrade
+function jo.framework.UserClass:getJobGrade()
+  return 0
+end
+
 --- Returns the roleplay name (first and last name) of the player
 ---@return string (Returns the formatted first and last name of the player)
 function jo.framework.UserClass:getRPName()

@@ -81,6 +81,11 @@ function jo.framework.UserClass:getJob()
   return nil
 end
 
+---@return number jobGrade player's job grade
+function jo.framework.UserClass:getJobGrade()
+  return 0
+end
+
 ---@return string name player's name
 function jo.framework.UserClass:getRPName()
   local User = self.data
