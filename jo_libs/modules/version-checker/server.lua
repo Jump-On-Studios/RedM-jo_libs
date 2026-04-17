@@ -1,7 +1,15 @@
 -------------
 -- Generic version-checker module. Defaults route to the JUMP ON Studios
 -- release API and download portal; third-party script authors can override
--- any field via `jo.versionChecker.setConfig(...)` before `jo.ready` fires.
+-- any field by declaring metadata in their own `fxmanifest.lua`:
+--
+--   author "twinded.ca"                                     -- footer branding
+--   version "1.0.0"                                         -- standard FiveM
+--   versionEndpoint "https://your.domain/checkVersion?package=%d"
+--   downloadUrl "https://your.domain/download"
+--
+-- All per-resource keys are optional; anything left out falls back to the
+-- JUMP ON Studios defaults, so existing scripts keep their current behaviour.
 -------------
 
 jo.require("string")
@@ -50,30 +58,27 @@ local defaultConfig = {
   stripPrefix = true,
 }
 
-local config = nil
+-- Maps internal config keys to the fxmanifest metadata keys that override them.
+-- Keys not listed here are not user-configurable from the fxmanifest.
+local metadataKeys = {
+  apiUrl = "versionEndpoint",
+  downloadUrl = "downloadUrl",
+  brandingName = "author",
+}
 
---- Configure the backend used by `jo.versionChecker.checkUpdate()`.
---- Call this before `jo.ready` fires (typically at the top of your
---- resource's server.lua). Omitted fields keep the JUMP ON Studios
---- defaults, so third-party scripts can override only what they need.
----@param opts table
----| "apiUrl" # string? — URL template, `%d` is replaced by the resource's `package_id`
----| "downloadUrl" # string|fun(packageID: integer):string? — static URL or resolver
----| "brandingName" # string? — shown inside the footer line
----| "versionKey" # string? — JSON key holding the latest version (default: `"version"`)
----| "bodyKey" # string? — JSON key holding the release notes (default: `"body"`)
----| "stripPrefix" # boolean? — strip a leading `v` from the API's version string (default: `true`)
-function jo.versionChecker.setConfig(opts)
-  config = opts or {}
-end
-
-local function getConfig(key)
-  if config and config[key] ~= nil then return config[key] end
+local function getConfig(resource, key)
+  local metaKey = metadataKeys[key]
+  if metaKey then
+    local value = GetResourceMetadata(resource, metaKey, 0)
+    if value and value ~= "" then
+      return value
+    end
+  end
   return defaultConfig[key]
 end
 
-local function resolveDownloadUrl(packageID)
-  local downloadUrl = getConfig("downloadUrl")
+local function resolveDownloadUrl(resource, packageID)
+  local downloadUrl = getConfig(resource, "downloadUrl")
   if type(downloadUrl) == "function" then
     return downloadUrl(packageID)
   end
@@ -132,11 +137,11 @@ function jo.versionChecker.checkUpdate()
     --   framework = urlencode(jo.framework:get())
     -- end
 
-    local apiUrl = getConfig("apiUrl")
-    local versionKey = getConfig("versionKey")
-    local bodyKey = getConfig("bodyKey")
-    local stripPrefix = getConfig("stripPrefix")
-    local brandingName = getConfig("brandingName")
+    local apiUrl = getConfig(myResource, "apiUrl")
+    local versionKey = getConfig(myResource, "versionKey")
+    local bodyKey = getConfig(myResource, "bodyKey")
+    local stripPrefix = getConfig(myResource, "stripPrefix")
+    local brandingName = getConfig(myResource, "brandingName")
 
     local link = apiUrl:format(packageID)
     PerformHttpRequest(link, function(errorCode, resultData, resultHeaders, errorData)
@@ -158,7 +163,7 @@ function jo.versionChecker.checkUpdate()
       print("")
       print("^3" .. myResource .. ": ^5 Update found : Version " .. remoteVersion .. "^0")
       print("^3" .. myResource .. ": ^1 Your Version : Version v" .. currentVersion .. "^0")
-      print(("^3Download it on ^0%s"):format(resolveDownloadUrl(packageID)))
+      print(("^3Download it on ^0%s"):format(resolveDownloadUrl(myResource, packageID)))
       print("")
       print("^3 Description of " .. remoteVersion .. ":^0")
       print(resultData[bodyKey])
