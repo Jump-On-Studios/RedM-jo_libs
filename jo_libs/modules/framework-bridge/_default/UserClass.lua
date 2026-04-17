@@ -48,7 +48,8 @@ function jo.framework.UserClass:getJob()
   return ""
 end
 
----@return number jobGrade
+--- Returns the current job grade assigned to a player
+---@return number (Returns the job grade of the player)
 function jo.framework.UserClass:getJobGrade()
   return 0
 end
