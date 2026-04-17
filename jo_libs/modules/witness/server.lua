@@ -1,4 +1,5 @@
 jo.require("framework-bridge")
+jo.require("emit")
 
 jo.createModule("witness")
 
@@ -13,19 +14,15 @@ jo.createModule("witness")
 function jo.witness.report(jobs, title, message, coords, blipDuration)
   if not jobs or #jobs == 0 then return end
 
-  local jobSet = {}
-  for _, j in ipairs(jobs) do jobSet[j] = true end
+  local targets = jo.framework:getPlayersWithJobs(jobs)
+  if #targets == 0 then return end
 
-  local duration = blipDuration or 600000
-
-  for _, playerId in ipairs(GetPlayers()) do
-    local src = tonumber(playerId)
-    local user = jo.framework:getUser(src)
-    if user and type(user) == "table" then
-      local job = user:getJob()
-      if job and jobSet[job] then
-        TriggerClientEvent("jo_libs:witness:alert", src, title, message, coords, duration)
-      end
-    end
-  end
+  jo.emit.triggerClient(
+    "jo_libs:witness:alert",
+    targets,
+    title,
+    message,
+    coords,
+    blipDuration or 600000
+  )
 end
