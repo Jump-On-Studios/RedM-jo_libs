@@ -1,5 +1,3 @@
-jo.require("framework-bridge")
-
 jo.createModule("webhook")
 
 -- When nil, `dispatch` falls back to reading `Config.Webhook` and the global
@@ -69,29 +67,25 @@ function jo.webhook.buildEmbed(opts)
   }
 end
 
---- Return basic identity info for a player, useful as webhook embed fields.
+--- Return basic identity info for a player using native FiveM APIs only.
+--- Extra identifiers (char ID, job, etc.) must be supplied by the caller
+--- via `opts.player` on `buildPayload`, so this module stays independent
+--- of the framework-bridge.
 ---@param source integer Server ID of the player
----@return table info `{ name, serverId, steam, charId }`
+---@return table info `{ name, serverId, steam }`
 function jo.webhook.getPlayerInfo(source)
   local info = {
     name = GetPlayerName(source) or "Unknown",
     serverId = tostring(source),
     steam = "Unknown",
-    charId = "Unknown",
   }
 
-  for _, id in ipairs(GetPlayerIdentifiers(source) or {}) do
+  local identifiers = GetPlayerIdentifiers(source) or {}
+  for i = 1, #identifiers do
+    local id = identifiers[i]
     if id:find("^steam:") then
       info.steam = id
       break
-    end
-  end
-
-  if jo.isModuleLoaded("framework-bridge", false) then
-    local user = jo.framework:getUser(source)
-    if type(user) == "table" then
-      local ids = user:getIdentifiers()
-      if ids then info.charId = tostring(ids.charid or "Unknown") end
     end
   end
 
@@ -99,27 +93,31 @@ function jo.webhook.getPlayerInfo(source)
 end
 
 --- Build a ready-to-dispatch Discord payload with player identity fields
---- (Player / Server ID / Steam) prepended to the embed fields.
+--- prepended to the embed fields. When `opts.player` is provided it is used
+--- verbatim, so callers can inject framework-specific fields like `charId`
+--- without creating a dependency from this module on framework-bridge.
 ---@param source integer Server ID of the player
 ---@param opts table
 ---| "title" # string? — Embed title
 ---| "description" # string? — Embed description
 ---| "color" # integer? — Embed color
+---| "player" # table? — `{ name?, serverId?, steam?, charId?, ... }` overrides the native lookup
 ---| "extra_fields" # table? — Additional embed fields appended after the identity fields
 ---| "script_name" # string? — Override username/footer (default: current resource)
 ---| "avatar_url" # string? — Webhook avatar URL
 ---@return table payload
 function jo.webhook.buildPayload(source, opts)
-  local player = jo.webhook.getPlayerInfo(source)
+  local player = opts.player or jo.webhook.getPlayerInfo(source)
   local script_name = opts.script_name or GetCurrentResourceName()
 
-  local fields = {
-    { name = "Player",    value = player.name,     inline = true },
-    { name = "Server ID", value = player.serverId, inline = true },
-    { name = "Steam",     value = player.steam,    inline = true },
-  }
+  local fields = {}
+  if player.name     then fields[#fields + 1] = { name = "Player",    value = tostring(player.name),     inline = true } end
+  if player.serverId then fields[#fields + 1] = { name = "Server ID", value = tostring(player.serverId), inline = true } end
+  if player.steam    then fields[#fields + 1] = { name = "Steam",     value = tostring(player.steam),    inline = true } end
+  if player.charId   then fields[#fields + 1] = { name = "Char ID",   value = tostring(player.charId),   inline = true } end
+
   if opts.extra_fields then
-    for _, f in ipairs(opts.extra_fields) do fields[#fields + 1] = f end
+    for i = 1, #opts.extra_fields do fields[#fields + 1] = opts.extra_fields[i] end
   end
 
   return {
