@@ -19,7 +19,8 @@ local function getPlayersInstances()
             local previous = playersInstances[source]
             if previous ~= instance then
                 playersInstances[source] = instance
-                TriggerEvent("jo_libs:player:instanceChanged", source, previous, instance)
+                TriggerEvent("jo_libs:player:instanceChanged", source, instance, previous)
+                TriggerClientEvent("jo_libs:player:instanceChanged", tonumber(source) --[[@as integer]], instance, previous)
             end
         end
     end
