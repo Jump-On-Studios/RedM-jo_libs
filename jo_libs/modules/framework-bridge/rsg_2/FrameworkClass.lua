@@ -20,8 +20,8 @@ function jo.framework:registerUseItem(item, closeAfterUsed, callback)
     callback = closeAfterUsed
     closeAfterUsed = true
   end
-  local isAdded = RSGCore.Functions.AddItem(item, nil)
-  if isAdded then
+  local itemExists = RSGCore.Shared.Items[item] ~= nil
+  if not itemExists then
     return eprint(item .. " < item does not exist in the core configuration")
   end
   RSGCore.Functions.CreateUseableItem(item, function(source, data)
