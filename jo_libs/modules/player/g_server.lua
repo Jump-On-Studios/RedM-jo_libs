@@ -1,4 +1,5 @@
 jo.require("timeout")
+jo.require("callback")
 
 -- Last known routing bucket per player source, used to detect changes between polls.
 local playersInstances = {}
@@ -12,21 +13,27 @@ local playersInstances = {}
 local function getPlayersInstances()
     local players = GetPlayers()
     for i = 1, #players do
-        local handle = players[i]
-        local source = handle
+        local source = tonumber(players[i])
+
         if source then
-            local instance = GetPlayerRoutingBucket(handle)
+            local instance = GetPlayerRoutingBucket(source)
             local previous = playersInstances[source]
             if previous ~= instance then
                 playersInstances[source] = instance
                 TriggerEvent("jo_libs:player:instanceChanged", source, instance, previous)
-                TriggerClientEvent("jo_libs:player:instanceChanged", tonumber(source) --[[@as integer]], instance, previous)
+                TriggerClientEvent("jo_libs:player:instanceChanged", source, instance, previous)
             end
         end
     end
 end
 
-jo.timeout.loop(2000, getPlayersInstances)
+jo.ready(function()
+    jo.timeout.loop(2000, getPlayersInstances)
+end)
+
+jo.callback.register("jo_libs:player:getPlayerInstance", function(source)
+    return playersInstances[source]
+end)
 
 -------------
 -- CLEANUP
