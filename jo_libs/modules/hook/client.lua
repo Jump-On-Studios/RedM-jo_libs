@@ -9,5 +9,5 @@ function jo.hook.applyServerFilters(name, value, ...)
   if jo.debug then
     bprint("Server filter fired: %s", name)
   end
-  return jo.callback.triggerServer(jo.resourceName .. "hook:callFilter", name, value, ...)
+  return jo.callback.triggerServer(jo.resourceName .. ":hook:callFilter", name, value, ...)
 end

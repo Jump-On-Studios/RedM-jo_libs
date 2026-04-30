@@ -39,7 +39,7 @@ local function waitInitInventoryItems()
 end
 
 jo.ready(function()
-  jo.callback.register.latent("jo_framework_getInventoryItems", function()
+  jo.callback.register.latent("jo_libs:server:jo_framework_getInventoryItems", function()
     waitInitInventoryItems()
     return jo.framework.inventoryItems
   end)
