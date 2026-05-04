@@ -1,5 +1,9 @@
+jo.require("callback")
+
 if GetCurrentResourceName() == "jo_libs" then return end
 
+local instanceChangedCallbacks = {}
+local currentInstance = nil
 local moveCallbacks = {}
 local numberMoveCallback = 0
 local lastCallDidMoveFunc = {}
@@ -42,6 +46,31 @@ end)
 function jo.player.forceUpdate()
   exports.jo_libs:jo_player_force_update()
 end
+
+--- A function fired when the local player's routing bucket (instance) changes.
+--- Also fires immediately if the current instance is already known, or requests it
+--- from the server if not — guaranteeing exactly one initial call per registration.
+---@param cb function (function called with `(newInstance, oldInstance)`)
+function jo.player.instanceChanged(cb)
+  if not cb then return eprint("The callback function is nil") end
+  jo.waitLibLoading()
+  instanceChangedCallbacks[#instanceChangedCallbacks + 1] = cb
+  if currentInstance ~= nil then return end
+  currentInstance = jo.callback.triggerServer("jo_libs:player:getPlayerInstance")
+  if currentInstance then
+    CreateThread(function() pcall(cb, currentInstance, nil) end)
+  end
+end
+
+RegisterNetEvent("jo_libs:player:instanceChanged", function(newInstance, oldInstance)
+  currentInstance = newInstance
+  for i = 1, #instanceChangedCallbacks do
+    local status, err = pcall(instanceChangedCallbacks[i], newInstance, oldInstance)
+    if not status then
+      eprint("Error in jo.player.instanceChanged callback: %s", err)
+    end
+  end
+end)
 
 --- A function fired when the player move every 100ms
 ---@param cb function (function to fired when the player moves)

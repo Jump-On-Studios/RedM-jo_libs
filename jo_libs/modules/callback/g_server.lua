@@ -39,9 +39,23 @@ function jo.callback.registerLatentCallback(name, cb)
   jo.callback.registerCallback(name, cb, true)
 end
 
+jo.callback.register = setmetatable({},
+  {
+    __index = function(_, key)
+      if key == "latent" then
+        return jo.callback.registerLatentCallback
+      end
+      return jo.callback["register" .. key]
+    end,
+    __call = function(_, ...)
+      jo.callback.registerCallback(...)
+    end,
+  }
+)
+
 AddEventHandler("onResourceStop", function(resource)
   for name, callback in pairs(registeredCallback) do
-    if callback.resource == resource then
+    if callback.resource == resource and name:split(":")[1] ~= "jo_libs" then
       registeredCallback[name] = nil
     end
   end
