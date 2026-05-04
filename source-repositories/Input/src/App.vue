@@ -4,25 +4,132 @@
   </div>
   <div class="notif" v-if="visible">
     <div class="container">
-      <template v-for="row, rowIndex in notif.rows" :key="rowIndex">
+      <template v-for="(row, rowIndex) in notif.rows" :key="rowIndex">
         <div class="row">
-          <template v-for="entry, entryIndex in row" :key="entryIndex">
-            <h2 v-if="entry.type == 'title'" :ref="(el) => { entry.dom = el }" :style="style(entry)" :class="['title', entry.class]" v-html="entry.value" />
+          <template v-for="(entry, entryIndex) in row" :key="entryIndex">
+            <h2
+              v-if="entry.type == 'title'"
+              :ref="
+                (el) => {
+                  entry.dom = el;
+                }
+              "
+              :style="style(entry)"
+              :class="['title', entry.class]"
+              v-html="entry.value"
+            />
 
-            <p v-if="entry.type == 'description'" :ref="(el) => { entry.dom = el }" :style="style(entry)" :class="[entry.class]" v-html="entry.value" />
+            <p
+              v-if="entry.type == 'description'"
+              :ref="
+                (el) => {
+                  entry.dom = el;
+                }
+              "
+              :style="style(entry)"
+              :class="[entry.class]"
+              v-html="entry.value"
+            />
 
-            <input v-if="entry.type == 'text'" @keydown.enter="enterPressed" :ref="(el) => { entry.dom = el }" type="text" :style="style(entry)" :class="[entry.class, { error: entry.error }]" :placeholder="entry.placeholder" v-model="entry.value" />
+            <input
+              v-if="entry.type == 'text'"
+              @keydown.enter="enterPressed"
+              :ref="
+                (el) => {
+                  entry.dom = el;
+                }
+              "
+              type="text"
+              :style="style(entry)"
+              :class="[entry.class, { error: entry.error }]"
+              :placeholder="entry.placeholder"
+              v-model="entry.value"
+            />
 
-            <label v-if="entry.type == 'label'" @keydown.enter="enterPressed" :ref="(el) => { entry.dom = el }" :style="style(entry)" :class="[entry.class, { error: entry.error }]" v-html="entry.value" :for="entry.for" />
+            <label
+              v-if="entry.type == 'label'"
+              @keydown.enter="enterPressed"
+              :ref="
+                (el) => {
+                  entry.dom = el;
+                }
+              "
+              :style="style(entry)"
+              :class="[entry.class, { error: entry.error }]"
+              v-html="entry.value"
+              :for="entry.for"
+            />
 
-            <input v-if="entry.type == 'number'" @keydown.enter="enterPressed" :ref="(el) => { entry.dom = el }" type="number" :style="style(entry)" :class="[entry.class, { error: entry.error }]" :placeholder="entry.placeholder" :min="entry.min" :max="entry.max" :step="entry.step" :value="entry.value" v-model="entry.value" />
+            <input
+              v-if="entry.type == 'number'"
+              @keydown.enter="enterPressed"
+              :ref="
+                (el) => {
+                  entry.dom = el;
+                }
+              "
+              type="number"
+              :style="style(entry)"
+              :class="[entry.class, { error: entry.error }]"
+              :placeholder="entry.placeholder"
+              :min="entry.min"
+              :max="entry.max"
+              :step="entry.step"
+              :value="entry.value"
+              v-model="entry.value"
+            />
 
-            <VueDatePicker v-if="entry.type == 'date'" @keydown.enter="enterPressed" :ref="(el) => { entry.dom = el }" :style="style(entry)" :class="[entry.class, { error: entry.error }]" :dark="true" position="left" :start-date="new Date('01/01/' + entry.yearRange[0])" :enable-time-picker="false" :placeholder="entry.placeholder" :year-range="entry.yearRange" v-model="entry.value" :format="entry.format" :model-type="entry.format" auto-apply prevent-min-max-navigation />
+            <VueDatePicker
+              v-if="entry.type == 'date'"
+              @keydown.enter="enterPressed"
+              :ref="
+                (el) => {
+                  entry.dom = el;
+                }
+              "
+              :style="style(entry)"
+              :class="[entry.class, { error: entry.error }]"
+              :dark="true"
+              position="left"
+              :start-date="new Date('01/01/' + entry.yearRange[0])"
+              :enable-time-picker="false"
+              :placeholder="entry.placeholder"
+              :year-range="entry.yearRange"
+              v-model="entry.value"
+              :format="entry.format"
+              :model-type="entry.format"
+              auto-apply
+              prevent-min-max-navigation
+            />
 
-            <button v-if="entry.type == 'action' || entry.type == 'button'" :style="style(entry)" :class="['action', entry.class]" v-html="entry.value" @click="click(entry.id, entry.ignoreRequired)" />
+            <button
+              v-if="entry.type == 'action' || entry.type == 'button'"
+              :style="style(entry)"
+              :class="['action', entry.class]"
+              v-html="entry.value"
+              @click="click(entry.id, entry.ignoreRequired)"
+            />
 
-            <Select v-if="entry.type == 'select'" v-model="entry.value" :options="entry.options" optionLabel="label" :placeholder="entry.placeholder" :style="style(entry)" :class="[entry.class, { error: entry.error }]" fluid />
+            <Select
+              v-if="entry.type == 'select'"
+              v-model="entry.value"
+              :options="entry.options"
+              optionLabel="label"
+              :placeholder="entry.placeholder"
+              :style="style(entry)"
+              :class="[entry.class, { error: entry.error }]"
+              fluid
+            />
 
+            <PriceForm
+              v-if="entry.type == 'price'"
+              v-model="entry.value"
+              :options="entry.options"
+              :allow-or="entry.allowOR ?? true"
+              :error="entry.error"
+              :style="style(entry)"
+              :class="[entry.class]"
+            />
           </template>
         </div>
       </template>
@@ -31,198 +138,210 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, nextTick, onUpdated } from 'vue'
-import VueDatePicker from '@vuepic/vue-datepicker';
-import Select from 'primevue/select';
+import { ref, onMounted, onUnmounted, nextTick, onUpdated } from "vue";
+import VueDatePicker from "@vuepic/vue-datepicker";
+import Select from "primevue/select";
+import PriceForm from "./components/PriceForm.vue";
 
-const notif = ref({})
-const visible = ref(false)
-let hasAction = false
-let firstInput = null
-let ignoreEnter = false
-let lastMessageDate = 0
+const notif = ref({});
+const visible = ref(false);
+let hasAction = false;
+let firstInput = null;
+let ignoreEnter = false;
+let lastMessageDate = 0;
 
-const typeWithResult = ['text', 'number', 'date', 'select']
+const typeWithResult = ["text", "number", "date", "select", "price"];
 
 function isDev() {
-  return import.meta.env.DEV
+  return import.meta.env.DEV;
 }
 
 function log(...data) {
-  if (!isDev()) return
-  console.log(...data)
+  if (!isDev()) return;
+  console.log(...data);
 }
 
 async function post(method, data) {
-  log(method, data)
+  log(method, data);
   if (import.meta.env.PROD) {
-    const ndata = data === undefined ? '{}' : JSON.stringify(data)
+    const ndata = data === undefined ? "{}" : JSON.stringify(data);
     const settings = {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
-      body: ndata
+      body: ndata,
     };
     try {
-      const fetchResponse = await fetch('https://' + GetParentResourceName() + '/' + method, settings);
+      const fetchResponse = await fetch(
+        "https://" + GetParentResourceName() + "/" + method,
+        settings,
+      );
       const data = await fetchResponse.json();
       if (data.length == 0 || data === "ok") {
-        return true
+        return true;
       }
       return data;
     } catch (e) {
-      log(e)
+      log(e);
       return e;
     }
   }
   return new Promise((resolve, reject) => {
     setTimeout(() => {
-      resolve('done!');
+      resolve("done!");
     }, 1000);
   });
-
 }
 
 function missingEntry(entry) {
   for (let index = 0; index < 4; index++) {
-    const start = index * 600
-    setTimeout(() => { entry.error = true }, start);
-    setTimeout(() => { entry.error = false }, start + 300);
+    const start = index * 600;
+    setTimeout(() => {
+      entry.error = true;
+    }, start);
+    setTimeout(() => {
+      entry.error = false;
+    }, start + 300);
   }
 }
 
 function processInputs() {
-  let result = {}
-  let error = false
-  notif.value.rows.forEach(rows => {
-    rows.forEach(entry => {
+  let result = {};
+  let priceIds = [];
+  let error = false;
+  notif.value.rows.forEach((rows) => {
+    rows.forEach((entry) => {
       if (typeWithResult.includes(entry.type)) {
-        result[entry.id] = entry.value
-        if (entry.required && (result[entry.id] === "" || result[entry.id] === null || result[entry.id] === undefined)) {
-          missingEntry(entry)
-          error = true
+        result[entry.id] = entry.value;
+        if (entry.type === "price") priceIds.push(entry.id);
+        if (
+          entry.required &&
+          (result[entry.id] === "" ||
+            result[entry.id] === null ||
+            result[entry.id] === undefined)
+        ) {
+          missingEntry(entry);
+          error = true;
         }
       }
-    })
-  })
+    });
+  });
   if (error) return false;
-  return result
+  return { result, priceIds };
 }
 
 function click(id, ignoreRequired) {
-  let result = {}
+  let result = {};
+  let priceIds = [];
   if (!ignoreRequired) {
-    result = processInputs()
-    if (!result) return
+    const processed = processInputs();
+    if (!processed) return;
+    result = processed.result;
+    priceIds = processed.priceIds;
   }
-  if (!result[id]) result[id] = true
-  post('jo_input:click', {
+  if (!result[id]) result[id] = true;
+  post("jo_input:click", {
     action: id,
-    result: result
-  })
+    result: result,
+    priceIds: priceIds,
+  });
   visible.value = false;
 }
 
 function style(entry) {
-  let style = {}
+  let style = {};
   if (entry.width) {
-    style.flex = "none"
-    if (typeof entry.width == "string")
-      style.width = entry.width
-    else
-      style.width = entry.width + "%"
+    style.flex = "none";
+    if (typeof entry.width == "string") style.width = entry.width;
+    else style.width = entry.width + "%";
   }
   if (entry.style) {
-    style = { ...style, ...entry.style }
+    style = { ...style, ...entry.style };
   }
-  return style
+  return style;
 }
 
 function enterPressed() {
-  if (ignoreEnter) return
+  if (ignoreEnter) return;
   if (Date.now() - lastMessageDate < 1000) {
-    ignoreEnter = true
-    return
+    ignoreEnter = true;
+    return;
   }
-  click("Enter")
+  click("Enter");
 }
 
-window.addEventListener('message', (e) => {
-  const event = e.data.event
-  let data = e.data.data
-  firstInput = null
+window.addEventListener("message", (e) => {
+  const event = e.data.event;
+  let data = e.data.data;
+  firstInput = null;
   switch (event) {
-    case 'newInput':
-      lastMessageDate = Date.now()
-      hasAction = false
+    case "newInput":
+      lastMessageDate = Date.now();
+      hasAction = false;
       data.rows.forEach((row, rowIndex) => {
         row.forEach((entry, entryIndex) => {
           if (entry.type == "action") {
-            hasAction = true
+            hasAction = true;
           }
           if (typeWithResult.includes(entry.type)) {
-            entry.value = ref(entry.value)
-            entry.dom = null
+            entry.value = ref(entry.value);
+            entry.dom = null;
             if (firstInput === null) {
-              if (entry.type == 'date')
-                firstInput = false
-              else
-                firstInput = entry
+              if (entry.type == "date" || entry.type == "price")
+                firstInput = false;
+              else firstInput = entry;
             }
             if (entry.id === undefined) {
-              entry.id = rowIndex + ":" + entryIndex
+              entry.id = rowIndex + ":" + entryIndex;
             }
           }
-        })
+        });
       });
-      notif.value = data
-      visible.value = true
+      notif.value = data;
+      visible.value = true;
       nextTick(() => {
         setTimeout(() => {
-          if (firstInput === null || !firstInput) return
-          firstInput.dom.focus()
-        }, 500)
-      })
-      break
+          if (firstInput === null || !firstInput) return;
+          firstInput.dom.focus();
+        }, 500);
+      });
+      break;
   }
-
-})
+});
 
 function keydown(event) {
-  if (!visible.value) return
+  if (!visible.value) return;
   if (event.code == "Escape") {
-    post('jo_input:click', false)
-    visible.value = false
-    return
+    post("jo_input:click", false);
+    visible.value = false;
+    return;
   }
   if (event.code == "Enter") {
-    if (ignoreEnter) return
+    if (ignoreEnter) return;
     if (Date.now() - lastMessageDate < 1000) {
-      ignoreEnter = true
-      return
+      ignoreEnter = true;
+      return;
     }
-    if (document.activeElement.tagName != "BODY") return
-    if (hasAction) return
-    click("Enter")
+    if (document.activeElement.tagName != "BODY") return;
+    if (hasAction) return;
+    click("Enter");
   }
 }
 
 function keyup(event) {
-  if (event.code == "Enter")
-    ignoreEnter = false
+  if (event.code == "Enter") ignoreEnter = false;
 }
 
 onMounted(() => {
-  window.addEventListener('keydown', keydown)
-  window.addEventListener('keyup', keyup)
-})
+  window.addEventListener("keydown", keydown);
+  window.addEventListener("keyup", keyup);
+});
 
 onUnmounted(() => {
-  window.removeEventListener('keydown', keydown)
-  window.removeEventListener('keyup', keyup)
-})
-
+  window.removeEventListener("keydown", keydown);
+  window.removeEventListener("keyup", keyup);
+});
 </script>
 
 <style lang="scss" scoped>
@@ -231,6 +350,7 @@ onUnmounted(() => {
   height: 100vh;
   display: flex;
   justify-content: center;
+  align-items: center;
   background-color: rgba(0, 0, 0, 0.8);
   font-family: Hapna;
   color: white;
@@ -246,7 +366,6 @@ onUnmounted(() => {
   background-color: var(--color-background-dark);
   width: 54vw;
   height: fit-content;
-  margin-top: 26vh;
   padding: var(--global-gap);
   display: flex;
   flex-direction: column;
