@@ -369,8 +369,6 @@ onMounted(() => {
   flex: 1;
   display: flex;
   flex-direction: column;
-  max-height: 320px;
-  overflow-y: auto;
   gap: var(--element-gap);
 
   &.error {

@@ -366,6 +366,8 @@ onUnmounted(() => {
   background-color: var(--color-background-dark);
   width: 54vw;
   height: fit-content;
+  max-height: 80vh;
+  overflow-y: auto;
   padding: var(--global-gap);
   display: flex;
   flex-direction: column;
