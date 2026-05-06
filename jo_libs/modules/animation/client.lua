@@ -19,12 +19,19 @@ end
 ---@param dict string (The dictionnary of the animation)
 ---@param name string (The name of the animation)
 ---@param duration? integer (Duration of the animation in ms - default:-1)
----@param flag? integer (The flag of the animation - default:0)
+---@param flag? integer|table (Animation flags - default:0. Pass an integer value or a table of bit indices (e.g. {0,3}).
 ---@param offset? number (The offset of the animation 0.0 <> 1.0 - default: 0.0)
 ---@return number
 function jo.animation.play(ped, dict, name, duration, flag, offset)
   if not duration then duration = -1 end
   if not flag then flag = 0 end
+  if type(flag) == "table" then
+    local flagValue = 0
+    for i = 1, #flag do
+      flagValue = flagValue | (1 << flag[i])
+    end
+    flag = flagValue
+  end
   if not offset then offset = 0.0 end
   jo.animation.load(dict, true)
   TaskPlayAnim(ped, dict, name, jo.animation.easeIn, jo.animation.easeOut, duration, flag, offset, false, false, false)
