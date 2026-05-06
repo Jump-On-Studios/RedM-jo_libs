@@ -437,7 +437,10 @@ p {
   margin-bottom: 0;
   text-align: center;
   width: 100%;
-  white-space: nowrap;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  white-space: normal;
 }
 
 .error {
