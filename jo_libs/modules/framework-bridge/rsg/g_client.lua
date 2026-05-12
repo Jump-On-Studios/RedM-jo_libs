@@ -10,7 +10,3 @@ RegisterNetEvent("jo_libs:client:openInventory", function(name, config)
   })
   TriggerEvent("inventory:client:SetCurrentStash", name)
 end)
-
-RegisterNetEvent("rsg-spawn:client:setupSpawnUI", function(_cData, new)
-  TriggerServerEvent("jo_libs:server:onCharacterSelected", new)
-end)
