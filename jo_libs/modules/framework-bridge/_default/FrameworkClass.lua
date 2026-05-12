@@ -388,12 +388,6 @@ function jo.framework:createUser(source, data, spawnCoordinate, isDead)
   return {}
 end
 
---- Callback when a character is selected
---- @param cb function (The callback function triggered when the character is selected)
-function jo.framework:onCharacterSelected(cb)
-  return false
-end
-
 -- Listener for item removed of the player inventory
 RegisterNetEvent("event_item_removed", function(source, item, quantity, meta)
   jo.framework:fireListenerItemRemoved(source, item, quantity, meta, "dropped")

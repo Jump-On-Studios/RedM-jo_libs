@@ -17,3 +17,8 @@ RegisterNetEvent("RedEM:client:ApplySkin", function(skin, ped, clothes)
   ped = ped or PlayerPedId()
   TriggerServerEvent("jo_libs:server:applySkinAndClothes", ped, skin, clothes)
 end)
+
+
+RegisterNetEvent("redemrp_charselect:client:FinishSelection", function(new)
+  TriggerServerEvent("jo_libs:server:onCharacterSelected", new)
+end)

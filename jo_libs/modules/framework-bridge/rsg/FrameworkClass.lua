@@ -1069,10 +1069,7 @@ end
 -------------
 
 
-function jo.framework:onCharacterSelected(cb)
-  RegisterNetEvent("RSGCore:Server:OnPlayerLoaded")
-  AddEventHandler("RSGCore:Server:OnPlayerLoaded", function()
-    local source = source
-    cb(source)
-  end)
-end
+RegisterNetEvent("jo_libs:server:onCharacterSelected", function(isNew)
+  local source = source
+  ExecCharacterSelectedCallback(source, isNew)
+end)
