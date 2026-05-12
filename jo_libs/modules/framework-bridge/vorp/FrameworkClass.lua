@@ -1318,14 +1318,13 @@ function jo.framework:createUser(source, data, spawnCoordinate, isDead)
   end)
 end
 
+-- Existing character event
 RegisterNetEvent("vorp_CharSelectedCharacter", function(_charid)
   local source = source
-  log("Existing character selected", source, _charid)
   ExecCharacterSelectedCallback(source, false)
 end)
 
--- New character
+-- New character event
 RegisterNetEvent("vorp_NewCharacter", function(source)
-  log("New character created", source)
   ExecCharacterSelectedCallback(source, true)
 end)
