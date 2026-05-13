@@ -562,6 +562,7 @@ end
 
 local charSelectedCallbacks = {}
 
+---@autodoc:config ignore:true
 function ExecCharacterSelectedCallback(source, isNew)
   isNew = GetValue(isNew, false)
   for i = 1, #charSelectedCallbacks do
