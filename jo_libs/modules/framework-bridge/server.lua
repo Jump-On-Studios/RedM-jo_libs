@@ -13,6 +13,9 @@ jo.framework.UserClass = {}
 jo.framework:loadFile("UserClass")
 jo.framework:loadFile("FrameworkClass")
 
+
+
+
 -- -----------
 -- END LOAD FRAMEWORK
 -- -----------
@@ -89,6 +92,7 @@ function jo.framework:getUserIdentifiers(source)
   end
   return user:getIdentifiers()
 end
+
 jo.callback.register(jo.resourceName .. ":server:framework:getPlayerIdentifiers", function(source, playerId)
   return jo.framework:getUserIdentifiers(playerId or source)
 end)
@@ -556,6 +560,21 @@ function jo.framework:updateUserSkin(...)
   self:updateUserSkinInternal(source, skin, overwrite)
 end
 
+local charSelectedCallbacks = {}
+
+function ExecCharacterSelectedCallback(source, isNew)
+  isNew = GetValue(isNew, false)
+  for i = 1, #charSelectedCallbacks do
+    charSelectedCallbacks[i](source, isNew)
+  end
+end
+
+--- Callback when a character is selected
+--- @param cb function (The callback function triggered when the character is selected, contains (source:integer, isNew:boolean))
+function jo.framework:onCharacterSelected(cb)
+  table.insert(charSelectedCallbacks, cb)
+end
+
 -- -----------
 -- END POWER UP FUNCTIONS
 -- -----------
@@ -596,6 +615,8 @@ end
 jo.framework:onCharacterSelected(function(source)
   addIdentifiersLink(source)
 end)
+
+
 
 CreateThread(function()
   local players = GetPlayers()

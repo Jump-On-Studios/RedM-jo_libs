@@ -103,7 +103,7 @@ function jo.framework:openInventory(source, invName, header)
     header = "Storage"
   end
 
-  TriggerClientEvent('tpz_inventory:openInventoryContainerByName', _source, invName, header)
+  TriggerClientEvent("tpz_inventory:openInventoryContainerByName", _source, invName, header)
 end
 
 --- Adds a specific item to a custom inventory with optional metadata and wait parameter
@@ -453,10 +453,6 @@ function jo.framework:createUser(source, data, spawnCoordinate, isDead)
 
 end
 
---- Callback when a character is selected
---- @param cb function (The callback function triggered when the character is selected)
-function jo.framework:onCharacterSelected(cb)
-  AddEventHandler("tpz_core:isPlayerReady", function(source)
-    cb(source)
-  end)
-end
+AddEventHandler("tpz_core:isPlayerReady", function(source)
+  ExecCharacterSelectedCallback(source, isNew)
+end)

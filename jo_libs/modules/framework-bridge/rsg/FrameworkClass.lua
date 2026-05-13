@@ -1069,10 +1069,26 @@ end
 -------------
 
 
-function jo.framework:onCharacterSelected(cb)
-  RegisterNetEvent("RSGCore:Server:OnPlayerLoaded")
-  AddEventHandler("RSGCore:Server:OnPlayerLoaded", function()
-    local source = source
-    cb(source)
-  end)
-end
+
+local pendingCharacterSelection = {}
+
+-- New character event
+RegisterNetEvent("rsg-multicharacter:server:createCharacter", function()
+  local source = source
+  pendingCharacterSelection[source] = true
+end)
+
+-- Existing character event
+RegisterNetEvent("rsg-multicharacter:server:loadUserData", function()
+  local source = source
+  pendingCharacterSelection[source] = false
+end)
+
+RegisterNetEvent("RSGCore:Server:OnPlayerLoaded", function()
+  local source = source
+  ExecCharacterSelectedCallback(source, pendingCharacterSelection[source])
+end)
+
+AddEventHandler("playerDropped", function(source)
+  pendingCharacterSelection[source] = nil
+end)

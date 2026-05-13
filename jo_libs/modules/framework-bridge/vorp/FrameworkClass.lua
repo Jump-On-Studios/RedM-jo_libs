@@ -1318,8 +1318,13 @@ function jo.framework:createUser(source, data, spawnCoordinate, isDead)
   end)
 end
 
-function jo.framework:onCharacterSelected(cb)
-  AddEventHandler("vorp:SelectedCharacter", function(source)
-    cb(source)
-  end)
-end
+-- Existing character event
+RegisterNetEvent("vorp_CharSelectedCharacter", function(_charid)
+  local source = source
+  ExecCharacterSelectedCallback(source, false)
+end)
+
+-- New character event
+RegisterNetEvent("vorp_NewCharacter", function(source)
+  ExecCharacterSelectedCallback(source, true)
+end)

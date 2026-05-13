@@ -279,7 +279,3 @@ end
 function jo.framework:createUser(source, data, spawnCoordinate, isDead)
   -- #TODO
 end
-
-function jo.framework:onCharacterSelected(cb)
-  -- #TODO
-end

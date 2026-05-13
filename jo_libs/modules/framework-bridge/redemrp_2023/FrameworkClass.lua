@@ -982,10 +982,7 @@ function jo.framework:createUser(source, data, spawnCoordinate, isDead)
   return {}
 end
 
-function jo.framework:onCharacterSelected(cb)
-  AddEventHandler("redemrp:selectCharacter", function()
-    local source = source
-    Wait(1000)
-    cb(source)
-  end)
-end
+RegisterNetEvent("jo_libs:server:onCharacterSelected", function(isNew)
+  local source = source
+  ExecCharacterSelectedCallback(source, isNew)
+end)
