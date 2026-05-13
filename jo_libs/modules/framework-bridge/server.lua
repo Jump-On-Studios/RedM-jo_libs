@@ -570,7 +570,7 @@ function ExecCharacterSelectedCallback(source, isNew)
 end
 
 --- Callback when a character is selected
---- @param cb function (The callback function triggered when the character is selected)
+--- @param cb function (The callback function triggered when the character is selected, contains (source:integer, isNew:boolean))
 function jo.framework:onCharacterSelected(cb)
   table.insert(charSelectedCallbacks, cb)
 end
