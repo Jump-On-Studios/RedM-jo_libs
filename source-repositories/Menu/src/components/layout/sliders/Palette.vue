@@ -54,7 +54,9 @@ const dragging = ref(false)
 const disabledSet = computed(() => new Set(props.slider.disabledTints || []))
 const enabledIndices = computed(() => {
   const result = []
-  for (let i = props.slider.min; i <= props.slider.max; i++) {
+  const min = props.slider.min ?? 0
+  const max = props.slider.max ?? colors.value.length - 1
+  for (let i = min; i <= max; i++) {
     if (!disabledSet.value.has(i)) result.push(i)
   }
   return result
@@ -99,8 +101,16 @@ function normalizeSliderState() {
 }
 
 let paletteRequestId = 0
-watch(paletteName, async (name) => {
+watch([paletteName, () => props.slider], async ([name], [oldName]) => {
   const requestId = ++paletteRequestId
+  mounted = false
+
+  if (name && name == oldName && colors.value.length) {
+    normalizeSliderState()
+    mounted = true
+    return
+  }
+
   colors.value = []
 
   if (!name) {
