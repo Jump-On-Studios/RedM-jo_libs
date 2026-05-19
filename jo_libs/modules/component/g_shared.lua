@@ -27,6 +27,11 @@ jo.component.data.pedCategories = {
   "bodies_upper",
   "bodies_lower",
   "hair",
+  "hair_bonnet",
+  "beards",
+  "beards_chin",
+  "beards_chops",
+  "beards_mustache",
   "beards_complete",
   "ponchos",
   "cloaks",
@@ -125,6 +130,11 @@ end
 
 local categoryNotClothes = {
   hair = true,
+  beards = true,
+  hair_bonnet = true,
+  beards_chin = true,
+  beards_chops = true,
+  beards_mustache = true,
   beards_complete = true,
   teeth = true,
   heads = true,
