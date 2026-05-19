@@ -436,6 +436,21 @@ function jo.framework:standardizeSkin(skin)
   if standard.beards_complete and type(standard.beards_complete) ~= "table" then
     standard.beards_complete = { hash = standard.beards_complete }
   end
+  if standard.beards_chin and type(standard.beards_chin) ~= "table" then
+    standard.beards_chin = { hash = standard.beards_chin }
+  end
+  if standard.beards_chops and type(standard.beards_chops) ~= "table" then
+    standard.beards_chops = { hash = standard.beards_chops }
+  end
+  if standard.beards_mustache and type(standard.beards_mustache) ~= "table" then
+    standard.beards_mustache = { hash = standard.beards_mustache }
+  end
+  if standard.beards and type(standard.beards) ~= "table" then
+    standard.beards = { hash = standard.beards }
+  end
+  if standard.hair_bonnet and type(standard.hair_bonnet) ~= "table" then
+    standard.hair_bonnet = { hash = standard.hair_bonnet }
+  end
 
   if jo.debug then
     if table.count(skin) > 0 then
@@ -470,6 +485,22 @@ function jo.framework:revertSkin(standard)
   if table.count(skin.expressions) == 0 then
     skin.expressions = nil
   end
+  if standard.beards_chin ~= nil then
+    skin.beards_chin = table.extract(standard, "beards_chin")
+  end
+  if standard.beards_chops ~= nil then
+    skin.beards_chops = table.extract(standard, "beards_chops")
+  end
+  if standard.beards_mustache ~= nil then
+    skin.beards_mustache = table.extract(standard, "beards_mustache")
+  end
+  if standard.beards ~= nil then
+    skin.beards = table.extract(standard, "beards")
+  end
+  if standard.hair_bonnet ~= nil then
+    skin.hair_bonnet = table.extract(standard, "hair_bonnet")
+  end
+
 
   if jo.debug then
     if table.count(standard) > 0 then

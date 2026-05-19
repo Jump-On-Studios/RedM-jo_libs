@@ -688,6 +688,14 @@ function jo.component.applySkin(ped, skin)
   jo.component.apply(ped, "hair", skin.hair)
   if skin.model == "mp_male" then
     jo.component.apply(ped, "beards_complete", skin.beards_complete)
+    jo.component.apply(ped, "beards_mustache", skin.beards_mustache)
+    jo.component.apply(ped, "beards_chops", skin.beards_chops)
+    jo.component.apply(ped, "beards_chin", skin.beards_chin)
+  end
+
+  if skin.model == "mp_female" then
+    jo.component.apply(ped, "beards", skin.beards)
+    jo.component.apply(ped, "hair_bonnet", skin.hair_bonnet)
   end
 
   jo.component.waitPedLoaded(ped)
