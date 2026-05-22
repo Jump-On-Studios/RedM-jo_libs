@@ -4,6 +4,7 @@ jo.require("nui")
 local NativeSendNUIMessage = SendNUIMessage
 local nuiLoaded = false
 local currentGameCallback = nil
+local currentGame = nil
 local previousFocus = false
 local previousKeepInput = false
 
@@ -42,6 +43,7 @@ function jo.minigame.lockpick(config, callback)
     end
 
     currentGameCallback = callback or function() end
+    currentGame = "lockpick"
     previousFocus = IsNuiFocused()
     previousKeepInput = IsNuiFocusKeepingInput()
 
@@ -66,9 +68,13 @@ RegisterNUICallback("jo_minigame:finished", function(data, cb)
     cb("ok")
 
     if not currentGameCallback then return end
+    if data and data.game and data.game ~= currentGame then
+        return eprint(("Received minigame result for %s while %s is running"):format(data.game, currentGame))
+    end
 
     local callback = currentGameCallback
     currentGameCallback = nil
+    currentGame = nil
 
     SendNUIMessage({
         type = "jo_minigame:hide"

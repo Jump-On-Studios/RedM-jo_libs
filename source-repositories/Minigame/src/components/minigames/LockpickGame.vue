@@ -12,7 +12,10 @@ const formattedConfig = computed(() =>
 );
 
 async function finish(success: boolean) {
-  await sendToLua("jo_minigame:finished", { success });
+  await sendToLua("jo_minigame:finished", {
+    game: "lockpick",
+    success,
+  });
   minigameStore.hide();
   lockpickStore.reset();
 }
