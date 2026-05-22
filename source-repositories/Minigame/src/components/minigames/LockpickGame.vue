@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { sendToLua } from "@/helpers/luaHelper";
 import { useLockpickStore } from "@/stores/lockpick";
 import { useMinigamesStore } from "@/stores/minigames";
@@ -7,28 +7,259 @@ import { useMinigamesStore } from "@/stores/minigames";
 const minigameStore = useMinigamesStore();
 const lockpickStore = useLockpickStore();
 
-const formattedConfig = computed(() =>
-  JSON.stringify(lockpickStore.config, null, 2),
-);
+const minRot = -90;
+const maxRot = 90;
+const keyRepeatRate = 25;
+const mouseSmoothing = 2;
+const validKeys = new Set([
+  "w",
+  "a",
+  "s",
+  "d",
+  "arrowleft",
+  "arrowright",
+]);
+
+const pinRot = ref(0);
+const cylRot = ref(0);
+const solveDeg = ref(getRandomSolveDeg());
+const pinHealth = ref(getConfigNumber("pinHealth", 100));
+const pinsRemaining = ref(Math.max(1, Math.floor(getConfigNumber("pins", 1))));
+const lastMousePos = ref<number | null>(null);
+const pinLastDamaged = ref(0);
+const isPushing = ref(false);
+const gameOver = ref(false);
+const gamePaused = ref(false);
+const isDamaged = ref(false);
+const isBroken = ref(false);
+
+let cylRotationInterval: number | undefined;
+let resetTimeout: number | undefined;
+
+const solvePadding = computed(() => getConfigNumber("solvePadding", 4));
+const maxDistFromSolve = computed(() => getConfigNumber("maxDistFromSolve", 45));
+const pinDamage = computed(() => getConfigNumber("pinDamage", 20));
+const pinDamageInterval = computed(() => getConfigNumber("pinDamageInterval", 150));
+const cylRotSpeed = computed(() => getConfigNumber("cylRotSpeed", 3));
+
+const pinStyle = computed(() => ({
+  transform: `rotateZ(${pinRot.value}deg)`,
+}));
+
+const cylinderStyle = computed(() => ({
+  transform: `rotateZ(${cylRot.value}deg)`,
+}));
+
+function getConfigNumber(key: string, fallback: number) {
+  const value = lockpickStore.config[key];
+  return typeof value === "number" && Number.isFinite(value) ? value : fallback;
+}
+
+function getRandomSolveDeg() {
+  return Math.random() * 180 - 90;
+}
+
+function clamp(value: number, min: number, max: number) {
+  return Math.min(Math.max(value, min), max);
+}
+
+function convertRanges(
+  value: number,
+  oldMin: number,
+  oldMax: number,
+  newMin: number,
+  newMax: number,
+) {
+  return ((value - oldMin) * (newMax - newMin)) / (oldMax - oldMin) + newMin;
+}
+
+function clearCylinderInterval() {
+  if (cylRotationInterval === undefined) return;
+
+  window.clearInterval(cylRotationInterval);
+  cylRotationInterval = undefined;
+}
+
+function clearResetTimeout() {
+  if (resetTimeout === undefined) return;
+
+  window.clearTimeout(resetTimeout);
+  resetTimeout = undefined;
+}
+
+function onMouseMove(event: MouseEvent) {
+  if (lastMousePos.value !== null && !gameOver.value && !gamePaused.value) {
+    const pinRotChange = (event.clientX - lastMousePos.value) / mouseSmoothing;
+    pinRot.value = clamp(pinRot.value + pinRotChange, minRot, maxRot);
+  }
+
+  lastMousePos.value = event.clientX;
+}
+
+function onMouseLeave() {
+  lastMousePos.value = null;
+}
+
+function onKeyDown(event: KeyboardEvent) {
+  if (!validKeys.has(event.key.toLowerCase())) return;
+  event.preventDefault();
+
+  if (isPushing.value || gameOver.value || gamePaused.value) return;
+  pushCylinder();
+}
+
+function onKeyUp(event: KeyboardEvent) {
+  if (!validKeys.has(event.key.toLowerCase())) return;
+  event.preventDefault();
+
+  if (gameOver.value) return;
+  unpushCylinder();
+}
+
+function pushCylinder() {
+  clearCylinderInterval();
+  isPushing.value = true;
+
+  let distFromSolve = Math.abs(pinRot.value - solveDeg.value) - solvePadding.value;
+  distFromSolve = clamp(distFromSolve, 0, maxDistFromSolve.value);
+
+  const cylinderRotationAllowance =
+    convertRanges(distFromSolve, 0, maxDistFromSolve.value, 1, 0.02) * maxRot;
+
+  cylRotationInterval = window.setInterval(() => {
+    cylRot.value += cylRotSpeed.value;
+
+    if (cylRot.value >= maxRot) {
+      cylRot.value = maxRot;
+      clearCylinderInterval();
+      unlock();
+      return;
+    }
+
+    if (cylRot.value >= cylinderRotationAllowance) {
+      cylRot.value = cylinderRotationAllowance;
+      damagePin();
+    }
+  }, keyRepeatRate);
+}
+
+function unpushCylinder() {
+  isPushing.value = false;
+  clearCylinderInterval();
+
+  cylRotationInterval = window.setInterval(() => {
+    cylRot.value = Math.max(cylRot.value - cylRotSpeed.value, 0);
+
+    if (cylRot.value <= 0) {
+      cylRot.value = 0;
+      clearCylinderInterval();
+    }
+  }, keyRepeatRate);
+}
+
+function damagePin() {
+  const now = Date.now();
+  if (pinLastDamaged.value && now - pinLastDamaged.value <= pinDamageInterval.value) {
+    return;
+  }
+
+  pinHealth.value -= pinDamage.value;
+  pinLastDamaged.value = now;
+
+  isDamaged.value = false;
+  window.requestAnimationFrame(() => {
+    isDamaged.value = true;
+  });
+
+  if (pinHealth.value <= 0) {
+    breakPin();
+  }
+}
+
+function breakPin() {
+  if (gamePaused.value || gameOver.value) return;
+
+  gamePaused.value = true;
+  isPushing.value = false;
+  isBroken.value = true;
+  clearCylinderInterval();
+  pinsRemaining.value -= 1;
+
+  resetTimeout = window.setTimeout(() => {
+    if (pinsRemaining.value > 0) {
+      resetPin();
+      gamePaused.value = false;
+      return;
+    }
+
+    finish(false);
+  }, 700);
+}
+
+function resetPin() {
+  cylRot.value = 0;
+  pinRot.value = 0;
+  pinHealth.value = getConfigNumber("pinHealth", 100);
+  lastMousePos.value = null;
+  pinLastDamaged.value = 0;
+  isDamaged.value = false;
+  isBroken.value = false;
+}
+
+function unlock() {
+  if (gameOver.value) return;
+  finish(true);
+}
 
 async function finish(success: boolean) {
+  if (gameOver.value) return;
+
+  gameOver.value = true;
+  gamePaused.value = true;
+  isPushing.value = false;
+  clearCylinderInterval();
+  clearResetTimeout();
+
   await sendToLua("jo_minigame:finished", {
     game: "lockpick",
     success,
   });
+
   minigameStore.hide();
   lockpickStore.reset();
 }
+
+onMounted(() => {
+  window.addEventListener("mousemove", onMouseMove);
+  window.addEventListener("mouseleave", onMouseLeave);
+  window.addEventListener("keydown", onKeyDown);
+  window.addEventListener("keyup", onKeyUp);
+});
+
+onBeforeUnmount(() => {
+  clearCylinderInterval();
+  clearResetTimeout();
+  window.removeEventListener("mousemove", onMouseMove);
+  window.removeEventListener("mouseleave", onMouseLeave);
+  window.removeEventListener("keydown", onKeyDown);
+  window.removeEventListener("keyup", onKeyUp);
+});
 </script>
 
 <template>
   <main class="lockpick-game">
-    <section class="lockpick-panel">
-      <h1>Lockpick</h1>
-      <pre>{{ formattedConfig }}</pre>
-      <div class="actions">
-        <button class="success" type="button" @click="finish(true)">Success</button>
-        <button class="failure" type="button" @click="finish(false)">Failure</button>
+    <section v-ui-scaler="'center center'" class="lockpick-stage">
+      <div class="pins-counter">{{ pinsRemaining }}</div>
+      <img class="collar" src="/img/lockpick/collar.png" alt="" draggable="false" />
+      <div class="cylinder" :style="cylinderStyle"></div>
+      <div class="driver" :style="cylinderStyle"></div>
+      <div
+        class="pin"
+        :class="{ damaged: isDamaged, broken: isBroken }"
+        :style="pinStyle"
+      >
+        <div class="pin-top"></div>
+        <div class="pin-bottom"></div>
       </div>
     </section>
   </main>
@@ -38,8 +269,29 @@ async function finish(success: boolean) {
 .lockpick-game {
   position: fixed;
   inset: 0;
+  z-index: 20;
   display: grid;
   place-items: center;
+  overflow: hidden;
+  cursor: none;
+  user-select: none;
+}
+
+.lockpick-stage {
+  position: relative;
+  width: 575px;
+  height: 575px;
+  margin-top: 60px;
+  overflow: visible;
+}
+
+.pins-counter {
+  position: absolute;
+  top: -54px;
+  left: 50%;
+  min-width: 36px;
+  transform: translateX(-50%);
+  color: #f6e6a8;
   font-family:
     Inter,
     system-ui,
@@ -47,67 +299,114 @@ async function finish(success: boolean) {
     BlinkMacSystemFont,
     "Segoe UI",
     sans-serif;
-  color: #f7f3ea;
-  background: rgb(12 13 15 / 66%);
-}
-
-.lockpick-panel {
-  width: min(420px, calc(100vw - 32px));
-  padding: 24px;
-  border: 1px solid rgb(255 255 255 / 16%);
-  border-radius: 8px;
-  background: #16191d;
-  box-shadow: 0 18px 50px rgb(0 0 0 / 35%);
-}
-
-h1 {
-  margin: 0 0 16px;
-  font-size: 26px;
+  font-size: 28px;
   font-weight: 700;
-  line-height: 1.1;
+  line-height: 36px;
+  text-align: center;
+  text-shadow: 0 2px 8px rgb(0 0 0 / 70%);
 }
 
-pre {
-  min-height: 90px;
-  max-height: 220px;
-  margin: 0 0 18px;
-  padding: 12px;
-  overflow: auto;
-  border: 1px solid rgb(255 255 255 / 10%);
-  border-radius: 6px;
-  color: #d8dee7;
-  background: #0d0f12;
-  font-size: 13px;
-  line-height: 1.45;
-  white-space: pre-wrap;
-  word-break: break-word;
+.collar {
+  position: relative;
+  display: block;
+  width: 575px;
+  height: 575px;
+  pointer-events: none;
 }
 
-.actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
+.cylinder {
+  position: absolute;
+  top: 86px;
+  left: 86px;
+  width: 402px;
+  height: 402px;
+  background-image: url("/img/lockpick/cylinder.png");
+  background-position: center;
+  background-size: cover;
+  pointer-events: none;
 }
 
-button {
-  min-height: 42px;
-  border: 0;
-  border-radius: 6px;
-  color: #ffffff;
-  font: inherit;
-  font-weight: 700;
-  cursor: pointer;
+.driver {
+  position: absolute;
+  top: 328px;
+  left: 264px;
+  width: 990px;
+  height: 483px;
+  background-image: url("/img/lockpick/driver.png");
+  background-position: center;
+  background-size: cover;
+  pointer-events: none;
+  transform-origin: 3% -3%;
 }
 
-button:hover {
-  filter: brightness(1.08);
+.pin {
+  position: absolute;
+  top: -564px;
+  left: 272px;
+  width: 41px;
+  height: 842px;
+  transform-origin: 50% 99%;
+  pointer-events: none;
 }
 
-.success {
-  background: #238653;
+.pin.damaged {
+  animation: pin-jiggle 150ms ease-in-out;
 }
 
-.failure {
-  background: #9d2f35;
+.pin-top,
+.pin-bottom {
+  position: absolute;
+  left: 0;
+  width: 41px;
+  height: 421px;
+  background-position: center;
+  background-size: cover;
+}
+
+.pin-top {
+  top: 0;
+  background-image: url("/img/lockpick/pinTop.png");
+}
+
+.pin-bottom {
+  top: 421px;
+  background-image: url("/img/lockpick/pinBott.png");
+}
+
+.pin.broken .pin-top {
+  animation: break-pin-top 700ms ease-in forwards;
+}
+
+.pin.broken .pin-bottom {
+  animation: break-pin-bottom 700ms ease-in forwards;
+}
+
+@keyframes pin-jiggle {
+  0%,
+  100% {
+    margin-left: 0;
+  }
+
+  35% {
+    margin-left: -4px;
+  }
+
+  70% {
+    margin-left: 3px;
+  }
+}
+
+@keyframes break-pin-top {
+  to {
+    opacity: 0;
+    transform: translate(-200px, -100px) rotate(-400deg);
+  }
+}
+
+@keyframes break-pin-bottom {
+  to {
+    opacity: 0;
+    transform: translate(200px, 100px) rotate(400deg);
+  }
 }
 </style>
