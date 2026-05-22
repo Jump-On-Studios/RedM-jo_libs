@@ -93,9 +93,14 @@ end
 --- config.solvePadding? number      (Angle tolerance in degrees around the correct position; default: 4)
 --- config.maxDistFromSolve? number  (Maximum angle distance used to calculate cylinder allowance; default: 45)
 --- config.cylRotSpeed? number       (Cylinder rotation speed per tick while pushing; default: 3)
----@param callback? function (Function called with the minigame result: `true` on success, `false` on failure)
+---@param callback? function (Function called with the minigame result: `true` on success, `false` on failure. Can be passed as the first argument if no config is needed)
 ---@return boolean started `true` if the minigame was started.
 function jo.minigame.lockpick(config, callback)
+    if type(config) == "function" then
+        callback = config
+        config = nil
+    end
+
     if currentGameCallback then
         return false, eprint("A minigame is already running")
     end
