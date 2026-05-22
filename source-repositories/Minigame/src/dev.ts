@@ -15,8 +15,13 @@ export function showLockpickMock(): void {
       game: "lockpick",
       config: {
         difficulty: "debug",
-        pins: 3,
-        timeLimit: 30,
+        pins: 1,
+        pinHealth: 100,
+        pinDamage: 20,
+        pinDamageInterval: 150,
+        solvePadding: 4,
+        maxDistFromSolve: 45,
+        cylRotSpeed: 3,
       },
     },
   });
