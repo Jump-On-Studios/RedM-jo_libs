@@ -110,6 +110,7 @@ function jo.minigame.lockpick(config, callback)
     previousFocus = IsNuiFocused()
     previousKeepInput = IsNuiFocusKeepingInput()
 
+    SetCursorLocation(0.5, 0.3)
     SendNUIMessage({
         type = "jo_minigame:show",
         data = {
