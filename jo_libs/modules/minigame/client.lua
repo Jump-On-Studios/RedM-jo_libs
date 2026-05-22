@@ -80,6 +80,22 @@ local function mergeConfig(game, config)
     return result
 end
 
+-- Closes the active minigame and forwards the final result to its Lua callback.
+local function finishMinigame(success)
+    if not currentGameCallback then return end
+
+    local callback = currentGameCallback
+    currentGameCallback = nil
+    currentGame = nil
+
+    SendNUIMessage({
+        type = "jo_minigame:hide"
+    })
+
+    resetFocus()
+    callback(success == true)
+end
+
 -- * ====================================
 -- * LOCKPICK MINIGAME
 -- * ====================================
@@ -139,17 +155,9 @@ RegisterNUICallback("jo_minigame:finished", function(data, cb)
 
     if not currentGameCallback then return end
     if data and data.game and data.game ~= currentGame then
-        return eprint(("Received minigame result for %s while %s is running"):format(data.game, currentGame))
+        eprint(("Received minigame result for %s while %s is running"):format(data.game, currentGame))
+        return finishMinigame(false)
     end
 
-    local callback = currentGameCallback
-    currentGameCallback = nil
-    currentGame = nil
-
-    SendNUIMessage({
-        type = "jo_minigame:hide"
-    })
-
-    resetFocus()
-    callback(data and data.success == true)
+    finishMinigame(data and data.success == true)
 end)
