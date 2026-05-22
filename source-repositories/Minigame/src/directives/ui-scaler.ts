@@ -73,7 +73,7 @@ export const uiScaler: Directive<UiScalableElement, string> = {
           // Handle percentage-based widths
           const percentageMatch = el._originalStyles.width.match(/(\d+(?:\.\d+)?)%/)
           if (percentageMatch) {
-            const percentage = parseFloat(percentageMatch[1])
+            const percentage = parseFloat(percentageMatch[1] || '0')
             const intendedWidth = (parentWidth * percentage) / 100
             el.style.width = `${intendedWidth / scale}px`
           }
