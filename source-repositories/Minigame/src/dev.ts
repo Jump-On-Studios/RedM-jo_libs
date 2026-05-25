@@ -34,6 +34,11 @@ export function showQteMock(): void {
       game: "qte",
       config: {
         difficulty: "debug",
+        count: 4,
+        keys: "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""),
+        targetStart: { min: 100, max: 300 },
+        targetSize: { min: 50, max: 60 },
+        duration: { min: 2000, max: 30000000 },
       },
     },
   });

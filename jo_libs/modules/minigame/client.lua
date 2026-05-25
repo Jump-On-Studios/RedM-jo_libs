@@ -39,7 +39,13 @@ local defaultConfig = {
         maxDistFromSolve = 45,   -- Maximum angle distance used to calculate cylinder allowance
         cylRotSpeed = 3,         -- Cylinder rotation speed per tick while pushing
     },
-    qte = {}
+    qte = {
+        count = 4,                          -- Number of QTE rounds to complete
+        keys = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z" }, -- Allowed keys
+        targetStart = { min = 60, max = 140 }, -- Target segment start angle range
+        targetSize = { min = 35, max = 60 },   -- Target segment size angle range
+        duration = { min = 1200, max = 1600 }, -- Full circle duration range in milliseconds
+    }
 }
 
 -- * ====================================
@@ -156,6 +162,17 @@ end
 
 --- Starts the QTE minigame.
 ---@param config? table (The QTE configuration)
+--- config.count? integer      (Number of QTE rounds to complete; default: 4)
+--- config.keys? string[]      (Allowed keys; default: A-Z)
+--- config.targetStart? table  (Target segment start angle range in degrees)
+---     config.targetStart.min? number (Minimum target start angle; default: 60)
+---     config.targetStart.max? number (Maximum target start angle; default: 140)
+--- config.targetSize? table   (Target segment size angle range in degrees)
+---     config.targetSize.min? number (Minimum target size; default: 35)
+---     config.targetSize.max? number (Maximum target size; default: 60)
+--- config.duration? table     (Full circle duration range in milliseconds)
+---     config.duration.min? integer (Minimum duration; default: 1200)
+---     config.duration.max? integer (Maximum duration; default: 1600)
 ---@param callback? function (Function called with the minigame result: `true` on success, `false` on failure. Can be passed as the first argument if no config is needed)
 ---@return boolean started `true` if the minigame was started.
 function jo.minigame.qte(config, callback)
