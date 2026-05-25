@@ -27,6 +27,18 @@ export function showLockpickMock(): void {
   });
 }
 
+export function showQteMock(): void {
+  SendNUIMessage({
+    type: "jo_minigame:show",
+    data: {
+      game: "qte",
+      config: {
+        difficulty: "debug",
+      },
+    },
+  });
+}
+
 export function hideMinigameMock(): void {
   SendNUIMessage({
     type: "jo_minigame:hide",

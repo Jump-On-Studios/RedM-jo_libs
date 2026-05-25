@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
-import { hideMinigameMock, showLockpickMock } from "@/dev";
+import { hideMinigameMock, showLockpickMock, showQteMock } from "@/dev";
 
 interface MockLuaMessage {
   type?: string;
@@ -151,6 +151,7 @@ onBeforeUnmount(() => {
     </header>
     <div v-if="!isCollapsed" class="debug-body">
       <button type="button" @click="showLockpickMock">Show Lockpick</button>
+      <button type="button" @click="showQteMock">Show QTE</button>
       <button type="button" @click="hideMinigameMock">Hide Minigame</button>
       <pre>{{ lastLuaCallback }}</pre>
     </div>

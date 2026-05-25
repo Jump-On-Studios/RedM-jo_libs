@@ -38,7 +38,8 @@ local defaultConfig = {
         solvePadding = 4,        -- Angle tolerance in degrees around the correct position
         maxDistFromSolve = 45,   -- Maximum angle distance used to calculate cylinder allowance
         cylRotSpeed = 3,         -- Cylinder rotation speed per tick while pushing
-    }
+    },
+    qte = {}
 }
 
 -- * ====================================
@@ -80,6 +81,35 @@ local function mergeConfig(game, config)
     return result
 end
 
+-- Opens a minigame NUI with its merged config and stores its Lua callback.
+local function startMinigame(game, config, callback)
+    if currentGameCallback then
+        return false, eprint("A minigame is already running")
+    end
+
+    currentGameCallback = callback or function() end
+    currentGame = game
+    previousFocus = IsNuiFocused()
+    previousKeepInput = IsNuiFocusKeepingInput()
+
+    SetCursorLocation(0.5, 0.3)
+    SendNUIMessage({
+        type = "jo_minigame:show",
+        data = {
+            game = game,
+            config = mergeConfig(game, config)
+        }
+    })
+
+    SetNuiFocus(true, true)
+    SetNuiFocusKeepInput(false)
+    if jo.nui.isLoaded("jo_minigame") then
+        jo.nui.forceFocus("jo_minigame")
+    end
+
+    return true
+end
+
 -- Closes the active minigame and forwards the final result to its Lua callback.
 local function finishMinigame(success)
     if not currentGameCallback then return end
@@ -117,31 +147,24 @@ function jo.minigame.lockpick(config, callback)
         config = nil
     end
 
-    if currentGameCallback then
-        return false, eprint("A minigame is already running")
+    return startMinigame("lockpick", config, callback)
+end
+
+-- * ====================================
+-- * QTE MINIGAME
+-- * ====================================
+
+--- Starts the QTE minigame.
+---@param config? table (The QTE configuration)
+---@param callback? function (Function called with the minigame result: `true` on success, `false` on failure. Can be passed as the first argument if no config is needed)
+---@return boolean started `true` if the minigame was started.
+function jo.minigame.qte(config, callback)
+    if type(config) == "function" then
+        callback = config
+        config = nil
     end
 
-    currentGameCallback = callback or function() end
-    currentGame = "lockpick"
-    previousFocus = IsNuiFocused()
-    previousKeepInput = IsNuiFocusKeepingInput()
-
-    SetCursorLocation(0.5, 0.3)
-    SendNUIMessage({
-        type = "jo_minigame:show",
-        data = {
-            game = "lockpick",
-            config = mergeConfig("lockpick", config)
-        }
-    })
-
-    SetNuiFocus(true, true)
-    SetNuiFocusKeepInput(false)
-    if jo.nui.isLoaded("jo_minigame") then
-        jo.nui.forceFocus("jo_minigame")
-    end
-
-    return true
+    return startMinigame("qte", config, callback)
 end
 
 -- * ====================================

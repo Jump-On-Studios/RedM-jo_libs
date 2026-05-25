@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 
-export type MinigameName = "lockpick";
+export type MinigameName = "lockpick" | "qte";
 
 interface MinigamesState {
   activeGame: MinigameName | null;
