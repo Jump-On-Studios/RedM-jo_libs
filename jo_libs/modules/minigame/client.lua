@@ -7,7 +7,7 @@ jo.require("nui")
 
 local NativeSendNUIMessage = SendNUIMessage
 local nuiLoaded = false
-local currentGameCallback = nil
+local currentGamePromise = nil
 local currentGame = nil
 local previousFocus = false
 local previousKeepInput = false
@@ -91,13 +91,14 @@ local function mergeConfig(game, config)
     return result
 end
 
--- Opens a minigame NUI with its merged config and stores its Lua callback.
-local function startMinigame(game, config, callback)
-    if currentGameCallback then
+-- Opens a minigame NUI with its merged config and waits for the final result.
+local function startMinigame(game, config)
+    if currentGamePromise then
         return false, eprint("A minigame is already running")
     end
 
-    currentGameCallback = callback or function() end
+    local gamePromise = promise.new()
+    currentGamePromise = gamePromise
     currentGame = game
     previousFocus = IsNuiFocused()
     previousKeepInput = IsNuiFocusKeepingInput()
@@ -117,15 +118,15 @@ local function startMinigame(game, config, callback)
         jo.nui.forceFocus("jo_minigame")
     end
 
-    return true
+    return Await(gamePromise)
 end
 
--- Closes the active minigame and forwards the final result to its Lua callback.
+-- Closes the active minigame and resolves the waiting Lua call with the final result.
 local function finishMinigame(success)
-    if not currentGameCallback then return end
+    if not currentGamePromise then return end
 
-    local callback = currentGameCallback
-    currentGameCallback = nil
+    local resultPromise = currentGamePromise
+    currentGamePromise = nil
     currentGame = nil
 
     SendNUIMessage({
@@ -133,7 +134,7 @@ local function finishMinigame(success)
     })
 
     resetFocus()
-    callback(success == true)
+    resultPromise:resolve(success == true)
 end
 
 -- * ====================================
@@ -149,15 +150,9 @@ end
 --- config.solvePadding? number      (Angle tolerance in degrees around the correct position; default: 4)
 --- config.maxDistFromSolve? number  (Maximum angle distance used to calculate cylinder allowance; default: 45)
 --- config.cylRotSpeed? number       (Cylinder rotation speed per tick while pushing; default: 3)
----@param callback? function (Function called with the minigame result: `true` on success, `false` on failure. Can be passed as the first argument if no config is needed)
----@return boolean started `true` if the minigame was started.
-function jo.minigame.lockpick(config, callback)
-    if type(config) == "function" then
-        callback = config
-        config = nil
-    end
-
-    return startMinigame("lockpick", config, callback)
+---@return boolean success `true` on success, `false` on failure or if another minigame is already running.
+function jo.minigame.lockpick(config)
+    return startMinigame("lockpick", config)
 end
 
 -- * ====================================
@@ -181,15 +176,9 @@ end
 --- config.successDelay? integer (Delay in milliseconds before continuing after a successful round; default: 450)
 --- config.failureDelay? integer (Delay in milliseconds before closing after a failed round; default: 550)
 --- config.roundDelay? integer   (Delay in milliseconds between a successful round and the next intro; default: 100)
----@param callback? function (Function called with the minigame result: `true` on success, `false` on failure. Can be passed as the first argument if no config is needed)
----@return boolean started `true` if the minigame was started.
-function jo.minigame.qte(config, callback)
-    if type(config) == "function" then
-        callback = config
-        config = nil
-    end
-
-    return startMinigame("qte", config, callback)
+---@return boolean success `true` on success, `false` on failure or if another minigame is already running.
+function jo.minigame.qte(config)
+    return startMinigame("qte", config)
 end
 
 -- * ====================================
@@ -197,11 +186,11 @@ end
 -- * ====================================
 
 -- Receives the result sent by the active minigame NUI.
--- It closes the UI, restores the previous focus state and forwards the success boolean to the Lua callback.
+-- It closes the UI, restores the previous focus state and resolves the waiting Lua call.
 RegisterNUICallback("jo_minigame:finished", function(data, cb)
     cb("ok")
 
-    if not currentGameCallback then return end
+    if not currentGamePromise then return end
     if data and data.game and data.game ~= currentGame then
         eprint(("Received minigame result for %s while %s is running"):format(data.game, currentGame))
         return finishMinigame(false)
