@@ -38,7 +38,7 @@ export function showQteMock(): void {
         keys: "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""),
         targetStart: { min: 100, max: 300 },
         targetSize: { min: 50, max: 60 },
-        duration: { min: 2000, max: 30000000 },
+        duration: { min: 2000, max: 3000 },
       },
     },
   });

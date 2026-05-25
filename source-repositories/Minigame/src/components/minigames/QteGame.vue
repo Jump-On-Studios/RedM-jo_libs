@@ -37,14 +37,23 @@ const totalRounds = computed(() =>
 );
 
 const circleStyle = computed(() => ({
-  background: `conic-gradient(
+  maskImage: `conic-gradient(
     from 0deg,
-    #31363d 0deg,
-    #31363d ${currentStep.value.targetStart}deg,
-    #2fbf71 ${currentStep.value.targetStart}deg,
-    #2fbf71 ${currentStep.value.targetEnd}deg,
-    #31363d ${currentStep.value.targetEnd}deg,
-    #31363d 360deg
+    transparent 0deg,
+    transparent ${currentStep.value.targetStart}deg,
+    #000 ${currentStep.value.targetStart}deg,
+    #000 ${currentStep.value.targetEnd}deg,
+    transparent ${currentStep.value.targetEnd}deg,
+    transparent 360deg
+  )`,
+  WebkitMaskImage: `conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    transparent ${currentStep.value.targetStart}deg,
+    #000 ${currentStep.value.targetStart}deg,
+    #000 ${currentStep.value.targetEnd}deg,
+    transparent ${currentStep.value.targetEnd}deg,
+    transparent 360deg
   )`,
 }));
 
@@ -291,7 +300,7 @@ onBeforeUnmount(() => {
   height: 220px;
   border: 3px solid rgb(255 255 255 / 20%);
   border-radius: 50%;
-  background: #31363d;
+  background: url("/img/qte/black_circle.png") center / cover no-repeat;
   box-shadow: 0 16px 42px rgb(0 0 0 / 35%);
 }
 
@@ -300,21 +309,47 @@ onBeforeUnmount(() => {
   inset: 0px;
   z-index: 1;
   border-radius: 50%;
+  background: transparent;
+  overflow: hidden;
+}
+
+.track::before {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background: repeating-linear-gradient(
+    45deg,
+    rgb(255 255 255 / 76%) 0 2px,
+    transparent 3px 6px
+  );
+  background-color: transparent;
+  mask-image: radial-gradient(
+    circle,
+    transparent 0 32%,
+    rgb(0 0 0 / 28%) 36%,
+    #000 44% 100%
+  );
+  -webkit-mask-image: radial-gradient(
+    circle,
+    transparent 0 32%,
+    rgb(0 0 0 / 28%) 36%,
+    #000 44% 100%
+  );
   overflow: hidden;
 }
 
 .inner-circle {
   position: absolute;
-  inset: 58px;
+  inset: 56px;
   z-index: 4;
   display: grid;
   place-items: center;
   border-radius: 50%;
-  color: #101418;
+  color: #222;
   background: url("/img/qte/white_circle.png") center / cover no-repeat;
   font-family: "Crock", serif;
   font-size: 54px;
-  font-weight: bold;
+  font-weight: 400;
 }
 
 .indicator {
@@ -322,11 +357,11 @@ onBeforeUnmount(() => {
   top: -28px;
   left: 50%;
   z-index: 3;
-  width: 5px;
+  width: 4px;
   height: 138px;
   border-radius: 999px;
-  background: #f5f5f5;
-  box-shadow: 0 0 12px rgb(255 255 255 / 70%);
+  background: rgb(255 255 255 / 92%);
+  box-shadow: 0 0 7px rgb(255 255 255 / 45%);
   transform-origin: 50% 138px;
 }
 </style>
