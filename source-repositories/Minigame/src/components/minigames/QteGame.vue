@@ -21,9 +21,10 @@ const minigameStore = useMinigamesStore();
 const qteStore = useQteStore();
 
 const defaultKeys = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-const qteIntroDelay = 300;
-const qteSuccessFeedbackDelay = 450;
-const qteFailureFeedbackDelay = 550;
+const defaultQteIntroDelay = 300;
+const defaultQteSuccessFeedbackDelay = 450;
+const defaultQteFailureFeedbackDelay = 550;
+const defaultQteRoundDelay = 100;
 const entryAnimationClasses = [
   "slide-in-blurred-top",
   "slide-in-blurred-tr",
@@ -56,6 +57,18 @@ let roundStartTime = 0;
 const totalRounds = computed(() =>
   Math.max(1, Math.floor(getConfigNumber("count", 4))),
 );
+const introDelay = computed(() =>
+  getConfigDelay("introDelay", defaultQteIntroDelay),
+);
+const successFeedbackDelay = computed(() =>
+  getConfigDelay("successDelay", defaultQteSuccessFeedbackDelay),
+);
+const failureFeedbackDelay = computed(() =>
+  getConfigDelay("failureDelay", defaultQteFailureFeedbackDelay),
+);
+const roundDelay = computed(() =>
+  getConfigDelay("roundDelay", defaultQteRoundDelay),
+);
 
 const circleStyle = computed(() => ({
   maskImage: `conic-gradient(
@@ -85,6 +98,10 @@ const indicatorStyle = computed(() => ({
 function getConfigNumber(key: string, fallback: number) {
   const value = qteStore.config[key];
   return typeof value === "number" && Number.isFinite(value) ? value : fallback;
+}
+
+function getConfigDelay(key: string, fallback: number) {
+  return Math.max(0, Math.floor(getConfigNumber(key, fallback)));
 }
 
 function getRangeConfig(key: string, fallback: Required<RangeConfig>) {
@@ -127,9 +144,9 @@ function randomItem<T>(items: T[]) {
 }
 
 function createStep(): QteStep {
-  const targetStartRange = getRangeConfig("targetStart", { min: 60, max: 140 });
-  const targetSizeRange = getRangeConfig("targetSize", { min: 35, max: 60 });
-  const durationRange = getRangeConfig("duration", { min: 1200, max: 1600 });
+  const targetStartRange = getRangeConfig("targetStart", { min: 100, max: 300 });
+  const targetSizeRange = getRangeConfig("targetSize", { min: 50, max: 60 });
+  const durationRange = getRangeConfig("duration", { min: 2000, max: 3000 });
 
   const targetStart = Math.min(
     Math.max(randomNumber(targetStartRange.min, targetStartRange.max), 0),
@@ -168,7 +185,7 @@ function playRoundIntro(shouldCreateStep = true) {
     introTimeout = undefined;
     isIntroPlaying.value = false;
     startRound();
-  }, qteIntroDelay);
+  }, introDelay.value);
 }
 
 function startRound() {
@@ -238,7 +255,7 @@ function completeRound() {
       roundTimeout = undefined;
       currentRound.value += 1;
       playRoundIntro();
-    }, 250);
+    }, roundDelay.value);
   });
 }
 
@@ -259,7 +276,7 @@ function playFeedback(state: "success" | "failure", onComplete: () => void) {
     isFeedbackPlaying.value = false;
     feedbackState.value = null;
     onComplete();
-  }, state === "success" ? qteSuccessFeedbackDelay : qteFailureFeedbackDelay);
+  }, state === "success" ? successFeedbackDelay.value : failureFeedbackDelay.value);
 }
 
 function clearAnimation() {
