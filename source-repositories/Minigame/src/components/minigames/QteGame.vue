@@ -22,6 +22,8 @@ const qteStore = useQteStore();
 
 const defaultKeys = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 const qteIntroDelay = 300;
+const qteSuccessFeedbackDelay = 450;
+const qteFailureFeedbackDelay = 550;
 const entryAnimationClasses = [
   "slide-in-blurred-top",
   "slide-in-blurred-tr",
@@ -39,10 +41,14 @@ const currentAngle = ref(0);
 const isFinished = ref(false);
 const isRoundWon = ref(false);
 const isIntroPlaying = ref(true);
+const isFeedbackPlaying = ref(false);
+const feedbackState = ref<"success" | "failure" | null>(null);
+const feedbackKey = ref(0);
 const entryAnimationClass = ref(randomItem(entryAnimationClasses));
 const entryAnimationKey = ref(0);
 
 let animationFrame: number | undefined;
+let feedbackTimeout: number | undefined;
 let introTimeout: number | undefined;
 let roundTimeout: number | undefined;
 let roundStartTime = 0;
@@ -147,9 +153,12 @@ function createStep(): QteStep {
 function playRoundIntro(shouldCreateStep = true) {
   clearAnimation();
   clearIntroTimeout();
+  clearFeedbackTimeout();
 
   currentAngle.value = 0;
   isRoundWon.value = false;
+  isFeedbackPlaying.value = false;
+  feedbackState.value = null;
   if (shouldCreateStep) currentStep.value = createStep();
   isIntroPlaying.value = true;
   entryAnimationClass.value = randomItem(entryAnimationClasses);
@@ -168,7 +177,7 @@ function startRound() {
 }
 
 function updateAngle(time: number) {
-  if (isFinished.value || isRoundWon.value) return;
+  if (isFinished.value || isRoundWon.value || isFeedbackPlaying.value) return;
 
   const elapsed = time - roundStartTime;
   currentAngle.value = Math.min(
@@ -177,7 +186,7 @@ function updateAngle(time: number) {
   );
 
   if (currentAngle.value > currentStep.value.targetEnd) {
-    finish(false);
+    failRound();
     return;
   }
 
@@ -185,7 +194,14 @@ function updateAngle(time: number) {
 }
 
 function onKeyDown(event: KeyboardEvent) {
-  if (isFinished.value || isRoundWon.value || isIntroPlaying.value) return;
+  if (
+    isFinished.value ||
+    isRoundWon.value ||
+    isIntroPlaying.value ||
+    isFeedbackPlaying.value
+  ) {
+    return;
+  }
 
   const pressedKey = event.key.toUpperCase();
   if (pressedKey.length !== 1) return;
@@ -193,7 +209,7 @@ function onKeyDown(event: KeyboardEvent) {
   event.preventDefault();
 
   if (pressedKey !== currentStep.value.key) {
-    finish(false);
+    failRound();
     return;
   }
 
@@ -202,7 +218,7 @@ function onKeyDown(event: KeyboardEvent) {
     currentAngle.value <= currentStep.value.targetEnd;
 
   if (!success) {
-    finish(false);
+    failRound();
     return;
   }
 
@@ -212,17 +228,38 @@ function onKeyDown(event: KeyboardEvent) {
 function completeRound() {
   isRoundWon.value = true;
   clearAnimation();
+  playFeedback("success", () => {
+    if (currentRound.value >= totalRounds.value) {
+      finish(true);
+      return;
+    }
 
-  if (currentRound.value >= totalRounds.value) {
-    finish(true);
-    return;
-  }
+    roundTimeout = window.setTimeout(() => {
+      roundTimeout = undefined;
+      currentRound.value += 1;
+      playRoundIntro();
+    }, 250);
+  });
+}
 
-  roundTimeout = window.setTimeout(() => {
-    roundTimeout = undefined;
-    currentRound.value += 1;
-    playRoundIntro();
-  }, 250);
+function failRound() {
+  clearAnimation();
+  playFeedback("failure", () => finish(false));
+}
+
+function playFeedback(state: "success" | "failure", onComplete: () => void) {
+  clearFeedbackTimeout();
+
+  isFeedbackPlaying.value = true;
+  feedbackState.value = state;
+  feedbackKey.value += 1;
+
+  feedbackTimeout = window.setTimeout(() => {
+    feedbackTimeout = undefined;
+    isFeedbackPlaying.value = false;
+    feedbackState.value = null;
+    onComplete();
+  }, state === "success" ? qteSuccessFeedbackDelay : qteFailureFeedbackDelay);
 }
 
 function clearAnimation() {
@@ -239,6 +276,13 @@ function clearIntroTimeout() {
   introTimeout = undefined;
 }
 
+function clearFeedbackTimeout() {
+  if (feedbackTimeout === undefined) return;
+
+  window.clearTimeout(feedbackTimeout);
+  feedbackTimeout = undefined;
+}
+
 function clearRoundTimeout() {
   if (roundTimeout === undefined) return;
 
@@ -252,6 +296,7 @@ async function finish(success: boolean) {
   isFinished.value = true;
   clearAnimation();
   clearIntroTimeout();
+  clearFeedbackTimeout();
   clearRoundTimeout();
 
   await sendToLua("jo_minigame:finished", {
@@ -271,6 +316,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
   clearAnimation();
   clearIntroTimeout();
+  clearFeedbackTimeout();
   clearRoundTimeout();
   window.removeEventListener("keydown", onKeyDown);
 });
@@ -282,14 +328,34 @@ onBeforeUnmount(() => {
       <div class="round-counter">{{ currentRound }} / {{ totalRounds }}</div>
       <div
         :key="entryAnimationKey"
-        class="qte-circle"
+        class="qte-entry"
         :class="entryAnimationClass"
       >
-        <div class="track" :style="circleStyle"></div>
-        <div class="inner-circle">
-          <span>{{ currentStep.key }}</span>
+        <div
+          class="qte-circle"
+          :class="{
+            'qte-feedback-success': feedbackState === 'success',
+            'qte-feedback-failure': feedbackState === 'failure',
+          }"
+        >
+          <div
+            v-if="feedbackState"
+            :key="feedbackKey"
+            class="feedback-halo"
+            :class="`feedback-halo-${feedbackState}`"
+          ></div>
+          <div
+            v-if="feedbackState"
+            :key="`${feedbackKey}-ripple`"
+            class="feedback-ripple"
+            :class="`feedback-ripple-${feedbackState}`"
+          ></div>
+          <div class="track" :style="circleStyle"></div>
+          <div class="inner-circle">
+            <span>{{ currentStep.key }}</span>
+          </div>
+          <div class="indicator" :style="indicatorStyle"></div>
         </div>
-        <div class="indicator" :style="indicatorStyle"></div>
       </div>
     </section>
   </main>
@@ -348,6 +414,10 @@ onBeforeUnmount(() => {
   box-shadow: 0 16px 42px rgb(0 0 0 / 35%);
 }
 
+.qte-entry {
+  position: relative;
+}
+
 .track {
   position: absolute;
   inset: 0px;
@@ -394,6 +464,20 @@ onBeforeUnmount(() => {
   font-family: "Crock", serif;
   font-size: 54px;
   font-weight: 400;
+}
+
+.feedback-halo,
+.feedback-ripple {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.feedback-ripple {
+  inset: 56px;
+  z-index: 6;
 }
 
 .indicator {
