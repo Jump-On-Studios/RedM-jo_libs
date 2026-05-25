@@ -21,14 +21,29 @@ const minigameStore = useMinigamesStore();
 const qteStore = useQteStore();
 
 const defaultKeys = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+const qteIntroDelay = 300;
+const entryAnimationClasses = [
+  "slide-in-blurred-top",
+  "slide-in-blurred-tr",
+  "slide-in-blurred-right",
+  "slide-in-blurred-br",
+  "slide-in-blurred-bottom",
+  "slide-in-blurred-bl",
+  "slide-in-blurred-left",
+  "slide-in-blurred-tl",
+];
 
 const currentStep = ref<QteStep>(createStep());
 const currentRound = ref(1);
 const currentAngle = ref(0);
 const isFinished = ref(false);
 const isRoundWon = ref(false);
+const isIntroPlaying = ref(true);
+const entryAnimationClass = ref(randomItem(entryAnimationClasses));
+const entryAnimationKey = ref(0);
 
 let animationFrame: number | undefined;
+let introTimeout: number | undefined;
 let roundTimeout: number | undefined;
 let roundStartTime = 0;
 
@@ -129,10 +144,25 @@ function createStep(): QteStep {
   };
 }
 
-function startRound() {
+function playRoundIntro(shouldCreateStep = true) {
+  clearAnimation();
+  clearIntroTimeout();
+
   currentAngle.value = 0;
   isRoundWon.value = false;
-  currentStep.value = createStep();
+  if (shouldCreateStep) currentStep.value = createStep();
+  isIntroPlaying.value = true;
+  entryAnimationClass.value = randomItem(entryAnimationClasses);
+  entryAnimationKey.value += 1;
+
+  introTimeout = window.setTimeout(() => {
+    introTimeout = undefined;
+    isIntroPlaying.value = false;
+    startRound();
+  }, qteIntroDelay);
+}
+
+function startRound() {
   roundStartTime = performance.now();
   animationFrame = window.requestAnimationFrame(updateAngle);
 }
@@ -155,7 +185,7 @@ function updateAngle(time: number) {
 }
 
 function onKeyDown(event: KeyboardEvent) {
-  if (isFinished.value || isRoundWon.value) return;
+  if (isFinished.value || isRoundWon.value || isIntroPlaying.value) return;
 
   const pressedKey = event.key.toUpperCase();
   if (pressedKey.length !== 1) return;
@@ -189,8 +219,9 @@ function completeRound() {
   }
 
   roundTimeout = window.setTimeout(() => {
+    roundTimeout = undefined;
     currentRound.value += 1;
-    startRound();
+    playRoundIntro();
   }, 250);
 }
 
@@ -199,6 +230,13 @@ function clearAnimation() {
 
   window.cancelAnimationFrame(animationFrame);
   animationFrame = undefined;
+}
+
+function clearIntroTimeout() {
+  if (introTimeout === undefined) return;
+
+  window.clearTimeout(introTimeout);
+  introTimeout = undefined;
 }
 
 function clearRoundTimeout() {
@@ -213,6 +251,7 @@ async function finish(success: boolean) {
 
   isFinished.value = true;
   clearAnimation();
+  clearIntroTimeout();
   clearRoundTimeout();
 
   await sendToLua("jo_minigame:finished", {
@@ -226,11 +265,12 @@ async function finish(success: boolean) {
 
 onMounted(() => {
   window.addEventListener("keydown", onKeyDown);
-  startRound();
+  playRoundIntro(false);
 });
 
 onBeforeUnmount(() => {
   clearAnimation();
+  clearIntroTimeout();
   clearRoundTimeout();
   window.removeEventListener("keydown", onKeyDown);
 });
@@ -240,7 +280,11 @@ onBeforeUnmount(() => {
   <main class="qte-game">
     <section v-ui-scaler="'center center'" class="qte-panel">
       <div class="round-counter">{{ currentRound }} / {{ totalRounds }}</div>
-      <div class="qte-circle">
+      <div
+        :key="entryAnimationKey"
+        class="qte-circle"
+        :class="entryAnimationClass"
+      >
         <div class="track" :style="circleStyle"></div>
         <div class="inner-circle">
           <span>{{ currentStep.key }}</span>
