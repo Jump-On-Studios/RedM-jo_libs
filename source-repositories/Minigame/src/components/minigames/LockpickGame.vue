@@ -1,6 +1,9 @@
 <template>
   <main class="lockpick-game">
-    <section v-ui-scaler="'center center'" class="lockpick-stage">
+    <section
+      v-ui-scaler="'center center'"
+      class="lockpick-stage fade-in-bottom"
+    >
       <div class="pins-counter">{{ pinsRemaining }}</div>
       <img
         class="collar"
