@@ -69,14 +69,14 @@ const defaultQteSuccessFeedbackDelay = 450;
 const defaultQteFailureFeedbackDelay = 550;
 const defaultQteRoundDelay = 100;
 const entryAnimationClasses = [
-  "slide-in-blurred-top",
-  "slide-in-blurred-tr",
-  "slide-in-blurred-right",
-  "slide-in-blurred-br",
-  "slide-in-blurred-bottom",
-  "slide-in-blurred-bl",
-  "slide-in-blurred-left",
-  "slide-in-blurred-tl",
+  "flip-in-hor-bottom",
+  "flip-in-hor-top",
+  "flip-in-ver-right",
+  "flip-in-ver-left",
+  "flip-in-diag-1-tr",
+  "flip-in-diag-1-bl",
+  "flip-in-diag-2-br",
+  "flip-in-diag-2-tl",
 ];
 
 const currentStep = ref<QteStep>(createStep());
@@ -440,7 +440,7 @@ onBeforeUnmount(() => {
   display: grid;
   place-items: center;
   color: #f7f3ea;
-  background: rgb(12 13 15 / 66%);
+  /* background: rgb(12 13 15 / 66%); */
   font-family:
     Inter,
     system-ui,
