@@ -14,7 +14,7 @@ local currentGameConfig = nil
 local currentAnimPostFx = nil
 local previousFocus = false
 local previousKeepInput = false
-local defaultAnimPostFx = "OJDominoBlur"
+local defaultAnimPostFx = "PauseMenuIn"
 
 -- * ====================================
 -- * NUI LOADING
@@ -51,7 +51,7 @@ local defaultConfig = {
         targetStartAngle = { min = 100, max = 300 },                                                                                                        -- Target segment start angle range
         targetArcSize = { min = 50, max = 60 },                                                                                                             -- Target segment size angle range
         rotationDuration = { min = 2000, max = 3000 },                                                                                                      -- Full rotation duration range in milliseconds
-        introDelay = 300,                                                                                                                                   -- Delay in milliseconds before the indicator starts after the intro animation
+        introDelay = 200,                                                                                                                                   -- Delay in milliseconds before the indicator starts after the intro animation
         successDelay = 450,                                                                                                                                 -- Delay in milliseconds before continuing after a successful round
         failureDelay = 550,                                                                                                                                 -- Delay in milliseconds before closing after a failed round
         roundDelay = 100,                                                                                                                                   -- Delay in milliseconds between a successful round and the next intro
@@ -207,7 +207,7 @@ end
 --- config.rotationDuration? table  (Full rotation duration range in milliseconds)
 ---     config.rotationDuration.min? integer (Minimum duration; default: 2000)
 ---     config.rotationDuration.max? integer (Maximum duration; default: 3000)
---- config.introDelay? integer   (Delay in milliseconds before the indicator starts after the intro animation; default: 300)
+--- config.introDelay? integer   (Delay in milliseconds before the indicator starts after the intro animation; default: 200)
 --- config.successDelay? integer (Delay in milliseconds before continuing after a successful round; default: 450)
 --- config.failureDelay? integer (Delay in milliseconds before closing after a failed round; default: 550)
 --- config.roundDelay? integer   (Delay in milliseconds between a successful round and the next intro; default: 100)
