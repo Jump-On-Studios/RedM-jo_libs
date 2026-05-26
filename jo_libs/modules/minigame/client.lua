@@ -10,6 +10,7 @@ local NativeSendNUIMessage = SendNUIMessage
 local nuiLoaded = false
 local currentGamePromise = nil
 local currentGame = nil
+local currentGameConfig = nil
 local previousFocus = false
 local previousKeepInput = false
 
@@ -41,16 +42,16 @@ local defaultConfig = {
         cylRotSpeed = 3,         -- Cylinder rotation speed per tick while pushing
     },
     qte = {
-        roundCount = 4,                                                                                                                              -- Number of QTE rounds to complete
+        roundCount = 4,                                                                                                                                     -- Number of QTE rounds to complete
         allowedKeys = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z" }, -- Allowed keys
-        rotationCount = 1,                                                                                                                           -- Number of full indicator rotations allowed per round
-        targetStartAngle = { min = 100, max = 300 },                                                                                                 -- Target segment start angle range
-        targetArcSize = { min = 50, max = 60 },                                                                                                      -- Target segment size angle range
-        rotationDuration = { min = 2000, max = 3000 },                                                                                               -- Full rotation duration range in milliseconds
-        introDelay = 300,                                                                                                                            -- Delay in milliseconds before the indicator starts after the intro animation
-        successDelay = 450,                                                                                                                          -- Delay in milliseconds before continuing after a successful round
-        failureDelay = 550,                                                                                                                          -- Delay in milliseconds before closing after a failed round
-        roundDelay = 100,                                                                                                                            -- Delay in milliseconds between a successful round and the next intro
+        rotationCount = 1,                                                                                                                                  -- Number of full indicator rotations allowed per round
+        targetStartAngle = { min = 100, max = 300 },                                                                                                        -- Target segment start angle range
+        targetArcSize = { min = 50, max = 60 },                                                                                                             -- Target segment size angle range
+        rotationDuration = { min = 2000, max = 3000 },                                                                                                      -- Full rotation duration range in milliseconds
+        introDelay = 300,                                                                                                                                   -- Delay in milliseconds before the indicator starts after the intro animation
+        successDelay = 450,                                                                                                                                 -- Delay in milliseconds before continuing after a successful round
+        failureDelay = 550,                                                                                                                                 -- Delay in milliseconds before closing after a failed round
+        roundDelay = 100,                                                                                                                                   -- Delay in milliseconds between a successful round and the next intro
     }
 }
 
@@ -94,13 +95,15 @@ local function startMinigame(game, config)
     currentGame = game
     previousFocus = IsNuiFocused()
     previousKeepInput = IsNuiFocusKeepingInput()
-    local mergedConfig = table.clearForNui(mergeConfig(game, config))
+    local mergedConfig = mergeConfig(game, config)
+    currentGameConfig = mergedConfig
+    local nuiConfig = table.clearForNui(mergedConfig)
 
     SendNUIMessage({
         type = "jo_minigame:show",
         data = {
             game = game,
-            config = mergedConfig
+            config = nuiConfig
         }
     })
 
@@ -120,6 +123,7 @@ local function finishMinigame(status)
     local resultPromise = currentGamePromise
     currentGamePromise = nil
     currentGame = nil
+    currentGameConfig = nil
 
     SendNUIMessage({
         type = "jo_minigame:hide"
@@ -164,6 +168,7 @@ end
 --- config.solvePadding? number      (Angle tolerance in degrees around the correct position; default: 4)
 --- config.maxDistFromSolve? number  (Maximum angle distance used to calculate cylinder allowance; default: 45)
 --- config.cylRotSpeed? number       (Cylinder rotation speed per tick while pushing; default: 3)
+--- config.onPinBroken? function     (Called each time a lockpick pin breaks)
 ---@return "success"|"failed"|"canceled"|"busy" status `"success"` on success, `"failed"` on failure, `"canceled"` on NUI cancel, `"busy"` if another minigame is already running.
 function jo.minigame.lockpick(config)
     SetCursorLocation(0.5, 0.3)
@@ -213,4 +218,19 @@ RegisterNUICallback("jo_minigame:finished", function(data, cb)
     end
 
     finishMinigame(getResultStatus(data))
+end)
+
+-- Receives a lockpick pin break event from the NUI and triggers the optional Lua callback.
+RegisterNUICallback("jo_minigame:lockpick:pinBroken", function(_data, cb)
+    cb("ok")
+
+    if not currentGamePromise then return end
+    if currentGame ~= "lockpick" then return end
+    if type(currentGameConfig) ~= "table" then return end
+    if type(currentGameConfig.onPinBroken) ~= "function" then return end
+
+    local success, err = pcall(currentGameConfig.onPinBroken)
+    if not success then
+        eprint(("Error in lockpick onPinBroken callback: %s"):format(err))
+    end
 end)

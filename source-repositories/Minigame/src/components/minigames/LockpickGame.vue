@@ -212,6 +212,7 @@ function breakPin() {
   isBroken.value = true;
   clearCylinderInterval();
   pinsRemaining.value -= 1;
+  void sendToLua("jo_minigame:lockpick:pinBroken", {});
 
   resetTimeout = window.setTimeout(() => {
     if (pinsRemaining.value > 0) {
