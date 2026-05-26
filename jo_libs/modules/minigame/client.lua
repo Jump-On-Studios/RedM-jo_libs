@@ -182,7 +182,7 @@ end
 --- config.maxDistFromSolve? number  (Maximum angle distance used to calculate cylinder allowance; default: 45)
 --- config.cylRotSpeed? number       (Cylinder rotation speed per tick while pushing; default: 3)
 --- config.onPinBroken? function     (Called each time a lockpick pin breaks)
---- config.animPostFx? string|false  (AnimPostFX effect to play while the minigame is open; default: "OJDominoBlur"; use false to disable)
+--- config.animPostFx? string|false  (AnimPostFX effect to play while the minigame is open; default: "PauseMenuIn"; use false to disable)
 ---@return "success"|"failed"|"canceled"|"busy" status `"success"` on success, `"failed"` on failure, `"canceled"` on NUI cancel, `"busy"` if another minigame is already running.
 function jo.minigame.lockpick(config)
     SetCursorLocation(0.5, 0.3)
@@ -211,7 +211,7 @@ end
 --- config.successDelay? integer (Delay in milliseconds before continuing after a successful round; default: 450)
 --- config.failureDelay? integer (Delay in milliseconds before closing after a failed round; default: 550)
 --- config.roundDelay? integer   (Delay in milliseconds between a successful round and the next intro; default: 100)
---- config.animPostFx? string|false (AnimPostFX effect to play while the minigame is open; default: "OJDominoBlur"; use false to disable)
+--- config.animPostFx? string|false (AnimPostFX effect to play while the minigame is open; default: "PauseMenuIn"; use false to disable)
 ---@return "success"|"failed"|"canceled"|"busy" status `"success"` on success, `"failed"` on failure, `"canceled"` on NUI cancel, `"busy"` if another minigame is already running.
 function jo.minigame.qte(config)
     return startMinigame("qte", config)
