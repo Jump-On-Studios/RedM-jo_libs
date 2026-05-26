@@ -138,6 +138,19 @@ local function getResultStatus(data)
 end
 
 -- * ====================================
+-- * PUBLIC API
+-- * ====================================
+
+--- Cancels the currently running minigame.
+---@return boolean canceled `true` if a minigame was canceled, `false` if no minigame was running.
+function jo.minigame.cancel()
+    if not currentGamePromise then return false end
+
+    finishMinigame("canceled")
+    return true
+end
+
+-- * ====================================
 -- * LOCKPICK MINIGAME
 -- * ====================================
 
