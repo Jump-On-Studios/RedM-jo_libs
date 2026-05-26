@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import { useEscapeCancel } from "@/composables/useEscapeCancel";
 import { sendToLua } from "@/helpers/luaHelper";
 import { useLockpickStore } from "@/stores/lockpick";
 import { useMinigamesStore } from "@/stores/minigames";
@@ -103,12 +104,6 @@ function onMouseLeave() {
 }
 
 function onKeyDown(event: KeyboardEvent) {
-  if (event.key === "Escape") {
-    event.preventDefault();
-    finish("canceled");
-    return;
-  }
-
   if (!validKeys.has(event.key.toLowerCase())) return;
   event.preventDefault();
 
@@ -236,6 +231,8 @@ async function finish(status: MinigameStatus) {
   minigameStore.hide();
   lockpickStore.reset();
 }
+
+useEscapeCancel(() => finish("canceled"));
 
 onMounted(() => {
   window.addEventListener("mousemove", onMouseMove);

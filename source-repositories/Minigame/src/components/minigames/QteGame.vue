@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import { useEscapeCancel } from "@/composables/useEscapeCancel";
 import { sendToLua } from "@/helpers/luaHelper";
 import { useMinigamesStore } from "@/stores/minigames";
 import { useQteStore } from "@/stores/qte";
@@ -213,12 +214,6 @@ function updateAngle(time: number) {
 }
 
 function onKeyDown(event: KeyboardEvent) {
-  if (event.key === "Escape") {
-    event.preventDefault();
-    finish("canceled");
-    return;
-  }
-
   if (
     isFinished.value ||
     isRoundWon.value ||
@@ -332,6 +327,8 @@ async function finish(status: MinigameStatus) {
   minigameStore.hide();
   qteStore.reset();
 }
+
+useEscapeCancel(() => finish("canceled"));
 
 onMounted(() => {
   window.addEventListener("keydown", onKeyDown);
