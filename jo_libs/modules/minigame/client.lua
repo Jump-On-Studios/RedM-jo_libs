@@ -41,12 +41,12 @@ local defaultConfig = {
         cylRotSpeed = 3,         -- Cylinder rotation speed per tick while pushing
     },
     qte = {
-        count = 4,                                                                                                                                   -- Number of QTE rounds to complete
-        keys = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z" }, -- Allowed keys
-        maxTurns = 1,                                                                                                                                -- Number of full indicator turns allowed per round
-        targetStart = { min = 100, max = 300 },                                                                                                      -- Target segment start angle range
-        targetSize = { min = 50, max = 60 },                                                                                                         -- Target segment size angle range
-        duration = { min = 2000, max = 3000 },                                                                                                       -- Full circle duration range in milliseconds
+        roundCount = 4,                                                                                                                              -- Number of QTE rounds to complete
+        allowedKeys = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z" }, -- Allowed keys
+        rotationCount = 1,                                                                                                                           -- Number of full indicator rotations allowed per round
+        targetStartAngle = { min = 100, max = 300 },                                                                                                 -- Target segment start angle range
+        targetArcSize = { min = 50, max = 60 },                                                                                                      -- Target segment size angle range
+        rotationDuration = { min = 2000, max = 3000 },                                                                                               -- Full rotation duration range in milliseconds
         introDelay = 300,                                                                                                                            -- Delay in milliseconds before the indicator starts after the intro animation
         successDelay = 450,                                                                                                                          -- Delay in milliseconds before continuing after a successful round
         failureDelay = 550,                                                                                                                          -- Delay in milliseconds before closing after a failed round
@@ -176,18 +176,18 @@ end
 
 --- Starts the QTE minigame.
 ---@param config? table (The QTE configuration)
---- config.count? integer      (Number of QTE rounds to complete; default: 4)
---- config.keys? string[]      (Allowed keys; default: A-Z)
---- config.maxTurns? integer   (Number of full indicator turns allowed per round; default: 1)
---- config.targetStart? table  (Target segment start angle range in degrees)
----     config.targetStart.min? number (Minimum target start angle; default: 100)
----     config.targetStart.max? number (Maximum target start angle; default: 300)
---- config.targetSize? table   (Target segment size angle range in degrees)
----     config.targetSize.min? number (Minimum target size; default: 50)
----     config.targetSize.max? number (Maximum target size; default: 60)
---- config.duration? table     (Full circle duration range in milliseconds)
----     config.duration.min? integer (Minimum duration; default: 2000)
----     config.duration.max? integer (Maximum duration; default: 3000)
+--- config.roundCount? integer      (Number of QTE rounds to complete; default: 4)
+--- config.allowedKeys? string[]    (Allowed keys; default: A-Z)
+--- config.rotationCount? integer   (Number of full indicator rotations allowed per round; default: 1)
+--- config.targetStartAngle? table  (Target segment start angle range in degrees)
+---     config.targetStartAngle.min? number (Minimum target start angle; default: 100)
+---     config.targetStartAngle.max? number (Maximum target start angle; default: 300)
+--- config.targetArcSize? table     (Target segment size angle range in degrees)
+---     config.targetArcSize.min? number (Minimum target size; default: 50)
+---     config.targetArcSize.max? number (Maximum target size; default: 60)
+--- config.rotationDuration? table  (Full rotation duration range in milliseconds)
+---     config.rotationDuration.min? integer (Minimum duration; default: 2000)
+---     config.rotationDuration.max? integer (Maximum duration; default: 3000)
 --- config.introDelay? integer   (Delay in milliseconds before the indicator starts after the intro animation; default: 300)
 --- config.successDelay? integer (Delay in milliseconds before continuing after a successful round; default: 450)
 --- config.failureDelay? integer (Delay in milliseconds before closing after a failed round; default: 550)

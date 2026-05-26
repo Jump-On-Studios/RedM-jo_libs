@@ -1,3 +1,27 @@
+<template>
+  <main class="lockpick-game">
+    <section v-ui-scaler="'center center'" class="lockpick-stage">
+      <div class="pins-counter">{{ pinsRemaining }}</div>
+      <img
+        class="collar"
+        src="/img/lockpick/collar.png"
+        alt=""
+        draggable="false"
+      />
+      <div class="cylinder" :style="cylinderStyle"></div>
+      <div class="driver" :style="cylinderStyle"></div>
+      <div
+        class="pin"
+        :class="{ damaged: isDamaged, broken: isBroken }"
+        :style="pinStyle"
+      >
+        <div class="pin-top"></div>
+        <div class="pin-bottom"></div>
+      </div>
+    </section>
+  </main>
+</template>
+
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { useEscapeCancel } from "@/composables/useEscapeCancel";
@@ -14,14 +38,7 @@ const minRot = -90;
 const maxRot = 90;
 const keyRepeatRate = 25;
 const mouseSmoothing = 2;
-const validKeys = new Set([
-  "w",
-  "a",
-  "s",
-  "d",
-  "arrowleft",
-  "arrowright",
-]);
+const validKeys = new Set(["w", "a", "s", "d", "arrowleft", "arrowright"]);
 
 const pinRot = ref(0);
 const cylRot = ref(0);
@@ -40,9 +57,13 @@ let cylRotationInterval: number | undefined;
 let resetTimeout: number | undefined;
 
 const solvePadding = computed(() => getConfigNumber("solvePadding", 4));
-const maxDistFromSolve = computed(() => getConfigNumber("maxDistFromSolve", 45));
+const maxDistFromSolve = computed(() =>
+  getConfigNumber("maxDistFromSolve", 45),
+);
 const pinDamage = computed(() => getConfigNumber("pinDamage", 20));
-const pinDamageInterval = computed(() => getConfigNumber("pinDamageInterval", 150));
+const pinDamageInterval = computed(() =>
+  getConfigNumber("pinDamageInterval", 150),
+);
 const cylRotSpeed = computed(() => getConfigNumber("cylRotSpeed", 3));
 
 const pinStyle = computed(() => ({
@@ -123,7 +144,8 @@ function pushCylinder() {
   clearCylinderInterval();
   isPushing.value = true;
 
-  let distFromSolve = Math.abs(pinRot.value - solveDeg.value) - solvePadding.value;
+  let distFromSolve =
+    Math.abs(pinRot.value - solveDeg.value) - solvePadding.value;
   distFromSolve = clamp(distFromSolve, 0, maxDistFromSolve.value);
 
   const cylinderRotationAllowance =
@@ -162,7 +184,10 @@ function unpushCylinder() {
 
 function damagePin() {
   const now = Date.now();
-  if (pinLastDamaged.value && now - pinLastDamaged.value <= pinDamageInterval.value) {
+  if (
+    pinLastDamaged.value &&
+    now - pinLastDamaged.value <= pinDamageInterval.value
+  ) {
     return;
   }
 
@@ -250,25 +275,6 @@ onBeforeUnmount(() => {
   window.removeEventListener("keyup", onKeyUp);
 });
 </script>
-
-<template>
-  <main class="lockpick-game">
-    <section v-ui-scaler="'center center'" class="lockpick-stage">
-      <div class="pins-counter">{{ pinsRemaining }}</div>
-      <img class="collar" src="/img/lockpick/collar.png" alt="" draggable="false" />
-      <div class="cylinder" :style="cylinderStyle"></div>
-      <div class="driver" :style="cylinderStyle"></div>
-      <div
-        class="pin"
-        :class="{ damaged: isDamaged, broken: isBroken }"
-        :style="pinStyle"
-      >
-        <div class="pin-top"></div>
-        <div class="pin-bottom"></div>
-      </div>
-    </section>
-  </main>
-</template>
 
 <style scoped>
 .lockpick-game {

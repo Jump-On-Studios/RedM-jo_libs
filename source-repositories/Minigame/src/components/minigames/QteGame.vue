@@ -1,3 +1,43 @@
+<template>
+  <main class="qte-game">
+    <section v-ui-scaler="'center center'" class="qte-panel">
+      <div class="round-counter">{{ currentRound }} / {{ totalRounds }}</div>
+      <div
+        :key="entryAnimationKey"
+        class="qte-entry"
+        :class="entryAnimationClass"
+      >
+        <div
+          class="qte-circle"
+          :class="{
+            'qte-feedback-success': feedbackState === 'success',
+            'qte-feedback-failure': feedbackState === 'failure',
+          }"
+        >
+          <div class="progress-indicator" :style="progressIndicatorStyle"></div>
+          <div
+            v-if="feedbackState"
+            :key="feedbackKey"
+            class="feedback-halo"
+            :class="`feedback-halo-${feedbackState}`"
+          ></div>
+          <div
+            v-if="feedbackState"
+            :key="`${feedbackKey}-ripple`"
+            class="feedback-ripple"
+            :class="`feedback-ripple-${feedbackState}`"
+          ></div>
+          <div class="track" :style="circleStyle"></div>
+          <div class="inner-circle">
+            <span>{{ currentStep.key }}</span>
+          </div>
+          <div class="indicator" :style="indicatorStyle"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+</template>
+
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { useEscapeCancel } from "@/composables/useEscapeCancel";
@@ -12,10 +52,10 @@ interface RangeConfig {
 
 interface QteStep {
   key: string;
-  targetStart: number;
-  targetSize: number;
+  targetStartAngle: number;
+  targetArcSize: number;
   targetEnd: number;
-  duration: number;
+  rotationDuration: number;
 }
 
 type MinigameStatus = "success" | "failed" | "canceled";
@@ -58,10 +98,10 @@ let roundTimeout: number | undefined;
 let roundStartTime = 0;
 
 const totalRounds = computed(() =>
-  Math.max(1, Math.floor(getConfigNumber("count", 4))),
+  Math.max(1, Math.floor(getConfigNumber("roundCount", 4))),
 );
-const maxTurns = computed(() =>
-  Math.max(1, Math.floor(getConfigNumber("maxTurns", 1))),
+const rotationCount = computed(() =>
+  Math.max(1, Math.floor(getConfigNumber("rotationCount", 1))),
 );
 const introDelay = computed(() =>
   getConfigDelay("introDelay", defaultQteIntroDelay),
@@ -80,8 +120,8 @@ const circleStyle = computed(() => ({
   maskImage: `conic-gradient(
     from 0deg,
     transparent 0deg,
-    transparent ${currentStep.value.targetStart}deg,
-    #000 ${currentStep.value.targetStart}deg,
+    transparent ${currentStep.value.targetStartAngle}deg,
+    #000 ${currentStep.value.targetStartAngle}deg,
     #000 ${currentStep.value.targetEnd}deg,
     transparent ${currentStep.value.targetEnd}deg,
     transparent 360deg
@@ -89,8 +129,8 @@ const circleStyle = computed(() => ({
   WebkitMaskImage: `conic-gradient(
     from 0deg,
     transparent 0deg,
-    transparent ${currentStep.value.targetStart}deg,
-    #000 ${currentStep.value.targetStart}deg,
+    transparent ${currentStep.value.targetStartAngle}deg,
+    #000 ${currentStep.value.targetStartAngle}deg,
     #000 ${currentStep.value.targetEnd}deg,
     transparent ${currentStep.value.targetEnd}deg,
     transparent 360deg
@@ -100,6 +140,28 @@ const circleStyle = computed(() => ({
 const indicatorStyle = computed(() => ({
   transform: `translateX(-50%) rotate(${currentAngle.value % 360}deg)`,
 }));
+
+const failureAngle = computed(
+  () => (rotationCount.value - 1) * 360 + currentStep.value.targetEnd,
+);
+
+const progressIndicatorStyle = computed(() => {
+  const progress = Math.min(
+    Math.max(currentAngle.value / failureAngle.value, 0),
+    1,
+  );
+  const progressAngle = progress * 360;
+
+  return {
+    background: `conic-gradient(
+      from 0deg,
+      rgb(255 255 255) 0deg,
+      rgb(255 255 255) ${progressAngle}deg,
+      transparent ${progressAngle}deg,
+      transparent 360deg
+    )`,
+  };
+});
 
 function getConfigNumber(key: string, fallback: number) {
   const value = qteStore.config[key];
@@ -130,11 +192,11 @@ function getRangeConfig(key: string, fallback: Required<RangeConfig>) {
   };
 }
 
-function getKeys() {
-  const keys = qteStore.config.keys;
-  if (!Array.isArray(keys)) return defaultKeys;
+function getAllowedKeys() {
+  const allowedKeys = qteStore.config.allowedKeys;
+  if (!Array.isArray(allowedKeys)) return defaultKeys;
 
-  const validKeys = keys
+  const validKeys = allowedKeys
     .filter((key) => typeof key === "string" && key.trim().length > 0)
     .map((key) => key.trim().toUpperCase());
 
@@ -150,26 +212,38 @@ function randomItem<T>(items: T[]) {
 }
 
 function createStep(): QteStep {
-  const targetStartRange = getRangeConfig("targetStart", { min: 100, max: 300 });
-  const targetSizeRange = getRangeConfig("targetSize", { min: 50, max: 60 });
-  const durationRange = getRangeConfig("duration", { min: 2000, max: 3000 });
+  const targetStartRange = getRangeConfig("targetStartAngle", {
+    min: 100,
+    max: 300,
+  });
+  const targetArcSizeRange = getRangeConfig("targetArcSize", {
+    min: 50,
+    max: 60,
+  });
+  const rotationDurationRange = getRangeConfig("rotationDuration", {
+    min: 2000,
+    max: 3000,
+  });
 
-  const targetStart = Math.min(
+  const targetStartAngle = Math.min(
     Math.max(randomNumber(targetStartRange.min, targetStartRange.max), 0),
     359,
   );
-  const maxTargetSize = Math.max(1, 360 - targetStart);
-  const targetSize = Math.min(
-    Math.max(randomNumber(targetSizeRange.min, targetSizeRange.max), 1),
-    maxTargetSize,
+  const maxTargetArcSize = Math.max(1, 360 - targetStartAngle);
+  const targetArcSize = Math.min(
+    Math.max(randomNumber(targetArcSizeRange.min, targetArcSizeRange.max), 1),
+    maxTargetArcSize,
   );
 
   return {
-    key: randomItem(getKeys()),
-    targetStart,
-    targetSize,
-    targetEnd: targetStart + targetSize,
-    duration: Math.max(100, randomNumber(durationRange.min, durationRange.max)),
+    key: randomItem(getAllowedKeys()),
+    targetStartAngle,
+    targetArcSize,
+    targetEnd: targetStartAngle + targetArcSize,
+    rotationDuration: Math.max(
+      100,
+      randomNumber(rotationDurationRange.min, rotationDurationRange.max),
+    ),
   };
 }
 
@@ -203,10 +277,9 @@ function updateAngle(time: number) {
   if (isFinished.value || isRoundWon.value || isFeedbackPlaying.value) return;
 
   const elapsed = time - roundStartTime;
-  const failureAngle = (maxTurns.value - 1) * 360 + currentStep.value.targetEnd;
-  currentAngle.value = (elapsed / currentStep.value.duration) * 360;
+  currentAngle.value = (elapsed / currentStep.value.rotationDuration) * 360;
 
-  if (currentAngle.value > failureAngle) {
+  if (currentAngle.value > failureAngle.value) {
     failRound();
     return;
   }
@@ -234,10 +307,10 @@ function onKeyDown(event: KeyboardEvent) {
     return;
   }
 
-  const turnAngle = currentAngle.value % 360;
+  const rotationAngle = currentAngle.value % 360;
   const success =
-    turnAngle >= currentStep.value.targetStart &&
-    turnAngle <= currentStep.value.targetEnd;
+    rotationAngle >= currentStep.value.targetStartAngle &&
+    rotationAngle <= currentStep.value.targetEnd;
 
   if (!success) {
     failRound();
@@ -276,12 +349,17 @@ function playFeedback(state: "success" | "failure", onComplete: () => void) {
   feedbackState.value = state;
   feedbackKey.value += 1;
 
-  feedbackTimeout = window.setTimeout(() => {
-    feedbackTimeout = undefined;
-    isFeedbackPlaying.value = false;
-    feedbackState.value = null;
-    onComplete();
-  }, state === "success" ? successFeedbackDelay.value : failureFeedbackDelay.value);
+  feedbackTimeout = window.setTimeout(
+    () => {
+      feedbackTimeout = undefined;
+      isFeedbackPlaying.value = false;
+      feedbackState.value = null;
+      onComplete();
+    },
+    state === "success"
+      ? successFeedbackDelay.value
+      : failureFeedbackDelay.value,
+  );
 }
 
 function clearAnimation() {
@@ -346,45 +424,6 @@ onBeforeUnmount(() => {
 });
 </script>
 
-<template>
-  <main class="qte-game">
-    <section v-ui-scaler="'center center'" class="qte-panel">
-      <div class="round-counter">{{ currentRound }} / {{ totalRounds }}</div>
-      <div
-        :key="entryAnimationKey"
-        class="qte-entry"
-        :class="entryAnimationClass"
-      >
-        <div
-          class="qte-circle"
-          :class="{
-            'qte-feedback-success': feedbackState === 'success',
-            'qte-feedback-failure': feedbackState === 'failure',
-          }"
-        >
-          <div
-            v-if="feedbackState"
-            :key="feedbackKey"
-            class="feedback-halo"
-            :class="`feedback-halo-${feedbackState}`"
-          ></div>
-          <div
-            v-if="feedbackState"
-            :key="`${feedbackKey}-ripple`"
-            class="feedback-ripple"
-            :class="`feedback-ripple-${feedbackState}`"
-          ></div>
-          <div class="track" :style="circleStyle"></div>
-          <div class="inner-circle">
-            <span>{{ currentStep.key }}</span>
-          </div>
-          <div class="indicator" :style="indicatorStyle"></div>
-        </div>
-      </div>
-    </section>
-  </main>
-</template>
-
 <style scoped>
 @font-face {
   font-family: "Crock";
@@ -436,6 +475,25 @@ onBeforeUnmount(() => {
   border-radius: 50%;
   background: url("/img/qte/black_circle.png") center / cover no-repeat;
   box-shadow: 0 16px 42px rgb(0 0 0 / 35%);
+}
+
+.qte-circle .progress-indicator {
+  position: absolute;
+  inset: -3px;
+  z-index: 2;
+  border-radius: 50%;
+  filter: drop-shadow(0 0 7px rgb(255 255 255 / 45%));
+  mask-image: radial-gradient(
+    farthest-side,
+    transparent calc(100% - 3px),
+    #000 calc(100% - 2px)
+  );
+  -webkit-mask-image: radial-gradient(
+    farthest-side,
+    transparent calc(100% - 3px),
+    #000 calc(100% - 2px)
+  );
+  pointer-events: none;
 }
 
 .qte-entry {

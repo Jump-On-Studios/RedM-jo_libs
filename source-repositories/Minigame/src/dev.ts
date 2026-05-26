@@ -33,12 +33,12 @@ export function showQteMock(): void {
     data: {
       game: "qte",
       config: {
-        count: 4,
-        keys: "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""),
-        maxTurns: 1,
-        targetStart: { min: 100, max: 300 },
-        targetSize: { min: 50, max: 60 },
-        duration: { min: 2000, max: 3000 },
+        roundCount: 4,
+        allowedKeys: "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""),
+        rotationCount: 2,
+        targetStartAngle: { min: 100, max: 300 },
+        targetArcSize: { min: 50, max: 60 },
+        rotationDuration: { min: 500, max: 1000 },
         introDelay: 300,
         successDelay: 450,
         failureDelay: 550,
