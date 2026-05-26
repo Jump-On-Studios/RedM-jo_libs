@@ -17,6 +17,8 @@ interface QteStep {
   duration: number;
 }
 
+type MinigameStatus = "success" | "failed" | "canceled";
+
 const minigameStore = useMinigamesStore();
 const qteStore = useQteStore();
 
@@ -211,6 +213,12 @@ function updateAngle(time: number) {
 }
 
 function onKeyDown(event: KeyboardEvent) {
+  if (event.key === "Escape") {
+    event.preventDefault();
+    finish("canceled");
+    return;
+  }
+
   if (
     isFinished.value ||
     isRoundWon.value ||
@@ -247,7 +255,7 @@ function completeRound() {
   clearAnimation();
   playFeedback("success", () => {
     if (currentRound.value >= totalRounds.value) {
-      finish(true);
+      finish("success");
       return;
     }
 
@@ -261,7 +269,7 @@ function completeRound() {
 
 function failRound() {
   clearAnimation();
-  playFeedback("failure", () => finish(false));
+  playFeedback("failure", () => finish("failed"));
 }
 
 function playFeedback(state: "success" | "failure", onComplete: () => void) {
@@ -307,7 +315,7 @@ function clearRoundTimeout() {
   roundTimeout = undefined;
 }
 
-async function finish(success: boolean) {
+async function finish(status: MinigameStatus) {
   if (isFinished.value) return;
 
   isFinished.value = true;
@@ -318,7 +326,7 @@ async function finish(success: boolean) {
 
   await sendToLua("jo_minigame:finished", {
     game: "qte",
-    success,
+    status,
   });
 
   minigameStore.hide();

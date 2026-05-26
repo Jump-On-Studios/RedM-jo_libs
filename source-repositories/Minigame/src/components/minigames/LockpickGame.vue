@@ -4,6 +4,8 @@ import { sendToLua } from "@/helpers/luaHelper";
 import { useLockpickStore } from "@/stores/lockpick";
 import { useMinigamesStore } from "@/stores/minigames";
 
+type MinigameStatus = "success" | "failed" | "canceled";
+
 const minigameStore = useMinigamesStore();
 const lockpickStore = useLockpickStore();
 
@@ -101,6 +103,12 @@ function onMouseLeave() {
 }
 
 function onKeyDown(event: KeyboardEvent) {
+  if (event.key === "Escape") {
+    event.preventDefault();
+    finish("canceled");
+    return;
+  }
+
   if (!validKeys.has(event.key.toLowerCase())) return;
   event.preventDefault();
 
@@ -192,7 +200,7 @@ function breakPin() {
       return;
     }
 
-    finish(false);
+    finish("failed");
   }, 700);
 }
 
@@ -208,10 +216,10 @@ function resetPin() {
 
 function unlock() {
   if (gameOver.value) return;
-  finish(true);
+  finish("success");
 }
 
-async function finish(success: boolean) {
+async function finish(status: MinigameStatus) {
   if (gameOver.value) return;
 
   gameOver.value = true;
@@ -222,7 +230,7 @@ async function finish(success: boolean) {
 
   await sendToLua("jo_minigame:finished", {
     game: "lockpick",
-    success,
+    status,
   });
 
   minigameStore.hide();

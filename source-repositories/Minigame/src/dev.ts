@@ -15,7 +15,7 @@ export function showLockpickMock(): void {
       game: "lockpick",
       config: {
         difficulty: "debug",
-        pins: 1,
+        pins: 3,
         pinHealth: 100,
         pinDamage: 20,
         pinDamageInterval: 150,
