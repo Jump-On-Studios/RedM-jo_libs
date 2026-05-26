@@ -291,17 +291,17 @@ onBeforeUnmount(() => {
 
 .lockpick-stage {
   position: relative;
-  width: 575px;
-  height: 575px;
-  margin-top: 60px;
+  width: 287.5px;
+  height: 287.5px;
+  margin-top: 30px;
   overflow: visible;
 }
 
 .pins-counter {
   position: absolute;
-  top: -54px;
+  top: -27px;
   left: 50%;
-  min-width: 36px;
+  min-width: 18px;
   transform: translateX(-50%);
   color: #f6e6a8;
   font-family:
@@ -311,9 +311,9 @@ onBeforeUnmount(() => {
     BlinkMacSystemFont,
     "Segoe UI",
     sans-serif;
-  font-size: 28px;
+  font-size: 14px;
   font-weight: 700;
-  line-height: 36px;
+  line-height: 18px;
   text-align: center;
   text-shadow: 0 2px 8px rgb(0 0 0 / 70%);
 }
@@ -321,17 +321,17 @@ onBeforeUnmount(() => {
 .collar {
   position: relative;
   display: block;
-  width: 575px;
-  height: 575px;
+  width: 287.5px;
+  height: 287.5px;
   pointer-events: none;
 }
 
 .cylinder {
   position: absolute;
-  top: 86px;
-  left: 86px;
-  width: 402px;
-  height: 402px;
+  top: 43px;
+  left: 43px;
+  width: 201px;
+  height: 201px;
   background-image: url("/img/lockpick/cylinder.png");
   background-position: center;
   background-size: cover;
@@ -340,10 +340,10 @@ onBeforeUnmount(() => {
 
 .driver {
   position: absolute;
-  top: 328px;
-  left: 264px;
-  width: 990px;
-  height: 483px;
+  top: 164px;
+  left: 132px;
+  width: 495px;
+  height: 241.5px;
   background-image: url("/img/lockpick/driver.png");
   background-position: center;
   background-size: cover;
@@ -353,10 +353,10 @@ onBeforeUnmount(() => {
 
 .pin {
   position: absolute;
-  top: -564px;
-  left: 272px;
-  width: 41px;
-  height: 842px;
+  top: -282px;
+  left: 136px;
+  width: 20.5px;
+  height: 421px;
   transform-origin: 50% 99%;
   pointer-events: none;
 }
@@ -369,8 +369,8 @@ onBeforeUnmount(() => {
 .pin-bottom {
   position: absolute;
   left: 0;
-  width: 41px;
-  height: 421px;
+  width: 20.5px;
+  height: 210.5px;
   background-position: center;
   background-size: cover;
 }
@@ -381,7 +381,7 @@ onBeforeUnmount(() => {
 }
 
 .pin-bottom {
-  top: 421px;
+  top: 210.5px;
   background-image: url("/img/lockpick/pinBott.png");
 }
 
