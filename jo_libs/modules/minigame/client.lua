@@ -43,6 +43,7 @@ local defaultConfig = {
     qte = {
         count = 4,                                                                                                                                   -- Number of QTE rounds to complete
         keys = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z" }, -- Allowed keys
+        maxTurns = 1,                                                                                                                                -- Number of full indicator turns allowed per round
         targetStart = { min = 100, max = 300 },                                                                                                      -- Target segment start angle range
         targetSize = { min = 50, max = 60 },                                                                                                         -- Target segment size angle range
         duration = { min = 2000, max = 3000 },                                                                                                       -- Full circle duration range in milliseconds
@@ -177,6 +178,7 @@ end
 ---@param config? table (The QTE configuration)
 --- config.count? integer      (Number of QTE rounds to complete; default: 4)
 --- config.keys? string[]      (Allowed keys; default: A-Z)
+--- config.maxTurns? integer   (Number of full indicator turns allowed per round; default: 1)
 --- config.targetStart? table  (Target segment start angle range in degrees)
 ---     config.targetStart.min? number (Minimum target start angle; default: 100)
 ---     config.targetStart.max? number (Maximum target start angle; default: 300)

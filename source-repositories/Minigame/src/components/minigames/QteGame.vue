@@ -60,6 +60,9 @@ let roundStartTime = 0;
 const totalRounds = computed(() =>
   Math.max(1, Math.floor(getConfigNumber("count", 4))),
 );
+const maxTurns = computed(() =>
+  Math.max(1, Math.floor(getConfigNumber("maxTurns", 1))),
+);
 const introDelay = computed(() =>
   getConfigDelay("introDelay", defaultQteIntroDelay),
 );
@@ -95,7 +98,7 @@ const circleStyle = computed(() => ({
 }));
 
 const indicatorStyle = computed(() => ({
-  transform: `translateX(-50%) rotate(${currentAngle.value}deg)`,
+  transform: `translateX(-50%) rotate(${currentAngle.value % 360}deg)`,
 }));
 
 function getConfigNumber(key: string, fallback: number) {
@@ -200,12 +203,10 @@ function updateAngle(time: number) {
   if (isFinished.value || isRoundWon.value || isFeedbackPlaying.value) return;
 
   const elapsed = time - roundStartTime;
-  currentAngle.value = Math.min(
-    (elapsed / currentStep.value.duration) * 360,
-    360,
-  );
+  const failureAngle = (maxTurns.value - 1) * 360 + currentStep.value.targetEnd;
+  currentAngle.value = (elapsed / currentStep.value.duration) * 360;
 
-  if (currentAngle.value > currentStep.value.targetEnd) {
+  if (currentAngle.value > failureAngle) {
     failRound();
     return;
   }
@@ -233,9 +234,10 @@ function onKeyDown(event: KeyboardEvent) {
     return;
   }
 
+  const turnAngle = currentAngle.value % 360;
   const success =
-    currentAngle.value >= currentStep.value.targetStart &&
-    currentAngle.value <= currentStep.value.targetEnd;
+    turnAngle >= currentStep.value.targetStart &&
+    turnAngle <= currentStep.value.targetEnd;
 
   if (!success) {
     failRound();
