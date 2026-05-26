@@ -11,8 +11,10 @@ local nuiLoaded = false
 local currentGamePromise = nil
 local currentGame = nil
 local currentGameConfig = nil
+local currentAnimPostFx = nil
 local previousFocus = false
 local previousKeepInput = false
+local defaultAnimPostFx = "OJDominoBlur"
 
 -- * ====================================
 -- * NUI LOADING
@@ -33,13 +35,14 @@ end)
 
 local defaultConfig = {
     lockpick = {
-        pins = 1,                -- Number of lockpicks available before failure
-        pinHealth = 100,         -- Health of each lockpick
-        pinDamage = 20,          -- Damage applied when forcing the lock at a wrong angle
-        pinDamageInterval = 150, -- Minimum delay in milliseconds between two damage ticks
-        solvePadding = 4,        -- Angle tolerance in degrees around the correct position
-        maxDistFromSolve = 45,   -- Maximum angle distance used to calculate cylinder allowance
-        cylRotSpeed = 3,         -- Cylinder rotation speed per tick while pushing
+        pins = 1,                       -- Number of lockpicks available before failure
+        pinHealth = 100,                -- Health of each lockpick
+        pinDamage = 20,                 -- Damage applied when forcing the lock at a wrong angle
+        pinDamageInterval = 150,        -- Minimum delay in milliseconds between two damage ticks
+        solvePadding = 4,               -- Angle tolerance in degrees around the correct position
+        maxDistFromSolve = 45,          -- Maximum angle distance used to calculate cylinder allowance
+        cylRotSpeed = 3,                -- Cylinder rotation speed per tick while pushing
+        animPostFx = defaultAnimPostFx, -- AnimPostFX effect to play while the minigame is open, or false to disable it
     },
     qte = {
         roundCount = 4,                                                                                                                                     -- Number of QTE rounds to complete
@@ -52,6 +55,7 @@ local defaultConfig = {
         successDelay = 450,                                                                                                                                 -- Delay in milliseconds before continuing after a successful round
         failureDelay = 550,                                                                                                                                 -- Delay in milliseconds before closing after a failed round
         roundDelay = 100,                                                                                                                                   -- Delay in milliseconds between a successful round and the next intro
+        animPostFx = defaultAnimPostFx,                                                                                                                     -- AnimPostFX effect to play while the minigame is open, or false to disable it
     }
 }
 
@@ -109,6 +113,10 @@ local function startMinigame(game, config)
 
     SetNuiFocus(true, true)
     SetNuiFocusKeepInput(false)
+    if type(mergedConfig.animPostFx) == "string" and mergedConfig.animPostFx ~= "" then
+        currentAnimPostFx = mergedConfig.animPostFx
+        AnimpostfxPlay(currentAnimPostFx)
+    end
     if jo.nui.isLoaded("jo_minigame") then
         jo.nui.forceFocus("jo_minigame")
     end
@@ -121,15 +129,20 @@ local function finishMinigame(status)
     if not currentGamePromise then return end
 
     local resultPromise = currentGamePromise
+    local animPostFx = currentAnimPostFx
     currentGamePromise = nil
     currentGame = nil
     currentGameConfig = nil
+    currentAnimPostFx = nil
 
     SendNUIMessage({
         type = "jo_minigame:hide"
     })
 
     resetFocus()
+    if animPostFx then
+        AnimpostfxStop(animPostFx)
+    end
     resultPromise:resolve(status)
 end
 
@@ -169,6 +182,7 @@ end
 --- config.maxDistFromSolve? number  (Maximum angle distance used to calculate cylinder allowance; default: 45)
 --- config.cylRotSpeed? number       (Cylinder rotation speed per tick while pushing; default: 3)
 --- config.onPinBroken? function     (Called each time a lockpick pin breaks)
+--- config.animPostFx? string|false  (AnimPostFX effect to play while the minigame is open; default: "OJDominoBlur"; use false to disable)
 ---@return "success"|"failed"|"canceled"|"busy" status `"success"` on success, `"failed"` on failure, `"canceled"` on NUI cancel, `"busy"` if another minigame is already running.
 function jo.minigame.lockpick(config)
     SetCursorLocation(0.5, 0.3)
@@ -197,6 +211,7 @@ end
 --- config.successDelay? integer (Delay in milliseconds before continuing after a successful round; default: 450)
 --- config.failureDelay? integer (Delay in milliseconds before closing after a failed round; default: 550)
 --- config.roundDelay? integer   (Delay in milliseconds between a successful round and the next intro; default: 100)
+--- config.animPostFx? string|false (AnimPostFX effect to play while the minigame is open; default: "OJDominoBlur"; use false to disable)
 ---@return "success"|"failed"|"canceled"|"busy" status `"success"` on success, `"failed"` on failure, `"canceled"` on NUI cancel, `"busy"` if another minigame is already running.
 function jo.minigame.qte(config)
     return startMinigame("qte", config)
