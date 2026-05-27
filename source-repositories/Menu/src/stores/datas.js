@@ -4,6 +4,7 @@ import { useMenuStore } from './menus'
 export const useDataStore = defineStore('datas', {
   state: () => ({
     showMenu: false,
+    keepBackground: false,
     menuPositionRight: false,
     isQwerty: false,
     openingAnimation: true,
@@ -13,6 +14,7 @@ export const useDataStore = defineStore('datas', {
     defineShow(value) {
       this.showMenu = value
       if (this.showMenu) {
+        this.keepBackground = false
         const menu = useMenuStore()
         menu.updatePreview()
       }
@@ -22,6 +24,9 @@ export const useDataStore = defineStore('datas', {
       setTimeout(() => {
         this.openingAnimation = true
       })
+    },
+    defineKeepBackground(value) {
+      this.keepBackground = value
     },
     definePosition(value) {
       this.menuPositionRight = value == "right"

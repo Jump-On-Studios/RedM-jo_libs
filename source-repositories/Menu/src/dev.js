@@ -8,6 +8,7 @@ let menu = {
   // type: "tile",
   numberLineOnScreen: 3,
   subtitle: "The menu title",
+  // hideBackground: true,
   displayBackButton: true,
   items: [
     {
@@ -919,6 +920,7 @@ if (import.meta.env.DEV) {
     window.postMessage({
       event: "updateShow",
       show: true,
+      cancelAnimation: true,
     });
   }, 200);
 }

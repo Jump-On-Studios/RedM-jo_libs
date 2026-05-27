@@ -69,6 +69,9 @@ class API {
     if (data.cancelAnimation) {
       datas.defineOpeningAnimation(false)
     }
+    if (data.keepBackground !== undefined) {
+      datas.defineKeepBackground(data.keepBackground)
+    }
     datas.defineShow(data.show)
   }
 

@@ -200,6 +200,7 @@ class Menu {
   price = false;
   priceTitle = false;
   displayBackButton = false;
+  hideBackground = false;
 
   constructor(data) {
     this.setTitle(data.title);
@@ -278,6 +279,7 @@ class Menu {
     if (data.price !== undefined) this.setPrice(data.price);
     if (data.priceTitle !== undefined) this.setPriceTitle(data.priceTitle);
     if (data.displayBackButton !== undefined) this.setDisplayBackButton(data.displayBackButton);
+    if (data.hideBackground !== undefined) this.setHideBackground(data.hideBackground);
     this.refreshKey = Math.random();
   }
 
@@ -345,6 +347,10 @@ class Menu {
 
   setDisplayBackButton(value) {
     this.displayBackButton = value;
+  }
+
+  setHideBackground(value) {
+    this.hideBackground = value;
   }
 }
 
