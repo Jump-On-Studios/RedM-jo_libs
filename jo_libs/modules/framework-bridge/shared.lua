@@ -16,12 +16,20 @@ function jo.framework:getFrameworkDetected()
 end
 
 ---@autodoc:config ignore:true
-function jo.framework:loadFile(...)
+function jo.framework:loadFrameworkFile(...)
   if not frameworkDetected then return false end
   local args = { ... }
   local folder = args[2] and args[1] or frameworkDetected.folder
   local name = args[2] or args[1]
-  local path = ("framework-bridge.%s.%s"):format(folder, name)
+  local path = ("framework-bridge.frameworks.%s.%s"):format(folder, name)
+  if jo.file.isExist(path) then
+    return jo.file.load(path)
+  end
+  return false
+end
+
+function jo.framework:loadResourceFile(resource, file)
+  local path = ("framework-bridge.resources.%s.%s"):format(resource, file)
   if jo.file.isExist(path) then
     return jo.file.load(path)
   end
@@ -29,6 +37,7 @@ function jo.framework:loadFile(...)
 end
 
 jo.require("string")
+jo.require("resource")
 
 local supportedFrameworks = {
   {
@@ -93,11 +102,14 @@ local supportedFrameworks = {
   },
 }
 
-local function extractResourceData(str)
-  local resource, version = str:match("^([%w%-_]+)%s*[<>=]=?%s*([0-9]+%.[0-9]+%.[0-9]+[%w%.]*)$")
-  if not resource then return str end
-  return resource, version
-end
+local supportedExtraResources = {
+  {
+    id = "vorp_inventory_v2",
+    name = "VORP Inventory V2",
+    folder = "vorp_inventory_v2",
+    resources = { "vorp_inventory:vorp_github==https://github.com/VORPCORE/vorp_inventory-v2" },
+  }
+}
 
 
 local function detectFramework()
@@ -113,49 +125,9 @@ local function detectFramework()
     local rightFramework = true
 
     for j = 1, #framework.resources do
-      local value = framework.resources[j]
-      local resource, version = extractResourceData(value)
-      if resource:sub(1, 1) == "!" then
-        if GetResourceState(resource) == "starting" or GetResourceState(resource) == "started" then
-          rightFramework = false
-          break
-        end
-      else
-        if GetResourceState(resource) == "missing" or GetResourceState(resource) == "stopped" then
-          rightFramework = false
-          break
-        else
-          if version then
-            local currentVersion = GetValue(GetResourceMetadata(resource, "version", 0), 1)
-            local compare = currentVersion:compareVersionWith(version)
-            if value:find("<=") then
-              if not (compare <= 0) then
-                rightFramework = false
-                break
-              end
-            elseif value:find(">=") then
-              if not (compare >= 0) then
-                rightFramework = false
-                break
-              end
-            elseif value:find("=") then
-              if not (compare == 0) then
-                rightFramework = false
-                break
-              end
-            elseif value:find("<") then
-              if not (compare < 0) then
-                rightFramework = false
-                break
-              end
-            elseif value:find(">") then
-              if not (compare > 0) then
-                rightFramework = false
-                break
-              end
-            end
-          end
-        end
+      if not jo.resource.isConvarMatching(framework.resources[j]) then
+        rightFramework = false
+        break
       end
     end
 
@@ -189,7 +161,7 @@ end
 for i = 1, #frameworkDetected.resources do
   local resource = frameworkDetected.resources[i]
   if resource:sub(1, 1) ~= "!" then
-    resource = extractResourceData(resource)
+    resource = resource:extractConvarComparator()
     while GetResourceState(resource) ~= "started" do
       bprint("Waiting start of " .. resource)
       Wait(1000)

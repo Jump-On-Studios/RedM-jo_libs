@@ -1,5 +1,5 @@
-jo.framework:loadFile("client")
-jo.framework:loadFile("_custom", "client")
+jo.framework:loadFrameworkFile("client")
+jo.framework:loadFrameworkFile("_custom", "client")
 
 local myIdentifiers = {}
 --- A function to get the user identifiers
