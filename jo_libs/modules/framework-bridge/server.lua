@@ -10,8 +10,8 @@ jo.require("callback")
 ---@class UserClass
 jo.framework.UserClass = {}
 
-jo.framework:loadFile("UserClass")
-jo.framework:loadFile("FrameworkClass")
+jo.framework:loadFrameworkFile("UserClass")
+jo.framework:loadFrameworkFile("FrameworkClass")
 
 
 
@@ -614,11 +614,11 @@ end
 -- -----------
 -- LOAD CUSTOM FUNCTIONS
 -- -----------
-jo.framework:loadFile("_custom", "UserClass")
-jo.framework:loadFile("_custom", "FrameworkClass")
+jo.framework:loadFrameworkFile("_custom", "UserClass")
+jo.framework:loadFrameworkFile("_custom", "FrameworkClass")
 
-jo.framework:loadFile("server")
-jo.framework:loadFile("_custom", "server")
+jo.framework:loadFrameworkFile("server")
+jo.framework:loadFrameworkFile("_custom", "server")
 
 local SourceFromIdentifiers = {}
 local IdentifiersFromSource = {}

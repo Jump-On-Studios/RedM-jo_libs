@@ -49,6 +49,7 @@ end
 function string:compareVersionWith(version)
   if not self then return -1 end
   if not version then return 1 end
+  if self == version then return 0 end
 
   local version1, version2 = self:split("."), version:split(".")
   local len = math.max(#version1, #version2)
@@ -85,6 +86,19 @@ function string:compareVersionWith(version)
     end
   end
   return 0
+end
+
+--- Extract resource, convar, comparator and value from a "resourceName[:convar](< > <= >= ==)value" string
+--- The ":convar" part is optional (eg. "rsg-core>=2.0.0")
+---@return string resource (The resource name, or the whole string when no comparator is found)
+---@return string? convar (The convar/metadata name, nil when omitted)
+---@return string? comparator (`<` `>` `<=` `>=` `==` `=`)
+---@return string? value (The expected value)
+function string:extractConvarComparator()
+  local resource, convar, comparator, value = self:match("^([%w%-_]+):?([%w%-_]*)%s*([<>=]=?)%s*(.+)$")
+  if not resource then return self end
+  if convar == "" then convar = nil end
+  return resource, convar, comparator, value
 end
 
 --- Remove whitespace from both ends of a string

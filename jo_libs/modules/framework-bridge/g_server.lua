@@ -2,8 +2,8 @@ jo.require("framework-bridge")
 jo.require("callback")
 jo.file.load("@oxmysql.lib.MySQL")
 
-jo.framework:loadFile("g_server")
-jo.framework:loadFile("_custom", "g_server")
+jo.framework:loadFrameworkFile("g_server")
+jo.framework:loadFrameworkFile("_custom", "g_server")
 
 RegisterNetEvent("jo_libs:server:applySkinAndClothes", function(ped, skin, clothes)
   local source = source

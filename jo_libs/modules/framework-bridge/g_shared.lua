@@ -1,5 +1,5 @@
-jo.framework:loadFile("g_shared")
-jo.framework:loadFile("_custom", "g_shared")
+jo.framework:loadFrameworkFile("g_shared")
+jo.framework:loadFrameworkFile("_custom", "g_shared")
 
 local initInventoryItemsInProcess = false
 
