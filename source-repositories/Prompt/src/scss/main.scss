@@ -20,11 +20,13 @@ body {
 @font-face {
   font-family: 'Crock';
   src: url('/assets/fonts/crock.ttf') format('truetype');
+  font-display: block;
 }
 
 @font-face {
   font-family: 'BebasNeue';
   src: url('/assets/fonts/BebasNeue-Regular.ttf') format('truetype');
+  font-display: block;
 }
 
 .crock {

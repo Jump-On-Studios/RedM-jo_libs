@@ -693,14 +693,14 @@ end
 ---@param show boolean (Whether to show or hide the menu)
 ---@param keepInput? boolean (Whether to keep game input controls active <br> default: `true`)
 ---@param hideRadar? boolean (Whether to hide the radar when menu is shown <br> default: `true`)
----@param animation? boolean (Whether to use animation when showing/hiding the menu <br> default: `true`)
+---@param playMenuAnimation? boolean (Whether to use animation when showing/hiding the menu <br> default: `true`)
 ---@param hideCursor? boolean (Whether to hide the cursor <br> default: `false`)
-function jo.menu.show(show, keepInput, hideRadar, animation, hideCursor)
+function jo.menu.show(show, keepInput, hideRadar, playMenuAnimation, hideCursor)
   if show == nuiShow then return end
   CreateThread(function()
     keepInput = keepInput == nil and true or keepInput
     hideRadar = hideRadar == nil and true or hideRadar
-    animation = animation == nil and true or animation
+    playMenuAnimation = playMenuAnimation == nil and true or playMenuAnimation
     hideCursor = hideCursor or false
 
     nuiShow = show
@@ -711,13 +711,13 @@ function jo.menu.show(show, keepInput, hideRadar, animation, hideCursor)
       timeoutClose = jo.timeout.set(150, function()
         SetNuiFocus(false, false)
         SetNuiFocusKeepInput(previousKeepingInput)
-        SendNUIMessage({ event = "updateShow", show = show, cancelAnimation = not animation })
+        SendNUIMessage({ event = "updateShow", show = show, cancelAnimation = not playMenuAnimation })
       end)
     else
       previousKeepingInput = IsNuiFocusKeepingInput()
       SetNuiFocus(true, not hideCursor)
       SetNuiFocusKeepInput(keepInput)
-      SendNUIMessage({ event = "updateShow", show = show, cancelAnimation = not animation })
+      SendNUIMessage({ event = "updateShow", show = show, cancelAnimation = not playMenuAnimation })
       loopMenu()
     end
     if show then
@@ -819,9 +819,10 @@ end
 
 --- A function to hide temporary the menu and do action
 ---@param cb function (Action executed before show again the menu)
----@param animation? boolean (Whether to use animation when showing/hiding the menu <br> default: `true`)
-function jo.menu.softHide(cb, animation)
-  animation = GetValue(animation, true)
+---@param playMenuAnimation? boolean (Whether to use animation when showing/hiding the menu <br> default: `true`)
+function jo.menu.softHide(cb, playMenuAnimation, keepBackground)
+  playMenuAnimation = GetValue(playMenuAnimation, true)
+  keepBackground = GetValue(keepBackground, false)
   if not cb then return end
   softHidden = true
   local keepInput = IsNuiFocusKeepingInput()
@@ -829,14 +830,14 @@ function jo.menu.softHide(cb, animation)
 
   SetNuiFocus(false, false)
   SetNuiFocusKeepInput(false)
-  SendNUIMessage({ event = "updateShow", show = false, cancelAnimation = not animation })
+  SendNUIMessage({ event = "updateShow", show = false, cancelAnimation = not playMenuAnimation, keepBackground = keepBackground })
 
   cb()
   Wait(1)
 
   SetNuiFocus(true, not hideCursor)
   SetNuiFocusKeepInput(keepInput)
-  SendNUIMessage({ event = "updateShow", show = true, cancelAnimation = not animation })
+  SendNUIMessage({ event = "updateShow", show = true, cancelAnimation = not playMenuAnimation })
   softHidden = false
 end
 
