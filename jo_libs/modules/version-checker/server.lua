@@ -3,6 +3,7 @@
 -------------
 
 jo.require("string")
+jo.require("resource")
 
 jo.createModule("versionChecker")
 
@@ -93,15 +94,13 @@ function jo.versionChecker.checkUpdate()
     if dependencies then
       dependencies = dependencies:split(",")
       for i = 1, #dependencies do
-        local dependency = dependencies[i]
-        local data = dependency:split(":")
-        local script = data[1]
-        local minVersion = data[2]
-        if GetResourceState(script) ~= "started" then
-          eprint(script .. " is missing !")
-        else
-          local scriptVersion = GetResourceMetadata(script, "version", 0) or "1.0.0"
-          if scriptVersion:compareVersionWith(minVersion) < 0 then
+        local dependency = dependencies[i]:gsub(":", ">=")
+        if not jo.resource.isConvarMatching(dependency) then
+          local script, _, _, minVersion = dependency:extractConvarComparator()
+          if GetResourceState(script) ~= "started" then
+            eprint(script .. " is missing !")
+          else
+            local scriptVersion = GetResourceMetadata(script, "version", 0) or "1.0.0"
             eprint(script .. " requires an update^0: Required version: " .. minVersion .. ", Your version: " .. scriptVersion)
             eprint("Resource stopped")
             killed = true
