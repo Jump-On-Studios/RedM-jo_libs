@@ -3,22 +3,26 @@ jo.require("string")
 jo.require("math")
 jo.require("callback")
 
--- -----------
--- LOAD FRAMEWORK
--- -----------
-
 ---@class UserClass
 jo.framework.UserClass = {}
 
-jo.framework:loadFrameworkFile("UserClass")
-jo.framework:loadFrameworkFile("FrameworkClass")
+-------------
+-- VARIABLES
+-------------
+local SourceFromIdentifiers = {}
+local IdentifiersFromSource = {}
 
+------------
+-- CORE
+------------
 
+jo.framework:loadCoreFiles("server")
 
+-------------
+-- Inventories
+-------------
+jo.framework:loadInventoryFiles("server")
 
--- -----------
--- END LOAD FRAMEWORK
--- -----------
 
 -- -----------
 -- POWER UP FUNCTIONS
@@ -71,7 +75,9 @@ end
 ---@param name string (The name of the framework to check against <br> Supported frameworks : <br> `"VORP"` or `"RedEM"` or `"RedEM2023"` or `"qbr"` or `"rsg"` or `"qr"` or `"rpx"`)
 ---@return boolean (Return `true` if the current framework matches the name)
 function jo.framework:is(name)
-  return self:get() == name
+  local coreId = self:get()
+  if not coreId then return false end
+  return coreId:lower() == name:lower()
 end
 
 --- Retrieves a player's full UserClass object containing all player data and methods
@@ -607,22 +613,6 @@ function jo.framework:onCharacterSelected(cb)
   table.insert(charSelectedCallbacks, cb)
 end
 
--- -----------
--- END POWER UP FUNCTIONS
--- -----------
-
--- -----------
--- LOAD CUSTOM FUNCTIONS
--- -----------
-jo.framework:loadFrameworkFile("_custom", "UserClass")
-jo.framework:loadFrameworkFile("_custom", "FrameworkClass")
-
-jo.framework:loadFrameworkFile("server")
-jo.framework:loadFrameworkFile("_custom", "server")
-
-local SourceFromIdentifiers = {}
-local IdentifiersFromSource = {}
-
 local function generateKey(identifier, charid)
   return ("%s|%s"):format(identifier, charid)
 end
@@ -648,13 +638,16 @@ jo.framework:onCharacterSelected(function(source)
   addIdentifiersLink(source)
 end)
 
-
-
 CreateThread(function()
   local players = GetPlayers()
   for i = 1, #players do
     addIdentifiersLink(tonumber(players[i]))
   end
+end)
+
+AddEventHandler("playerDropped", function()
+  local source = source
+  dropIdentifiersLink(source)
 end)
 
 --- Retrieves the source ID from identifiers
@@ -666,10 +659,6 @@ function jo.framework:getSourceFromIdentifiers(identifier, charid)
   return SourceFromIdentifiers[key] or false
 end
 
-AddEventHandler("playerDropped", function()
-  local source = source
-  dropIdentifiersLink(source)
-end)
 
 --- Merge inventory configuration
 ---@param ... table (The inventory configurations to merge)

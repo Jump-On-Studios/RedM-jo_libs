@@ -1,4 +1,0 @@
--------------
--- Client Side: Add Event listeners for the script
--- ⚠️ This file is executed in all resources that load the framework module ⚠️
--------------

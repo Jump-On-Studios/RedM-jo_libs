@@ -1,3 +1,6 @@
+jo.require("string")
+jo.require("resource")
+
 ---@class FrameworkClass
 ---@field core table (The link with the framework)
 ---@field inv table (The link with the inventory)
@@ -7,167 +10,121 @@ jo.framework.core = {}
 jo.framework.inv = {}
 jo.framework.inventoryItems = {}
 
+local supportedCores = jo.file.load("framework-bridge.cores.detector_shared")
+local supportedInventories = jo.file.load("framework-bridge.inventories.detector_shared")
+local coresStarted = {}
+local inventoriesStarted = {}
 
-local frameworkDetected
+local function waitForResources(resources)
+  for r = 1, #resources do
+    local resource = resources[r]
+    if resource:sub(1, 1) ~= "!" then
+      resource = resource:extractConvarComparator()
+      while GetResourceState(resource) ~= "started" do
+        bprint("Waiting start of " .. resource)
+        Wait(1000)
+      end
+    end
+  end
+end
+
+
+local function isResourcesMatch(resources)
+  for i = 1, #resources do
+    if not jo.resource.isConvarMatching(resources[i]) then
+      return false
+    end
+  end
+  return true
+end
+
+local function getMatchedEntries(entries)
+  local matchedEntries = {}
+  for e = 1, #entries do
+    local entry = entries[e]
+    local isMatch = isResourcesMatch(entry.matchResources)
+    if isMatch then
+      waitForResources(entry.matchResources)
+      matchedEntries[#matchedEntries + 1] = entry
+      gprint(("%s detected"):format(entry.name))
+    end
+  end
+  return matchedEntries
+end
+
+local function detectCores()
+  if #coresStarted > 0 then return coresStarted end
+  coresStarted = getMatchedEntries(supportedCores)
+
+  if #coresStarted == 0 then
+    eprint("=====================================")
+    eprint("No compatible core found on your server")
+    eprint("=====================================")
+    return false
+  end
+
+  if #coresStarted > 1 then
+    oprint("=====================================")
+    oprint("Warning: multiple cores are started on your server")
+    oprint("=====================================")
+  end
+  return coresStarted
+end
+
+local function detectInventories()
+  if #inventoriesStarted > 0 then return inventoriesStarted end
+  inventoriesStarted = getMatchedEntries(supportedInventories)
+
+  if #inventoriesStarted == 0 then
+    eprint("=====================================")
+    eprint("No compatible inventory found on your server")
+    eprint("=====================================")
+    return false
+  end
+
+  if #inventoriesStarted > 1 then
+    oprint("=====================================")
+    oprint("Warning: multiple inventories are started on your server")
+    oprint("=====================================")
+  end
+  return inventoriesStarted
+end
 
 ---@autodoc:config ignore:true
 function jo.framework:getFrameworkDetected()
-  return frameworkDetected
+  local cores = detectCores()
+  if #cores == 0 then return false end
+  return cores[1]
+end
+
+local function loadFile(...)
+  local path = ("framework-bridge.%s.%s.%s"):format(...)
+  if jo.file.isExist(path) then
+    jo.file.load(path)
+  end
+end
+
+local function loadFiles(mainFolder, folders, file)
+  if #folders == 0 then return false end
+  for f = 1, #folders do
+    local folder = folders[f]
+    loadFile(mainFolder, folder.folder, file)
+  end
+  loadFile(mainFolder, "_custom", file)
+  return true
 end
 
 ---@autodoc:config ignore:true
-function jo.framework:loadFrameworkFile(...)
-  if not frameworkDetected then return false end
-  local args = { ... }
-  local folder = args[2] and args[1] or frameworkDetected.folder
-  local name = args[2] or args[1]
-  local path = ("framework-bridge.frameworks.%s.%s"):format(folder, name)
-  if jo.file.isExist(path) then
-    return jo.file.load(path)
-  end
-  return false
+function jo.framework:loadCoreFiles(file)
+  return loadFiles("cores", detectCores(), file)
 end
 
-function jo.framework:loadResourceFile(resource, file)
-  local path = ("framework-bridge.resources.%s.%s"):format(resource, file)
-  if jo.file.isExist(path) then
-    return jo.file.load(path)
-  end
-  return false
+function jo.framework:loadInventoryFiles(file)
+  return loadFiles("inventories", detectInventories(), file)
 end
 
-jo.require("string")
-jo.require("resource")
-
-local supportedFrameworks = {
-  {
-    id = "VORP",
-    name = "VORP Framework",
-    folder = "vorp",
-    resources = { "vorp_core" },
-  },
-  {
-    id = "RedEM",
-    name = "RedEM:RP Old Framework",
-    folder = "redemrp_old",
-    resources = { "redem" },
-  },
-  {
-    id = "RedEM2023",
-    name = "RedEM:RP 2023 Framework",
-    folder = "redemrp_2023",
-    resources = { "!redem", "redem_roleplay" },
-  },
-  {
-    id = "qbr",
-    name = "QBCore RedM Edition",
-    folder = "qbr",
-    resources = { "qbr-core" },
-  },
-  {
-    id = "rsg",
-    name = "RSG V1 Framework",
-    folder = "rsg",
-    resources = { "rsg-core<2.0.0" },
-  },
-  {
-    id = "rsg",
-    name = "RSG V2 Framework",
-    folder = "rsg_2",
-    resources = { "rsg-core>=2.0.0" },
-  },
-  {
-    id = "qr",
-    name = "QRCore RedM:Re",
-    folder = "qr",
-    resources = { "qr-core" },
-  },
-  {
-    id = "rpx",
-    name = "RPX Framework",
-    folder = "rpx",
-    resources = { "rpx-core" }
-  },
-  {
-    id = "tpzcore",
-    name = "TPZ-CORE Framework",
-    folder = "tpzcore",
-    resources = { "tpz_core" }
-  },
-  {
-    id = "frp",
-    name = "FRP Framework",
-    folder = "frp",
-    resources = { "frp_core" }
-  },
-}
-
-local supportedExtraResources = {
-  {
-    id = "vorp_inventory_v2",
-    name = "VORP Inventory V2",
-    folder = "vorp_inventory_v2",
-    resources = { "vorp_inventory:vorp_github==https://github.com/VORPCORE/vorp_inventory-v2" },
-  }
-}
-
-
-local function detectFramework()
-  local frameworkConvarValue = GetConvar("jo_libs:framework", "false") -- Force the framework
-  if frameworkConvarValue ~= "false" then
-    return frameworkConvarValue
-  end
-
-  local frameworkDetected
-
-  for i = 1, #supportedFrameworks do
-    local framework = supportedFrameworks[i]
-    local rightFramework = true
-
-    for j = 1, #framework.resources do
-      if not jo.resource.isConvarMatching(framework.resources[j]) then
-        rightFramework = false
-        break
-      end
-    end
-
-    if rightFramework then
-      if not frameworkDetected then
-        frameworkDetected = framework
-      else
-        eprint("=========== ERROR ===========")
-        eprint("ERROR ! You have multiple frameworks on your server. Please use only once:")
-        eprint(("- %s detected"):format(frameworkDetected.name))
-        eprint(("- %s detected"):format(framework.name))
-        eprint("=========== ERROR ===========")
-        return false
-      end
-    end
-  end
-
-  return frameworkDetected
-end
-
-frameworkDetected = detectFramework()
-if not frameworkDetected then
-  eprint("IMPOSSIBLE to detect which framework is used on your server")
-  return
-end
-
-if jo.isServerSide() then
-  bprint(("%s detected"):format(frameworkDetected.name))
-end
-
-for i = 1, #frameworkDetected.resources do
-  local resource = frameworkDetected.resources[i]
-  if resource:sub(1, 1) ~= "!" then
-    resource = resource:extractConvarComparator()
-    while GetResourceState(resource) ~= "started" do
-      bprint("Waiting start of " .. resource)
-      Wait(1000)
-    end
-  end
-end
+detectCores()
+detectInventories()
 
 local function waitInventoryItems()
   while table.isEmpty(jo.framework.inventoryItems) do Wait(10) end
