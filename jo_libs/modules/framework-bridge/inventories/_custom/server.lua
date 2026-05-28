@@ -1,0 +1,4 @@
+-------------
+-- Server Side: Add Overwrite for your inventory
+-- ⚠️ This file is executed in all resources that load the framework module ⚠️
+-------------

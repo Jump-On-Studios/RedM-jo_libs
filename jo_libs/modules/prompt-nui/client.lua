@@ -478,21 +478,18 @@ end
 -- * RegisterNUICallback for NUI Driven
 -- * ===============================================================================
 RegisterNUICallback("keyCompleted", function(data, cb)
-    -- log("keyCompleted", data)
     local key = data.kkey:lower()
     keysCompleted[key] = GetGameTimer()
     cb({ ok = "ok" })
 end)
 
 RegisterNUICallback("keyUp", function(data, cb)
-    -- log("keyCompleted", data)
     local key = data.kkey:lower()
     keysCompleted[key] = nil
     cb({ ok = "ok" })
 end)
 
 RegisterNUICallback("keyDown", function(data, cb)
-    -- log("keyCompleted", data)
     local key = data.kkey:lower()
     keysCompleted[key] = nil
     cb({ ok = "ok" })

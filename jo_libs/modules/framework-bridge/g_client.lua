@@ -1,7 +1,9 @@
 jo.require("framework-bridge")
 
-jo.framework:loadFrameworkFile("g_client")
-jo.framework:loadFrameworkFile("_custom", "g_client")
+-------------
+-- CORE
+-------------
+jo.framework:loadCoreFiles("g_client")
 
 RegisterNetEvent("jo_libs:client:applySkinAndClothes", function(ped, skin, clothes)
   ped = ped or PlayerPedId()
@@ -52,3 +54,8 @@ RegisterNetEvent("jo_libs:client:applyClothes", function(ped, clothes)
     jo.hook.doActions("jo_libs:applyClothes:after", ped, clothes)
   end)
 end)
+
+-------------
+-- INVENTORIES
+-------------
+jo.framework:loadInventoryFiles("g_client")

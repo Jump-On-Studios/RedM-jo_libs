@@ -1,7 +1,13 @@
-jo.framework:loadFrameworkFile("client")
-jo.framework:loadFrameworkFile("_custom", "client")
-
+-------------
+-- VARIABLES
+-------------
 local myIdentifiers = {}
+
+-------------
+-- CORE
+-------------
+jo.framework:loadCoreFiles("client")
+
 --- A function to get the user identifiers
 function jo.framework:getMyIdentifiers()
   if table.isEmpty(myIdentifiers) then
@@ -9,3 +15,8 @@ function jo.framework:getMyIdentifiers()
   end
   return myIdentifiers
 end
+
+-------------
+-- Inventories
+-------------
+jo.framework:loadInventoryFiles("client")
