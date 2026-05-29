@@ -1,7 +1,16 @@
 <template>
   <main class="qte-game">
     <section v-ui-scaler="'center center'" class="qte-panel">
-      <div class="round-counter">{{ currentRound }} / {{ totalRounds }}</div>
+      <div
+        :key="`counter-${feedbackKey}`"
+        class="round-counter"
+        :class="{
+          'round-counter-success': feedbackState === 'success',
+          'round-counter-failure': feedbackState === 'failure',
+        }"
+      >
+        {{ currentRound }} / {{ totalRounds }}
+      </div>
       <div
         :key="entryAnimationKey"
         class="qte-entry"
@@ -452,19 +461,27 @@ onBeforeUnmount(() => {
 
 .qte-panel {
   display: grid;
-  gap: 18px;
+  gap: 12px;
   place-items: center;
 }
 
 .round-counter {
-  min-width: 72px;
-  padding: 6px 10px;
-  border-radius: 6px;
-  color: #f7f3ea;
-  background: rgb(0 0 0 / 55%);
-  font-size: 18px;
-  font-weight: 700;
+  min-width: 54px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  object-fit: fill;
+  color: rgb(255 255 255 / 94%);
+  background: url(/img/ui/tile.png);
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+
+  font-family: "Crock", serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1;
   text-align: center;
+  text-shadow: 0 0 6px rgb(255 255 255 / 38%);
 }
 
 .qte-circle {

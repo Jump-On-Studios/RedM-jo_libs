@@ -37,6 +37,16 @@
   animation: qte-failure-ripple 0.55s ease-out both;
 }
 
+.round-counter-success {
+  animation: qte-counter-success 0.45s cubic-bezier(0.18, 0.89, 0.32, 1.28)
+    both;
+}
+
+.round-counter-failure {
+  animation: qte-counter-failure 0.55s cubic-bezier(0.36, 0.07, 0.19, 0.97)
+    both;
+}
+
 @keyframes qte-success-pop {
   0% {
     transform: scale(1);
@@ -139,6 +149,28 @@
   }
 }
 
+@keyframes qte-counter-success {
+  0% {
+    transform: scale(1);
+    filter: brightness(1);
+    text-shadow: 0 0 6px rgb(255 255 255 / 38%);
+  }
+
+  34% {
+    transform: scale(1.12) translateY(-1px);
+    filter: brightness(1.45);
+    text-shadow:
+      0 0 8px rgb(255 255 255 / 80%),
+      0 0 18px rgb(255 255 255 / 54%);
+  }
+
+  100% {
+    transform: scale(1);
+    filter: brightness(1);
+    text-shadow: 0 0 6px rgb(255 255 255 / 38%);
+  }
+}
+
 @keyframes qte-failure-shake {
   0%,
   100% {
@@ -169,6 +201,42 @@
 
   70% {
     transform: translateX(3px) rotate(0.4deg);
+  }
+}
+
+@keyframes qte-counter-failure {
+  0%,
+  100% {
+    transform: translateX(0);
+    filter: brightness(1);
+    color: rgb(255 255 255 / 94%);
+    text-shadow: 0 0 6px rgb(255 255 255 / 38%);
+  }
+
+  12% {
+    transform: translateX(-5px);
+    filter: brightness(1.4);
+    color: rgb(255 70 70 / 96%);
+    text-shadow:
+      0 0 8px rgb(255 43 43 / 82%),
+      0 0 18px rgb(255 43 43 / 54%);
+  }
+
+  24% {
+    transform: translateX(5px);
+  }
+
+  36% {
+    transform: translateX(-4px);
+  }
+
+  48% {
+    transform: translateX(3px);
+  }
+
+  62% {
+    transform: translateX(-2px);
+    color: rgb(255 110 110 / 92%);
   }
 }
 
