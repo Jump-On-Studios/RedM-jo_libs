@@ -4,7 +4,7 @@
       v-ui-scaler="'center center'"
       class="lockpick-stage fade-in-bottom"
     >
-      <div class="pins-counter">{{ pinsRemaining }}</div>
+      <div class="pins-counter">x{{ pinsRemaining }}</div>
       <img
         class="collar"
         src="/img/lockpick/collar.png"
@@ -302,23 +302,24 @@ onBeforeUnmount(() => {
 
 .pins-counter {
   position: absolute;
-  top: -27px;
+  bottom: -38px;
   left: 50%;
-  min-width: 18px;
+  z-index: 5;
+  min-width: 54px;
+  height: 28px;
+  display: grid;
+  place-items: center;
   transform: translateX(-50%);
-  color: #f6e6a8;
-  font-family:
-    Inter,
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    sans-serif;
-  font-size: 14px;
-  font-weight: 700;
-  line-height: 18px;
+  object-fit: fill;
+  color: rgb(255 255 255 / 94%);
+  background: url("/img/ui/tile.png");
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  font-family: "Crock", serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1;
   text-align: center;
-  text-shadow: 0 2px 8px rgb(0 0 0 / 70%);
 }
 
 .collar {
