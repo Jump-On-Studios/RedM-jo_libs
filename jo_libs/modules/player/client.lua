@@ -55,7 +55,9 @@ function jo.player.instanceChanged(cb)
   if not cb then return eprint("The callback function is nil") end
   jo.waitLibLoading()
   instanceChangedCallbacks[#instanceChangedCallbacks + 1] = cb
-  if currentInstance ~= nil then return end
+  if currentInstance ~= nil then
+    return CreateThread(function() pcall(cb, currentInstance, nil) end)
+  end
   currentInstance = jo.callback.triggerServer("jo_libs:player:getPlayerInstance")
   if currentInstance then
     CreateThread(function() pcall(cb, currentInstance, nil) end)

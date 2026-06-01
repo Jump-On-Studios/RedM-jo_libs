@@ -32,7 +32,9 @@ jo.ready(function()
 end)
 
 jo.callback.register("jo_libs:player:getPlayerInstance", function(source)
-    return playersInstances[source]
+    local instance = GetPlayerRoutingBucket(source)
+    playersInstances[source] = instance
+    return instance
 end)
 
 -------------
