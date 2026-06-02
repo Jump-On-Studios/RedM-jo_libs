@@ -14,7 +14,7 @@ if (isDev) {
 
 <template>
   <Bridge />
-  <img v-if="isDev" id="bg" src="/assets/images/capture4.jpg" />
+  <img v-if="isDev" id="bg" src="/assets/images/debug/capture4.jpg" />
   <Group v-if="!groupStore.forcedHide" />
 </template>
 
