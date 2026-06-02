@@ -3,6 +3,9 @@ import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
+import { nuiSharedFonts } from '../_shared/vite/nuiSharedFonts.js'
+
+const outDir = './../../jo_libs/nui/input'
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -10,6 +13,9 @@ export default defineConfig({
   plugins: [
     vue(),
     vueDevTools(),
+    nuiSharedFonts({
+      rootUrl: new URL('.', import.meta.url),
+    }),
   ],
   resolve: {
     alias: {
@@ -17,7 +23,7 @@ export default defineConfig({
     },
   },
   build: {
-    outDir: './../../jo_libs/nui/input',
+    outDir,
     emptyOutDir: true,
     assetsInlineLimit: 0,
     rollupOptions: {
