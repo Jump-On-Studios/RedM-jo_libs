@@ -14,10 +14,6 @@ export default defineConfig({
     vue(),
     nuiSharedFonts({
       rootUrl: new URL('.', import.meta.url),
-      outDir,
-      excludePaths: [
-        'assets/fonts',
-      ],
     }),
   ],
   resolve: {

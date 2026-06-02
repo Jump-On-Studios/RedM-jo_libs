@@ -1,11 +1,10 @@
-import { createReadStream, existsSync, rmSync } from 'node:fs'
+import { createReadStream, existsSync } from 'node:fs'
 import { extname, isAbsolute, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-export function nuiSharedFonts({ rootUrl, outDir, excludePaths = [] }) {
+export function nuiSharedFonts({ rootUrl }) {
   const rootDir = fileURLToPath(rootUrl)
   const sharedFontsDir = resolve(rootDir, './../../jo_libs/nui/shared/fonts')
-  const outputDir = resolve(rootDir, outDir)
 
   return {
     name: 'nui-shared-fonts',
@@ -35,18 +34,10 @@ export function nuiSharedFonts({ rootUrl, outDir, excludePaths = [] }) {
         if (asset.type === 'asset' && asset.fileName.endsWith('.css') && typeof asset.source === 'string') {
           asset.source = asset.source.replace(/url\((["']?)\/shared\/fonts\//g, 'url($1../../shared/fonts/')
         }
-      }
-    },
-    closeBundle() {
-      for (const path of excludePaths) {
-        const target = resolve(outputDir, path)
-        const relativeTarget = relative(outputDir, target)
 
-        if (relativeTarget.startsWith('..') || isAbsolute(relativeTarget)) {
-          throw new Error(`Cannot exclude path outside build output: ${path}`)
+        if (asset.type === 'asset' && asset.fileName.endsWith('.html') && typeof asset.source === 'string') {
+          asset.source = asset.source.replace(/(["'])\/shared\/fonts\//g, '$1../shared/fonts/')
         }
-
-        rmSync(target, { recursive: true, force: true })
       }
     },
   }

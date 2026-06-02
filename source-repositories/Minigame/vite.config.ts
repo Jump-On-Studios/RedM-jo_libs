@@ -3,6 +3,7 @@ import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
+import { excludeBuildOutput } from '../_shared/vite/excludeBuildOutput.js'
 import { nuiSharedFonts } from '../_shared/vite/nuiSharedFonts.js'
 
 const outDir = './../../jo_libs/nui/minigame'
@@ -15,9 +16,11 @@ export default defineConfig({
     vueDevTools(),
     nuiSharedFonts({
       rootUrl: new URL('.', import.meta.url),
+    }),
+    excludeBuildOutput({
+      rootUrl: new URL('.', import.meta.url),
       outDir,
-      excludePaths: [
-        'fonts',
+      paths: [
         'img/debug',
       ],
     }),
