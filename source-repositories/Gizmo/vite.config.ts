@@ -16,20 +16,6 @@ export default defineConfig({
         },
         chunkFileNames: 'assets/[name].js',
         entryFileNames: 'assets/[name].js',
-        manualChunks(id) {
-          if (id.indexOf('node_modules') >= 0) {
-            if (id.indexOf('@react-three') >= 0) {
-              return 'index-react-three';
-            }
-            if (id.indexOf('three') >= 0) {
-              return 'index-threejs';
-            }
-            if (id.indexOf('react') >= 0 || id.indexOf('react-dom') >= 0) {
-              return 'index-react';
-            }
-            return 'index';
-          }
-        },
       },
     },
   },
