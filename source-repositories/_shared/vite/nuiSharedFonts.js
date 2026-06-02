@@ -4,12 +4,12 @@ import { fileURLToPath } from 'node:url'
 
 export function nuiSharedFonts({ rootUrl }) {
   const rootDir = fileURLToPath(rootUrl)
-  const sharedFontsDir = resolve(rootDir, './../../jo_libs/nui/shared/fonts')
+  const sharedFontsDir = resolve(rootDir, './../../jo_libs/nui/assets/fonts')
 
   return {
     name: 'nui-shared-fonts',
     configureServer(server) {
-      server.middlewares.use('/shared/fonts', (req, res, next) => {
+      server.middlewares.use('/assets/fonts', (req, res, next) => {
         const url = new URL(req.url ?? '/', 'http://localhost')
         const target = resolve(sharedFontsDir, decodeURIComponent(url.pathname.replace(/^\/+/, '')))
         const relativeTarget = relative(sharedFontsDir, target)
@@ -32,11 +32,11 @@ export function nuiSharedFonts({ rootUrl }) {
     generateBundle(_, bundle) {
       for (const asset of Object.values(bundle)) {
         if (asset.type === 'asset' && asset.fileName.endsWith('.css') && typeof asset.source === 'string') {
-          asset.source = asset.source.replace(/url\((["']?)\/shared\/fonts\//g, 'url($1../../shared/fonts/')
+          asset.source = asset.source.replace(/url\((["']?)\/assets\/fonts\//g, 'url($1../../assets/fonts/')
         }
 
         if (asset.type === 'asset' && asset.fileName.endsWith('.html') && typeof asset.source === 'string') {
-          asset.source = asset.source.replace(/(["'])\/shared\/fonts\//g, '$1../shared/fonts/')
+          asset.source = asset.source.replace(/(["'])\/assets\/fonts\//g, '$1../assets/fonts/')
         }
       }
     },
