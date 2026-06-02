@@ -436,7 +436,7 @@ onBeforeUnmount(() => {
 <style scoped>
 @font-face {
   font-family: "Crock";
-  src: url("/fonts/crock.ttf") format("truetype");
+  src: url("/shared/fonts/crock.ttf") format("truetype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
