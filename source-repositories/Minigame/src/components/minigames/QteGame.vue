@@ -472,7 +472,7 @@ onBeforeUnmount(() => {
   place-items: center;
   object-fit: fill;
   color: rgb(255 255 255 / 94%);
-  background: url(/img/ui/tile.png);
+  background: url(/img/ui/tile.webp);
   background-repeat: no-repeat;
   background-size: 100% 100%;
 
@@ -490,7 +490,7 @@ onBeforeUnmount(() => {
   height: 220px;
   border: 3px solid rgb(255 255 255 / 20%);
   border-radius: 50%;
-  background: url("/img/qte/black_circle.png") center / cover no-repeat;
+  background: url("/img/qte/black_circle.webp") center / cover no-repeat;
   box-shadow: 0 16px 42px rgb(0 0 0 / 35%);
 }
 
@@ -559,7 +559,7 @@ onBeforeUnmount(() => {
   place-items: center;
   border-radius: 50%;
   color: #222;
-  background: url("/img/qte/white_circle.png") center / cover no-repeat;
+  background: url("/img/qte/white_circle.webp") center / cover no-repeat;
   font-family: "Crock", serif;
   font-size: 54px;
   font-weight: 400;

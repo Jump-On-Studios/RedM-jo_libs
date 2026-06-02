@@ -7,7 +7,7 @@
       <div class="pins-counter">x{{ pinsRemaining }}</div>
       <img
         class="collar"
-        src="/img/lockpick/collar.png"
+        src="/img/lockpick/collar.webp"
         alt=""
         draggable="false"
       />
@@ -312,7 +312,7 @@ onBeforeUnmount(() => {
   transform: translateX(-50%);
   object-fit: fill;
   color: rgb(255 255 255 / 94%);
-  background: url("/img/ui/tile.png");
+  background: url("/img/ui/tile.webp");
   background-repeat: no-repeat;
   background-size: 100% 100%;
   font-family: "Crock", serif;
@@ -336,7 +336,7 @@ onBeforeUnmount(() => {
   left: 43px;
   width: 201px;
   height: 201px;
-  background-image: url("/img/lockpick/cylinder.png");
+  background-image: url("/img/lockpick/cylinder.webp");
   background-position: center;
   background-size: cover;
   pointer-events: none;
@@ -348,7 +348,7 @@ onBeforeUnmount(() => {
   left: 132px;
   width: 495px;
   height: 241.5px;
-  background-image: url("/img/lockpick/driver.png");
+  background-image: url("/img/lockpick/driver.webp");
   background-position: center;
   background-size: cover;
   pointer-events: none;
@@ -381,12 +381,12 @@ onBeforeUnmount(() => {
 
 .pin-top {
   top: 0;
-  background-image: url("/img/lockpick/pinTop.png");
+  background-image: url("/img/lockpick/pinTop.webp");
 }
 
 .pin-bottom {
   top: 210.5px;
-  background-image: url("/img/lockpick/pinBott.png");
+  background-image: url("/img/lockpick/pinBott.webp");
 }
 
 .pin.broken .pin-top {
