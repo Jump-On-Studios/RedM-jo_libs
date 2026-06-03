@@ -60,7 +60,7 @@ local function detectCores()
     eprint("=====================================")
     eprint("No compatible core found on your server")
     eprint("=====================================")
-    return false
+    return {}
   end
 
   if #coresStarted > 1 then
@@ -79,7 +79,7 @@ local function detectInventories()
     eprint("=====================================")
     eprint("No compatible inventory found on your server")
     eprint("=====================================")
-    return false
+    return {}
   end
 
   if #inventoriesStarted > 1 then
@@ -116,11 +116,15 @@ end
 
 ---@autodoc:config ignore:true
 function jo.framework:loadCoreFiles(file)
-  return loadFiles("cores", detectCores(), file)
+  local cores = detectCores()
+  if #cores == 0 then return false end
+  return loadFiles("cores", cores, file)
 end
 
 function jo.framework:loadInventoryFiles(file)
-  return loadFiles("inventories", detectInventories(), file)
+  local inventories = detectInventories()
+  if #inventories == 0 then return false end
+  return loadFiles("inventories", inventories, file)
 end
 
 detectCores()
