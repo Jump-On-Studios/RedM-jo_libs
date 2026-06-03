@@ -22,7 +22,7 @@ function jo.resource.isConvarMatching(str)
 
   -- optional version/convar condition (convar defaults to "version")
   if not comparator then return true end
-  local currentValue = GetValue(GetResourceMetadata(resource, convar or "version", 0), 1)
+  local currentValue = tostring(GetValue(GetResourceMetadata(resource, convar or "version", 0), 1))
   local compare = currentValue:compareVersionWith(value)
   if comparator == "<=" then
     return compare <= 0
