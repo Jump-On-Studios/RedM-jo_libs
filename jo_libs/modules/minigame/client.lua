@@ -84,7 +84,7 @@ end
 -- Returns the effective config for a minigame by applying user values over defaults.
 local function mergeConfig(game, config)
     config = type(config) == "table" and config or {}
-    return table.merge(true, table.copy(defaultConfig[game] or {}), config)
+    return table.merge(false, table.copy(defaultConfig[game] or {}), config)
 end
 
 -- Opens a minigame NUI with its merged config and waits for the final result.

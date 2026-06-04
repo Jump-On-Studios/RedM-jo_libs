@@ -296,6 +296,24 @@ function updateAngle(time: number) {
   animationFrame = window.requestAnimationFrame(updateAngle);
 }
 
+function isLetter(value: string) {
+  return /^[A-Z]$/.test(value);
+}
+
+function getPressedLetter(event: KeyboardEvent) {
+  const key = event.key?.trim().toUpperCase();
+  if (key && isLetter(key)) return key;
+
+  const codeMatch = event.code?.match(/^Key([A-Z])$/);
+  if (codeMatch) return codeMatch[1];
+
+  if (event.keyCode >= 65 && event.keyCode <= 90) {
+    return String.fromCharCode(event.keyCode);
+  }
+
+  return null;
+}
+
 function onKeyDown(event: KeyboardEvent) {
   if (
     isFinished.value ||
@@ -306,8 +324,8 @@ function onKeyDown(event: KeyboardEvent) {
     return;
   }
 
-  const pressedKey = event.key.toUpperCase();
-  if (pressedKey.length !== 1) return;
+  const pressedKey = getPressedLetter(event);
+  if (!pressedKey) return;
 
   event.preventDefault();
 

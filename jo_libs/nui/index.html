@@ -15,6 +15,40 @@
     updateMousePos(event.screenX, event.screenY)
   })
 
+  function isKeyboardEventType(type) {
+    return type == 'keydown' || type == 'keyup'
+  }
+
+  function defineKeyboardEventProperty(event, key, value) {
+    try {
+      Object.defineProperty(event, key, {
+        configurable: true,
+        enumerable: true,
+        value,
+      })
+    } catch (_error) { }
+  }
+
+  function createKeyboardEvent(type, source) {
+    const keyboardEvent = new KeyboardEvent(type, {
+      key: source.key || '',
+      code: source.code || '',
+      keyCode: source.keyCode || 0,
+      which: source.which || source.keyCode || 0,
+      repeat: !!source.repeat,
+      altKey: !!source.altKey,
+      ctrlKey: !!source.ctrlKey,
+      shiftKey: !!source.shiftKey,
+      metaKey: !!source.metaKey,
+      bubbles: true,
+      cancelable: true,
+    })
+
+    defineKeyboardEventProperty(keyboardEvent, 'keyCode', source.keyCode || 0)
+    defineKeyboardEventProperty(keyboardEvent, 'which', source.which || source.keyCode || 0)
+    return keyboardEvent
+  }
+
   const eventsToRedirect = [
     'keydown',
     'keyup',
@@ -96,9 +130,11 @@
     }
 
     frame.contentWindow.addEventListener('dispatchEvent', (event) => {
-      const redirectedEvent = new event.constructor(event.realtype, event);
+      const redirectedEvent = isKeyboardEventType(event.realtype)
+        ? createKeyboardEvent(event.realtype, event)
+        : new event.constructor(event.realtype, event);
       redirectedEvent.fake = true
-      if (event.realtype.includes("key")) {
+      if (isKeyboardEventType(event.realtype)) {
         frame.contentWindow.document.dispatchEvent(redirectedEvent)
         return
       }
@@ -115,7 +151,9 @@
         if (eventType == "pointermove") updateMousePos(event.screenX, event.screenY)
         if (event.fake) return
         if (uiNameFocused !== "") return
-        const redirectedEvent = new event.constructor('dispatchEvent', event);
+        const redirectedEvent = isKeyboardEventType(eventType)
+          ? createKeyboardEvent('dispatchEvent', event)
+          : new event.constructor('dispatchEvent', event);
         redirectedEvent.realtype = eventType
         iFrames.forEach((frame) => {
           if (frame.uiName != uiName)
@@ -151,7 +189,7 @@
   globalEvents.forEach(eventType => {
     window.addEventListener(eventType, (event) => {
       if (event.fake) return
-      const redirectedEvent = new event.constructor('dispatchEvent', event);
+      const redirectedEvent = createKeyboardEvent('dispatchEvent', event);
       redirectedEvent.realtype = eventType
       iFrames.forEach((frame) => {
         frame.element.contentWindow.document.dispatchEvent(redirectedEvent)
