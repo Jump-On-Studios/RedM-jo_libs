@@ -15,6 +15,21 @@
     updateMousePos(event.screenX, event.screenY)
   })
 
+  function joCreateKeyboardEvent(type, source) {
+    return new KeyboardEvent(type, {
+      key: source.key || '',
+      code: source.code || '',
+      keyCode: source.keyCode || 0,
+      which: source.which || source.keyCode || 0,
+      altKey: !!source.altKey,
+      ctrlKey: !!source.ctrlKey,
+      shiftKey: !!source.shiftKey,
+      metaKey: !!source.metaKey,
+      bubbles: true,
+      cancelable: true,
+    });
+  }
+
   const eventsToRedirect = [
     'keydown',
     'keyup',
@@ -96,7 +111,12 @@
     }
 
     frame.contentWindow.addEventListener('dispatchEvent', (event) => {
-      const redirectedEvent = new event.constructor(event.realtype, event);
+      let redirectedEvent
+      if (event.realtype && event.realtype.includes("key")) {
+        redirectedEvent = joCreateKeyboardEvent(event.realtype, event)
+      } else {
+        redirectedEvent = new event.constructor(event.realtype, event)
+      }
       redirectedEvent.fake = true
       if (event.realtype.includes("key")) {
         frame.contentWindow.document.dispatchEvent(redirectedEvent)
@@ -153,6 +173,14 @@
       if (event.fake) return
       const redirectedEvent = new event.constructor('dispatchEvent', event);
       redirectedEvent.realtype = eventType
+      redirectedEvent.key = event.key
+      redirectedEvent.code = event.code
+      redirectedEvent.keyCode = event.keyCode
+      redirectedEvent.which = event.which
+      redirectedEvent.altKey = event.altKey
+      redirectedEvent.ctrlKey = event.ctrlKey
+      redirectedEvent.shiftKey = event.shiftKey
+      redirectedEvent.metaKey = event.metaKey
       iFrames.forEach((frame) => {
         frame.element.contentWindow.document.dispatchEvent(redirectedEvent)
       })

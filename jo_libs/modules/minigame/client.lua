@@ -81,10 +81,25 @@ local function resetFocus()
     end
 end
 
+-- Array config keys must replace defaults entirely (deep-merge would keep extra indices).
+local arrayConfigKeys = {
+    qte = { "allowedKeys" },
+}
+
 -- Returns the effective config for a minigame by applying user values over defaults.
 local function mergeConfig(game, config)
     config = type(config) == "table" and config or {}
-    return table.merge(true, table.copy(defaultConfig[game] or {}), config)
+    local merged = table.merge(true, table.copy(defaultConfig[game] or {}), config)
+    local replaceKeys = arrayConfigKeys[game]
+    if replaceKeys then
+        for i = 1, #replaceKeys do
+            local key = replaceKeys[i]
+            if config[key] ~= nil then
+                merged[key] = config[key]
+            end
+        end
+    end
+    return merged
 end
 
 -- Opens a minigame NUI with its merged config and waits for the final result.
