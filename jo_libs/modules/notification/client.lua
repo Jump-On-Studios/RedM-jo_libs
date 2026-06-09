@@ -54,8 +54,8 @@ end
 
 --- Notification on the right with icon, color and sound
 ---@param text string (The text of the notification)
----@param dict string (The dictionnary of the icon)
----@param icon string (The name of the icon)
+---@param dict? string (The dictionnary of the icon)
+---@param icon? string (The name of the icon)
 ---@param color? string (The color of the text <br> default : "COLOR_WHITE")
 ---@param duration? integer (The duration of the notification in ms <br> default: 3000)
 ---@param soundset_ref? string (The dictionnary of the soundset <br> default : "Transaction_Feed_Sounds")
@@ -73,7 +73,7 @@ function jo.notif.right(text, dict, icon, color, duration, soundset_ref, soundse
   }
   if not message then return end
   UiFeedClearAllChannels()
-  LoadDictFile(message.dict, true)
+  if dict then LoadDictFile(message.dict, true) end
   message.text = CreateVarString(10, "LITERAL_STRING", tostring(message.text))
   message.dict = CreateVarString(10, "LITERAL_STRING", tostring(message.dict))
   message.soundset_ref = CreateVarString(10, "LITERAL_STRING", message.soundset_ref)
