@@ -275,7 +275,7 @@ end
 --- item.data? table (Variable to store custom data in the item)
 --- item.description? string (Description text for the item)
 --- item.prefix? string (The little icon before the title from `nui\menu\assets\images\icons` folder  ![prefix Icon](/images/previews/menu/prefixIcon.jpg))
---- item.icon? string (The left icon filename from `nui\menu\assets\images\icons` folder  ![Icon](/images/previews/menu/leftIcon.jpg))
+--- item.icon? string (The left icon filename from `nui\menu\assets\images\icons` folder, or full image URL  ![Icon](/images/previews/menu/leftIcon.jpg))
 --- item.iconRight? string (The right icon filename from `nui\menu\assets\images\icons` folder  ![icon right](/images/previews/menu/iconRight.jpg))
 --- item.iconClass? string (CSS class for the icon)
 --- item.price? table (The price of the item. Use 0 to display "free" <br> default: false  ![preview price](/images/previews/menu/price.jpg))
