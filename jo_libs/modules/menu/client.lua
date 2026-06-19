@@ -140,9 +140,56 @@ local function missingMenu(id)
   CreateThreadNow(menuCreators[id])
 end
 
+--- Build the <img> HTML injected into a description/subtitle when `image` is set.
+--- `image` can be a URL string, or a table for advanced control.
+---@param image string|table (URL string, or { url|src=string, width?, height?, radius?, style? })
+---@return string (The <img> HTML, or "" if no valid source)
+local function buildImageHtml(image)
+  local src, style
+  if type(image) == "table" then
+    src = image.src or image.url
+    if image.style then
+      style = image.style
+    else
+      style = ("width:%s;height:%s;display:block;margin:0 auto .6vh auto;border-radius:%s;object-fit:cover;")
+          :format(image.width or "100%", image.height or "auto", image.radius or "4px")
+    end
+  else
+    src = image
+    style = "width:100%;height:auto;display:block;margin:0 auto .6vh auto;border-radius:4px;object-fit:cover;"
+  end
+  if not src or src == "" then return "" end
+  return ('<img src="%s" style="%s">'):format(src, style)
+end
+
 local function clearDataForNui(data)
   local newData = table.clearForNui(data)
   newData.onBeforeEnter = data.onBeforeEnter and true or nil
+  -- Item-level image -> prepended to the item description (rendered as innerHTML).
+  -- newData is a deep copy (table.clearForNui), so the source item is never mutated
+  -- and the image is never stacked on repeated send/refresh calls.
+  if newData.items then
+    for i = 1, #newData.items do
+      local item = newData.items[i]
+      if item and item.image then
+        local html = buildImageHtml(item.image)
+        if html ~= "" then
+          item.description = html .. (item.description or "")
+        end
+        item.image = nil
+      end
+    end
+  end
+  -- Menu-level image -> appended to the header subtitle, i.e. at the top of the menu,
+  -- above the item list. The header <h2>/subtitle has no fixed height, so the picture
+  -- pushes the items down instead of being clipped.
+  if newData.image then
+    local html = buildImageHtml(newData.image)
+    if html ~= "" then
+      newData.subtitle = (newData.subtitle or "") .. html
+    end
+    newData.image = nil
+  end
   return newData
 end
 
@@ -150,6 +197,7 @@ end
 ---@field id string Menu Unique ID
 ---@field title string Menu Title
 ---@field subtitle string Menu Subtitle
+---@field image? string|table Menu picture (URL/nui:// string, or table) shown at the top of the menu, above the item list
 ---@field type? string Menu type
 ---@field items? table list of items
 ---@field numberOnScreen? integer number of items displayed before the scroll
@@ -184,6 +232,7 @@ local MenuClass = {
 ---@field data table Item data
 ---@field visible boolean Item visibility
 ---@field description string Item description
+---@field image string|table|boolean Item picture (URL/nui:// string, or table) shown in the description panel
 ---@field prefix string|boolean Item prefix
 ---@field statistics table Item statistics
 ---@field disabled boolean Item disabled
@@ -203,6 +252,7 @@ local MenuItem = {
   data = {},
   visible = true,
   description = "",
+  image = false,
   prefix = false,
   statistics = {},
   disabled = false,
@@ -274,6 +324,7 @@ end
 --- item.visible? boolean (If the item is visible in the menu <br> default: true)
 --- item.data? table (Variable to store custom data in the item)
 --- item.description? string (Description text for the item)
+--- item.image? string|table (A picture shown in the description panel, auto-sized to the menu width. A URL/`nui://` string, or a table `{ url=string, width?, height?, radius?, style? }`)
 --- item.prefix? string (The little icon before the title from `nui\menu\assets\images\icons` folder  ![prefix Icon](/images/previews/menu/prefixIcon.jpg))
 --- item.icon? string (The left icon filename from `nui\menu\assets\images\icons` folder  ![Icon](/images/previews/menu/leftIcon.jpg))
 --- item.iconRight? string (The right icon filename from `nui\menu\assets\images\icons` folder  ![icon right](/images/previews/menu/iconRight.jpg))
@@ -334,6 +385,7 @@ end
 --- item.visible? boolean (If the item is visible in the menu <br> default: true)
 --- item.data? table (Variable to store custom data in the item)
 --- item.description? string (Description text for the item)
+--- item.image? string|table (A picture shown in the description panel, auto-sized to the menu width. A URL/`nui://` string, or a table `{ url=string, width?, height?, radius?, style? }`)
 --- item.prefix? string (The little icon before the title from `nui\menu\assets\images\icons` folder  ![prefix Icon](/images/previews/menu/prefixIcon.jpg))
 --- item.icon? string (The left icon filename from `nui\menu\assets\images\icons` folder  ![Icon](/images/previews/menu/leftIcon.jpg))
 --- item.iconRight? string (The right icon filename from `nui\menu\assets\images\icons` folder  ![icon right](/images/previews/menu/iconRight.jpg))
@@ -570,6 +622,7 @@ end
 --- data.type string (The type of menu `tile` or `list` <br> default `tile`)
 --- data.title? string (The big title of the menu  ![The menu title](https://docs.jumpon-studios.com/images/previews/menu/bigTitle.jpg))
 --- data.subtitle string (The subtitle of the menu  ![The subtitle](https://docs.jumpon-studios.com/images/previews/menu/subtitle.jpg))
+--- data.image? string|table (A picture shown at the top of the menu, above the item list. A URL/`nui://` string, or a table `{ url=string, width?, height?, radius?, style? }`)
 --- data.numberOnScreen? integer (Only for list menu, Maximum number of items visibles at the same time <br> default : `8`)
 --- data.numberOnLine? integer (Only for tile menu, Maximum number of items visibles at the same time <br> default : `4`)
 --- data.numberLineOnScreen? integer (Only for tile menu, Maximum number of lines visibles at the same time <br> default : `6`)
