@@ -5,7 +5,10 @@
   <div class="notif" v-if="visible">
     <div class="container">
       <template v-for="(row, rowIndex) in notif.rows" :key="rowIndex">
-        <div class="row">
+        <div
+          class="row"
+          :class="{ 'price-row': row.some((entry) => entry.type == 'price') }"
+        >
           <template v-for="(entry, entryIndex) in row" :key="entryIndex">
             <h2
               v-if="entry.type == 'title'"
@@ -138,7 +141,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, nextTick, onUpdated } from "vue";
+import { ref, isRef, toRaw, onMounted, onUnmounted, nextTick, onUpdated } from "vue";
 import VueDatePicker from "@vuepic/vue-datepicker";
 import Select from "primevue/select";
 import PriceForm from "./components/PriceForm.vue";
@@ -206,6 +209,18 @@ function missingEntry(entry) {
   }
 }
 
+function entryValue(entry) {
+  return isRef(entry.value) ? entry.value.value : entry.value;
+}
+
+function cloneResultValue(value) {
+  const rawValue = toRaw(value);
+  if (rawValue === null || rawValue === undefined || typeof rawValue !== "object") {
+    return rawValue;
+  }
+  return JSON.parse(JSON.stringify(rawValue));
+}
+
 function processInputs() {
   let result = {};
   let priceIds = [];
@@ -213,7 +228,7 @@ function processInputs() {
   notif.value.rows.forEach((rows) => {
     rows.forEach((entry) => {
       if (typeWithResult.includes(entry.type)) {
-        result[entry.id] = entry.value;
+        result[entry.id] = cloneResultValue(entryValue(entry));
         if (entry.type === "price") priceIds.push(entry.id);
         if (
           entry.required &&
@@ -285,7 +300,9 @@ window.addEventListener("message", (e) => {
             hasAction = true;
           }
           if (typeWithResult.includes(entry.type)) {
-            entry.value = ref(entry.value);
+            if (entry.type !== "price") {
+              entry.value = ref(entry.value);
+            }
             entry.dom = null;
             if (firstInput === null) {
               if (entry.type == "date" || entry.type == "price")
@@ -367,11 +384,12 @@ onUnmounted(() => {
   width: 54vw;
   height: fit-content;
   max-height: 80vh;
-  overflow-y: auto;
+  overflow: hidden;
   padding: var(--global-gap);
   display: flex;
   flex-direction: column;
   gap: var(--element-gap);
+  min-height: 0;
 }
 
 .row {
@@ -379,6 +397,13 @@ onUnmounted(() => {
   display: flex;
   gap: var(--element-gap);
   align-items: center;
+  min-height: 0;
+}
+
+.price-row {
+  flex: 1 1 auto;
+  align-items: stretch;
+  overflow: hidden;
 }
 
 .title {
