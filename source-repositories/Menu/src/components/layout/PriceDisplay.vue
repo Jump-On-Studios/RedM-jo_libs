@@ -1,7 +1,7 @@
 <template>
   <template v-if="props.price !== undefined && props.price !== false">
     <template v-if="Array.isArray(props.price)">
-      <div class="priceDisplay">
+      <div :class="['priceDisplay', { priceRight: props.right }]">
         <template v-if="props.price.length == 1 && props.price[0].money === 0">
           <span>
             {{ priceRounded(0) }}
@@ -63,7 +63,7 @@
       </div>
     </template>
     <template v-else>
-      <div class="priceDisplay">
+      <div :class="['priceDisplay', { priceRight: props.right }]">
         <div class="monetary">
           <template v-if="props.price.gold">
             <span class="gold">
@@ -89,7 +89,15 @@
 <script setup>
 import { computed } from "vue";
 import { useLangStore } from "../../stores/lang";
-const props = defineProps(["price"]);
+const props = defineProps({
+  price: {
+    default: false,
+  },
+  right: {
+    type: Boolean,
+    default: false,
+  },
+});
 const lang = useLangStore().lang;
 
 function formatPrice(price) {
@@ -99,7 +107,8 @@ function formatPrice(price) {
 
 const moneyPrice = computed(() => {
   if (typeof props.price === "number") return props.price;
-  if ("money" in props.price) return props.price.money;
+  if (props.price && typeof props.price === "object" && "money" in props.price)
+    return props.price.money;
   return null;
 });
 
@@ -139,7 +148,7 @@ function getQuantityStyle(item) {
 }
 
 function sortItems(prices) {
-  return prices.sort((a, b) => {
+  const sorted = [...prices].sort((a, b) => {
     if (a.item && !b.item) return -1;
     if (b.item && !a.item) return 1;
     if (a.gold && !b.gold) return -1;
@@ -148,6 +157,7 @@ function sortItems(prices) {
     if (b.money && !a.money) return 1;
     return 0;
   });
+  return sorted;
 }
 </script>
 
@@ -160,6 +170,14 @@ function sortItems(prices) {
   align-items: center;
   font-size: 1.5em;
   height: 100%;
+
+  &.priceRight {
+    position: static;
+    top: auto;
+    right: auto;
+    height: var(--price-height);
+    white-space: nowrap;
+  }
 }
 
 .monetary {
@@ -285,13 +303,4 @@ function sortItems(prices) {
   }
 }
 
-.priceRight {
-  .icon {
-    margin-top: -0.4vh;
-  }
-
-  .label {
-    display: none;
-  }
-}
 </style>
