@@ -58,6 +58,14 @@ function jo.framework.UserClass:getJobGrade()
   return 0
 end
 
+--- Sets the current job assigned to a player
+---@param job string (The name of the job)
+---@param grade number (The grade of the job)
+---@return boolean (If job assignment was successful)
+function jo.framework.UserClass:setJob(job, grade)
+  return false
+end
+
 --- Returns the roleplay name (first and last name) of the player
 ---@return string (Returns the formatted first and last name of the player)
 function jo.framework.UserClass:getRPName()

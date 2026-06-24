@@ -84,6 +84,10 @@ function jo.framework.UserClass:getJobGrade()
   return self.data.job.grade.level
 end
 
+function jo.framework.UserClass:setJob(job, grade)
+  return self.data.Functions.SetJob(job, grade)
+end
+
 ---@return string name player's name
 function jo.framework.UserClass:getRPName()
   return ("%s %s"):format(self.data.PlayerData.charinfo.firstname, self.data.PlayerData.charinfo.lastname)

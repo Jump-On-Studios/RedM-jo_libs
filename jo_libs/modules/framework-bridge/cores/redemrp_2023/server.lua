@@ -357,7 +357,11 @@ end
 
 ---@return number jobGrade player's job grade
 function jo.framework.UserClass:getJobGrade()
-  return self.data.PlayerData.jobgrade
+  return self.data.jobgrade
+end
+
+function jo.framework.UserClass:setJob(job, grade)
+  return self.data.SetJob(job) and self.data.SetJobGrade(grade)
 end
 
 ---@return string name player's name

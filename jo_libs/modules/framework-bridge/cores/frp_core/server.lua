@@ -105,6 +105,10 @@ function jo.framework.UserClass:getJobGrade()
   return 0
 end
 
+function jo.framework.UserClass:setJob(job, grade)
+  return false
+end
+
 ---@return string name player's name
 function jo.framework.UserClass:getRPName()
   local User = self.data
