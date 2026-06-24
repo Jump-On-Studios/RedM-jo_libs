@@ -307,6 +307,13 @@ function jo.framework.UserClass:getJobGrade()
   return self.data.jobGrade
 end
 
+---@param job string
+---@param grade number
+---@return boolean success
+function jo.framework.UserClass:setJob(job, grade)
+  return self.data.setJob(job) and self.data.setJobGrade(grade)
+end
+
 ---@return string name
 function jo.framework.UserClass:getRPName()
   return ("%s %s"):format(self.data.firstname, self.data.lastname)
