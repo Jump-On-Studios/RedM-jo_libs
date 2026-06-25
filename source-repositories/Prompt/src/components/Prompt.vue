@@ -1,5 +1,7 @@
 <script setup>
 import KeyboardKey from './KeyboardKey.vue'
+import PriceDisplay from './PriceDisplay.vue'
+
 const props = defineProps({
   prompt: Object,
   isLeft: Boolean,
@@ -11,6 +13,7 @@ const props = defineProps({
     <div id="label" class="crock">
       <span v-html="props.prompt.label"></span>
     </div>
+    <PriceDisplay :price="prompt.price" right />
     <div id="keyboardKeys">
       <KeyboardKey v-for="(keyboardKey, index) in props.prompt.keyboardKeys" :key="index" :holdTime="props.prompt.holdTime" :kkey="keyboardKey" :disabled="prompt.disabled" />
     </div>
@@ -19,6 +22,8 @@ const props = defineProps({
 
 <style scoped lang="scss">
 .prompt {
+  --price-height: 1.8rem;
+
   display: flex;
   flex-direction: row;
   align-items: center;
