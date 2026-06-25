@@ -154,8 +154,10 @@ function sortItems(prices) {
   right: 0.92vh;
   display: flex;
   align-items: center;
+  font-family: 'Crock', sans-serif;
   font-size: 1.5em;
   height: 100%;
+  text-shadow: 0.1rem 0.1rem rgba(0, 0, 0, 0.9);
 
   &.priceRight {
     position: static;
@@ -247,6 +249,7 @@ function sortItems(prices) {
   justify-content: center;
   font-family: 'Crock', sans-serif;
   font-weight: bold;
+  text-shadow: none;
 }
 
 .item {
