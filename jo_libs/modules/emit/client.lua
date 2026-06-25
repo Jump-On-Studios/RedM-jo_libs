@@ -41,7 +41,9 @@ end
 jo.emit.triggerServer = setmetatable({
   latent = triggerServerLatent
 }, {
-  __call = triggerServer
+  __call = function(_, ...)
+    triggerServer(...)
+  end
 })
 
 --- A function to check if an event is currently getting data with emit module
