@@ -155,7 +155,7 @@ function sortItems(prices) {
   display: flex;
   align-items: center;
   font-family: 'Crock', sans-serif;
-  font-size: 1.5em;
+  font-size: inherit;
   height: 100%;
   text-shadow: 0.1rem 0.1rem rgba(0, 0, 0, 0.9);
 
