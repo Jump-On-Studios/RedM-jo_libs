@@ -45,6 +45,7 @@ jo.emit.triggerServer = setmetatable({
     triggerServer(...)
   end
 })
+
 --- A function to check if an event is currently getting data with emit module
 ---@param eventName string the event name
 function jo.emit.isEventInProgress(eventName)
