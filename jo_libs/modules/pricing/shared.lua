@@ -193,3 +193,37 @@ function jo.pricing.mergePrices(...)
   prices.operator = "and"
   return jo.pricing.formatPrices(prices)[1]
 end
+
+--- Gets the tax price from a price and a percentage
+---@param price table|integer|number (The price to tax)
+---@param percentage number (The percentage to apply. Example: `0.2` returns 20% of the price)
+---@param roundUpItems? boolean (Whether item quantities should be rounded up. Defaults to `false`)
+---@return table (The taxed price)
+function jo.pricing.tax(price, percentage, roundUpItems)
+  percentage = percentage or 0
+
+  local formattedPrice = jo.pricing.formatPrice(price)
+  local taxedPrice = {}
+  local roundItemQuantity = roundUpItems and math.ceil or math.floor
+
+  for i = 1, #formattedPrice do
+    local entry = table.copy(formattedPrice[i])
+
+    if entry.money then
+      entry.money *= percentage
+    end
+    if entry.gold then
+      entry.gold *= percentage
+    end
+    if entry.rol then
+      entry.rol *= percentage
+    end
+    if entry.item then
+      entry.quantity = roundItemQuantity((entry.quantity or 1) * percentage)
+    end
+
+    taxedPrice[i] = entry
+  end
+
+  return taxedPrice
+end

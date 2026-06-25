@@ -9,3 +9,5 @@ jo.menu.formatPrices = jo.pricing.formatPrices
 jo.menu.isPriceFree = jo.pricing.isPriceFree
 ---@ignore
 jo.menu.mergePrices = jo.pricing.mergePrices
+---@ignore
+jo.menu.tax = jo.pricing.tax
