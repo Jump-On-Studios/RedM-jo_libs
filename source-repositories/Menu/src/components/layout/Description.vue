@@ -1,5 +1,6 @@
 <template>
   <div class="description hapna" v-if="needDescription()">
+    <MenuImage v-if="cItem.image" :image="cItem.image" class="item-image" />
     <div class="title crock" v-if="menuStore.cMenu.type == 'tile'">
       <span class="main" v-html="cItem.title"></span>
       <span class="subtitle hapna" v-if="cItem.subtitle.length > 0" v-html="cItem.subtitle"></span>
@@ -16,6 +17,7 @@
 
 <script setup>
 import Statistic from "./Statistic.vue"
+import MenuImage from "./MenuImage.vue"
 import { useLangStore } from '../../stores/lang';
 import { useMenuStore } from '../../stores/menus';
 import { storeToRefs } from "pinia";
@@ -33,6 +35,7 @@ function getDescription(item) {
 }
 function needDescription() {
   if (menuStore.cMenu.type == "tile" && menuStore.cItem.title.length > 0) return true
+  if (menuStore.cItem.image) return true
   if (menuStore.cItem.description == undefined) return false
   if (menuStore.cItem.description.length > 0) return true
   if (menuStore.cItem.statistics.length > 0) return true
@@ -49,6 +52,10 @@ function needDescription() {
 .description {
   .text {
     overflow-wrap: break-word;
+  }
+
+  .item-image {
+    margin-bottom: 1vh;
   }
 }
 </style>

@@ -28,6 +28,7 @@ class MenuItem {
   index = 0;
   visible = true;
   description = "";
+  image = false;
   action = false;
   translate = false;
   translateDescription = false;
@@ -99,6 +100,9 @@ class MenuItem {
   }
   setDescription(value) {
     this.description = value;
+  }
+  setImage(value) {
+    this.image = value;
   }
   setAction(value) {
     this.action = value;
@@ -201,6 +205,7 @@ class Menu {
   priceTitle = false;
   displayBackButton = false;
   hideBackground = false;
+  image = false;
 
   constructor(data) {
     this.setTitle(data.title);
@@ -226,6 +231,7 @@ class Menu {
           newItem.setIndex(this.items.length);
         }
         if (item.description) newItem.setDescription(item.description);
+        if (item.image) newItem.setImage(item.image);
         if (item.action) newItem.setAction(item.action);
         if (item.data) newItem.setData(item.data);
         if (item.prefix) newItem.setPrefix(item.prefix);
@@ -280,6 +286,7 @@ class Menu {
     if (data.priceTitle !== undefined) this.setPriceTitle(data.priceTitle);
     if (data.displayBackButton !== undefined) this.setDisplayBackButton(data.displayBackButton);
     if (data.hideBackground !== undefined) this.setHideBackground(data.hideBackground);
+    if (data.image) this.setImage(data.image);
     this.refreshKey = Math.random();
   }
 
@@ -351,6 +358,10 @@ class Menu {
 
   setHideBackground(value) {
     this.hideBackground = value;
+  }
+
+  setImage(value) {
+    this.image = value;
   }
 }
 
