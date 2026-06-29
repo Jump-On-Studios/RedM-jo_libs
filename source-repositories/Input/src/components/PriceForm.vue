@@ -1,152 +1,169 @@
 <template>
   <div class="price-form" :class="{ error: error }">
-    <!-- OR mode toggle -->
-    <div v-if="allowOr" class="pf-or-toggle">
-      <label class="pf-checkbox">
-        <input type="checkbox" v-model="useOr" />
-        <span>Multiple options</span>
-      </label>
-    </div>
-
-    <!-- Single option mode -->
-    <div v-if="!useOr" class="pf-option-card">
-      <div
-        v-for="(comp, cIdx) in singleOption.components"
-        :key="cIdx"
-        class="pf-component-row"
-      >
-        <Select
-          v-model="comp.type"
-          :options="TYPES"
-          optionLabel="label"
-          optionValue="value"
-          class="pf-type-select"
-        />
-        <template v-if="comp.type !== 'item'">
-          <input
-            type="number"
-            v-model.number="comp.value"
-            min="0"
-            step="0.01"
-            class="pf-input pf-input-amount"
-            placeholder="0"
-          />
-        </template>
-        <template v-else>
-          <input
-            type="number"
-            v-model.number="comp.quantity"
-            min="1"
-            class="pf-input pf-input-qty"
-            placeholder="1"
-          />
-          <span class="pf-x">×</span>
-          <input
-            type="text"
-            v-model="comp.itemName"
-            class="pf-input pf-input-grow"
-            placeholder="item_name"
-          />
-          <label class="pf-checkbox pf-checkbox-inline">
-            <input type="checkbox" v-model="comp.keep" />
-            <span>Keep</span>
-          </label>
-        </template>
-        <button
-          class="pf-btn-remove"
-          @click="removeComponent(singleOption, cIdx)"
-          title="Remove"
-        >
-          ✕
-        </button>
+    <div class="pf-header">
+      <div>
+        <div class="pf-title">Payment options</div>
       </div>
-      <button class="pf-btn-add" @click="addComponent(singleOption)">
-        + Add currency
-      </button>
     </div>
 
-    <!-- OR mode -->
-    <div v-else class="pf-or-container">
-      <div
-        v-for="(option, oIdx) in multiOptions"
-        :key="oIdx"
-        class="pf-option-card pf-option-bordered"
+    <div class="pf-options">
+      <section
+        v-for="(option, optionIndex) in paymentOptions"
+        :key="option.key"
+        class="pf-option-card"
       >
-        <div class="pf-option-header">
-          <span class="pf-option-label">Option {{ oIdx + 1 }}</span>
+        <header class="pf-option-header">
+          <div>
+            <div class="pf-option-title">Option {{ optionIndex + 1 }}</div>
+            <div class="pf-option-help">Player must pay all of these</div>
+          </div>
           <button
-            v-if="multiOptions.length > 1"
-            class="pf-btn-remove"
-            @click="removeOption(oIdx)"
-            title="Remove option"
+            v-if="paymentOptions.length > 1"
+            type="button"
+            class="pf-icon-btn"
+            @click="removeOption(optionIndex)"
+            title="Remove payment option"
+            aria-label="Remove payment option"
           >
-            ✕
+            X
           </button>
+        </header>
+
+        <div v-if="option.components.length === 0" class="pf-empty">
+          Choose what the player must pay for this option.
         </div>
+        <span v-if="optionError(option)" class="pf-message pf-message-error">
+          {{ optionError(option) }}
+        </span>
+
+        <div class="pf-requirements">
+          <article
+            v-for="(comp, componentIndex) in option.components"
+            :key="comp.key"
+            class="pf-requirement-card"
+            :class="{ invalid: isComponentInvalid(comp) }"
+          >
+            <div class="pf-requirement-kind">
+              <span class="pf-kind-label">{{ typeLabel(comp.type) }}</span>
+            </div>
+
+            <template v-if="comp.type === 'item'">
+              <label class="pf-field pf-item-field">
+                <span class="pf-field-label">Item</span>
+                <input
+                  type="text"
+                  v-model="comp.itemName"
+                  class="pf-input"
+                  placeholder="item_name"
+                />
+              </label>
+              <label class="pf-field pf-qty-field">
+                <span class="pf-field-label">Qty</span>
+                <input
+                  type="number"
+                  v-model.number="comp.quantity"
+                  min="1"
+                  step="1"
+                  class="pf-input"
+                  placeholder="1"
+                />
+              </label>
+              <label class="pf-checkbox">
+                <input type="checkbox" v-model="comp.keep" />
+                <span>Keep item</span>
+              </label>
+            </template>
+
+            <template v-else>
+              <label class="pf-field pf-amount-field">
+                <span class="pf-field-label">Amount</span>
+                <input
+                  type="number"
+                  v-model.number="comp.value"
+                  min="0"
+                  step="0.01"
+                  class="pf-input"
+                  placeholder="0"
+                />
+              </label>
+            </template>
+
+            <span
+              v-if="componentError(comp)"
+              class="pf-message pf-message-error pf-requirement-message"
+            >
+              {{ componentError(comp) }}
+            </span>
+
+            <button
+              type="button"
+              class="pf-icon-btn pf-remove-requirement"
+              @click="removeComponent(option, componentIndex)"
+              title="Remove requirement"
+              aria-label="Remove requirement"
+            >
+              X
+            </button>
+          </article>
+        </div>
+
+        <div class="pf-add-panel">
+          <span class="pf-add-label">Add requirement</span>
+          <div class="pf-type-buttons">
+            <button
+              v-for="type in availableTypes"
+              :key="type.value"
+              type="button"
+              class="pf-type-btn"
+              :disabled="isTypeDisabled(option, type.value)"
+              :title="typeButtonTitle(option, type.value)"
+              @click="addComponent(option, type.value)"
+            >
+              {{ type.label }}
+            </button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <button
+      v-if="allowOr"
+      type="button"
+      class="pf-add-option"
+      @click="addOption"
+    >
+      + Add another way to pay
+    </button>
+
+    <div v-if="summaryLines.length > 0" class="pf-summary">
+      <span v-if="priceWarning" class="pf-message pf-message-warning">
+        {{ priceWarning }}
+      </span>
+      <template v-if="summaryLines.length === 1">
+        <span class="pf-summary-label">
+          {{ singleSummaryLabel }}
+        </span>
+        <span>{{ summaryLines[0] }}</span>
+      </template>
+      <template v-else>
+        <span class="pf-summary-label">
+          {{ priceWarning ? "Current options:" : "Player can pay either:" }}
+        </span>
         <div
-          v-for="(comp, cIdx) in option.components"
-          :key="cIdx"
-          class="pf-component-row"
+          v-for="(line, index) in summaryLines"
+          :key="index"
+          class="pf-summary-line"
         >
-          <Select
-            v-model="comp.type"
-            :options="TYPES"
-            optionLabel="label"
-            optionValue="value"
-            class="pf-type-select"
-          />
-          <template v-if="comp.type !== 'item'">
-            <input
-              type="number"
-              v-model.number="comp.value"
-              min="0"
-              step="0.01"
-              class="pf-input pf-input-amount"
-              placeholder="0"
-            />
-          </template>
-          <template v-else>
-            <input
-              type="number"
-              v-model.number="comp.quantity"
-              min="1"
-              class="pf-input pf-input-qty"
-              placeholder="1"
-            />
-            <span class="pf-x">×</span>
-            <input
-              type="text"
-              v-model="comp.itemName"
-              class="pf-input pf-input-grow"
-              placeholder="item_name"
-            />
-            <label class="pf-checkbox pf-checkbox-inline">
-              <input type="checkbox" v-model="comp.keep" />
-              <span>Keep</span>
-            </label>
-          </template>
-          <button
-            class="pf-btn-remove"
-            @click="removeComponent(option, cIdx)"
-            title="Remove"
-          >
-            ✕
-          </button>
+          <span>Option {{ index + 1 }}</span>
+          <strong>{{ line }}</strong>
         </div>
-        <button class="pf-btn-add" @click="addComponent(option)">
-          + Add currency
-        </button>
-      </div>
-      <button class="pf-btn-add-option" @click="addOption">
-        + Add payment option
-      </button>
+      </template>
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, watch, onMounted, nextTick } from "vue";
-import Select from "primevue/select";
 
 const props = defineProps({
   modelValue: { type: Object, default: null },
@@ -160,69 +177,126 @@ const emit = defineEmits(["update:modelValue"]);
 const ALL_TYPES = [
   { value: "money", label: "Money" },
   { value: "gold", label: "Gold" },
-  { value: "rol", label: "Rol" },
+  { value: "rol", label: "ROL" },
   { value: "item", label: "Item" },
 ];
 
-const TYPES = computed(() => {
+const availableTypes = computed(() => {
   if (!props.options || props.options.length === 0) return ALL_TYPES;
-  return ALL_TYPES.filter((t) => props.options.includes(t.value));
+  return ALL_TYPES.filter((type) => props.options.includes(type.value));
 });
 
-const useOr = ref(false);
-const singleOption = ref({ components: [] });
-const multiOptions = ref([{ components: [] }]);
+let nextKey = 1;
+let initializing = false;
+const paymentOptions = ref([createOption()]);
 
-function defaultType() {
-  return TYPES.value[0]?.value ?? "money";
+function createKey(prefix) {
+  nextKey += 1;
+  return `${prefix}-${nextKey}`;
 }
 
-function createComponent() {
+function createOption(components = []) {
   return {
-    type: defaultType(),
+    key: createKey("option"),
+    components,
+  };
+}
+
+function defaultType() {
+  return availableTypes.value[0]?.value ?? "money";
+}
+
+function createComponent(type = defaultType(), overrides = {}) {
+  return {
+    key: createKey("component"),
+    type,
     value: 1,
     itemName: "",
     quantity: 1,
     keep: false,
+    ...overrides,
   };
 }
 
-function addComponent(option) {
-  option.components.push(createComponent());
+function typeLabel(type) {
+  return ALL_TYPES.find((entry) => entry.value === type)?.label ?? type;
 }
 
-function removeComponent(option, idx) {
-  option.components.splice(idx, 1);
+function isTypeDisabled(option, type) {
+  return (
+    type !== "item" && option.components.some((comp) => comp.type === type)
+  );
+}
+
+function typeButtonTitle(option, type) {
+  if (!isTypeDisabled(option, type)) return `Add ${typeLabel(type)}`;
+  return `${typeLabel(type)} is already in this option.`;
+}
+
+function addComponent(option, type = defaultType()) {
+  if (isTypeDisabled(option, type)) return;
+  option.components.push(createComponent(type));
+}
+
+function removeComponent(option, index) {
+  option.components.splice(index, 1);
 }
 
 function addOption() {
-  multiOptions.value.push({ components: [] });
+  if (!props.allowOr) return;
+  paymentOptions.value.push(createOption());
 }
 
-function removeOption(idx) {
-  if (multiOptions.value.length > 1) {
-    multiOptions.value.splice(idx, 1);
-  }
+function removeOption(index) {
+  if (paymentOptions.value.length <= 1) return;
+  paymentOptions.value.splice(index, 1);
 }
 
-let initializing = false;
+function isComponentInvalid(comp) {
+  return componentError(comp) !== null;
+}
 
-watch(useOr, (isOr) => {
-  if (initializing) return;
-  if (isOr) {
-    multiOptions.value[0] = {
-      components: singleOption.value.components.map((c) => ({ ...c })),
-    };
-  } else {
-    singleOption.value = {
-      components: multiOptions.value[0].components.map((c) => ({ ...c })),
-    };
+function componentError(comp) {
+  if (comp.type === "item") {
+    if (!comp.itemName?.trim()) return "Item name is required.";
+    if (Number(comp.quantity || 0) <= 0)
+      return "Quantity must be greater than 0.";
+    return null;
   }
-});
+  const value = Number(comp.value || 0);
+  if (comp.type === "money") {
+    if (value < 0) return "Money cannot be negative.";
+    return null;
+  }
+  if (value <= 0) {
+    return "Amount must be greater than 0.";
+  }
+  return null;
+}
+
+function optionError(option) {
+  if (option.components.length === 0) {
+    return "This payment option needs at least one requirement.";
+  }
+  if (option.components.some(isComponentInvalid)) {
+    return "Fix invalid requirements in this option.";
+  }
+  return null;
+}
+
+watch(
+  () => props.allowOr,
+  (allowOr) => {
+    if (!allowOr && paymentOptions.value.length > 1) {
+      paymentOptions.value = [paymentOptions.value[0]];
+    }
+  },
+);
 
 function generateOption(option) {
   const result = {};
   const items = [];
+
   for (const comp of option.components) {
     if (comp.type === "item") {
       const item = { item: comp.itemName.trim() || "item_name" };
@@ -234,29 +308,44 @@ function generateOption(option) {
       result[comp.type] = (result[comp.type] || 0) + val;
     }
   }
+
   if (items.length > 0) result.items = items;
   return result;
 }
 
 const computedValue = computed(() => {
-  if (useOr.value) {
-    const allEmpty = multiOptions.value.every(
-      (opt) => opt.components.length === 0,
-    );
-    if (allEmpty) return null;
-    return {
-      operator: "or",
-      options: multiOptions.value.map((opt) => generateOption(opt)),
-    };
-  } else {
-    if (singleOption.value.components.length === 0) return null;
-    return generateOption(singleOption.value);
+  const options = props.allowOr
+    ? paymentOptions.value
+    : paymentOptions.value.slice(0, 1);
+
+  if (!areOptionsValid(options)) return null;
+  if (options.length === 1 || !props.allowOr) {
+    return generateOption(options[0]);
   }
+
+  return {
+    operator: "or",
+    options: options.map((option) => generateOption(option)),
+  };
+});
+
+function areOptionsValid(options) {
+  if (options.length === 0) return false;
+  return options.every((option) => optionError(option) === null);
+}
+
+const priceWarning = computed(() => {
+  const options = props.allowOr
+    ? paymentOptions.value
+    : paymentOptions.value.slice(0, 1);
+  if (areOptionsValid(options)) return null;
+  return "This price cannot be confirmed until every option is valid.";
 });
 
 watch(
   computedValue,
   (val) => {
+    if (initializing) return;
     emit("update:modelValue", val);
   },
   { deep: true },
@@ -272,32 +361,35 @@ function extractNumericEntries(obj) {
 
 function parseEntry(entry, components) {
   if (entry.item != null) {
-    components.push({
-      type: "item",
-      value: 1,
-      itemName: entry.item || "",
-      quantity: entry.quantity || 1,
-      keep: entry.keep || false,
-    });
-  } else {
-    for (const key of ["money", "gold", "rol"]) {
-      if (entry[key] != null) {
-        components.push({
-          type: key,
+    components.push(
+      createComponent("item", {
+        value: 1,
+        itemName: entry.item || "",
+        quantity: entry.quantity || 1,
+        keep: entry.keep || false,
+      }),
+    );
+    return;
+  }
+
+  for (const key of ["money", "gold", "rol"]) {
+    if (entry[key] != null) {
+      components.push(
+        createComponent(key, {
           value: entry[key],
           itemName: "",
           quantity: 1,
           keep: false,
-        });
-        break;
-      }
+        }),
+      );
+      break;
     }
   }
 }
 
 function parseOption(opt) {
   const components = [];
-  if (!opt) return { components };
+  if (!opt) return createOption(components);
 
   let entries = [];
   let namedKeys = {};
@@ -325,39 +417,94 @@ function parseOption(opt) {
 
   for (const key of ["money", "gold", "rol"]) {
     if (namedKeys[key] != null) {
-      components.push({
-        type: key,
-        value: namedKeys[key],
-        itemName: "",
-        quantity: 1,
-        keep: false,
-      });
+      components.push(
+        createComponent(key, {
+          value: namedKeys[key],
+          itemName: "",
+          quantity: 1,
+          keep: false,
+        }),
+      );
     }
   }
 
-  return { components };
+  return createOption(components);
 }
 
 function parseInitialValue(val) {
-  if (!val) return;
   initializing = true;
-  if (val.operator === "or") {
-    useOr.value = true;
+
+  if (!val) {
+    paymentOptions.value = [createOption()];
+  } else if (val.operator === "or") {
     let options;
     if (Array.isArray(val.options)) {
       options = val.options;
     } else {
       options = extractNumericEntries(val);
     }
-    multiOptions.value = options.map((opt) => parseOption(opt));
+
+    const parsedOptions = options.map((option) => parseOption(option));
+    if (props.allowOr) {
+      paymentOptions.value = parsedOptions.length
+        ? parsedOptions
+        : [createOption()];
+    } else {
+      paymentOptions.value = [parsedOptions[0] ?? createOption()];
+    }
   } else {
-    useOr.value = false;
-    singleOption.value = parseOption(val);
+    paymentOptions.value = [parseOption(val)];
   }
+
   nextTick(() => {
     initializing = false;
+    emit("update:modelValue", computedValue.value);
   });
 }
+
+function formatNumber(value) {
+  const number = Number(value || 0);
+  return Number.isInteger(number) ? String(number) : number.toFixed(2);
+}
+
+function summarizeComponent(comp) {
+  if (comp.type === "item") {
+    const name = comp.itemName?.trim() || "missing item";
+    const quantity = Math.max(Number(comp.quantity || 1), 1);
+    return `${formatNumber(quantity)}x ${name}${comp.keep ? " kept" : ""}`;
+  }
+
+  return `${typeLabel(comp.type)} ${formatNumber(comp.value)}`;
+}
+
+function summarizeOption(option) {
+  if (!option.components.length) return "No requirement set";
+  if (isFreeOption(option)) return "Free";
+  return option.components.map(summarizeComponent).join(" + ");
+}
+
+function isFreeOption(option) {
+  return (
+    option.components.length === 1 &&
+    option.components[0].type === "money" &&
+    Number(option.components[0].value || 0) === 0
+  );
+}
+
+const summaryLines = computed(() => {
+  if (paymentOptions.value.length > 1 && props.allowOr) {
+    return paymentOptions.value.map(summarizeOption);
+  }
+  return paymentOptions.value
+    .filter((option) => option.components.length > 0)
+    .map(summarizeOption);
+});
+
+const singleSummaryLabel = computed(() => {
+  if (priceWarning.value) return "Current draft:";
+  if (summaryLines.value[0] === "Free") return "Price:";
+  return "Player pays:";
+});
 
 onMounted(() => {
   parseInitialValue(props.modelValue);
@@ -367,100 +514,173 @@ onMounted(() => {
 <style lang="scss" scoped>
 .price-form {
   flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: var(--element-gap);
+  gap: 0.85rem;
 
   &.error {
-    box-shadow: 0px 0px 5px var(--color-red-light);
+    box-shadow:
+      0 0 0 1px var(--color-red-light),
+      0 0 8px rgba(226, 2, 2, 0.35);
   }
 }
 
-.pf-or-toggle {
+.pf-header {
   display: flex;
-  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 0.85rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.pf-checkbox {
-  display: flex;
-  align-items: center;
-  gap: 0.4em;
-  cursor: pointer;
-  font-size: 0.8em;
-  color: rgba(255, 255, 255, 0.5);
-  user-select: none;
-
-  input[type="checkbox"] {
-    width: 13px;
-    height: 13px;
-    accent-color: var(--color-red);
-    cursor: pointer;
-  }
-
-  em {
-    font-style: normal;
-    font-size: 0.9em;
-  }
+.pf-title,
+.pf-option-title,
+.pf-kind-label {
+  color: white;
+  font-variant-caps: small-caps;
 }
 
-.pf-checkbox-inline {
-  gap: 0.3em;
-  white-space: nowrap;
-  color: rgba(255, 255, 255, 0.4);
+.pf-title {
+  font-size: 0.95em;
 }
 
-.pf-or-container {
+.pf-option-help,
+.pf-field-label,
+.pf-add-label,
+.pf-summary-label {
+  color: rgba(255, 255, 255, 0.46);
+  font-size: 0.74em;
+  font-variant-caps: small-caps;
+}
+
+.pf-options {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: var(--element-gap);
+  gap: 0.75rem;
+  padding-right: 0.25rem;
 }
 
 .pf-option-card {
   display: flex;
   flex-direction: column;
-  gap: var(--element-gap);
-}
-
-.pf-option-bordered {
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: calc(var(--element-gap) * 3);
+  gap: 0.75rem;
+  padding: 0.9rem;
+  background: rgba(255, 255, 255, 0.018);
+  border: 1px solid rgba(255, 255, 255, 0.09);
 }
 
 .pf-option-header {
   display: flex;
-  align-items: center;
-  gap: var(--element-gap);
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
 }
 
-.pf-option-label {
-  font-size: 0.75em;
-  color: rgba(255, 255, 255, 0.35);
-  font-variant-caps: small-caps;
-  letter-spacing: 0.05em;
+.pf-option-title {
+  font-size: 0.9em;
 }
 
-.pf-component-row {
+.pf-empty {
+  padding: 1rem;
+  color: rgba(255, 255, 255, 0.42);
+  background: rgba(255, 255, 255, 0.03);
+  text-align: center;
+}
+
+.pf-message {
+  display: block;
+  color: rgba(255, 255, 255, 0.74);
+  font-size: 0.74em;
+  line-height: 1.25;
+}
+
+.pf-message-error {
+  color: #ff8c8c;
+}
+
+.pf-message-warning {
+  color: #f0c674;
+}
+
+.pf-requirements {
   display: flex;
-  align-items: stretch;
-  gap: var(--element-gap);
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-.pf-type-select {
-  flex-shrink: 0;
-  width: 110px;
+.pf-requirement-card {
+  --pf-kind-size: 4.1rem;
 
-  :deep(.p-select) {
-    background-color: var(--color-background-grey);
-    border: none;
-    border-radius: 0;
-    box-shadow: none;
-    height: 100%;
+  display: grid;
+  grid-template-columns:
+    var(--pf-kind-size) minmax(8rem, 1fr) minmax(4.5rem, 5.5rem)
+    auto 2.2rem;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid transparent;
+
+  &.invalid {
+    border-color: rgba(226, 2, 2, 0.5);
+    background: rgba(119, 0, 0, 0.12);
   }
 }
 
+.pf-requirement-kind {
+  width: var(--pf-kind-size);
+  height: var(--pf-kind-size);
+  align-self: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.045);
+  box-sizing: border-box;
+}
+
+.pf-kind-label {
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 0.86em;
+  text-align: center;
+}
+
+.pf-field {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.pf-item-field {
+  grid-column: 2;
+}
+
+.pf-qty-field {
+  grid-column: 3;
+}
+
+.pf-amount-field {
+  grid-column: 2 / span 3;
+}
+
+.pf-requirement-message {
+  grid-column: 2 / span 3;
+  grid-row: 2;
+}
+
 .pf-input {
-  padding: var(--padding-input-Y) var(--padding-input-X);
-  border: none;
+  width: 100%;
+  min-height: 2.85rem;
+  padding: 0.72rem var(--padding-input-X);
+  border: 1px solid transparent;
   color: white;
   background-color: var(--color-background-grey);
   border-radius: 0;
@@ -473,61 +693,206 @@ onMounted(() => {
   &:focus,
   &:focus-visible {
     outline: none;
+    border-color: rgba(255, 255, 255, 0.22);
     box-shadow: none;
   }
 }
 
-.pf-input-amount,
-.pf-input-qty {
-  width: 90px;
-  flex-shrink: 0;
-}
-
-.pf-input-grow {
-  flex: 1;
-  min-width: 80px;
-}
-
-.pf-x {
-  color: rgba(255, 255, 255, 0.3);
-  font-size: 0.85em;
-  flex-shrink: 0;
+.pf-checkbox {
   align-self: center;
-}
-
-.pf-btn-remove {
-  flex-shrink: 0;
-  width: 22px;
-  align-self: center;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  background: transparent;
-  border: none;
-  color: rgba(255, 255, 255, 0.25);
-  font-size: 0.7em;
+  justify-self: center;
+  gap: 0.42rem;
+  margin-bottom: 0;
+  color: rgba(255, 255, 255, 0.58);
   cursor: pointer;
-  padding: 0;
-  transition: all 0.15s;
+  font-size: 0.78em;
+  white-space: nowrap;
+  user-select: none;
+  margin-top: 1.4rem;
 
-  &:hover {
-    color: var(--color-red-light);
+  input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+    accent-color: var(--color-red);
+    cursor: pointer;
   }
 }
 
-.pf-btn-add,
-.pf-btn-add-option {
-  background-color: var(--color-background-grey);
-  border: none;
-  color: rgba(255, 255, 255, 0.5);
-  padding: 0.625em 1.1em;
-  font-family: inherit;
+.pf-icon-btn {
+  width: 2.2rem;
+  height: 2.85rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(255, 255, 255, 0.4);
   cursor: pointer;
-  transition: all 0.2s ease;
-  flex: 1;
+  font-family: inherit;
+  font-size: 0.72em;
+  line-height: 1;
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease,
+    background-color 0.15s ease;
 
   &:hover {
-    filter: brightness(1.5);
+    background-color: rgba(119, 0, 0, 0.35);
+    border-color: rgba(226, 2, 2, 0.45);
+    color: white;
+  }
+}
+
+.pf-remove-requirement {
+  grid-column: 5;
+  grid-row: 1;
+  align-self: end;
+}
+
+.pf-add-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding-top: 0.15rem;
+}
+
+.pf-type-buttons {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.4rem;
+}
+
+.pf-type-btn,
+.pf-add-option {
+  min-height: 2.65rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--color-background-grey);
+  color: rgba(255, 255, 255, 0.68);
+  cursor: pointer;
+  font-family: inherit;
+  transition:
+    filter 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+
+  &:hover {
+    color: white;
+    filter: brightness(1.18);
+    border-color: rgba(255, 255, 255, 0.16);
+  }
+
+  &:disabled {
+    color: rgba(255, 255, 255, 0.24);
+    cursor: not-allowed;
+    filter: none;
+    opacity: 0.55;
+  }
+
+  &:disabled:hover {
+    color: rgba(255, 255, 255, 0.24);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+}
+
+.pf-add-option {
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.pf-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.75rem 0.85rem;
+  background: rgba(255, 255, 255, 0.035);
+  border-left: 3px solid rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.82em;
+}
+
+.pf-summary-line {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  min-width: 0;
+
+  span {
+    flex: 0 0 auto;
+    color: rgba(255, 255, 255, 0.46);
+    font-variant-caps: small-caps;
+  }
+
+  strong {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    font-weight: 500;
+  }
+}
+
+@media (max-width: 900px) {
+  .pf-requirement-card {
+    grid-template-columns: var(--pf-kind-size) minmax(8rem, 1fr) 2.2rem;
+  }
+
+  .pf-item-field,
+  .pf-amount-field,
+  .pf-requirement-message {
+    grid-column: 2;
+  }
+
+  .pf-requirement-message {
+    grid-row: auto;
+  }
+
+  .pf-qty-field {
+    grid-column: 1;
+  }
+
+  .pf-checkbox {
+    grid-column: 2;
+    align-self: center;
+  }
+
+  .pf-remove-requirement {
+    grid-column: 3;
+  }
+
+  .pf-type-buttons {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .pf-header,
+  .pf-option-header {
+    flex-direction: column;
+  }
+
+  .pf-requirement-card {
+    grid-template-columns: 1fr;
+  }
+
+  .pf-requirement-kind,
+  .pf-item-field,
+  .pf-qty-field,
+  .pf-amount-field,
+  .pf-requirement-message,
+  .pf-checkbox,
+  .pf-remove-requirement {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .pf-requirement-kind,
+  .pf-checkbox,
+  .pf-remove-requirement {
+    align-self: start;
+  }
+
+  .pf-remove-requirement {
+    width: 100%;
+  }
+
+  .pf-type-buttons {
+    grid-template-columns: 1fr;
   }
 }
 </style>
