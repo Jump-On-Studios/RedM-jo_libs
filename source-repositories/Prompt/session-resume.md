@@ -208,4 +208,3 @@ The user also requested no `public/assets/images/menu/` folder. `money_line.png`
 - Decide whether `PriceDisplay` should explicitly set `font-family` rather than inherit from the prompt row.
 - Confirm production item payloads from Lua include `image = "nui://..."` or another `://` URL.
 - If `rol` support is needed later, Menu currently normalizes `rol` in Lua but does not render it in `PriceDisplay.vue`; it needs a separate visual design/asset decision.
-
