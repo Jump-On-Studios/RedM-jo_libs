@@ -39,7 +39,7 @@
           </div>
         </div>
         <div class="priceRight" v-if="!item.iconRight && price !== undefined && price !== false">
-          <PriceDisplay :price="price" />
+          <PriceDisplay :price="price" right />
         </div>
       </h3>
       <div class="background"></div>
@@ -72,7 +72,7 @@ const props = defineProps({
 })
 
 const price = computed(() => {
-  return (props.item.priceRight && (menuStore.cMenu.cItem == props.item)) ? 0 : props.item.priceRight
+  return props.item.priceRight === true ? props.item.price : props.item.priceRight
 })
 
 function click() {
@@ -292,8 +292,9 @@ function getImage(url) {
 .priceRight {
   --price-height: 4.6vh;
   font-size: 0.8em;
-  position: relative;
-  display: block;
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
   top: -0.16vh;
 }
 </style>

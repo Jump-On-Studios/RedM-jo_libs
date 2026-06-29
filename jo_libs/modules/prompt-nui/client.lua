@@ -1,6 +1,7 @@
 jo.createModule("promptNui")
 jo.require("table")
 jo.require("raw-keys")
+jo.require("pricing")
 
 local NativeSendNUIMessage = SendNUIMessage
 local nuiLoaded = false
@@ -124,6 +125,7 @@ end)
 ---@field label string
 ---@field keyboardKeys string[]
 ---@field holdTime number|false
+---@field price table|boolean
 ---@field disabled boolean
 ---@field visible boolean
 ---@field page number
@@ -138,6 +140,7 @@ function PromptClass:new()
         label = "",
         keyboardKeys = {},
         holdTime = false,
+        price = false,
         disabled = false,
         visible = true,
         page = -1,
@@ -215,6 +218,13 @@ function PromptClass:setHoldTime(holdTime)
     self:refreshNUI("holdTime")
 end
 
+--- Sets the prompt price and formats it with the shared pricing structure.
+--- @param price table|integer|number|boolean|nil (The prompt price. Set it to `false` if no price is required)
+function PromptClass:setPrice(price)
+    self.price = price and jo.pricing.formatPrice(price) or false
+    self:refreshNUI("price")
+end
+
 -- * =============================================================================
 -- * GROUP
 -- * =============================================================================
@@ -289,14 +299,16 @@ end
 --- @param label string (The descriptive label for the prompt.)
 --- @param holdTime number|boolean (Duration to hold the key before the prompt triggers. <br> Set it to `false` if no hold time is required)
 --- @param page? number (The page number to add the prompt to<br> defaults to 1.)
+--- @param price? table|integer|number|boolean (The price to display next to the prompt label. Uses the shared pricing structure <br> defaults to false.)
 --- @return PromptClass (The newly created prompt object.)
-function GroupClass:addPrompt(key, label, holdTime, page)
+function GroupClass:addPrompt(key, label, holdTime, page, price)
     local prompt = PromptClass:new()
     key = key:lower()
     prompt.groupId = self.id
     prompt:setLabel(label)
     prompt:setKeyboardKeys(key)
     prompt:setHoldTime(holdTime)
+    prompt:setPrice(price)
 
     page = page or 1
 
