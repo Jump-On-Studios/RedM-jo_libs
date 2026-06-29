@@ -1,8 +1,17 @@
 jo.createModule("pricing")
 jo.require("table")
 
+-- * ==========================================
+-- * INTERNAL CONFIGURATION
+-- * ==========================================
+
 local currencyKeys = { "money", "gold", "rol" }
+
+---@class Price : table
 local PriceClass = {}
+
+---@class Prices : table
+---@field operator "or"|"and"
 local PricesClass = {}
 local pricesOperators = setmetatable({}, { __mode = "k" })
 
@@ -19,14 +28,21 @@ for i = 1, #currencyKeys do
   validPriceKeys[currencyKeys[i]] = true
 end
 
+-- * ==========================================
+-- * LOCAL HELPERS
+-- * ==========================================
+
+--- Checks whether a value is a Price object.
 local function isPrice(price)
   return getmetatable(price) == PriceClass
 end
 
+--- Checks whether a value is a Prices object.
 local function isPrices(prices)
   return getmetatable(prices) == PricesClass
 end
 
+--- Deep-copies a value without preserving object metatables.
 local function copyWithoutMetatable(value)
   if type(value) ~= "table" then return value end
 
@@ -37,6 +53,7 @@ local function copyWithoutMetatable(value)
   return copy
 end
 
+--- Replaces a table content while keeping the same table reference.
 local function replaceTable(target, source)
   for key in pairs(target) do
     target[key] = nil
@@ -47,7 +64,7 @@ local function replaceTable(target, source)
   return target
 end
 
---- Helper function to normalize a single entry
+--- Normalizes a single price entry to the shared price shape.
 ---@param entry any
 ---@return table
 local function normalizeEntry(entry)
@@ -69,19 +86,23 @@ local function normalizeEntry(entry)
   return table.copy(entry)
 end
 
+--- Appends a normalized entry and returns the next array index.
 local function addNormalizedEntry(entries, size, entry)
   entries[size] = normalizeEntry(entry)
   return size + 1
 end
 
+--- Builds the item grouping key used for merging item entries.
 local function getItemMergeKey(item)
   return item.item .. ":" .. tostring(item.keep)
 end
 
+--- Compares item metadata while treating nil meta as an empty table.
 local function isSameItemMeta(a, b)
   return table.isEgal(GetValue(a.meta, {}), GetValue(b.meta, {}))
 end
 
+--- Returns the currency key when the entry contains only one currency.
 local function getSingleCurrencyKey(entry)
   if table.count(entry) ~= 1 then return false end
 
@@ -93,6 +114,7 @@ local function getSingleCurrencyKey(entry)
   return false
 end
 
+--- Merges duplicate currencies and compatible item entries.
 local function sanitizePrice(price, removeEmptyItems)
   local sanitized = {}
   local size = 1
@@ -151,14 +173,17 @@ local function sanitizePrice(price, removeEmptyItems)
   return sanitized
 end
 
+--- Sanitizes a Price object in place without replacing its reference.
 local function normalizePriceInPlace(price, removeEmptyItems)
   return replaceTable(price, sanitizePrice(price, removeEmptyItems))
 end
 
+--- Attaches the Price methods to a price table.
 local function setPriceMetatable(price)
   return setmetatable(price, PriceClass)
 end
 
+--- Attaches the Prices methods and stores its operator off-table.
 local function setPricesMetatable(prices, operator)
   operator = operator == "and" and "and" or "or"
   prices.operator = nil
@@ -166,6 +191,7 @@ local function setPricesMetatable(prices, operator)
   return setmetatable(prices, PricesClass)
 end
 
+--- Computes currency totals for strict removal checks.
 local function getCurrencyTotals(price)
   local totals = {}
   for i = 1, #currencyKeys do
@@ -185,6 +211,7 @@ local function getCurrencyTotals(price)
   return totals
 end
 
+--- Computes the available quantity for an item entry.
 local function getItemQuantity(price, item)
   local quantity = 0
   local key = getItemMergeKey(item)
@@ -199,6 +226,7 @@ local function getItemQuantity(price, item)
   return quantity
 end
 
+--- Validates whether a price can be fully removed without mutation.
 local function canRemovePrice(price, priceToRemove)
   local currencyTotals = getCurrencyTotals(price)
 
@@ -230,6 +258,7 @@ local function canRemovePrice(price, priceToRemove)
   return true
 end
 
+--- Removes a currency amount from matching currency entries.
 local function removeCurrency(price, key, amount)
   local remaining = amount
 
@@ -244,6 +273,7 @@ local function removeCurrency(price, key, amount)
   end
 end
 
+--- Removes an item quantity from matching item entries.
 local function removeItem(price, item)
   local remaining = item.quantity or 1
   local key = getItemMergeKey(item)
@@ -259,9 +289,13 @@ local function removeItem(price, item)
   end
 end
 
+-- * ==========================================
+-- * OBJECT METHODS
+-- * ==========================================
+
 --- Adds a price to the current price.
 ---@param price table|integer|number (The price to add)
----@return table (The mutated price)
+---@return Price (The mutated price)
 function PriceClass:add(price)
   local formattedPrice = jo.pricing.formatPrice(price)
 
@@ -274,7 +308,7 @@ end
 
 --- Removes a price from the current price.
 ---@param price table|integer|number (The price to remove)
----@return table|boolean,string? (The mutated price, or false and the reason)
+---@return Price|boolean,string? (The mutated price, or false and the reason)
 function PriceClass:remove(price)
   local formattedPrice = jo.pricing.formatPrice(price)
   local canRemove, reason = canRemovePrice(self, formattedPrice)
@@ -300,7 +334,7 @@ end
 --- Applies a percentage to the current price.
 ---@param percentage number (The percentage to apply)
 ---@param roundUpItems? boolean (Whether item quantities should be rounded up)
----@return table (The mutated price)
+---@return Price (The mutated price)
 function PriceClass:tax(percentage, roundUpItems)
   percentage = percentage or 0
 
@@ -330,7 +364,7 @@ function PriceClass:isFree()
 end
 
 --- Copies the price.
----@return table (The copied price)
+---@return Price (The copied price)
 function PriceClass:copy()
   return setPriceMetatable(copyWithoutMetatable(self))
 end
@@ -343,7 +377,7 @@ end
 
 --- Adds a price option to the prices set.
 ---@param price table|integer|number (The price to add)
----@return table (The mutated prices set)
+---@return Prices (The mutated prices set)
 function PricesClass:addPrice(price)
   local formattedPrice = jo.pricing.formatPrice(price)
 
@@ -358,14 +392,14 @@ end
 
 --- Removes a price option from the prices set.
 ---@param index integer (The price option index)
----@return table (The mutated prices set)
+---@return Prices (The mutated prices set)
 function PricesClass:removePrice(index)
   table.remove(self, index)
   return self
 end
 
 --- Copies the prices set.
----@return table (The copied prices set)
+---@return Prices (The copied prices set)
 function PricesClass:copy()
   local copy = {}
 
@@ -388,9 +422,13 @@ function PricesClass:toTable()
   return plain
 end
 
+-- * ==========================================
+-- * PUBLIC API
+-- * ==========================================
+
 --- A function to format a single price
 ---@param price table|integer|number (The price to format)
----@return table (The formatted price)
+---@return Price (The formatted price)
 function jo.pricing.formatPrice(price)
   if not price then return setPriceMetatable({ { money = 0 } }) end
   if type(price) ~= "table" then return setPriceMetatable({ { money = price } }) end
@@ -434,7 +472,7 @@ end
 
 --- A function to format price variations
 ---@param prices table|integer|number (The prices to format)
----@return table (The formatted prices)
+---@return Prices (The formatted prices)
 function jo.pricing.formatPrices(prices)
   if not prices then return setPricesMetatable({ jo.pricing.formatPrice(0) }, "or") end
   if type(prices) ~= "table" then return setPricesMetatable({ jo.pricing.formatPrice(prices) }, "or") end
@@ -495,7 +533,7 @@ end
 
 --- Merge prices
 ---@param ... table (The prices to merge)
----@return table (The merged prices)
+---@return Price (The merged prices)
 function jo.pricing.mergePrices(...)
   local prices = { ... }
   prices = table.copy(prices)
@@ -507,7 +545,7 @@ end
 ---@param price table|integer|number (The price to tax)
 ---@param percentage number (The percentage to apply. Example: `0.2` returns 20% of the price)
 ---@param roundUpItems? boolean (Whether item quantities should be rounded up. Defaults to `false`)
----@return table (The taxed price)
+---@return Price (The taxed price)
 function jo.pricing.tax(price, percentage, roundUpItems)
   return jo.pricing.formatPrice(price):tax(percentage, roundUpItems)
 end
