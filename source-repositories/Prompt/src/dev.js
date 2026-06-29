@@ -21,16 +21,26 @@ export function initGroup() {
             {
               label: 'SPACE Prompt',
               keyboardKeys: ['SPACE'],
+              price: [{ money: 12.5 }],
               visible: true,
             },
             {
               label: 'ENTER Prompt',
               keyboardKeys: ['ENTER'],
+              price: [{ gold: 3 }],
               visible: true,
             },
             {
               label: 'PAGE UP Prompt',
               keyboardKeys: ['PAGEUP'],
+              price: [
+                {
+                  item: 'horseBrush',
+                  quantity: 2,
+                  image: 'item',
+                  label: 'Brush',
+                },
+              ],
               visible: true,
             },
             {
@@ -53,11 +63,21 @@ export function initGroup() {
             {
               label: 'Page 2 ',
               keyboardKeys: ['P'],
+              price: [{ money: 0 }],
               visible: true,
             },
             {
               label: 'Multi press Prompt',
               keyboardKeys: ['F', 'S'],
+              price: [
+                {
+                  item: 'water',
+                  quantity: 2,
+                  image: 'item',
+                  label: 'Water',
+                },
+                { money: 5 },
+              ],
               visible: true,
             },
           ],

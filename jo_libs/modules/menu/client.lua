@@ -368,7 +368,7 @@ function jo.menu.updateItem(id, index, key, value) menus[id]:updateItem(index, k
 ---@return boolean (true if the update was successful, false otherwise)
 function MenuClass:updateValue(keys, value)
   if type(keys) ~= "table" then keys = { keys } end
-  if keys[#keys] == "price" then
+  if keys[#keys] == "price" or (keys[#keys] == "priceRight" and type(value) ~= "boolean") then
     value = jo.pricing.formatPrice(value)
   end
   local v = table.copy(value)

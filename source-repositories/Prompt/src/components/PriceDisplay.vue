@@ -2,17 +2,14 @@
   <template v-if="props.price !== undefined && props.price !== false">
     <template v-if="Array.isArray(props.price)">
       <div :class="['priceDisplay', { priceRight: props.right }]">
-        <template v-if="props.price.length == 1 && props.price[0].money === 0">
+        <template v-if="props.price.length === 1 && props.price[0].money === 0">
           <span>
             {{ priceRounded(0) }}
           </span>
         </template>
 
         <template v-else>
-          <template
-            v-for="(price, index) in sortItems(props.price)"
-            :key="index"
-          >
+          <template v-for="(price, index) in sortItems(props.price)" :key="index">
             <div class="price-item">
               <span v-if="price.gold" class="gold">
                 <span class="icon">
@@ -26,34 +23,15 @@
                 <span class="centime">{{ centimes(price.money) }}</span>
               </span>
 
-              <span
-                v-else-if="price.item"
-                :class="['item', { 'with-label': displayLabel(price) }]"
-              >
-                <span
-                  class="circle-quantity"
-                  v-if="getQuantityStyle(price) == 'circle'"
-                  v-html="price.quantity || 1"
-                ></span>
+              <span v-else-if="price.item" :class="['item', { 'with-label': displayLabel(price) }]">
+                <span class="circle-quantity" v-if="getQuantityStyle(price) === 'circle'" v-html="price.quantity || 1"></span>
                 <span class="quantity" v-else>
                   {{ price.quantity || 1 }}
-                  <template v-if="getQuantityStyle(price) != 'circle'">
-                    x
-                  </template>
+                  <template v-if="getQuantityStyle(price) !== 'circle'"> x </template>
                 </span>
-                <div
-                  class="icon"
-                  v-tooltip.top="{
-                    value: price.tooltip ? price.label : '',
-                    escape: false,
-                  }"
-                >
+                <div class="icon">
                   <img v-if="hasImage(price)" :src="getImage(price.image)" />
-                  <span
-                    v-if="displayLabel(price)"
-                    class="label"
-                    v-html="price.label"
-                  ></span>
+                  <span v-if="displayLabel(price)" class="label" v-html="price.label"></span>
                 </div>
               </span>
             </div>
@@ -87,8 +65,8 @@
 </template>
 
 <script setup>
-import { computed } from "vue";
-import { useLangStore } from "../../stores/lang";
+import { computed } from 'vue'
+
 const props = defineProps({
   price: {
     default: false,
@@ -97,67 +75,75 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-});
-const lang = useLangStore().lang;
+})
+
+const strings = {
+  devise: '$',
+  free: 'Free',
+}
+
+function lang(index) {
+  return strings[index] || `#${index}`
+}
 
 function formatPrice(price) {
-  if (price % 1 == 0) return price.toString();
-  return price.toFixed(2).toString();
+  if (price % 1 === 0) return price.toString()
+  return price.toFixed(2).toString()
 }
 
 const moneyPrice = computed(() => {
-  if (typeof props.price === "number") return props.price;
-  if (props.price && typeof props.price === "object" && "money" in props.price)
-    return props.price.money;
-  return null;
-});
+  if (typeof props.price === 'number') return props.price
+  if (props.price && typeof props.price === 'object' && 'money' in props.price) return props.price.money
+  return null
+})
 
 function priceRounded(price) {
-  if (!price || price == 0) return lang("free");
-  return Math.trunc(price);
+  if (!price || price === 0) return lang('free')
+  return Math.trunc(price)
 }
+
 function centimes(price) {
-  if (price == undefined || price == false || price == 0) return "";
-  return (price % 1).toFixed(2).toString().substring(2);
+  if (price === undefined || price === false || price === 0) return ''
+  return (price % 1).toFixed(2).toString().substring(2)
 }
+
 function devise(price) {
-  if (price == 0) return "";
-  return lang("devise");
+  if (price === 0) return ''
+  return lang('devise')
 }
 
 function hasImage(item) {
-  return item.image !== undefined && item.image.length > 0;
+  return item.image !== undefined && item.image.length > 0
 }
 
 function displayLabel(item) {
-  return !item.tooltip || !hasImage(item);
+  return !item.tooltip || !hasImage(item)
 }
 
 function isNUIImage(url) {
-  return url.includes("://");
+  return url.includes('://')
 }
 
 function getImage(url) {
-  if (isNUIImage(url)) return url;
-  return `./assets/images/icons/${url}.png`;
+  if (isNUIImage(url)) return url
+  return './assets/images/icons/item.png'
 }
 
 function getQuantityStyle(item) {
-  if (!hasImage(item)) return "";
-  return item.quantityStyle;
+  if (!hasImage(item)) return ''
+  return item.quantityStyle
 }
 
 function sortItems(prices) {
-  const sorted = [...prices].sort((a, b) => {
-    if (a.item && !b.item) return -1;
-    if (b.item && !a.item) return 1;
-    if (a.gold && !b.gold) return -1;
-    if (b.gold && !a.gold) return 1;
-    if (a.money && !b.money) return -1;
-    if (b.money && !a.money) return 1;
-    return 0;
-  });
-  return sorted;
+  return [...prices].sort((a, b) => {
+    if (a.item && !b.item) return -1
+    if (b.item && !a.item) return 1
+    if (a.gold && !b.gold) return -1
+    if (b.gold && !a.gold) return 1
+    if (a.money && !b.money) return -1
+    if (b.money && !a.money) return 1
+    return 0
+  })
 }
 </script>
 
@@ -168,8 +154,10 @@ function sortItems(prices) {
   right: 0.92vh;
   display: flex;
   align-items: center;
-  font-size: 1.5em;
+  font-family: 'Crock', sans-serif;
+  font-size: inherit;
   height: 100%;
+  text-shadow: 0.1rem 0.1rem rgba(0, 0, 0, 0.9);
 
   &.priceRight {
     position: static;
@@ -203,19 +191,15 @@ function sortItems(prices) {
   height: fit-content;
 
   &::after {
-    content: "";
+    content: '';
     position: absolute;
     display: block;
-    background-image: url("/assets/images/menu/money_line.png");
+    background-image: url('/assets/images/money_line.png');
     height: 0.46vh;
     width: 100%;
     left: 0;
     bottom: 0;
   }
-}
-
-.divider.bottom {
-  margin-top: -0.46vh;
 }
 
 .gold {
@@ -250,7 +234,6 @@ function sortItems(prices) {
 }
 
 .circle-quantity {
-  font-size: 0.6em;
   position: absolute;
   color: black;
   background: white;
@@ -259,14 +242,14 @@ function sortItems(prices) {
   min-width: 1.6em;
   text-align: center;
   top: -1px;
-  right: 0px;
+  right: 0;
   font-size: 0.4em;
   display: flex;
   align-items: center;
   justify-content: center;
-  text-align: center;
-  font-family: "Hapna";
+  font-family: 'Crock', sans-serif;
   font-weight: bold;
+  text-shadow: none;
 }
 
 .item {
@@ -290,7 +273,7 @@ function sortItems(prices) {
 
     .label {
       font-size: 0.6em;
-      font-family: Hapna;
+      font-family: 'Crock', sans-serif;
       overflow-wrap: break-word;
       text-align: center;
     }
@@ -302,5 +285,4 @@ function sortItems(prices) {
     }
   }
 }
-
 </style>
