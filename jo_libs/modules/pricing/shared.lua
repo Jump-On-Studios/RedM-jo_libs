@@ -64,6 +64,39 @@ local function replaceTable(target, source)
   return target
 end
 
+--- Checks whether a key is one of the supported currencies.
+local function isCurrencyKey(key)
+  for i = 1, #currencyKeys do
+    if key == currencyKeys[i] then return true end
+  end
+  return false
+end
+
+--- Checks whether an item table also contains other price parts.
+local function hasMixedItemPriceParts(price)
+  if type(price) ~= "table" or not price.item then return false end
+  if #price > 0 then return true end
+
+  for i = 1, #currencyKeys do
+    if price[currencyKeys[i]] then return true end
+  end
+
+  return false
+end
+
+--- Extracts the item-related fields from a mixed price table.
+local function getInlineItemEntry(price)
+  local itemEntry = {}
+
+  for key, value in pairs(price) do
+    if type(key) == "string" and key ~= "operator" and not isCurrencyKey(key) then
+      itemEntry[key] = value
+    end
+  end
+
+  return itemEntry
+end
+
 --- Normalizes a single price entry to the shared price shape.
 ---@param entry any
 ---@return table
@@ -433,18 +466,32 @@ function jo.pricing.formatPrice(price)
   if not price then return setPriceMetatable({ { money = 0 } }) end
   if type(price) ~= "table" then return setPriceMetatable({ { money = price } }) end
   if isPrice(price) then return price:copy() end
-  if price.item then return setPriceMetatable({ normalizeEntry(price) }) end
+  if price.item and not hasMixedItemPriceParts(price) then return setPriceMetatable({ normalizeEntry(price) }) end
 
   local result = {}
   local size = 1
 
+  if price.item then
+    size = addNormalizedEntry(result, size, getInlineItemEntry(price))
+  end
+
   for key, value in pairs(price) do
     if key ~= "operator" then
-      if type(key) == "string" and tonumber(key) == nil then
+      if price.item and type(key) == "string" and not isCurrencyKey(key) then
+        -- Item metadata from a mixed shorthand belongs to the inline item entry.
+      elseif type(key) == "string" and tonumber(key) == nil then
         size = addNormalizedEntry(result, size, { [key] = value })
       elseif type(value) == "table" then
         if value.item then
-          size = addNormalizedEntry(result, size, value)
+          if hasMixedItemPriceParts(value) then
+            local formattedPrice = jo.pricing.formatPrice(value)
+            for i = 1, #formattedPrice do
+              result[size] = formattedPrice[i]
+              size += 1
+            end
+          else
+            size = addNormalizedEntry(result, size, value)
+          end
         else
           local extra = {}
           local start = size
