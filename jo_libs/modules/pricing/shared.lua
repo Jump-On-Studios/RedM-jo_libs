@@ -439,82 +439,82 @@ function jo.pricing.formatPrice(price)
   local size = 1
 
   for key, value in pairs(price) do
-    if type(key) == "string" and tonumber(key) == nil then
-      size = addNormalizedEntry(result, size, { [key] = value })
-    elseif type(value) == "table" then
-      if value.item then
-        size = addNormalizedEntry(result, size, value)
-      else
-        local extra = {}
-        local start = size
-        for k, v in pairs(value) do
-          if type(k) == "string" then
-            if validPriceKeys[k] then
-              size = addNormalizedEntry(result, size, { [k] = v })
+    if key ~= "operator" then
+      if type(key) == "string" and tonumber(key) == nil then
+        size = addNormalizedEntry(result, size, { [key] = value })
+      elseif type(value) == "table" then
+        if value.item then
+          size = addNormalizedEntry(result, size, value)
+        else
+          local extra = {}
+          local start = size
+          for k, v in pairs(value) do
+            if k == "operator" then
+              -- Nested operators are ignored: only root `operator = "or"` creates alternatives.
+            elseif type(k) == "string" then
+              if validPriceKeys[k] then
+                size = addNormalizedEntry(result, size, { [k] = v })
+              else
+                extra[k] = v
+              end
             else
-              extra[k] = v
+              size = addNormalizedEntry(result, size, v)
             end
-          else
-            size = addNormalizedEntry(result, size, v)
+          end
+          for i = start, size - 1 do
+            result[i] = table.merge(result[i], extra)
           end
         end
-        for i = start, size - 1 do
-          result[i] = table.merge(result[i], extra)
-        end
+      else
+        size = addNormalizedEntry(result, size, value)
       end
-    else
-      size = addNormalizedEntry(result, size, value)
     end
   end
 
   return setPriceMetatable(result)
 end
 
---- A function to format price variations
+--- A function to format price variations.
+--- Only a root `operator = "or"` creates alternatives; every other shape is a single AND price.
 ---@param prices table|integer|number (The prices to format)
 ---@return Prices (The formatted prices)
 function jo.pricing.formatPrices(prices)
-  if not prices then return setPricesMetatable({ jo.pricing.formatPrice(0) }, "or") end
-  if type(prices) ~= "table" then return setPricesMetatable({ jo.pricing.formatPrice(prices) }, "or") end
+  if not prices then return setPricesMetatable({ jo.pricing.formatPrice(0) }, "and") end
+  if type(prices) ~= "table" then return setPricesMetatable({ jo.pricing.formatPrice(prices) }, "and") end
   if isPrices(prices) then return prices:copy() end
   if isPrice(prices) or prices.item then
-    return setPricesMetatable({ jo.pricing.formatPrice(prices) }, "or")
+    return setPricesMetatable({ jo.pricing.formatPrice(prices) }, "and")
   end
 
-  local operator = prices.operator == "and" and "and" or "or"
-  local formattedPrices = {}
-  local size = 1
+  if prices.operator == "or" then
+    local formattedPrices = {}
+    local size = 1
 
-  -- Process each price entry
-  for key, price in pairs(prices) do
-    if key ~= "operator" then
-      if type(key) == "string" then
+    for i = 1, #prices do
+      formattedPrices[size] = jo.pricing.formatPrice(prices[i])
+      normalizePriceInPlace(formattedPrices[size])
+      size += 1
+    end
+
+    for key, price in pairs(prices) do
+      if key ~= "operator" and type(key) == "string" and tonumber(key) == nil then
         formattedPrices[size] = jo.pricing.formatPrice({ [key] = price })
-        size += 1
-      elseif type(price) ~= "table" then
-        formattedPrices[size] = jo.pricing.formatPrice(price)
-        size += 1
-      else
-        formattedPrices[size] = jo.pricing.formatPrice(price)
+        normalizePriceInPlace(formattedPrices[size])
         size += 1
       end
     end
+
+    if #formattedPrices == 0 then
+      formattedPrices[1] = jo.pricing.formatPrice(0)
+    end
+
+    return setPricesMetatable(formattedPrices, "or")
   end
 
-  -- Merge all prices if operator is "and"
-  if operator == "and" and #formattedPrices > 1 then
-    local merged = formattedPrices[1]
-    for i = 2, #formattedPrices do
-      merged:add(formattedPrices[i])
-    end
-    formattedPrices = { merged }
-  else
-    for i = 1, #formattedPrices do
-      normalizePriceInPlace(formattedPrices[i])
-    end
-  end
+  local price = jo.pricing.formatPrice(prices)
+  normalizePriceInPlace(price)
 
-  return setPricesMetatable(formattedPrices, operator)
+  return setPricesMetatable({ price }, "and")
 end
 
 --- Checks if a price is free
