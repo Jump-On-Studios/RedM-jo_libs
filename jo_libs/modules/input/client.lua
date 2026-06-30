@@ -52,7 +52,7 @@ function jo.input.nui(options, cb)
     SetNuiFocusKeepInput(keepInput)
     nuiOpened = false
   end
-  nuiResult = cb or promise.new()
+  nuiResult = promise.new()
   SendNUIMessage({
     messageTargetUiName = "jo_input",
     event = "newInput",
