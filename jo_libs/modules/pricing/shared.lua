@@ -64,6 +64,38 @@ local function replaceTable(target, source)
   return target
 end
 
+--- Returns ordered array-like entries, including JSON-decoded numeric string keys.
+local function getArrayLikeEntries(value)
+  local entries = {}
+  local numericKeys = {}
+  local indexes = {}
+
+  for key, entry in pairs(value) do
+    local index
+    if type(key) == "number" then
+      index = key
+    elseif type(key) == "string" then
+      index = tonumber(key)
+    end
+
+    if index and index >= 1 and index == math.floor(index) then
+      if type(key) == "number" then
+        entries[index] = entry
+        numericKeys[index] = true
+      elseif not numericKeys[index] and entries[index] == nil then
+        entries[index] = entry
+      end
+    end
+  end
+
+  for index in pairs(entries) do
+    indexes[#indexes + 1] = index
+  end
+  table.sort(indexes)
+
+  return indexes, entries
+end
+
 --- Checks whether a key is one of the supported currencies.
 local function isCurrencyKey(key)
   for i = 1, #currencyKeys do
@@ -536,9 +568,11 @@ function jo.pricing.formatPrices(prices)
   if prices.operator == "or" then
     local formattedPrices = {}
     local size = 1
+    local indexes, entries = getArrayLikeEntries(prices)
 
-    for i = 1, #prices do
-      formattedPrices[size] = jo.pricing.formatPrice(prices[i])
+    for i = 1, #indexes do
+      local index = indexes[i]
+      formattedPrices[size] = jo.pricing.formatPrice(entries[index])
       normalizePriceInPlace(formattedPrices[size])
       size += 1
     end
