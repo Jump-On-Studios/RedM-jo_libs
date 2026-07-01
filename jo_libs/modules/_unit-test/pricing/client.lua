@@ -1,12 +1,12 @@
+jo.require("pricing")
+
 local PriceClass = jo.pricing.PriceClass
 local PriceGroupClass = jo.pricing.PriceGroupClass
 
-local tests = {}
-local testOrder = {}
+local TESTS = {}
 
 local function addTest(name, callback)
-  tests[name] = callback
-  testOrder[#testOrder + 1] = name
+  TESTS[name] = callback
 end
 
 local function fail(message)
@@ -522,46 +522,4 @@ addTest("simplified_config_matrix", function()
   end
 end)
 
-local function runTest(name)
-  local success, err = pcall(tests[name])
-
-  if success then
-    print(("[jo_pricing_test] ^2PASS^0 %s"):format(name))
-    return true
-  end
-
-  print(("[jo_pricing_test] ^1FAIL^0 %s: %s"):format(name, tostring(err)))
-  return false
-end
-
-local function runAllTests()
-  local passed = 0
-  local failed = 0
-
-  for i = 1, #testOrder do
-    if runTest(testOrder[i]) then
-      passed = passed + 1
-    else
-      failed = failed + 1
-    end
-  end
-
-  print(("[jo_pricing_test] Summary: %s passed / %s failed"):format(passed, failed))
-end
-
-RegisterCommand("jo_pricing_test", function(_, args)
-  local testName = args and args[1] or "all"
-
-  if not testName or testName == "" or testName == "all" then
-    runAllTests()
-    return
-  end
-
-  if not tests[testName] then
-    print(("[jo_pricing_test] Unknown test `%s`"):format(testName))
-    return
-  end
-
-  local passed = runTest(testName) and 1 or 0
-  print(("[jo_pricing_test] Summary: %s passed / %s failed"):format(passed, 1 - passed))
-end)
+return TESTS
