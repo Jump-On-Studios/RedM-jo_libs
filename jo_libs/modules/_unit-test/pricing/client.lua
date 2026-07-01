@@ -232,6 +232,50 @@ addTest("price_is_free", function()
   assertTrue(not PriceClass.new({ item = "water" }):isFree(), "item price must not be free")
 end)
 
+addTest("price_tax_mutates_self", function()
+  local price = PriceClass.new({
+    money = 10,
+    gold = 2,
+    rol = 4,
+    item = "water",
+    quantity = 3
+  })
+  local returnedPrice = price:tax(1.5)
+
+  assertTrue(returnedPrice == price, "tax() must return self")
+  assertCostCount(price, 4)
+  assertCurrency(price, "money", 15)
+  assertCurrency(price, "gold", 3)
+  assertCurrency(price, "rol", 6)
+  assertItem(price, "water", 4, false)
+end)
+
+addTest("price_tax_rounds_items_up", function()
+  local price = PriceClass.new({
+    item = "water",
+    quantity = 3
+  })
+
+  price:tax(1.5, true)
+
+  assertCostCount(price, 1)
+  assertItem(price, "water", 5, false)
+end)
+
+addTest("price_tax_default_zero", function()
+  local price = PriceClass.new({
+    money = 10,
+    item = "water",
+    quantity = 3
+  })
+
+  price:tax()
+
+  assertTrue(price:isFree(), "tax() without percentage must make all costs free")
+  assertCurrency(price, "money", 0)
+  assertItem(price, "water", 0, false)
+end)
+
 addTest("group_default_or", function()
   local group = PriceGroupClass.new({
     money = 2,

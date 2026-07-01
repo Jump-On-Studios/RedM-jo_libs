@@ -416,6 +416,34 @@ function PriceClass:isFree()
   return true
 end
 
+--- Applies a multiplier to the current PriceClass.
+---@param percentage? number
+---@param roundUpItems? boolean
+---@return PriceClass
+function PriceClass:tax(percentage, roundUpItems)
+  percentage = percentage or 0
+
+  local roundItemQuantity = roundUpItems and math.ceil or math.floor
+
+  for i = 1, #self.costs do
+    local cost = self.costs[i]
+
+    for j = 1, #currencyKeys do
+      local key = currencyKeys[j]
+      if cost[key] ~= nil then
+        cost[key] = cost[key] * percentage
+      end
+    end
+
+    if cost.item ~= nil then
+      cost.quantity = roundItemQuantity((cost.quantity or 1) * percentage)
+    end
+  end
+
+  self.costs = mergeCosts(self.costs)
+  return self
+end
+
 --- Returns the MoneyCost.
 ---@return MoneyCost|nil
 function PriceClass:getMoney()
