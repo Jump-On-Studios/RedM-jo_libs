@@ -31,6 +31,18 @@ local function assertNil(value, message)
   end
 end
 
+local function assertSame(actual, expected, message)
+  if not rawequal(actual, expected) then
+    fail(message)
+  end
+end
+
+local function assertNotSame(actual, expected, message)
+  if rawequal(actual, expected) then
+    fail(message)
+  end
+end
+
 local function findCurrency(price, key)
   for i = 1, #price.costs do
     if price.costs[i][key] ~= nil then return price.costs[i] end
@@ -112,8 +124,8 @@ addTest("price_new_copies_existing_instance", function()
   })
   local copy = PriceClass.new(price)
 
-  assertTrue(copy ~= price, "PriceClass.new(existingPrice) must return a new instance")
-  assertTrue(copy.costs ~= price.costs, "PriceClass.new(existingPrice) must copy costs")
+  assertNotSame(copy, price, "PriceClass.new(existingPrice) must return a new instance")
+  assertNotSame(copy.costs, price.costs, "PriceClass.new(existingPrice) must copy costs")
   assertCurrency(copy, "money", 2)
   assertItem(copy, "water", 1, false)
 
@@ -129,8 +141,8 @@ addTest("price_copy_copies_existing_instance", function()
   })
   local copy = price:copy()
 
-  assertTrue(copy ~= price, "PriceClass:copy() must return a new instance")
-  assertTrue(copy.costs ~= price.costs, "PriceClass:copy() must copy costs")
+  assertNotSame(copy, price, "PriceClass:copy() must return a new instance")
+  assertNotSame(copy.costs, price.costs, "PriceClass:copy() must copy costs")
   assertCurrency(copy, "money", 2)
   assertItem(copy, "water", 1, false)
 
@@ -183,7 +195,7 @@ addTest("price_add_mutates_self", function()
     item = "water"
   })
 
-  assertTrue(returnedPrice == price, "add() must return self")
+  assertSame(returnedPrice, price, "add() must return self")
   assertCostCount(price, 2)
   assertCurrency(price, "money", 5)
   assertItem(price, "water", 1, false)
@@ -194,8 +206,8 @@ addTest("price_operator_add_is_immutable", function()
   local right = PriceClass.new({ money = 3, item = "water" })
   local result = left + right
 
-  assertTrue(result ~= left, "__add must return a new PriceClass")
-  assertTrue(result ~= right, "__add must not return the right operand")
+  assertNotSame(result, left, "__add must return a new PriceClass")
+  assertNotSame(result, right, "__add must not return the right operand")
   assertCostCount(left, 1)
   assertCurrency(left, "money", 2)
   assertCostCount(right, 2)
@@ -250,7 +262,7 @@ addTest("price_getters", function()
     item = "water"
   })
 
-  assertTrue(price:get() == price.costs, "get() must return costs")
+  assertSame(price:get(), price.costs, "get() must return costs")
   assertEqual(price:getMoney().money, 2, "getMoney() mismatch")
   assertEqual(price:getGold().gold, 3, "getGold() mismatch")
   assertEqual(price:getRol().rol, 4, "getRol() mismatch")
@@ -315,7 +327,7 @@ addTest("price_remove_currency_mutates_self", function()
   })
   local returnedPrice = price:removeCurrency("gold")
 
-  assertTrue(returnedPrice == price, "removeCurrency() must return self")
+  assertSame(returnedPrice, price, "removeCurrency() must return self")
   assertCostCount(price, 2)
   assertCurrency(price, "money", 2)
   assertNil(price:getGold(), "removeCurrency() must remove the targeted currency")
@@ -333,7 +345,7 @@ addTest("price_remove_item_mutates_self", function()
   })
   local returnedPrice = price:removeItem("water", true)
 
-  assertTrue(returnedPrice == price, "removeItem() must return self")
+  assertSame(returnedPrice, price, "removeItem() must return self")
   assertCostCount(price, 2)
   assertItem(price, "water", 2, false)
   assertNil(price:getItem("water", true), "removeItem() must remove only the exact item + keep")
@@ -350,7 +362,7 @@ addTest("price_clear_mutates_self", function()
   })
   local returnedPrice = price:clear()
 
-  assertTrue(returnedPrice == price, "clear() must return self")
+  assertSame(returnedPrice, price, "clear() must return self")
   assertCostCount(price, 0)
 end)
 
@@ -391,7 +403,7 @@ addTest("price_tax_mutates_self", function()
   })
   local returnedPrice = price:tax(1.5)
 
-  assertTrue(returnedPrice == price, "tax() must return self")
+  assertSame(returnedPrice, price, "tax() must return self")
   assertCostCount(price, 4)
   assertCurrency(price, "money", 15)
   assertCurrency(price, "gold", 3)
@@ -457,7 +469,7 @@ addTest("group_helpers", function()
   assertNil(group:get(3), "get() must return nil for a missing index")
 
   local returnedGroup = group:clear()
-  assertTrue(returnedGroup == group, "clear() must return self")
+  assertSame(returnedGroup, group, "clear() must return self")
   assertTrue(group:isEmpty(), "clear() must empty prices")
   assertEqual(group:count(), 0, "count() must return zero after clear")
 end)
@@ -470,10 +482,10 @@ addTest("group_new_copies_existing_instance", function()
   })
   local copy = PriceGroupClass.new(group)
 
-  assertTrue(copy ~= group, "PriceGroupClass.new(existingGroup) must return a new instance")
+  assertNotSame(copy, group, "PriceGroupClass.new(existingGroup) must return a new instance")
   assertEqual(copy.operator, "and", "copied group operator mismatch")
   assertEqual(#copy.prices, 2, "copied group price count mismatch")
-  assertTrue(copy.prices[1] ~= group.prices[1], "copied group must copy nested prices")
+  assertNotSame(copy.prices[1], group.prices[1], "copied group must copy nested prices")
   assertCurrency(copy.prices[1], "money", 2)
   assertCurrency(copy.prices[2], "gold", 3)
 
@@ -490,11 +502,11 @@ addTest("group_copy_copies_existing_instance", function()
   })
   local copy = group:copy()
 
-  assertTrue(copy ~= group, "PriceGroupClass:copy() must return a new instance")
+  assertNotSame(copy, group, "PriceGroupClass:copy() must return a new instance")
   assertEqual(copy.operator, "and", "copied group operator mismatch")
   assertEqual(#copy.prices, 2, "copied group price count mismatch")
-  assertTrue(copy.prices ~= group.prices, "copied group must copy prices")
-  assertTrue(copy.prices[1] ~= group.prices[1], "copied group must copy nested prices")
+  assertNotSame(copy.prices, group.prices, "copied group must copy prices")
+  assertNotSame(copy.prices[1], group.prices[1], "copied group must copy nested prices")
   assertCurrency(copy.prices[1], "money", 2)
   assertCurrency(copy.prices[2], "gold", 3)
 
@@ -507,7 +519,7 @@ addTest("group_insert_appends_price", function()
   local group = PriceGroupClass.new()
   local returnedGroup = group:insert({ money = 2 })
 
-  assertTrue(returnedGroup == group, "insert() must return self")
+  assertSame(returnedGroup, group, "insert() must return self")
   assertEqual(#group.prices, 1, "insert() must append when index is missing")
   assertCurrency(group.prices[1], "money", 2)
 end)
@@ -560,10 +572,10 @@ addTest("group_set_replaces_existing_price", function()
   local existingPrice = PriceClass.new({ item = "water" })
   local returnedGroup = group:set(2, existingPrice)
 
-  assertTrue(returnedGroup == group, "set() must return self")
+  assertSame(returnedGroup, group, "set() must return self")
   assertEqual(#group.prices, 2, "set() must not change price count")
   assertCurrency(group.prices[1], "money", 1)
-  assertTrue(group.prices[2] == existingPrice, "set() must reuse an existing PriceClass through asPrice")
+  assertSame(group.prices[2], existingPrice, "set() must reuse an existing PriceClass through asPrice")
   assertItem(group.prices[2], "water", 1, false)
 
   group:set(1, { rol = 4 })

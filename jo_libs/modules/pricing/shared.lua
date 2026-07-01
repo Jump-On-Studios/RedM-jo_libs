@@ -55,7 +55,7 @@ end
 local function isCurrencyKey(key)
   return table.find(currencyKeys, function(currencyKey)
     return currencyKey == key
-  end) ~= nil
+  end) ~= false
 end
 
 -- ° Validates a public currency key argument and raises a clear API error.
@@ -567,7 +567,7 @@ function PriceClass:hasCurrency(key)
 
   return table.find(self.costs, function(cost)
     return cost[key] ~= nil
-  end) ~= nil
+  end) ~= false
 end
 
 --- Removes a currency cost from the current PriceClass.
