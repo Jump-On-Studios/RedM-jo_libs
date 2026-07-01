@@ -51,11 +51,41 @@ local function isPriceGroup(value)
   return getmetatable(value) == PriceGroupClass
 end
 
+-- ° Checks whether a string is one of the supported currency cost keys.
+local function isCurrencyKey(key)
+  return table.find(currencyKeys, function(currencyKey)
+    return currencyKey == key
+  end) ~= nil
+end
+
+-- ° Validates a public currency key argument and raises a clear API error.
+local function assertCurrencyKey(key, level)
+  if not isCurrencyKey(key) then
+    error("Currency key must be money, gold or rol", level or 3)
+  end
+end
+
+-- ° Validates public item lookup arguments where keep must be explicit.
+local function assertItemLookup(item, keep, level)
+  if type(item) ~= "string" then
+    error("Item name must be a string", level or 3)
+  end
+
+  if type(keep) ~= "boolean" then
+    error("Item keep must be a boolean", level or 3)
+  end
+end
+
+-- ° Waits until a PriceClass is not currently mutating.
+local function waitPriceReady(price)
+  while price.isProcessing do Wait(0) end
+end
+
 -- ° Coerces any supported price input into a ready PriceClass without copying existing instances.
 local function asPrice(data)
   local price = isPrice(data) and data or PriceClass.new(data)
 
-  while price.isProcessing do Wait(0) end
+  waitPriceReady(price)
 
   return price
 end
@@ -159,7 +189,7 @@ local function appendPriceData(costs, data)
 
   -- Existing instances are copied cost-by-cost so constructors still create fresh instances.
   if isPrice(data) then
-    while data.isProcessing do Wait(0) end
+    waitPriceReady(data)
     for i = 1, #data.costs do
       pushCost(costs, data.costs[i])
     end
@@ -406,7 +436,7 @@ end
 ---@param price PriceInput
 ---@return PriceClass
 function PriceClass:add(price)
-  while self.isProcessing do Wait(0) end
+  waitPriceReady(self)
 
   local normalizedPrice = asPrice(price)
 
@@ -430,6 +460,15 @@ function PriceClass:get()
   return self.costs
 end
 
+--- Removes every cost from the current PriceClass.
+---@return PriceClass
+function PriceClass:clear()
+  waitPriceReady(self)
+
+  self.costs = {}
+  return self
+end
+
 --- Returns true when the PriceClass has no payable costs.
 ---@return boolean
 function PriceClass:isFree()
@@ -439,6 +478,30 @@ function PriceClass:isFree()
     if cost.gold ~= nil and cost.gold ~= 0 then return false end
     if cost.rol ~= nil and cost.rol ~= 0 then return false end
     if cost.item ~= nil and cost.quantity ~= 0 then return false end
+  end
+
+  return true
+end
+
+--- Returns true when the PriceClass contains only currency costs.
+---@return boolean
+function PriceClass:isCurrencyOnly()
+  if #self.costs == 0 then return false end
+
+  for i = 1, #self.costs do
+    if self.costs[i].item ~= nil then return false end
+  end
+
+  return true
+end
+
+--- Returns true when the PriceClass contains only item costs.
+---@return boolean
+function PriceClass:isItemOnly()
+  if #self.costs == 0 then return false end
+
+  for i = 1, #self.costs do
+    if self.costs[i].item == nil then return false end
   end
 
   return true
@@ -496,6 +559,35 @@ function PriceClass:getRol()
   end) or nil
 end
 
+--- Returns true when a currency cost exists.
+---@param key "money"|"gold"|"rol"
+---@return boolean
+function PriceClass:hasCurrency(key)
+  assertCurrencyKey(key, 2)
+
+  return table.find(self.costs, function(cost)
+    return cost[key] ~= nil
+  end) ~= nil
+end
+
+--- Removes a currency cost from the current PriceClass.
+---@param key "money"|"gold"|"rol"
+---@return PriceClass
+function PriceClass:removeCurrency(key)
+  assertCurrencyKey(key, 2)
+
+  waitPriceReady(self)
+
+  for i = #self.costs, 1, -1 do
+    if self.costs[i][key] ~= nil then
+      table.remove(self.costs, i)
+      break
+    end
+  end
+
+  return self
+end
+
 --- Returns all ItemCost entries.
 ---@return ItemCost[]
 function PriceClass:getItems()
@@ -508,6 +600,46 @@ function PriceClass:getItems()
   end
 
   return items
+end
+
+--- Returns an ItemCost by item name and keep flag.
+---@param item string
+---@param keep boolean
+---@return ItemCost|nil
+function PriceClass:getItem(item, keep)
+  assertItemLookup(item, keep, 2)
+
+  return table.find(self.costs, function(cost)
+    return cost.item == item and cost.keep == keep
+  end) or nil
+end
+
+--- Returns true when an ItemCost exists for an item name and keep flag.
+---@param item string
+---@param keep boolean
+---@return boolean
+function PriceClass:hasItem(item, keep)
+  return self:getItem(item, keep) ~= nil
+end
+
+--- Removes an ItemCost from the current PriceClass.
+---@param item string
+---@param keep boolean
+---@return PriceClass
+function PriceClass:removeItem(item, keep)
+  assertItemLookup(item, keep, 2)
+
+  waitPriceReady(self)
+
+  for i = #self.costs, 1, -1 do
+    local cost = self.costs[i]
+    if cost.item == item and cost.keep == keep then
+      table.remove(self.costs, i)
+      break
+    end
+  end
+
+  return self
 end
 
 --- Creates a new PriceClass from two prices.
@@ -530,8 +662,8 @@ end
 function PriceClass.__eq(left, right)
   if not isPrice(left) or not isPrice(right) then return false end
 
-  while left.isProcessing do Wait(0) end
-  while right.isProcessing do Wait(0) end
+  waitPriceReady(left)
+  waitPriceReady(right)
 
   if #left.costs ~= #right.costs then return false end
 
@@ -566,6 +698,53 @@ end
 ---@return PriceGroupClass
 function PriceGroupClass:copy()
   return PriceGroupClass.new(self)
+end
+
+--- Returns true when the group contains no prices.
+---@return boolean
+function PriceGroupClass:isEmpty()
+  return #self.prices == 0
+end
+
+--- Removes every price from the group.
+---@return PriceGroupClass
+function PriceGroupClass:clear()
+  self.prices = {}
+  return self
+end
+
+--- Returns the number of prices in the group.
+---@return number
+function PriceGroupClass:count()
+  return #self.prices
+end
+
+--- Returns a PriceClass by index.
+---@param index number
+---@return PriceClass|nil
+function PriceGroupClass:get(index)
+  if type(index) ~= "number" then
+    error("PriceGroupClass:get(index) requires a number index", 2)
+  end
+
+  return self.prices[index]
+end
+
+--- Replaces an existing PriceClass by index.
+---@param index number
+---@param price PriceInput
+---@return PriceGroupClass
+function PriceGroupClass:set(index, price)
+  if type(index) ~= "number" then
+    error("PriceGroupClass:set(index, price) requires a number index", 2)
+  end
+
+  if index < 1 or index > #self.prices then
+    error("PriceGroupClass:set(index, price) index is out of bounds", 2)
+  end
+
+  self.prices[index] = asPrice(price)
+  return self
 end
 
 --- Inserts a PriceClass into the group.

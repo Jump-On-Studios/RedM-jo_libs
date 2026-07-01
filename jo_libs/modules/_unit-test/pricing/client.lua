@@ -258,6 +258,119 @@ addTest("price_getters", function()
   assertNil(PriceClass.new({ gold = 1 }):getMoney(), "getMoney() must return nil when missing")
 end)
 
+addTest("price_get_item_and_has_item", function()
+  local price = PriceClass.new({
+    { item = "water", quantity = 2, keep = false },
+    { item = "water", quantity = 1, keep = true },
+    { item = "acid", quantity = 3, keep = false }
+  })
+
+  assertEqual(price:getItem("water", false).quantity, 2, "getItem() must find keep=false item")
+  assertEqual(price:getItem("water", true).quantity, 1, "getItem() must find keep=true item")
+  assertTrue(price:hasItem("acid", false), "hasItem() must find existing item")
+  assertTrue(not price:hasItem("acid", true), "hasItem() must respect keep flag")
+  assertNil(price:getItem("unknown", false), "getItem() must return nil when missing")
+end)
+
+addTest("price_item_methods_require_keep", function()
+  local price = PriceClass.new({ item = "water" })
+
+  assertTrue(not pcall(function()
+    price:getItem("water")
+  end), "getItem() must require keep")
+  assertTrue(not pcall(function()
+    price:hasItem("water")
+  end), "hasItem() must require keep")
+  assertTrue(not pcall(function()
+    price:removeItem("water")
+  end), "removeItem() must require keep")
+end)
+
+addTest("price_has_currency", function()
+  local price = PriceClass.new({
+    money = 2,
+    item = "water"
+  })
+
+  assertTrue(price:hasCurrency("money"), "hasCurrency() must find existing currency")
+  assertTrue(not price:hasCurrency("gold"), "hasCurrency() must return false for missing currency")
+end)
+
+addTest("price_currency_methods_reject_invalid_key", function()
+  local price = PriceClass.new({ money = 2 })
+
+  assertTrue(not pcall(function()
+    price:hasCurrency("cash")
+  end), "hasCurrency() must reject invalid currency keys")
+  assertTrue(not pcall(function()
+    price:removeCurrency("cash")
+  end), "removeCurrency() must reject invalid currency keys")
+end)
+
+addTest("price_remove_currency_mutates_self", function()
+  local price = PriceClass.new({
+    money = 2,
+    gold = 3,
+    item = "water"
+  })
+  local returnedPrice = price:removeCurrency("gold")
+
+  assertTrue(returnedPrice == price, "removeCurrency() must return self")
+  assertCostCount(price, 2)
+  assertCurrency(price, "money", 2)
+  assertNil(price:getGold(), "removeCurrency() must remove the targeted currency")
+  assertItem(price, "water", 1, false)
+
+  price:removeCurrency("rol")
+  assertCostCount(price, 2)
+end)
+
+addTest("price_remove_item_mutates_self", function()
+  local price = PriceClass.new({
+    { item = "water", quantity = 2, keep = false },
+    { item = "water", quantity = 1, keep = true },
+    { item = "acid", quantity = 3, keep = false }
+  })
+  local returnedPrice = price:removeItem("water", true)
+
+  assertTrue(returnedPrice == price, "removeItem() must return self")
+  assertCostCount(price, 2)
+  assertItem(price, "water", 2, false)
+  assertNil(price:getItem("water", true), "removeItem() must remove only the exact item + keep")
+  assertItem(price, "acid", 3, false)
+
+  price:removeItem("missing", false)
+  assertCostCount(price, 2)
+end)
+
+addTest("price_clear_mutates_self", function()
+  local price = PriceClass.new({
+    money = 2,
+    item = "water"
+  })
+  local returnedPrice = price:clear()
+
+  assertTrue(returnedPrice == price, "clear() must return self")
+  assertCostCount(price, 0)
+end)
+
+addTest("price_currency_only_and_item_only", function()
+  assertTrue(PriceClass.new({ money = 2, gold = 3 }):isCurrencyOnly(), "currency-only price must be currency-only")
+  assertTrue(not PriceClass.new({ money = 2, gold = 3 }):isItemOnly(), "currency-only price must not be item-only")
+  assertTrue(PriceClass.new({
+    { item = "water" },
+    { item = "acid" }
+  }):isItemOnly(), "item-only price must be item-only")
+  assertTrue(not PriceClass.new({
+    { item = "water" },
+    { item = "acid" }
+  }):isCurrencyOnly(), "item-only price must not be currency-only")
+  assertTrue(not PriceClass.new({ money = 2, item = "water" }):isCurrencyOnly(), "mixed price must not be currency-only")
+  assertTrue(not PriceClass.new({ money = 2, item = "water" }):isItemOnly(), "mixed price must not be item-only")
+  assertTrue(not PriceClass.new():isCurrencyOnly(), "empty price must not be currency-only")
+  assertTrue(not PriceClass.new():isItemOnly(), "empty price must not be item-only")
+end)
+
 addTest("price_is_free", function()
   assertTrue(PriceClass.new():isFree(), "empty price must be free")
   assertTrue(PriceClass.new({ costs = {} }):isFree(), "empty costs price must be free")
@@ -329,6 +442,24 @@ addTest("group_empty_prices", function()
 
   assertEqual(group.operator, "or", "empty prices group operator mismatch")
   assertEqual(#group.prices, 0, "empty prices group must keep an empty prices list")
+end)
+
+addTest("group_helpers", function()
+  local group = PriceGroupClass.new({
+    { money = 1 },
+    { gold = 3 }
+  })
+
+  assertTrue(not group:isEmpty(), "isEmpty() must return false when prices exist")
+  assertEqual(group:count(), 2, "count() must return the number of prices")
+  assertCurrency(group:get(1), "money", 1)
+  assertCurrency(group:get(2), "gold", 3)
+  assertNil(group:get(3), "get() must return nil for a missing index")
+
+  local returnedGroup = group:clear()
+  assertTrue(returnedGroup == group, "clear() must return self")
+  assertTrue(group:isEmpty(), "clear() must empty prices")
+  assertEqual(group:count(), 0, "count() must return zero after clear")
 end)
 
 addTest("group_new_copies_existing_instance", function()
@@ -419,6 +550,45 @@ addTest("group_remove_requires_index", function()
 
   assertTrue(not success, "remove() must error without an index")
   assertEqual(#group.prices, 1, "remove() without index must not mutate prices")
+end)
+
+addTest("group_set_replaces_existing_price", function()
+  local group = PriceGroupClass.new({
+    { money = 1 },
+    { gold = 3 }
+  })
+  local existingPrice = PriceClass.new({ item = "water" })
+  local returnedGroup = group:set(2, existingPrice)
+
+  assertTrue(returnedGroup == group, "set() must return self")
+  assertEqual(#group.prices, 2, "set() must not change price count")
+  assertCurrency(group.prices[1], "money", 1)
+  assertTrue(group.prices[2] == existingPrice, "set() must reuse an existing PriceClass through asPrice")
+  assertItem(group.prices[2], "water", 1, false)
+
+  group:set(1, { rol = 4 })
+  assertCurrency(group.prices[1], "rol", 4)
+end)
+
+addTest("group_set_rejects_invalid_index", function()
+  local group = PriceGroupClass.new({
+    { money = 1 }
+  })
+
+  assertTrue(not pcall(function()
+    group:set()
+  end), "set() must error without an index")
+  assertTrue(not pcall(function()
+    group:set("1", { gold = 2 })
+  end), "set() must error with a non-number index")
+  assertTrue(not pcall(function()
+    group:set(0, { gold = 2 })
+  end), "set() must error with an out-of-bounds index")
+  assertTrue(not pcall(function()
+    group:set(2, { gold = 2 })
+  end), "set() must error when replacing a missing price")
+  assertEqual(#group.prices, 1, "failed set() calls must not mutate prices")
+  assertCurrency(group.prices[1], "money", 1)
 end)
 
 addTest("group_and_compact", function()
