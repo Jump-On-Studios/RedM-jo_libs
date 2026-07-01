@@ -28,12 +28,14 @@ local currencyKeys = { "money", "gold", "rol" }
 ---@class PriceClass
 ---@field isProcessing boolean
 ---@field costs Cost[]
+---@field copy fun(self: PriceClass): PriceClass
 local PriceClass = {}
 PriceClass.__index = PriceClass
 
 ---@class PriceGroupClass
 ---@field operator "or"|"and"
 ---@field prices PriceClass[]
+---@field copy fun(self: PriceGroupClass): PriceGroupClass
 local PriceGroupClass = {}
 PriceGroupClass.__index = PriceGroupClass
 
@@ -368,6 +370,12 @@ function PriceClass.new(data)
   return setmetatable(normalizePrice(data), PriceClass)
 end
 
+--- Creates a new independent copy of the current PriceClass.
+---@return PriceClass
+function PriceClass:copy()
+  return PriceClass.new(self)
+end
+
 --- Adds a price to the current PriceClass.
 ---@param price PriceInput
 ---@return PriceClass
@@ -456,6 +464,12 @@ end
 ---@return PriceGroupClass
 function PriceGroupClass.new(data)
   return setmetatable(normalizeGroup(data), PriceGroupClass)
+end
+
+--- Creates a new independent copy of the current PriceGroupClass.
+---@return PriceGroupClass
+function PriceGroupClass:copy()
+  return PriceGroupClass.new(self)
 end
 
 --- Compacts an "and" PriceGroupClass into a new PriceClass.

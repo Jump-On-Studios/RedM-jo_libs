@@ -122,6 +122,23 @@ addTest("price_new_copies_existing_instance", function()
   assertCurrency(copy, "money", 3)
 end)
 
+addTest("price_copy_copies_existing_instance", function()
+  local price = PriceClass.new({
+    money = 2,
+    item = "water"
+  })
+  local copy = price:copy()
+
+  assertTrue(copy ~= price, "PriceClass:copy() must return a new instance")
+  assertTrue(copy.costs ~= price.costs, "PriceClass:copy() must copy costs")
+  assertCurrency(copy, "money", 2)
+  assertItem(copy, "water", 1, false)
+
+  copy:add({ money = 1 })
+  assertCurrency(price, "money", 2)
+  assertCurrency(copy, "money", 3)
+end)
+
 addTest("price_merge_currencies", function()
   local price = PriceClass.new({
     { money = 12 },
@@ -235,6 +252,27 @@ addTest("group_new_copies_existing_instance", function()
   assertTrue(copy ~= group, "PriceGroupClass.new(existingGroup) must return a new instance")
   assertEqual(copy.operator, "and", "copied group operator mismatch")
   assertEqual(#copy.prices, 2, "copied group price count mismatch")
+  assertTrue(copy.prices[1] ~= group.prices[1], "copied group must copy nested prices")
+  assertCurrency(copy.prices[1], "money", 2)
+  assertCurrency(copy.prices[2], "gold", 3)
+
+  copy.prices[1]:add({ money = 1 })
+  assertCurrency(group.prices[1], "money", 2)
+  assertCurrency(copy.prices[1], "money", 3)
+end)
+
+addTest("group_copy_copies_existing_instance", function()
+  local group = PriceGroupClass.new({
+    operator = "and",
+    PriceClass.new({ money = 2 }),
+    PriceClass.new({ gold = 3 })
+  })
+  local copy = group:copy()
+
+  assertTrue(copy ~= group, "PriceGroupClass:copy() must return a new instance")
+  assertEqual(copy.operator, "and", "copied group operator mismatch")
+  assertEqual(#copy.prices, 2, "copied group price count mismatch")
+  assertTrue(copy.prices ~= group.prices, "copied group must copy prices")
   assertTrue(copy.prices[1] ~= group.prices[1], "copied group must copy nested prices")
   assertCurrency(copy.prices[1], "money", 2)
   assertCurrency(copy.prices[2], "gold", 3)
