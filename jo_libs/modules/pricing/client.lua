@@ -62,11 +62,42 @@ local function assertCostCount(price, count)
   assertEqual(#price.costs, count, "cost count mismatch")
 end
 
+addTest("pricing_aliases", function()
+  assertTrue(jo.pricing.PriceClass == PriceClass, "PriceClass export mismatch")
+  assertTrue(jo.pricing.PriceGroupClass == PriceGroupClass, "PriceGroupClass export mismatch")
+  assertTrue(jo.pricing.new == PriceClass.new, "new alias mismatch")
+  assertTrue(jo.pricing.newGroup == PriceGroupClass.new, "newGroup alias mismatch")
+end)
+
 addTest("price_defaults_item", function()
   local price = PriceClass.new({ item = "water" })
 
   assertCostCount(price, 1)
   assertItem(price, "water", 1, false)
+end)
+
+addTest("price_empty_costs", function()
+  local price = PriceClass.new({ costs = {} })
+
+  assertCostCount(price, 0)
+  assertTrue(price.isProcessing == false, "empty costs price must initialize isProcessing")
+end)
+
+addTest("price_new_copies_existing_instance", function()
+  local price = PriceClass.new({
+    money = 2,
+    item = "water"
+  })
+  local copy = PriceClass.new(price)
+
+  assertTrue(copy ~= price, "PriceClass.new(existingPrice) must return a new instance")
+  assertTrue(copy.costs ~= price.costs, "PriceClass.new(existingPrice) must copy costs")
+  assertCurrency(copy, "money", 2)
+  assertItem(copy, "water", 1, false)
+
+  copy:add({ money = 1 })
+  assertCurrency(price, "money", 2)
+  assertCurrency(copy, "money", 3)
 end)
 
 addTest("price_merge_currencies", function()
@@ -164,6 +195,33 @@ addTest("group_default_or", function()
   assertCurrency(group.prices[2], "gold", 5)
 end)
 
+addTest("group_empty_prices", function()
+  local group = PriceGroupClass.new({ prices = {} })
+
+  assertEqual(group.operator, "or", "empty prices group operator mismatch")
+  assertEqual(#group.prices, 0, "empty prices group must keep an empty prices list")
+end)
+
+addTest("group_new_copies_existing_instance", function()
+  local group = PriceGroupClass.new({
+    operator = "and",
+    PriceClass.new({ money = 2 }),
+    PriceClass.new({ gold = 3 })
+  })
+  local copy = PriceGroupClass.new(group)
+
+  assertTrue(copy ~= group, "PriceGroupClass.new(existingGroup) must return a new instance")
+  assertEqual(copy.operator, "and", "copied group operator mismatch")
+  assertEqual(#copy.prices, 2, "copied group price count mismatch")
+  assertTrue(copy.prices[1] ~= group.prices[1], "copied group must copy nested prices")
+  assertCurrency(copy.prices[1], "money", 2)
+  assertCurrency(copy.prices[2], "gold", 3)
+
+  copy.prices[1]:add({ money = 1 })
+  assertCurrency(group.prices[1], "money", 2)
+  assertCurrency(copy.prices[1], "money", 3)
+end)
+
 addTest("group_and_compact", function()
   local group = PriceGroupClass.new({
     operator = "and",
@@ -198,7 +256,7 @@ addTest("group_or_compact_errors", function()
   assertTrue(not success, "compact() must error with operator = or")
 end)
 
-addTest("legacy_inputs_normalized", function()
+addTest("mixed_inputs_normalized", function()
   local price = PriceClass.new({
     money = 2,
     gold = 4,
@@ -264,4 +322,3 @@ RegisterCommand("jo_pricing_test", function(_, args)
   local passed = runTest(testName) and 1 or 0
   print(("[jo_pricing_test] Summary: %s passed / %s failed"):format(passed, 1 - passed))
 end)
-
