@@ -28,14 +28,12 @@ local currencyKeys = { "money", "gold", "rol" }
 ---@class PriceClass
 ---@field isProcessing boolean
 ---@field costs Cost[]
----@field copy fun(self: PriceClass): PriceClass
 local PriceClass = {}
 PriceClass.__index = PriceClass
 
 ---@class PriceGroupClass
 ---@field operator "or"|"and"
 ---@field prices PriceClass[]
----@field copy fun(self: PriceGroupClass): PriceGroupClass
 local PriceGroupClass = {}
 PriceGroupClass.__index = PriceGroupClass
 
@@ -404,6 +402,20 @@ function PriceClass:get()
   return self.costs
 end
 
+--- Returns true when the PriceClass has no costs.
+---@return boolean
+function PriceClass:isFree()
+  for i = 1, #self.costs do
+    local cost = self.costs[i]
+    if cost.money ~= nil and cost.money ~= 0 then return false end
+    if cost.gold ~= nil and cost.gold ~= 0 then return false end
+    if cost.rol ~= nil and cost.rol ~= 0 then return false end
+    if cost.item ~= nil and cost.quantity ~= 0 then return false end
+  end
+
+  return true
+end
+
 --- Returns the MoneyCost.
 ---@return MoneyCost|nil
 function PriceClass:getMoney()
@@ -470,6 +482,33 @@ end
 ---@return PriceGroupClass
 function PriceGroupClass:copy()
   return PriceGroupClass.new(self)
+end
+
+--- Inserts a PriceClass into the group.
+---@param price PriceInput
+---@param index? number
+---@return PriceGroupClass
+function PriceGroupClass:insert(price, index)
+  local normalizedPrice = asPrice(price)
+
+  if index == nil then
+    self.prices[#self.prices + 1] = normalizedPrice
+    return self
+  end
+
+  table.insert(self.prices, index, normalizedPrice)
+  return self
+end
+
+--- Removes a PriceClass from the group by index.
+---@param index number
+---@return PriceClass|nil
+function PriceGroupClass:remove(index)
+  if type(index) ~= "number" then
+    error("PriceGroupClass:remove(index) requires a number index", 2)
+  end
+
+  return table.remove(self.prices, index)
 end
 
 --- Compacts an "and" PriceGroupClass into a new PriceClass.

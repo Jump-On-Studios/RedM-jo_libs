@@ -222,6 +222,16 @@ addTest("price_getters", function()
   assertNil(PriceClass.new({ gold = 1 }):getMoney(), "getMoney() must return nil when missing")
 end)
 
+addTest("price_is_free", function()
+  assertTrue(PriceClass.new():isFree(), "empty price must be free")
+  assertTrue(PriceClass.new({ costs = {} }):isFree(), "empty costs price must be free")
+  assertTrue(PriceClass.new({ money = 0 }):isFree(), "zero money price must be free")
+  assertTrue(PriceClass.new({ money = 0, gold = 0, rol = 0 }):isFree(), "zero currencies price must be free")
+  assertTrue(PriceClass.new({ item = "water", quantity = 0 }):isFree(), "zero quantity item price must be free")
+  assertTrue(not PriceClass.new({ money = -1 }):isFree(), "negative money cost must not be free")
+  assertTrue(not PriceClass.new({ item = "water" }):isFree(), "item price must not be free")
+end)
+
 addTest("group_default_or", function()
   local group = PriceGroupClass.new({
     money = 2,
@@ -280,6 +290,55 @@ addTest("group_copy_copies_existing_instance", function()
   copy.prices[1]:add({ money = 1 })
   assertCurrency(group.prices[1], "money", 2)
   assertCurrency(copy.prices[1], "money", 3)
+end)
+
+addTest("group_insert_appends_price", function()
+  local group = PriceGroupClass.new()
+  local returnedGroup = group:insert({ money = 2 })
+
+  assertTrue(returnedGroup == group, "insert() must return self")
+  assertEqual(#group.prices, 1, "insert() must append when index is missing")
+  assertCurrency(group.prices[1], "money", 2)
+end)
+
+addTest("group_insert_at_index", function()
+  local group = PriceGroupClass.new({
+    { money = 1 },
+    { gold = 3 }
+  })
+
+  group:insert({ item = "water" }, 2)
+
+  assertEqual(#group.prices, 3, "insert(index) must add one price")
+  assertCurrency(group.prices[1], "money", 1)
+  assertItem(group.prices[2], "water", 1, false)
+  assertCurrency(group.prices[3], "gold", 3)
+end)
+
+addTest("group_remove_by_index", function()
+  local group = PriceGroupClass.new({
+    { money = 1 },
+    { item = "water" },
+    { gold = 3 }
+  })
+  local removed = group:remove(2)
+
+  assertEqual(#group.prices, 2, "remove(index) must remove one price")
+  assertItem(removed, "water", 1, false)
+  assertCurrency(group.prices[1], "money", 1)
+  assertCurrency(group.prices[2], "gold", 3)
+end)
+
+addTest("group_remove_requires_index", function()
+  local group = PriceGroupClass.new({
+    { money = 1 }
+  })
+  local success = pcall(function()
+    group:remove()
+  end)
+
+  assertTrue(not success, "remove() must error without an index")
+  assertEqual(#group.prices, 1, "remove() without index must not mutate prices")
 end)
 
 addTest("group_and_compact", function()
