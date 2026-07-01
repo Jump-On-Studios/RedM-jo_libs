@@ -357,6 +357,24 @@ local function mergeCosts(...)
   return merged
 end
 
+-- ° Checks whether two canonical Cost entries represent the same value.
+local function isSameCost(left, right)
+  for i = 1, #currencyKeys do
+    local key = currencyKeys[i]
+    if left[key] ~= nil or right[key] ~= nil then
+      return left[key] ~= nil and left[key] == right[key]
+    end
+  end
+
+  if left.item ~= nil or right.item ~= nil then
+    return left.item == right.item
+      and left.keep == right.keep
+      and left.quantity == right.quantity
+  end
+
+  return false
+end
+
 -- * ==========================================
 -- * PRICE CLASS
 -- * ==========================================
@@ -372,6 +390,16 @@ end
 ---@return PriceClass
 function PriceClass:copy()
   return PriceClass.new(self)
+end
+
+--- Returns true when another price has the same costs.
+---@param other PriceInput
+---@return boolean
+function PriceClass:equals(other)
+  local success, otherPrice = pcall(asPrice, other)
+  if not success then return false end
+
+  return PriceClass.__eq(self, otherPrice)
 end
 
 --- Adds a price to the current PriceClass.
@@ -402,7 +430,7 @@ function PriceClass:get()
   return self.costs
 end
 
---- Returns true when the PriceClass has no costs.
+--- Returns true when the PriceClass has no payable costs.
 ---@return boolean
 function PriceClass:isFree()
   for i = 1, #self.costs do
@@ -493,6 +521,34 @@ function PriceClass.__add(left, right)
   return PriceClass.new({
     costs = mergeCosts(leftPrice.costs, rightPrice.costs)
   })
+end
+
+--- Compares two PriceClass instances by value.
+---@param left PriceClass
+---@param right PriceClass
+---@return boolean
+function PriceClass.__eq(left, right)
+  if not isPrice(left) or not isPrice(right) then return false end
+
+  while left.isProcessing do Wait(0) end
+  while right.isProcessing do Wait(0) end
+
+  if #left.costs ~= #right.costs then return false end
+
+  for i = 1, #left.costs do
+    local found = false
+
+    for j = 1, #right.costs do
+      if isSameCost(left.costs[i], right.costs[j]) then
+        found = true
+        break
+      end
+    end
+
+    if not found then return false end
+  end
+
+  return true
 end
 
 -- * ==========================================

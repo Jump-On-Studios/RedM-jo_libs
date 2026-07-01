@@ -206,6 +206,42 @@ addTest("price_operator_add_is_immutable", function()
   assertItem(result, "water", 1, false)
 end)
 
+addTest("price_equals_compares_by_value", function()
+  local left = PriceClass.new({
+    money = 5,
+    { item = "water", quantity = 2 },
+    { item = "acid", quantity = 1 },
+    { gold = 1 }
+  })
+  local right = PriceClass.new({
+    { gold = 1 },
+    { item = "acid", quantity = 1 },
+    { item = "water", quantity = 2 },
+    { money = 5 }
+  })
+
+  assertTrue(left == right, "__eq must compare canonical costs by value")
+  assertTrue(left:equals(right), "equals() must compare PriceClass values")
+  assertTrue(left:equals({
+    { item = "water", quantity = 2 },
+    { item = "acid", quantity = 1 },
+    { money = 5 },
+    { gold = 1 }
+  }), "equals() must accept normalizable price input")
+end)
+
+addTest("price_equals_detects_differences", function()
+  local price = PriceClass.new({
+    money = 5,
+    item = "water"
+  })
+
+  assertTrue(price ~= PriceClass.new({ money = 6, item = "water" }), "__eq must detect currency differences")
+  assertTrue(price ~= PriceClass.new({ money = 5, item = "water", keep = true }), "__eq must detect item keep differences")
+  assertTrue(price ~= PriceClass.new({ money = 5, item = "water", quantity = 2 }), "__eq must detect item quantity differences")
+  assertTrue(not price:equals({ unsupported = true }), "equals() must return false for unsupported price input")
+end)
+
 addTest("price_getters", function()
   local price = PriceClass.new({
     money = 2,
