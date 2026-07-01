@@ -62,6 +62,28 @@ local function assertCostCount(price, count)
   assertEqual(#price.costs, count, "cost count mismatch")
 end
 
+local function assertPriceShape(price, expected)
+  assertCostCount(price, expected.count or 0)
+
+  if expected.money ~= nil then assertCurrency(price, "money", expected.money) end
+  if expected.gold ~= nil then assertCurrency(price, "gold", expected.gold) end
+  if expected.rol ~= nil then assertCurrency(price, "rol", expected.rol) end
+
+  local items = expected.items or {}
+  for i = 1, #items do
+    assertItem(price, items[i].item, items[i].quantity, items[i].keep)
+  end
+end
+
+local function assertGroupShape(group, expected)
+  assertEqual(group.operator, expected.operator, "group operator mismatch")
+  assertEqual(#group.prices, #expected.prices, "group price count mismatch")
+
+  for i = 1, #expected.prices do
+    assertPriceShape(group.prices[i], expected.prices[i])
+  end
+end
+
 addTest("pricing_aliases", function()
   assertTrue(jo.pricing.PriceClass == PriceClass, "PriceClass export mismatch")
   assertTrue(jo.pricing.PriceGroupClass == PriceGroupClass, "PriceGroupClass export mismatch")
@@ -277,6 +299,227 @@ addTest("mixed_inputs_normalized", function()
   assertCurrency(price, "gold", 4)
   assertItem(price, "water", 1, false)
   assertItem(price, "acid", 5, false)
+end)
+
+addTest("simplified_config_matrix", function()
+  local simplifiedConfigCases = {
+    {
+      name = "clothing_numeric_integer",
+      kind = "price",
+      input = 5,
+      expected = { count = 1, money = 5 }
+    },
+    {
+      name = "clothing_numeric_decimal",
+      kind = "price",
+      input = 4.25,
+      expected = { count = 1, money = 4.25 }
+    },
+    {
+      name = "stable_zero_price",
+      kind = "price",
+      input = 0,
+      expected = { count = 1, money = 0 }
+    },
+    {
+      name = "clothing_disabled_sentinel_is_plain_money",
+      kind = "price",
+      input = -1,
+      expected = { count = 1, money = -1 }
+    },
+    {
+      name = "stable_inline_currencies",
+      kind = "price",
+      input = { money = 50, gold = 2 },
+      expected = { count = 2, money = 50, gold = 2 }
+    },
+    {
+      name = "pricing_all_currency_types",
+      kind = "price",
+      input = { money = 50, gold = 2, rol = 7 },
+      expected = { count = 3, money = 50, gold = 2, rol = 7 }
+    },
+    {
+      name = "stable_item_default_quantity",
+      kind = "price",
+      input = { item = "apple" },
+      expected = {
+        count = 1,
+        items = {
+          { item = "apple", quantity = 1, keep = false }
+        }
+      }
+    },
+    {
+      name = "stable_item_keep_true",
+      kind = "price",
+      input = { item = "horse_license", keep = true },
+      expected = {
+        count = 1,
+        items = {
+          { item = "horse_license", quantity = 1, keep = true }
+        }
+      }
+    },
+    {
+      name = "stable_mixed_money_and_kept_item",
+      kind = "price",
+      input = { money = 10, { item = "apple", quantity = 1, keep = true } },
+      expected = {
+        count = 2,
+        money = 10,
+        items = {
+          { item = "apple", quantity = 1, keep = true }
+        }
+      }
+    },
+    {
+      name = "stable_nested_array_money_and_item",
+      kind = "price",
+      input = { { money = 100 }, { item = "apple" } },
+      expected = {
+        count = 2,
+        money = 100,
+        items = {
+          { item = "apple", quantity = 1, keep = false }
+        }
+      }
+    },
+    {
+      name = "stable_distance_fields_are_ignored",
+      kind = "price",
+      input = {
+        { money = 100, gold = 1, multiplyWithDistance = true },
+        { gold = 3, multiplyWithDistance = false },
+        { item = "ticket", quantity = 1, keep = false, multiplyWithDistance = false }
+      },
+      expected = {
+        count = 3,
+        money = 100,
+        gold = 4,
+        items = {
+          { item = "ticket", quantity = 1, keep = false }
+        }
+      }
+    },
+    {
+      name = "clothing_or_money_gold_item",
+      kind = "group",
+      input = {
+        operator = "or",
+        { money = 5, item = "water" },
+        { gold = 5 },
+        { money = 2, { item = "water", quantity = 3 } }
+      },
+      expected = {
+        operator = "or",
+        prices = {
+          {
+            count = 2,
+            money = 5,
+            items = {
+              { item = "water", quantity = 1, keep = false }
+            }
+          },
+          { count = 1, gold = 5 },
+          {
+            count = 2,
+            money = 2,
+            items = {
+              { item = "water", quantity = 3, keep = false }
+            }
+          }
+        }
+      }
+    },
+    {
+      name = "stable_or_license_gold_money",
+      kind = "group",
+      input = {
+        operator = "or",
+        { { item = "horse_license", keep = true } },
+        { gold = 1 },
+        { money = 100 }
+      },
+      expected = {
+        operator = "or",
+        prices = {
+          {
+            count = 1,
+            items = {
+              { item = "horse_license", quantity = 1, keep = true }
+            }
+          },
+          { count = 1, gold = 1 },
+          { count = 1, money = 100 }
+        }
+      }
+    },
+    {
+      name = "stable_default_or_array_choices",
+      kind = "group",
+      input = {
+        { { item = "apple", quantity = 1, keep = true }, { money = 1 } },
+        { gold = 10 }
+      },
+      expected = {
+        operator = "or",
+        prices = {
+          {
+            count = 2,
+            money = 1,
+            items = {
+              { item = "apple", quantity = 1, keep = true }
+            }
+          },
+          { count = 1, gold = 10 }
+        }
+      }
+    },
+    {
+      name = "stable_model_or_mixed_options",
+      kind = "group",
+      input = {
+        operator = "or",
+        { { item = "apple", quantity = 10, keep = true }, money = 10 },
+        { gold = 152 }
+      },
+      expected = {
+        operator = "or",
+        prices = {
+          {
+            count = 2,
+            money = 10,
+            items = {
+              { item = "apple", quantity = 10, keep = true }
+            }
+          },
+          { count = 1, gold = 152 }
+        }
+      }
+    }
+  }
+
+  for i = 1, #simplifiedConfigCases do
+    local case = simplifiedConfigCases[i]
+    local success, err = pcall(function()
+      if case.kind == "price" then
+        assertPriceShape(PriceClass.new(case.input), case.expected)
+        return
+      end
+
+      if case.kind == "group" then
+        assertGroupShape(PriceGroupClass.new(case.input), case.expected)
+        return
+      end
+
+      fail(("Unsupported simplified config case kind `%s` for `%s`"):format(tostring(case.kind), case.name))
+    end)
+
+    if not success then
+      fail(("simplified config case `%s` failed: %s"):format(case.name, tostring(err)))
+    end
+  end
 end)
 
 local function runTest(name)
