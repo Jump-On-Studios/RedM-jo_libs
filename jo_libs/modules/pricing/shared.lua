@@ -449,7 +449,7 @@ end
 
 --- Creates a canonical PriceClass.
 ---@autodoc:config ignore:true
----@param data? PriceInput
+---@param data? PriceInput (Price input to normalize <br> default:`nil`)
 ---@return PriceClass
 function PriceClass.new(data)
   return setmetatable(normalizePrice(data), PriceClass)
@@ -462,7 +462,7 @@ function PriceClass:copy()
 end
 
 --- Returns true when another price has the same costs.
----@param other PriceInput
+---@param other PriceInput Price input to compare with the current price
 ---@return boolean
 function PriceClass:equals(other)
   local success, otherPrice = pcall(asPrice, other)
@@ -472,7 +472,7 @@ function PriceClass:equals(other)
 end
 
 --- Adds a price to the current PriceClass.
----@param price PriceInput
+---@param price PriceInput Price input to add to the current price
 ---@return PriceClass
 function PriceClass:add(price)
   waitPriceReady(self)
@@ -577,7 +577,7 @@ function PriceClass:getRol()
 end
 
 --- Returns true when a currency cost exists.
----@param key "money"|"gold"|"rol"
+---@param key "money"|"gold"|"rol" Currency cost key
 ---@return boolean
 function PriceClass:hasCurrency(key)
   assertCurrencyKey(key, 2)
@@ -588,7 +588,7 @@ function PriceClass:hasCurrency(key)
 end
 
 --- Removes a currency cost from the current PriceClass.
----@param key "money"|"gold"|"rol"
+---@param key "money"|"gold"|"rol" Currency cost key to remove
 ---@return PriceClass
 function PriceClass:removeCurrency(key)
   assertCurrencyKey(key, 2)
@@ -620,8 +620,8 @@ function PriceClass:getItems()
 end
 
 --- Returns an ItemCost by item name and keep flag.
----@param item string
----@param keep boolean
+---@param item string Item name
+---@param keep boolean Item keep flag (`false`: consumed cost, `true`: required but kept)
 ---@return ItemCost|nil
 function PriceClass:getItem(item, keep)
   assertItemLookup(item, keep, 2)
@@ -632,16 +632,16 @@ function PriceClass:getItem(item, keep)
 end
 
 --- Returns true when an ItemCost exists for an item name and keep flag.
----@param item string
----@param keep boolean
+---@param item string Item name
+---@param keep boolean Item keep flag (`false`: consumed cost, `true`: required but kept)
 ---@return boolean
 function PriceClass:hasItem(item, keep)
   return self:getItem(item, keep) ~= nil
 end
 
 --- Removes an ItemCost from the current PriceClass.
----@param item string
----@param keep boolean
+---@param item string Item name
+---@param keep boolean Item keep flag (`false`: consumed cost, `true`: required but kept)
 ---@return PriceClass
 function PriceClass:removeItem(item, keep)
   assertItemLookup(item, keep, 2)
@@ -661,8 +661,8 @@ end
 
 --- Creates a new PriceClass from two prices.
 ---@autodoc:config ignore:true
----@param left PriceInput
----@param right PriceInput
+---@param left PriceInput Left price input
+---@param right PriceInput Right price input
 ---@return PriceClass
 function PriceClass.__add(left, right)
   local leftPrice = asPrice(left)
@@ -675,8 +675,8 @@ end
 
 --- Multiplies a PriceClass by a numeric multiplier.
 ---@autodoc:config ignore:true
----@param left PriceClass|number
----@param right PriceClass|number
+---@param left PriceClass|number Left operand (`PriceClass` or multiplier)
+---@param right PriceClass|number Right operand (`PriceClass` or multiplier)
 ---@return PriceClass
 function PriceClass.__mul(left, right)
   local price
@@ -697,8 +697,8 @@ end
 
 --- Divides a PriceClass by a numeric divisor.
 ---@autodoc:config ignore:true
----@param left PriceClass
----@param right number
+---@param left PriceClass Price to divide
+---@param right number Divisor
 ---@return PriceClass
 function PriceClass.__div(left, right)
   if not isPrice(left) or type(right) ~= "number" then
@@ -714,7 +714,7 @@ end
 
 --- Returns the number of canonical costs.
 ---@autodoc:config ignore:true
----@param price PriceClass
+---@param price PriceClass Price instance to count
 ---@return number
 function PriceClass.__len(price)
   waitPriceReady(price)
@@ -724,8 +724,8 @@ end
 
 --- Compares two PriceClass instances by value.
 ---@autodoc:config ignore:true
----@param left PriceClass
----@param right PriceClass
+---@param left PriceClass Left price instance
+---@param right PriceClass Right price instance
 ---@return boolean
 function PriceClass.__eq(left, right)
   if not isPrice(left) or not isPrice(right) then return false end
@@ -757,7 +757,7 @@ end
 
 --- Creates a canonical PriceGroupClass.
 ---@autodoc:config ignore:true
----@param data? PriceGroupInput
+---@param data? PriceGroupInput (Price group input to normalize <br> default:`nil`)
 ---@return PriceGroupClass
 function PriceGroupClass.new(data)
   return setmetatable(normalizeGroup(data), PriceGroupClass)
@@ -790,14 +790,14 @@ end
 
 --- Returns the number of prices in the group.
 ---@autodoc:config ignore:true
----@param group PriceGroupClass
+---@param group PriceGroupClass Group instance to count
 ---@return number
 function PriceGroupClass.__len(group)
   return #group.prices
 end
 
 --- Returns a PriceClass by index.
----@param index number
+---@param index number Price index
 ---@return PriceClass|nil
 function PriceGroupClass:get(index)
   if type(index) ~= "number" then
@@ -808,8 +808,8 @@ function PriceGroupClass:get(index)
 end
 
 --- Replaces an existing PriceClass by index.
----@param index number
----@param price PriceInput
+---@param index number Existing price index to replace
+---@param price PriceInput Replacement price input
 ---@return PriceGroupClass
 function PriceGroupClass:set(index, price)
   if type(index) ~= "number" then
@@ -825,8 +825,8 @@ function PriceGroupClass:set(index, price)
 end
 
 --- Inserts a PriceClass into the group.
----@param price PriceInput
----@param index? number
+---@param price PriceInput Price input to insert
+---@param index? number (Insertion index <br> default: append at the end)
 ---@return PriceGroupClass
 function PriceGroupClass:insert(price, index)
   local normalizedPrice = asPrice(price)
@@ -841,7 +841,7 @@ function PriceGroupClass:insert(price, index)
 end
 
 --- Removes a PriceClass from the group by index.
----@param index number
+---@param index number Price index to remove
 ---@return PriceClass|nil
 function PriceGroupClass:remove(index)
   if type(index) ~= "number" then
@@ -871,31 +871,31 @@ end
 -- * ==========================================
 
 --- Creates a canonical PriceClass.
----@param data? PriceInput
+---@param data? PriceInput (Price input to normalize <br> default:`nil`)
 ---@return PriceClass
 function jo.pricing.new(data)
   return PriceClass.new(data)
 end
 
 --- Creates a canonical PriceGroupClass.
----@param data? PriceGroupInput
+---@param data? PriceGroupInput (Price group input to normalize <br> default:`nil`)
 ---@return PriceGroupClass
 function jo.pricing.newGroup(data)
   return PriceGroupClass.new(data)
 end
 
 --- Converts a price input into a canonical costs list.
----@param price PriceInput
+---@param price PriceInput Price input to convert
 ---@return Cost[]
 function jo.pricing.get(price)
   return PriceClass.new(price):get()
 end
 
 --- Splits a price into tax and remaining prices.
----@param price PriceInput
----@param percentage? number
----@param roundUpItems? boolean
----@return  PriceClass,PriceClass
+---@param price PriceInput Price input to split
+---@param percentage? number (Tax multiplier applied to the input price <br> default:`0`)
+---@param roundUpItems? boolean (Round item quantities up instead of down <br> default:`false`)
+---@return PriceClass, PriceClass
 function jo.pricing.tax(price, percentage, roundUpItems)
   percentage = percentage or 0
 
@@ -908,14 +908,14 @@ function jo.pricing.tax(price, percentage, roundUpItems)
 end
 
 --- Returns true when a value is a PriceClass instance.
----@param value any
+---@param value any Value to test
 ---@return boolean
 function jo.pricing.isPrice(value)
   return isPrice(value)
 end
 
 --- Returns true when a value is a PriceGroupClass instance.
----@param value any
+---@param value any Value to test
 ---@return boolean
 function jo.pricing.isPriceGroup(value)
   return isPriceGroup(value)
