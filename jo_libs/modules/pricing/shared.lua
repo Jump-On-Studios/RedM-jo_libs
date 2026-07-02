@@ -535,28 +535,34 @@ function PriceClass:tax(percentage, roundUpItems)
   return self
 end
 
---- Returns the MoneyCost.
----@return MoneyCost|nil
+--- Returns the money amount.
+---@return number|nil
 function PriceClass:getMoney()
-  return table.find(self.costs, function(cost)
+  local cost = table.find(self.costs, function(cost)
     return cost.money ~= nil
-  end) or nil
+  end)
+
+  return cost and cost.money or nil
 end
 
---- Returns the GoldCost.
----@return GoldCost|nil
+--- Returns the gold amount.
+---@return number|nil
 function PriceClass:getGold()
-  return table.find(self.costs, function(cost)
+  local cost = table.find(self.costs, function(cost)
     return cost.gold ~= nil
-  end) or nil
+  end)
+
+  return cost and cost.gold or nil
 end
 
---- Returns the RolCost.
----@return RolCost|nil
+--- Returns the rol amount.
+---@return number|nil
 function PriceClass:getRol()
-  return table.find(self.costs, function(cost)
+  local cost = table.find(self.costs, function(cost)
     return cost.rol ~= nil
-  end) or nil
+  end)
+
+  return cost and cost.rol or nil
 end
 
 --- Returns true when a currency cost exists.
@@ -793,11 +799,37 @@ end
 -- * PUBLIC API
 -- * ==========================================
 
-jo.pricing.new = PriceClass.new
-jo.pricing.newGroup = PriceGroupClass.new
+--- Creates a canonical PriceClass.
+---@param data? PriceInput
+---@return PriceClass
+function jo.pricing.new(data)
+  return PriceClass.new(data)
+end
+
+--- Creates a canonical PriceGroupClass.
+---@param data? PriceGroupInput
+---@return PriceGroupClass
+function jo.pricing.newGroup(data)
+  return PriceGroupClass.new(data)
+end
+
+--- Converts a price input into a canonical costs list.
+---@param price PriceInput
+---@return Cost[]
 function jo.pricing.get(price)
   return PriceClass.new(price):get()
 end
 
-jo.pricing.isPrice = isPrice
-jo.pricing.isPriceGroup = isPriceGroup
+--- Returns true when a value is a PriceClass instance.
+---@param value any
+---@return boolean
+function jo.pricing.isPrice(value)
+  return isPrice(value)
+end
+
+--- Returns true when a value is a PriceGroupClass instance.
+---@param value any
+---@return boolean
+function jo.pricing.isPriceGroup(value)
+  return isPriceGroup(value)
+end
