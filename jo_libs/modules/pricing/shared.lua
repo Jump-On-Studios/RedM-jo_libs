@@ -878,7 +878,7 @@ end
 ---@param price PriceInput
 ---@param percentage? number
 ---@param roundUpItems? boolean
----@return PriceClass, PriceClass
+---@return  PriceClass,PriceClass
 function jo.pricing.tax(price, percentage, roundUpItems)
   percentage = percentage or 0
 
