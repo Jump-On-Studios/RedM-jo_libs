@@ -101,6 +101,7 @@ addTest("pricing_aliases", function()
   assertNil(jo.pricing.PriceGroupClass, "PriceGroupClass must not be exposed")
   assertEqual(type(jo.pricing.new), "function", "new must be exposed")
   assertEqual(type(jo.pricing.newGroup), "function", "newGroup must be exposed")
+  assertEqual(type(jo.pricing.tax), "function", "tax must be exposed")
   assertEqual(type(jo.pricing.isPrice), "function", "isPrice must be exposed")
   assertEqual(type(jo.pricing.isPriceGroup), "function", "isPriceGroup must be exposed")
 
@@ -471,7 +472,7 @@ addTest("price_is_free", function()
   assertTrue(not newPrice({ item = "water" }):isFree(), "item price must not be free")
 end)
 
-addTest("price_tax_mutates_self", function()
+addTest("pricing_tax_splits_tax_and_remaining_prices", function()
   local price = newPrice({
     money = 10,
     gold = 2,
@@ -479,40 +480,52 @@ addTest("price_tax_mutates_self", function()
     item = "water",
     quantity = 3
   })
-  local returnedPrice = price:tax(1.5)
+  local taxPrice, remainingPrice = jo.pricing.tax(price, 0.5)
 
-  assertSame(returnedPrice, price, "tax() must return self")
   assertCostCount(price, 4)
-  assertCurrency(price, "money", 15)
-  assertCurrency(price, "gold", 3)
-  assertCurrency(price, "rol", 6)
-  assertItem(price, "water", 4, false)
+  assertCurrency(price, "money", 10)
+  assertCurrency(price, "gold", 2)
+  assertCurrency(price, "rol", 4)
+  assertItem(price, "water", 3, false)
+
+  assertCostCount(taxPrice, 4)
+  assertCurrency(taxPrice, "money", 5)
+  assertCurrency(taxPrice, "gold", 1)
+  assertCurrency(taxPrice, "rol", 2)
+  assertItem(taxPrice, "water", 1, false)
+
+  assertCostCount(remainingPrice, 4)
+  assertCurrency(remainingPrice, "money", 5)
+  assertCurrency(remainingPrice, "gold", 1)
+  assertCurrency(remainingPrice, "rol", 2)
+  assertItem(remainingPrice, "water", 2, false)
 end)
 
-addTest("price_tax_rounds_items_up", function()
-  local price = newPrice({
+addTest("pricing_tax_rounds_items_up", function()
+  local taxPrice, remainingPrice = jo.pricing.tax({
     item = "water",
     quantity = 3
-  })
+  }, 0.5, true)
 
-  price:tax(1.5, true)
-
-  assertCostCount(price, 1)
-  assertItem(price, "water", 5, false)
+  assertCostCount(taxPrice, 1)
+  assertItem(taxPrice, "water", 2, false)
+  assertCostCount(remainingPrice, 1)
+  assertItem(remainingPrice, "water", 1, false)
 end)
 
-addTest("price_tax_default_zero", function()
+addTest("pricing_tax_default_zero", function()
   local price = newPrice({
     money = 10,
     item = "water",
     quantity = 3
   })
+  local taxPrice, remainingPrice = jo.pricing.tax(price)
 
-  price:tax()
-
-  assertTrue(price:isFree(), "tax() without percentage must make all costs free")
-  assertCurrency(price, "money", 0)
-  assertItem(price, "water", 0, false)
+  assertTrue(taxPrice:isFree(), "tax() without percentage must return a free tax price")
+  assertCurrency(taxPrice, "money", 0)
+  assertItem(taxPrice, "water", 0, false)
+  assertTrue(remainingPrice == price, "tax() without percentage must return the input value as remaining")
+  assertNotSame(remainingPrice, price, "tax() must not return the input instance as remaining")
 end)
 
 addTest("group_default_or", function()

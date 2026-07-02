@@ -405,6 +405,44 @@ local function isSameCost(left, right)
   return false
 end
 
+-- ° Rounds item quantities to the nearest integer.
+local function roundNearest(value)
+  return value >= 0 and math.floor(value + 0.5) or math.ceil(value - 0.5)
+end
+
+-- ° Multiplies a price without mutating the input.
+local function multiplyPrice(data, multiplier, roundItemQuantity)
+  if type(multiplier) ~= "number" then
+    error("Price multiplier must be a number", 3)
+  end
+
+  local multipliedPrice = PriceClass.new(data)
+  roundItemQuantity = roundItemQuantity or math.floor
+
+  for i = 1, #multipliedPrice.costs do
+    local cost = multipliedPrice.costs[i]
+
+    for j = 1, #currencyKeys do
+      local key = currencyKeys[j]
+      if cost[key] ~= nil then
+        cost[key] = cost[key] * multiplier
+      end
+    end
+
+    if cost.item ~= nil then
+      cost.quantity = roundItemQuantity((cost.quantity or 1) * multiplier)
+    end
+  end
+
+  multipliedPrice.costs = mergeCosts(multipliedPrice.costs)
+  return multipliedPrice
+end
+
+-- ° Subtracts a price from another price without mutating either operand.
+local function subtractPrice(left, right)
+  return left + multiplyPrice(right, -1)
+end
+
 -- * ==========================================
 -- * PRICE CLASS
 -- * ==========================================
@@ -506,34 +544,6 @@ function PriceClass:isItemOnly()
   end
 
   return true
-end
-
---- Applies a multiplier to the current PriceClass.
----@param percentage? number
----@param roundUpItems? boolean
----@return PriceClass
-function PriceClass:tax(percentage, roundUpItems)
-  percentage = percentage or 0
-
-  local roundItemQuantity = roundUpItems and math.ceil or math.floor
-
-  for i = 1, #self.costs do
-    local cost = self.costs[i]
-
-    for j = 1, #currencyKeys do
-      local key = currencyKeys[j]
-      if cost[key] ~= nil then
-        cost[key] = cost[key] * percentage
-      end
-    end
-
-    if cost.item ~= nil then
-      cost.quantity = roundItemQuantity((cost.quantity or 1) * percentage)
-    end
-  end
-
-  self.costs = mergeCosts(self.costs)
-  return self
 end
 
 --- Returns the money amount.
@@ -682,26 +692,7 @@ function PriceClass.__mul(left, right)
     error("PriceClass multiplication requires one PriceClass and one number", 2)
   end
 
-  local multipliedPrice = PriceClass.new(price)
-
-  for i = 1, #multipliedPrice.costs do
-    local cost = multipliedPrice.costs[i]
-
-    for j = 1, #currencyKeys do
-      local key = currencyKeys[j]
-      if cost[key] ~= nil then
-        cost[key] = cost[key] * multiplier
-      end
-    end
-
-    if cost.item ~= nil then
-      local quantity = (cost.quantity or 1) * multiplier
-      cost.quantity = quantity >= 0 and math.floor(quantity + 0.5) or math.ceil(quantity - 0.5)
-    end
-  end
-
-  multipliedPrice.costs = mergeCosts(multipliedPrice.costs)
-  return multipliedPrice
+  return multiplyPrice(price, multiplier, roundNearest)
 end
 
 --- Returns the number of canonical costs.
@@ -881,6 +872,22 @@ end
 ---@return Cost[]
 function jo.pricing.get(price)
   return PriceClass.new(price):get()
+end
+
+--- Splits a price into tax and remaining prices.
+---@param price PriceInput
+---@param percentage? number
+---@param roundUpItems? boolean
+---@return PriceClass, PriceClass
+function jo.pricing.tax(price, percentage, roundUpItems)
+  percentage = percentage or 0
+
+  local basePrice = PriceClass.new(price)
+  local roundItemQuantity = roundUpItems and math.ceil or math.floor
+  local taxPrice = multiplyPrice(basePrice, percentage, roundItemQuantity)
+  local remainingPrice = subtractPrice(basePrice, taxPrice)
+
+  return taxPrice, remainingPrice
 end
 
 --- Returns true when a value is a PriceClass instance.

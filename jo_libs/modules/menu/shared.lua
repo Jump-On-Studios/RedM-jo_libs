@@ -63,5 +63,7 @@ end
 
 ---@autodoc:config ignore:true
 function jo.menu.tax(price, percentage, roundUpItems)
-  return jo.pricing.new(price):tax(percentage, roundUpItems):get()
+  local taxPrice = jo.pricing.tax(price, percentage, roundUpItems)
+
+  return taxPrice:get()
 end
