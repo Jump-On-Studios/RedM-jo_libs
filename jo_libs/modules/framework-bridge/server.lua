@@ -225,7 +225,16 @@ end
 ---@param prices table (The prices to refund)
 ---@return nil
 function jo.framework:refundUserWith(source, prices)
-  if type(prices) ~= "table" then return end
+  jo.require("pricing")
+  local success, normalizedPrices = pcall(jo.pricing.get, prices)
+  if not success then
+    eprint("jo.framework:refundUserWith: Invalid prices: %s", normalizedPrices)
+    return false
+  end
+
+  prices = normalizedPrices
+
+  if type(prices) ~= "table" then return false end
   if table.type(prices) ~= "array" then prices = { prices } end
 
   for i = 1, #prices do
