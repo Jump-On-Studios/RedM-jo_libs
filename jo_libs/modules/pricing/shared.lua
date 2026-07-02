@@ -695,6 +695,23 @@ function PriceClass.__mul(left, right)
   return multiplyPrice(price, multiplier, roundNearest)
 end
 
+--- Divides a PriceClass by a numeric divisor.
+---@autodoc:config ignore:true
+---@param left PriceClass
+---@param right number
+---@return PriceClass
+function PriceClass.__div(left, right)
+  if not isPrice(left) or type(right) ~= "number" then
+    error("PriceClass division requires one PriceClass and one number", 2)
+  end
+
+  if right == 0 then
+    error("PriceClass division by zero", 2)
+  end
+
+  return PriceClass.__mul(left, 1 / right)
+end
+
 --- Returns the number of canonical costs.
 ---@autodoc:config ignore:true
 ---@param price PriceClass

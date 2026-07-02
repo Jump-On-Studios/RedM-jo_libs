@@ -297,6 +297,45 @@ addTest("price_operator_mul_rejects_invalid_multiplier", function()
   end), "__mul must reject non-number left operands")
 end)
 
+addTest("price_operator_div_is_immutable", function()
+  local price = newPrice({
+    money = 15,
+    gold = 3,
+    rol = 6,
+    item = "water",
+    quantity = 5
+  })
+  local result = price / 2
+
+  assertNotSame(result, price, "__div must return a new PriceClass")
+  assertCostCount(price, 4)
+  assertCurrency(price, "money", 15)
+  assertCurrency(price, "gold", 3)
+  assertCurrency(price, "rol", 6)
+  assertItem(price, "water", 5, false)
+  assertCostCount(result, 4)
+  assertCurrency(result, "money", 7.5)
+  assertCurrency(result, "gold", 1.5)
+  assertCurrency(result, "rol", 3)
+  assertItem(result, "water", 3, false)
+end)
+
+addTest("price_operator_div_rejects_invalid_divisor", function()
+  local price = newPrice({ money = 5 })
+
+  assertTrue(not pcall(function()
+    return price / 0
+  end), "__div must reject division by zero")
+
+  assertTrue(not pcall(function()
+    return price / "2"
+  end), "__div must reject non-number right operands")
+
+  assertTrue(not pcall(function()
+    return 2 / price
+  end), "__div must reject number / PriceClass")
+end)
+
 addTest("price_equals_compares_by_value", function()
   local left = newPrice({
     money = 5,
