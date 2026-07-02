@@ -410,6 +410,7 @@ end
 -- * ==========================================
 
 --- Creates a canonical PriceClass.
+---@autodoc:config ignore:true
 ---@param data? PriceInput
 ---@return PriceClass
 function PriceClass.new(data)
@@ -649,6 +650,7 @@ function PriceClass:removeItem(item, keep)
 end
 
 --- Creates a new PriceClass from two prices.
+---@autodoc:config ignore:true
 ---@param left PriceInput
 ---@param right PriceInput
 ---@return PriceClass
@@ -662,6 +664,7 @@ function PriceClass.__add(left, right)
 end
 
 --- Compares two PriceClass instances by value.
+---@autodoc:config ignore:true
 ---@param left PriceClass
 ---@param right PriceClass
 ---@return boolean
@@ -694,6 +697,7 @@ end
 -- * ==========================================
 
 --- Creates a canonical PriceGroupClass.
+---@autodoc:config ignore:true
 ---@param data? PriceGroupInput
 ---@return PriceGroupClass
 function PriceGroupClass.new(data)

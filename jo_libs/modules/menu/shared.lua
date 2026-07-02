@@ -2,14 +2,14 @@ jo.createModule("menu")
 jo.require("pricing")
 jo.require("framework")
 
----@ignore
+---@autodoc:config ignore:true
 function jo.menu.formatPrice(price)
   if price == nil then price = 0 end
 
   return jo.framework:addItemDataToPrice(jo.pricing.new(price):get())
 end
 
----@ignore
+---@autodoc:config ignore:true
 function jo.menu.formatPrices(prices)
   if prices == nil then
     return {
@@ -44,7 +44,7 @@ function jo.menu.formatPrices(prices)
   }
 end
 
----@ignore
+---@autodoc:config ignore:true
 function jo.menu.isPriceFree(price)
   local prices = jo.menu.formatPrices(price)
 
@@ -53,7 +53,7 @@ function jo.menu.isPriceFree(price)
   }):isFree()
 end
 
----@ignore
+---@autodoc:config ignore:true
 function jo.menu.mergePrices(...)
   local prices = { ... }
   prices.operator = "and"
@@ -61,7 +61,7 @@ function jo.menu.mergePrices(...)
   return jo.pricing.newGroup(prices):compact():get()
 end
 
----@ignore
+---@autodoc:config ignore:true
 function jo.menu.tax(price, percentage, roundUpItems)
   return jo.pricing.new(price):tax(percentage, roundUpItems):get()
 end
