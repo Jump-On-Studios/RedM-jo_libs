@@ -294,23 +294,25 @@ watch(
 );
 
 function generateOption(option) {
-  const result = {};
-  const items = [];
+  const costs = [];
 
   for (const comp of option.components) {
     if (comp.type === "item") {
-      const item = { item: comp.itemName.trim() || "item_name" };
-      if ((comp.quantity || 1) > 1) item.quantity = comp.quantity;
-      if (comp.keep) item.keep = true;
-      items.push(item);
+      costs.push({
+        item: comp.itemName.trim() || "item_name",
+        quantity: comp.quantity || 1,
+        keep: comp.keep === true,
+      });
     } else {
       const val = parseFloat(comp.value) || 0;
-      result[comp.type] = (result[comp.type] || 0) + val;
+      costs.push({ [comp.type]: val });
     }
   }
 
-  if (items.length > 0) result.items = items;
-  return result;
+  return {
+    isProcessing: false,
+    costs,
+  };
 }
 
 const computedValue = computed(() => {
@@ -325,7 +327,7 @@ const computedValue = computed(() => {
 
   return {
     operator: "or",
-    options: options.map((option) => generateOption(option)),
+    prices: options.map((option) => generateOption(option)),
   };
 });
 
@@ -351,15 +353,9 @@ watch(
   { deep: true },
 );
 
-function extractNumericEntries(obj) {
-  const entries = [];
-  for (let i = 1; obj[String(i)] != null; i++) {
-    entries.push(obj[String(i)]);
-  }
-  return entries;
-}
-
 function parseEntry(entry, components) {
+  if (!entry) return;
+
   if (entry.item != null) {
     components.push(
       createComponent("item", {
@@ -391,41 +387,9 @@ function parseOption(opt) {
   const components = [];
   if (!opt) return createOption(components);
 
-  let entries = [];
-  let namedKeys = {};
-
-  if (Array.isArray(opt)) {
-    entries = opt;
-  } else {
-    entries = extractNumericEntries(opt);
-    for (const key of Object.keys(opt)) {
-      if (!/^\d+$/.test(key)) {
-        namedKeys[key] = opt[key];
-      }
-    }
-  }
-
+  const entries = Array.isArray(opt.costs) ? opt.costs : [];
   for (const entry of entries) {
     parseEntry(entry, components);
-  }
-
-  if (Array.isArray(namedKeys.items)) {
-    for (const item of namedKeys.items) {
-      parseEntry(item, components);
-    }
-  }
-
-  for (const key of ["money", "gold", "rol"]) {
-    if (namedKeys[key] != null) {
-      components.push(
-        createComponent(key, {
-          value: namedKeys[key],
-          itemName: "",
-          quantity: 1,
-          keep: false,
-        }),
-      );
-    }
   }
 
   return createOption(components);
@@ -436,15 +400,8 @@ function parseInitialValue(val) {
 
   if (!val) {
     paymentOptions.value = [createOption()];
-  } else if (val.operator === "or") {
-    let options;
-    if (Array.isArray(val.options)) {
-      options = val.options;
-    } else {
-      options = extractNumericEntries(val);
-    }
-
-    const parsedOptions = options.map((option) => parseOption(option));
+  } else if (Array.isArray(val.prices)) {
+    const parsedOptions = val.prices.map((price) => parseOption(price));
     if (props.allowOr) {
       paymentOptions.value = parsedOptions.length
         ? parsedOptions

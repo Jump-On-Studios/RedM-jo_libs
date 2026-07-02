@@ -398,8 +398,8 @@ local function isSameCost(left, right)
 
   if left.item ~= nil or right.item ~= nil then
     return left.item == right.item
-      and left.keep == right.keep
-      and left.quantity == right.quantity
+        and left.keep == right.keep
+        and left.quantity == right.quantity
   end
 
   return false
@@ -793,7 +793,7 @@ end
 -- * PUBLIC API
 -- * ==========================================
 
-jo.pricing.PriceClass = PriceClass
-jo.pricing.PriceGroupClass = PriceGroupClass
 jo.pricing.new = PriceClass.new
 jo.pricing.newGroup = PriceGroupClass.new
+jo.pricing.isPrice = isPrice
+jo.pricing.isPriceGroup = isPriceGroup

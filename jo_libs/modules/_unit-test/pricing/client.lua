@@ -1,7 +1,7 @@
 jo.require("pricing")
 
-local PriceClass = jo.pricing.PriceClass
-local PriceGroupClass = jo.pricing.PriceGroupClass
+local newPrice = jo.pricing.new
+local newGroup = jo.pricing.newGroup
 
 local TESTS = {}
 
@@ -97,35 +97,45 @@ local function assertGroupShape(group, expected)
 end
 
 addTest("pricing_aliases", function()
-  assertTrue(jo.pricing.PriceClass == PriceClass, "PriceClass export mismatch")
-  assertTrue(jo.pricing.PriceGroupClass == PriceGroupClass, "PriceGroupClass export mismatch")
-  assertTrue(jo.pricing.new == PriceClass.new, "new alias mismatch")
-  assertTrue(jo.pricing.newGroup == PriceGroupClass.new, "newGroup alias mismatch")
+  assertNil(jo.pricing.PriceClass, "PriceClass must not be exposed")
+  assertNil(jo.pricing.PriceGroupClass, "PriceGroupClass must not be exposed")
+  assertEqual(type(jo.pricing.new), "function", "new must be exposed")
+  assertEqual(type(jo.pricing.newGroup), "function", "newGroup must be exposed")
+  assertEqual(type(jo.pricing.isPrice), "function", "isPrice must be exposed")
+  assertEqual(type(jo.pricing.isPriceGroup), "function", "isPriceGroup must be exposed")
+
+  local price = newPrice({ money = 1 })
+  local group = newGroup({ { money = 1 } })
+
+  assertTrue(jo.pricing.isPrice(price), "isPrice() must detect PriceClass instances")
+  assertTrue(not jo.pricing.isPrice({ costs = price.costs }), "isPrice() must reject plain canonical tables")
+  assertTrue(jo.pricing.isPriceGroup(group), "isPriceGroup() must detect PriceGroupClass instances")
+  assertTrue(not jo.pricing.isPriceGroup({ operator = "or", prices = group.prices }), "isPriceGroup() must reject plain canonical tables")
 end)
 
 addTest("price_defaults_item", function()
-  local price = PriceClass.new({ item = "water" })
+  local price = newPrice({ item = "water" })
 
   assertCostCount(price, 1)
   assertItem(price, "water", 1, false)
 end)
 
 addTest("price_empty_costs", function()
-  local price = PriceClass.new({ costs = {} })
+  local price = newPrice({ costs = {} })
 
   assertCostCount(price, 0)
   assertTrue(price.isProcessing == false, "empty costs price must initialize isProcessing")
 end)
 
 addTest("price_new_copies_existing_instance", function()
-  local price = PriceClass.new({
+  local price = newPrice({
     money = 2,
     item = "water"
   })
-  local copy = PriceClass.new(price)
+  local copy = newPrice(price)
 
-  assertNotSame(copy, price, "PriceClass.new(existingPrice) must return a new instance")
-  assertNotSame(copy.costs, price.costs, "PriceClass.new(existingPrice) must copy costs")
+  assertNotSame(copy, price, "newPrice(existingPrice) must return a new instance")
+  assertNotSame(copy.costs, price.costs, "newPrice(existingPrice) must copy costs")
   assertCurrency(copy, "money", 2)
   assertItem(copy, "water", 1, false)
 
@@ -135,7 +145,7 @@ addTest("price_new_copies_existing_instance", function()
 end)
 
 addTest("price_copy_copies_existing_instance", function()
-  local price = PriceClass.new({
+  local price = newPrice({
     money = 2,
     item = "water"
   })
@@ -152,7 +162,7 @@ addTest("price_copy_copies_existing_instance", function()
 end)
 
 addTest("price_merge_currencies", function()
-  local price = PriceClass.new({
+  local price = newPrice({
     { money = 12 },
     { gold = 2 },
     { rol = 1 },
@@ -168,7 +178,7 @@ addTest("price_merge_currencies", function()
 end)
 
 addTest("price_merge_items_same_keep", function()
-  local price = PriceClass.new({
+  local price = newPrice({
     { item = "water", quantity = 2, keep = false },
     { item = "water", quantity = 3, keep = false }
   })
@@ -178,7 +188,7 @@ addTest("price_merge_items_same_keep", function()
 end)
 
 addTest("price_keep_items_split", function()
-  local price = PriceClass.new({
+  local price = newPrice({
     { item = "water", quantity = 2, keep = false },
     { item = "water", quantity = 1, keep = true }
   })
@@ -189,7 +199,7 @@ addTest("price_keep_items_split", function()
 end)
 
 addTest("price_add_mutates_self", function()
-  local price = PriceClass.new({ money = 2 })
+  local price = newPrice({ money = 2 })
   local returnedPrice = price:add({
     money = 3,
     item = "water"
@@ -202,8 +212,8 @@ addTest("price_add_mutates_self", function()
 end)
 
 addTest("price_operator_add_is_immutable", function()
-  local left = PriceClass.new({ money = 2 })
-  local right = PriceClass.new({ money = 3, item = "water" })
+  local left = newPrice({ money = 2 })
+  local right = newPrice({ money = 3, item = "water" })
   local result = left + right
 
   assertNotSame(result, left, "__add must return a new PriceClass")
@@ -219,13 +229,13 @@ addTest("price_operator_add_is_immutable", function()
 end)
 
 addTest("price_equals_compares_by_value", function()
-  local left = PriceClass.new({
+  local left = newPrice({
     money = 5,
     { item = "water", quantity = 2 },
     { item = "acid", quantity = 1 },
     { gold = 1 }
   })
-  local right = PriceClass.new({
+  local right = newPrice({
     { gold = 1 },
     { item = "acid", quantity = 1 },
     { item = "water", quantity = 2 },
@@ -243,19 +253,19 @@ addTest("price_equals_compares_by_value", function()
 end)
 
 addTest("price_equals_detects_differences", function()
-  local price = PriceClass.new({
+  local price = newPrice({
     money = 5,
     item = "water"
   })
 
-  assertTrue(price ~= PriceClass.new({ money = 6, item = "water" }), "__eq must detect currency differences")
-  assertTrue(price ~= PriceClass.new({ money = 5, item = "water", keep = true }), "__eq must detect item keep differences")
-  assertTrue(price ~= PriceClass.new({ money = 5, item = "water", quantity = 2 }), "__eq must detect item quantity differences")
+  assertTrue(price ~= newPrice({ money = 6, item = "water" }), "__eq must detect currency differences")
+  assertTrue(price ~= newPrice({ money = 5, item = "water", keep = true }), "__eq must detect item keep differences")
+  assertTrue(price ~= newPrice({ money = 5, item = "water", quantity = 2 }), "__eq must detect item quantity differences")
   assertTrue(not price:equals({ unsupported = true }), "equals() must return false for unsupported price input")
 end)
 
 addTest("price_getters", function()
-  local price = PriceClass.new({
+  local price = newPrice({
     money = 2,
     gold = 3,
     rol = 4,
@@ -267,11 +277,11 @@ addTest("price_getters", function()
   assertEqual(price:getGold().gold, 3, "getGold() mismatch")
   assertEqual(price:getRol().rol, 4, "getRol() mismatch")
   assertEqual(#price:getItems(), 1, "getItems() count mismatch")
-  assertNil(PriceClass.new({ gold = 1 }):getMoney(), "getMoney() must return nil when missing")
+  assertNil(newPrice({ gold = 1 }):getMoney(), "getMoney() must return nil when missing")
 end)
 
 addTest("price_get_item_and_has_item", function()
-  local price = PriceClass.new({
+  local price = newPrice({
     { item = "water", quantity = 2, keep = false },
     { item = "water", quantity = 1, keep = true },
     { item = "acid", quantity = 3, keep = false }
@@ -285,7 +295,7 @@ addTest("price_get_item_and_has_item", function()
 end)
 
 addTest("price_item_methods_require_keep", function()
-  local price = PriceClass.new({ item = "water" })
+  local price = newPrice({ item = "water" })
 
   assertTrue(not pcall(function()
     price:getItem("water")
@@ -299,7 +309,7 @@ addTest("price_item_methods_require_keep", function()
 end)
 
 addTest("price_has_currency", function()
-  local price = PriceClass.new({
+  local price = newPrice({
     money = 2,
     item = "water"
   })
@@ -309,7 +319,7 @@ addTest("price_has_currency", function()
 end)
 
 addTest("price_currency_methods_reject_invalid_key", function()
-  local price = PriceClass.new({ money = 2 })
+  local price = newPrice({ money = 2 })
 
   assertTrue(not pcall(function()
     price:hasCurrency("cash")
@@ -320,7 +330,7 @@ addTest("price_currency_methods_reject_invalid_key", function()
 end)
 
 addTest("price_remove_currency_mutates_self", function()
-  local price = PriceClass.new({
+  local price = newPrice({
     money = 2,
     gold = 3,
     item = "water"
@@ -338,7 +348,7 @@ addTest("price_remove_currency_mutates_self", function()
 end)
 
 addTest("price_remove_item_mutates_self", function()
-  local price = PriceClass.new({
+  local price = newPrice({
     { item = "water", quantity = 2, keep = false },
     { item = "water", quantity = 1, keep = true },
     { item = "acid", quantity = 3, keep = false }
@@ -356,7 +366,7 @@ addTest("price_remove_item_mutates_self", function()
 end)
 
 addTest("price_clear_mutates_self", function()
-  local price = PriceClass.new({
+  local price = newPrice({
     money = 2,
     item = "water"
   })
@@ -367,34 +377,34 @@ addTest("price_clear_mutates_self", function()
 end)
 
 addTest("price_currency_only_and_item_only", function()
-  assertTrue(PriceClass.new({ money = 2, gold = 3 }):isCurrencyOnly(), "currency-only price must be currency-only")
-  assertTrue(not PriceClass.new({ money = 2, gold = 3 }):isItemOnly(), "currency-only price must not be item-only")
-  assertTrue(PriceClass.new({
+  assertTrue(newPrice({ money = 2, gold = 3 }):isCurrencyOnly(), "currency-only price must be currency-only")
+  assertTrue(not newPrice({ money = 2, gold = 3 }):isItemOnly(), "currency-only price must not be item-only")
+  assertTrue(newPrice({
     { item = "water" },
     { item = "acid" }
   }):isItemOnly(), "item-only price must be item-only")
-  assertTrue(not PriceClass.new({
+  assertTrue(not newPrice({
     { item = "water" },
     { item = "acid" }
   }):isCurrencyOnly(), "item-only price must not be currency-only")
-  assertTrue(not PriceClass.new({ money = 2, item = "water" }):isCurrencyOnly(), "mixed price must not be currency-only")
-  assertTrue(not PriceClass.new({ money = 2, item = "water" }):isItemOnly(), "mixed price must not be item-only")
-  assertTrue(not PriceClass.new():isCurrencyOnly(), "empty price must not be currency-only")
-  assertTrue(not PriceClass.new():isItemOnly(), "empty price must not be item-only")
+  assertTrue(not newPrice({ money = 2, item = "water" }):isCurrencyOnly(), "mixed price must not be currency-only")
+  assertTrue(not newPrice({ money = 2, item = "water" }):isItemOnly(), "mixed price must not be item-only")
+  assertTrue(not newPrice():isCurrencyOnly(), "empty price must not be currency-only")
+  assertTrue(not newPrice():isItemOnly(), "empty price must not be item-only")
 end)
 
 addTest("price_is_free", function()
-  assertTrue(PriceClass.new():isFree(), "empty price must be free")
-  assertTrue(PriceClass.new({ costs = {} }):isFree(), "empty costs price must be free")
-  assertTrue(PriceClass.new({ money = 0 }):isFree(), "zero money price must be free")
-  assertTrue(PriceClass.new({ money = 0, gold = 0, rol = 0 }):isFree(), "zero currencies price must be free")
-  assertTrue(PriceClass.new({ item = "water", quantity = 0 }):isFree(), "zero quantity item price must be free")
-  assertTrue(not PriceClass.new({ money = -1 }):isFree(), "negative money cost must not be free")
-  assertTrue(not PriceClass.new({ item = "water" }):isFree(), "item price must not be free")
+  assertTrue(newPrice():isFree(), "empty price must be free")
+  assertTrue(newPrice({ costs = {} }):isFree(), "empty costs price must be free")
+  assertTrue(newPrice({ money = 0 }):isFree(), "zero money price must be free")
+  assertTrue(newPrice({ money = 0, gold = 0, rol = 0 }):isFree(), "zero currencies price must be free")
+  assertTrue(newPrice({ item = "water", quantity = 0 }):isFree(), "zero quantity item price must be free")
+  assertTrue(not newPrice({ money = -1 }):isFree(), "negative money cost must not be free")
+  assertTrue(not newPrice({ item = "water" }):isFree(), "item price must not be free")
 end)
 
 addTest("price_tax_mutates_self", function()
-  local price = PriceClass.new({
+  local price = newPrice({
     money = 10,
     gold = 2,
     rol = 4,
@@ -412,7 +422,7 @@ addTest("price_tax_mutates_self", function()
 end)
 
 addTest("price_tax_rounds_items_up", function()
-  local price = PriceClass.new({
+  local price = newPrice({
     item = "water",
     quantity = 3
   })
@@ -424,7 +434,7 @@ addTest("price_tax_rounds_items_up", function()
 end)
 
 addTest("price_tax_default_zero", function()
-  local price = PriceClass.new({
+  local price = newPrice({
     money = 10,
     item = "water",
     quantity = 3
@@ -438,7 +448,7 @@ addTest("price_tax_default_zero", function()
 end)
 
 addTest("group_default_or", function()
-  local group = PriceGroupClass.new({
+  local group = newGroup({
     money = 2,
     gold = 5
   })
@@ -450,14 +460,14 @@ addTest("group_default_or", function()
 end)
 
 addTest("group_empty_prices", function()
-  local group = PriceGroupClass.new({ prices = {} })
+  local group = newGroup({ prices = {} })
 
   assertEqual(group.operator, "or", "empty prices group operator mismatch")
   assertEqual(#group.prices, 0, "empty prices group must keep an empty prices list")
 end)
 
 addTest("group_helpers", function()
-  local group = PriceGroupClass.new({
+  local group = newGroup({
     { money = 1 },
     { gold = 3 }
   })
@@ -475,14 +485,14 @@ addTest("group_helpers", function()
 end)
 
 addTest("group_new_copies_existing_instance", function()
-  local group = PriceGroupClass.new({
+  local group = newGroup({
     operator = "and",
-    PriceClass.new({ money = 2 }),
-    PriceClass.new({ gold = 3 })
+    newPrice({ money = 2 }),
+    newPrice({ gold = 3 })
   })
-  local copy = PriceGroupClass.new(group)
+  local copy = newGroup(group)
 
-  assertNotSame(copy, group, "PriceGroupClass.new(existingGroup) must return a new instance")
+  assertNotSame(copy, group, "newGroup(existingGroup) must return a new instance")
   assertEqual(copy.operator, "and", "copied group operator mismatch")
   assertEqual(#copy.prices, 2, "copied group price count mismatch")
   assertNotSame(copy.prices[1], group.prices[1], "copied group must copy nested prices")
@@ -495,10 +505,10 @@ addTest("group_new_copies_existing_instance", function()
 end)
 
 addTest("group_copy_copies_existing_instance", function()
-  local group = PriceGroupClass.new({
+  local group = newGroup({
     operator = "and",
-    PriceClass.new({ money = 2 }),
-    PriceClass.new({ gold = 3 })
+    newPrice({ money = 2 }),
+    newPrice({ gold = 3 })
   })
   local copy = group:copy()
 
@@ -516,7 +526,7 @@ addTest("group_copy_copies_existing_instance", function()
 end)
 
 addTest("group_insert_appends_price", function()
-  local group = PriceGroupClass.new()
+  local group = newGroup()
   local returnedGroup = group:insert({ money = 2 })
 
   assertSame(returnedGroup, group, "insert() must return self")
@@ -525,7 +535,7 @@ addTest("group_insert_appends_price", function()
 end)
 
 addTest("group_insert_at_index", function()
-  local group = PriceGroupClass.new({
+  local group = newGroup({
     { money = 1 },
     { gold = 3 }
   })
@@ -539,7 +549,7 @@ addTest("group_insert_at_index", function()
 end)
 
 addTest("group_remove_by_index", function()
-  local group = PriceGroupClass.new({
+  local group = newGroup({
     { money = 1 },
     { item = "water" },
     { gold = 3 }
@@ -553,7 +563,7 @@ addTest("group_remove_by_index", function()
 end)
 
 addTest("group_remove_requires_index", function()
-  local group = PriceGroupClass.new({
+  local group = newGroup({
     { money = 1 }
   })
   local success = pcall(function()
@@ -565,11 +575,11 @@ addTest("group_remove_requires_index", function()
 end)
 
 addTest("group_set_replaces_existing_price", function()
-  local group = PriceGroupClass.new({
+  local group = newGroup({
     { money = 1 },
     { gold = 3 }
   })
-  local existingPrice = PriceClass.new({ item = "water" })
+  local existingPrice = newPrice({ item = "water" })
   local returnedGroup = group:set(2, existingPrice)
 
   assertSame(returnedGroup, group, "set() must return self")
@@ -583,7 +593,7 @@ addTest("group_set_replaces_existing_price", function()
 end)
 
 addTest("group_set_rejects_invalid_index", function()
-  local group = PriceGroupClass.new({
+  local group = newGroup({
     { money = 1 }
   })
 
@@ -604,13 +614,13 @@ addTest("group_set_rejects_invalid_index", function()
 end)
 
 addTest("group_and_compact", function()
-  local group = PriceGroupClass.new({
+  local group = newGroup({
     operator = "and",
-    PriceClass.new({
+    newPrice({
       money = 2,
       item = "water"
     }),
-    PriceClass.new({
+    newPrice({
       money = 5,
       gold = 1,
       { item = "water", quantity = 3 }
@@ -625,7 +635,7 @@ addTest("group_and_compact", function()
 end)
 
 addTest("group_or_compact_errors", function()
-  local group = PriceGroupClass.new({
+  local group = newGroup({
     operator = "or",
     money = 2,
     gold = 5
@@ -638,7 +648,7 @@ addTest("group_or_compact_errors", function()
 end)
 
 addTest("mixed_inputs_normalized", function()
-  local price = PriceClass.new({
+  local price = newPrice({
     money = 2,
     gold = 4,
     item = "water",
@@ -863,12 +873,12 @@ addTest("simplified_config_matrix", function()
     local case = simplifiedConfigCases[i]
     local success, err = pcall(function()
       if case.kind == "price" then
-        assertPriceShape(PriceClass.new(case.input), case.expected)
+        assertPriceShape(newPrice(case.input), case.expected)
         return
       end
 
       if case.kind == "group" then
-        assertGroupShape(PriceGroupClass.new(case.input), case.expected)
+        assertGroupShape(newGroup(case.input), case.expected)
         return
       end
 
