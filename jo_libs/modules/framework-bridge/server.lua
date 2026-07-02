@@ -166,6 +166,15 @@ end
 ---@return boolean, number (Return `true` if the player can pay the prices and the index of the price that the player can't pay)
 ---@ignore
 function jo.framework:canUserPayWith(source, prices, removeIfCan)
+  jo.require("pricing")
+  local success, normalizedPrices = pcall(jo.pricing.get, prices)
+  if not success then
+    eprint("jo.framework:canUserPayWith: Invalid prices: %s", normalizedPrices)
+    return false
+  end
+
+  prices = normalizedPrices
+
   if type(prices) ~= "table" then
     eprint("jo.framework:canUserBuyMultiples: Wrong prices type. Need to be a table")
     eprint("Use jo.framework:canUserBuy() instead")
@@ -658,7 +667,6 @@ function jo.framework:getSourceFromIdentifiers(identifier, charid)
   local key = generateKey(identifier, charid)
   return SourceFromIdentifiers[key] or false
 end
-
 
 --- Merge inventory configuration
 ---@param ... table (The inventory configurations to merge)

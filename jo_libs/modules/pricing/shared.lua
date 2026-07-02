@@ -795,5 +795,9 @@ end
 
 jo.pricing.new = PriceClass.new
 jo.pricing.newGroup = PriceGroupClass.new
+function jo.pricing.get(price)
+  return PriceClass.new(price):get()
+end
+
 jo.pricing.isPrice = isPrice
 jo.pricing.isPriceGroup = isPriceGroup
