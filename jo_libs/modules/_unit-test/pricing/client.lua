@@ -228,6 +228,74 @@ addTest("price_operator_add_is_immutable", function()
   assertItem(result, "water", 1, false)
 end)
 
+addTest("price_operator_len_counts_costs", function()
+  assertEqual(#newPrice(), 0, "__len must count zero costs")
+  assertEqual(#newPrice({ money = 1, item = "water" }), 2, "__len must count canonical costs")
+end)
+
+addTest("price_operator_mul_is_immutable", function()
+  local price = newPrice({
+    money = 10,
+    gold = 2,
+    rol = 4,
+    item = "water",
+    quantity = 3
+  })
+  local result = price * 1.5
+
+  assertNotSame(result, price, "__mul must return a new PriceClass")
+  assertCostCount(price, 4)
+  assertCurrency(price, "money", 10)
+  assertCurrency(price, "gold", 2)
+  assertCurrency(price, "rol", 4)
+  assertItem(price, "water", 3, false)
+  assertCostCount(result, 4)
+  assertCurrency(result, "money", 15)
+  assertCurrency(result, "gold", 3)
+  assertCurrency(result, "rol", 6)
+  assertItem(result, "water", 5, false)
+end)
+
+addTest("price_operator_mul_rounds_items_to_nearest", function()
+  local roundedDown = newPrice({
+    item = "water",
+    quantity = 1
+  }) * 1.4
+  local roundedUp = newPrice({
+    item = "water",
+    quantity = 1
+  }) * 1.51
+
+  assertItem(roundedDown, "water", 1, false)
+  assertItem(roundedUp, "water", 2, false)
+end)
+
+addTest("price_operator_mul_supports_reversed_operands", function()
+  local price = newPrice({
+    money = 5,
+    item = "water",
+    quantity = 2
+  })
+  local leftResult = price * 2
+  local rightResult = 2 * price
+
+  assertTrue(leftResult == rightResult, "__mul must support number * PriceClass")
+  assertCurrency(rightResult, "money", 10)
+  assertItem(rightResult, "water", 4, false)
+end)
+
+addTest("price_operator_mul_rejects_invalid_multiplier", function()
+  local price = newPrice({ money = 5 })
+
+  assertTrue(not pcall(function()
+    return price * "2"
+  end), "__mul must reject non-number right operands")
+
+  assertTrue(not pcall(function()
+    return "2" * price
+  end), "__mul must reject non-number left operands")
+end)
+
 addTest("price_equals_compares_by_value", function()
   local left = newPrice({
     money = 5,
@@ -464,6 +532,11 @@ addTest("group_empty_prices", function()
 
   assertEqual(group.operator, "or", "empty prices group operator mismatch")
   assertEqual(#group.prices, 0, "empty prices group must keep an empty prices list")
+end)
+
+addTest("group_operator_len_counts_prices", function()
+  assertEqual(#newGroup(), 0, "__len must count zero group prices")
+  assertEqual(#newGroup({ { money = 1 }, { gold = 2 } }), 2, "__len must count group prices")
 end)
 
 addTest("group_helpers", function()

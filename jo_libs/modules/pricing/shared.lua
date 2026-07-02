@@ -663,6 +663,57 @@ function PriceClass.__add(left, right)
   })
 end
 
+--- Multiplies a PriceClass by a numeric multiplier.
+---@autodoc:config ignore:true
+---@param left PriceClass|number
+---@param right PriceClass|number
+---@return PriceClass
+function PriceClass.__mul(left, right)
+  local price
+  local multiplier
+
+  if isPrice(left) and type(right) == "number" then
+    price = left
+    multiplier = right
+  elseif type(left) == "number" and isPrice(right) then
+    price = right
+    multiplier = left
+  else
+    error("PriceClass multiplication requires one PriceClass and one number", 2)
+  end
+
+  local multipliedPrice = PriceClass.new(price)
+
+  for i = 1, #multipliedPrice.costs do
+    local cost = multipliedPrice.costs[i]
+
+    for j = 1, #currencyKeys do
+      local key = currencyKeys[j]
+      if cost[key] ~= nil then
+        cost[key] = cost[key] * multiplier
+      end
+    end
+
+    if cost.item ~= nil then
+      local quantity = (cost.quantity or 1) * multiplier
+      cost.quantity = quantity >= 0 and math.floor(quantity + 0.5) or math.ceil(quantity - 0.5)
+    end
+  end
+
+  multipliedPrice.costs = mergeCosts(multipliedPrice.costs)
+  return multipliedPrice
+end
+
+--- Returns the number of canonical costs.
+---@autodoc:config ignore:true
+---@param price PriceClass
+---@return number
+function PriceClass.__len(price)
+  waitPriceReady(price)
+
+  return #price.costs
+end
+
 --- Compares two PriceClass instances by value.
 ---@autodoc:config ignore:true
 ---@param left PriceClass
@@ -727,6 +778,14 @@ end
 ---@return number
 function PriceGroupClass:count()
   return #self.prices
+end
+
+--- Returns the number of prices in the group.
+---@autodoc:config ignore:true
+---@param group PriceGroupClass
+---@return number
+function PriceGroupClass.__len(group)
+  return #group.prices
 end
 
 --- Returns a PriceClass by index.
