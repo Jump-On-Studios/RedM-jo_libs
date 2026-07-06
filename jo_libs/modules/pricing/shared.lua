@@ -895,7 +895,7 @@ end
 ---@param price PriceInput (Price input to split)
 ---@param percentage? number (Tax multiplier applied to the input price <br> default:`0`)
 ---@param roundUpItems? boolean (Round item quantities up instead of down <br> default:`false`)
----@return PriceClass, PriceClass
+---@return PriceClass,PriceClass
 function jo.pricing.tax(price, percentage, roundUpItems)
   percentage = percentage or 0
 
