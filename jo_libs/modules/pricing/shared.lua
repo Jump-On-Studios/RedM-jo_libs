@@ -1,632 +1,922 @@
 jo.createModule("pricing")
 jo.require("table")
 
--- * ==========================================
--- * INTERNAL CONFIGURATION
--- * ==========================================
-
 local currencyKeys = { "money", "gold", "rol" }
 
----@class Price : table
+-- * ==========================================
+-- * TYPES
+-- * ==========================================
+
+---@class MoneyCost
+---@field money number
+
+---@class GoldCost
+---@field gold number
+
+---@class RolCost
+---@field rol number
+
+---@class ItemCost
+---@field item string
+---@field quantity number
+---@field keep boolean
+
+---@alias Cost MoneyCost|GoldCost|RolCost|ItemCost
+---@alias PriceInput PriceClass|Cost|Cost[]|number|table|nil
+---@alias PriceGroupInput PriceGroupClass|PriceClass|PriceInput|PriceInput[]|table|nil
+
+---@class PriceClass
+---@field isProcessing boolean
+---@field costs Cost[]
 local PriceClass = {}
-
----@class Prices : table
----@field operator "or"|"and"
-local PricesClass = {}
-local pricesOperators = setmetatable({}, { __mode = "k" })
-
 PriceClass.__index = PriceClass
-PricesClass.__index = function(self, key)
-  if key == "operator" then return pricesOperators[self] end
-  return PricesClass[key]
-end
 
-local validPriceKeys = {
-  item = true,
-}
-for i = 1, #currencyKeys do
-  validPriceKeys[currencyKeys[i]] = true
-end
+---@class PriceGroupClass
+---@field operator "or"|"and"
+---@field prices PriceClass[]
+local PriceGroupClass = {}
+PriceGroupClass.__index = PriceGroupClass
 
 -- * ==========================================
 -- * LOCAL HELPERS
 -- * ==========================================
 
---- Checks whether a value is a Price object.
-local function isPrice(price)
-  return getmetatable(price) == PriceClass
+-- ° Checks whether a value is already a PriceClass instance.
+local function isPrice(value)
+  return getmetatable(value) == PriceClass
 end
 
---- Checks whether a value is a Prices object.
-local function isPrices(prices)
-  return getmetatable(prices) == PricesClass
+-- ° Checks whether a value is already a PriceGroupClass instance.
+local function isPriceGroup(value)
+  return getmetatable(value) == PriceGroupClass
 end
 
---- Deep-copies a value without preserving object metatables.
-local function copyWithoutMetatable(value)
-  if type(value) ~= "table" then return value end
-
-  local copy = {}
-  for k, v in pairs(value) do
-    copy[k] = copyWithoutMetatable(v)
-  end
-  return copy
-end
-
---- Replaces a table content while keeping the same table reference.
-local function replaceTable(target, source)
-  for key in pairs(target) do
-    target[key] = nil
-  end
-  for key, value in pairs(source) do
-    target[key] = value
-  end
-  return target
-end
-
---- Returns ordered array-like entries, including JSON-decoded numeric string keys.
-local function getArrayLikeEntries(value)
-  local entries = {}
-  local numericKeys = {}
-  local indexes = {}
-
-  for key, entry in pairs(value) do
-    local index
-    if type(key) == "number" then
-      index = key
-    elseif type(key) == "string" then
-      index = tonumber(key)
-    end
-
-    if index and index >= 1 and index == math.floor(index) then
-      if type(key) == "number" then
-        entries[index] = entry
-        numericKeys[index] = true
-      elseif not numericKeys[index] and entries[index] == nil then
-        entries[index] = entry
-      end
-    end
-  end
-
-  for index in pairs(entries) do
-    indexes[#indexes + 1] = index
-  end
-  table.sort(indexes)
-
-  return indexes, entries
-end
-
---- Checks whether a key is one of the supported currencies.
+-- ° Checks whether a string is one of the supported currency cost keys.
 local function isCurrencyKey(key)
-  for i = 1, #currencyKeys do
-    if key == currencyKeys[i] then return true end
-  end
-  return false
+  return table.find(currencyKeys, function(currencyKey)
+    return currencyKey == key
+  end) ~= false
 end
 
---- Checks whether an item table also contains other price parts.
-local function hasMixedItemPriceParts(price)
-  if type(price) ~= "table" or not price.item then return false end
-  if #price > 0 then return true end
-
-  for i = 1, #currencyKeys do
-    if price[currencyKeys[i]] then return true end
+-- ° Validates a public currency key argument and raises a clear API error.
+local function assertCurrencyKey(key, level)
+  if not isCurrencyKey(key) then
+    error("Currency key must be money, gold or rol", level or 3)
   end
-
-  return false
 end
 
---- Extracts the item-related fields from a mixed price table.
-local function getInlineItemEntry(price)
-  local itemEntry = {}
-
-  for key, value in pairs(price) do
-    if type(key) == "string" and key ~= "operator" and not isCurrencyKey(key) then
-      itemEntry[key] = value
-    end
+-- ° Validates public item lookup arguments where keep must be explicit.
+local function assertItemLookup(item, keep, level)
+  if type(item) ~= "string" then
+    error("Item name must be a string", level or 3)
   end
 
-  return itemEntry
+  if type(keep) ~= "boolean" then
+    error("Item keep must be a boolean", level or 3)
+  end
 end
 
---- Normalizes a single price entry to the shared price shape.
----@param entry any
----@return table
-local function normalizeEntry(entry)
-  if type(entry) ~= "table" then
-    return { money = entry }
+-- ° Waits until a PriceClass is not currently mutating.
+local function waitPriceReady(price)
+  while price.isProcessing do Wait(0) end
+end
+
+-- ° Coerces any supported price input into a ready PriceClass without copying existing instances.
+local function asPrice(data)
+  local price = isPrice(data) and data or PriceClass.new(data)
+
+  waitPriceReady(price)
+
+  return price
+end
+
+-- ° Converts one atomic cost input into its canonical cost shape.
+local function normalizeCost(data)
+  if type(data) == "number" then
+    return { money = data }
   end
 
-  if entry.item then
-    jo.require("framework", true)
-    local itemData = jo.framework:getItemData(entry.item) or {}
-    return table.merge({
-      item = entry.item,
-      quantity = entry.quantity or 1,
-      keep = entry.keep or false,
-      meta = entry.meta
-    }, table.copy(entry), itemData)
+  if type(data) ~= "table" then
+    error(("Unsupported cost type: %s"):format(type(data)), 3)
   end
 
-  return table.copy(entry)
-end
+  local currencyKey
+  local currencyValue
 
---- Appends a normalized entry and returns the next array index.
-local function addNormalizedEntry(entries, size, entry)
-  entries[size] = normalizeEntry(entry)
-  return size + 1
-end
-
---- Builds the item grouping key used for merging item entries.
-local function getItemMergeKey(item)
-  return item.item .. ":" .. tostring(item.keep)
-end
-
---- Compares item metadata while treating nil meta as an empty table.
-local function isSameItemMeta(a, b)
-  return table.isEgal(GetValue(a.meta, {}), GetValue(b.meta, {}))
-end
-
---- Returns the currency key when the entry contains only one currency.
-local function getSingleCurrencyKey(entry)
-  if table.count(entry) ~= 1 then return false end
-
+  -- Currencies are mutually exclusive inside one Cost.
   for i = 1, #currencyKeys do
     local key = currencyKeys[i]
-    if entry[key] then return key end
-  end
-
-  return false
-end
-
---- Merges duplicate currencies and compatible item entries.
-local function sanitizePrice(price, removeEmptyItems)
-  local sanitized = {}
-  local size = 1
-  local currencyTotals = {
-    money = 0,
-    gold = 0,
-    rol = 0,
-  }
-  local items = {}
-
-  for i = 1, #price do
-    local item = price[i]
-    local currencyKey = getSingleCurrencyKey(item)
-
-    if currencyKey then
-      currencyTotals[currencyKey] += item[currencyKey]
-    elseif item.item then
-      if not (removeEmptyItems and (item.quantity or 1) <= 0) then
-        local key = getItemMergeKey(item)
-        if not items[key] then
-          items[key] = {}
-        end
-
-        local found = false
-        for y = 1, #items[key] do
-          if isSameItemMeta(items[key][y], item) then
-            items[key][y].quantity += item.quantity
-            found = true
-          end
-        end
-
-        if not found then
-          sanitized[size] = item
-          items[key][#items[key] + 1] = sanitized[size]
-          size += 1
-        end
+    if data[key] ~= nil then
+      if currencyKey or data.item ~= nil then
+        error("A Cost can contain only one type", 3)
       end
-    else
-      sanitized[size] = item
-      size += 1
+      if type(data[key]) ~= "number" then
+        error(("Cost.%s must be a number"):format(key), 3)
+      end
+      currencyKey = key
+      currencyValue = data[key]
     end
   end
 
+  if currencyKey then
+    return { [currencyKey] = currencyValue }
+  end
+
+  -- Item costs stay out of currencyKeys because they carry quantity and keep metadata.
+  if data.item ~= nil then
+    if type(data.item) ~= "string" then
+      error("ItemCost.item must be a string", 3)
+    end
+
+    local quantity = data.quantity == nil and 1 or data.quantity
+    if type(quantity) ~= "number" then
+      error("ItemCost.quantity must be a number", 3)
+    end
+
+    return {
+      item = data.item,
+      quantity = quantity,
+      keep = data.keep == true
+    }
+  end
+
+  error("Unsupported cost shape", 3)
+end
+
+-- ° Appends one cost into a canonical costs array and merges compatible entries.
+local function pushCost(costs, data)
+  local cost = normalizeCost(data)
+
+  -- Currency costs merge by currency type.
   for i = 1, #currencyKeys do
     local key = currencyKeys[i]
-    if currencyTotals[key] ~= 0 then
-      sanitized[size] = { [key] = currencyTotals[key] }
-      size += 1
+    if cost[key] ~= nil then
+      local found = table.find(costs, function(existing)
+        return existing[key] ~= nil
+      end)
+
+      if found then
+        found[key] = found[key] + cost[key]
+      else
+        costs[#costs + 1] = cost
+      end
+      return costs
     end
   end
 
-  if #sanitized == 0 then
-    sanitized = { { money = 0 } }
+  -- Item costs merge only when both item name and keep flag match.
+  local found = table.find(costs, function(existing)
+    return existing.item == cost.item and existing.keep == cost.keep
+  end)
+
+  if found then
+    found.quantity = found.quantity + cost.quantity
+  else
+    costs[#costs + 1] = cost
   end
 
-  return sanitized
+  return costs
 end
 
---- Sanitizes a Price object in place without replacing its reference.
-local function normalizePriceInPlace(price, removeEmptyItems)
-  return replaceTable(price, sanitizePrice(price, removeEmptyItems))
-end
+-- ° Appends any supported price input into an existing canonical costs array.
+local function appendPriceData(costs, data)
+  if data == nil then return costs end
 
---- Attaches the Price methods to a price table.
-local function setPriceMetatable(price)
-  return setmetatable(price, PriceClass)
-end
+  if type(data) == "number" then
+    pushCost(costs, data)
+    return costs
+  end
 
---- Attaches the Prices methods and stores its operator off-table.
-local function setPricesMetatable(prices, operator)
-  operator = operator == "and" and "and" or "or"
-  prices.operator = nil
-  pricesOperators[prices] = operator
-  return setmetatable(prices, PricesClass)
-end
+  -- Existing instances are copied cost-by-cost so constructors still create fresh instances.
+  if isPrice(data) then
+    waitPriceReady(data)
+    for i = 1, #data.costs do
+      pushCost(costs, data.costs[i])
+    end
+    return costs
+  end
 
---- Computes currency totals for strict removal checks.
-local function getCurrencyTotals(price)
-  local totals = {}
+  if type(data) ~= "table" then
+    error(("Unsupported price type: %s"):format(type(data)), 3)
+  end
+
+  -- Canonical tables can be passed directly as { costs = { ... } }.
+  if data.costs ~= nil then
+    local costsType = type(data.costs) == "table" and table.type(data.costs)
+    if costsType ~= "array" and costsType ~= "empty" then
+      error("Price.costs must be an array", 3)
+    end
+    for i = 1, #data.costs do
+      pushCost(costs, data.costs[i])
+    end
+    return costs
+  end
+
+  local dataType = table.type(data)
+  if dataType == "empty" then return costs end
+
+  -- Arrays are treated as a list of price fragments.
+  if dataType == "array" then
+    for i = 1, #data do
+      appendPriceData(costs, data[i])
+    end
+    return costs
+  end
+
+  if dataType ~= "hash" and dataType ~= "mixed" then
+    error(("Unsupported table type: %s"):format(tostring(dataType)), 3)
+  end
+
+  local pushed = false
+
+  -- Hash and mixed tables may contain direct cost fields.
   for i = 1, #currencyKeys do
-    totals[currencyKeys[i]] = 0
+    local key = currencyKeys[i]
+    if data[key] ~= nil then
+      pushCost(costs, { [key] = data[key] })
+      pushed = true
+    end
   end
 
-  for i = 1, #price do
-    local entry = price[i]
+  if data.item ~= nil then
+    pushCost(costs, {
+      item = data.item,
+      quantity = data.quantity,
+      keep = data.keep
+    })
+    pushed = true
+  end
+
+  -- Mixed tables can combine direct fields with array fragments.
+  if dataType == "mixed" then
+    for i = 1, #data do
+      appendPriceData(costs, data[i])
+    end
+  elseif not pushed then
+    error("Unsupported price shape", 3)
+  end
+
+  return costs
+end
+
+-- ° Builds the canonical table used by PriceClass before the metatable is attached.
+local function normalizePrice(data)
+  local price = {
+    isProcessing = false,
+    costs = {}
+  }
+
+  appendPriceData(price.costs, data)
+  return price
+end
+
+-- ° Appends any supported group input into an existing prices array.
+local function appendGroupPrices(prices, data)
+  if data == nil then return prices end
+
+  if type(data) == "number" then
+    prices[#prices + 1] = PriceClass.new(data)
+    return prices
+  end
+
+  if isPrice(data) then
+    prices[#prices + 1] = asPrice(data)
+    return prices
+  end
+
+  if type(data) ~= "table" then
+    error(("Unsupported price group type: %s"):format(type(data)), 3)
+  end
+
+  -- Canonical groups expose their choices through { prices = { ... } }.
+  if data.prices ~= nil then
+    local pricesType = type(data.prices) == "table" and table.type(data.prices)
+    if pricesType ~= "array" and pricesType ~= "empty" then
+      error("PriceGroupClass.prices must be an array", 3)
+    end
+    for i = 1, #data.prices do
+      prices[#prices + 1] = asPrice(data.prices[i])
+    end
+    return prices
+  end
+
+  local dataType = table.type(data)
+  if dataType == "empty" then return prices end
+
+  -- Arrays represent separate alternative prices inside the group.
+  if dataType == "array" then
+    for i = 1, #data do
+      prices[#prices + 1] = asPrice(data[i])
+    end
+    return prices
+  end
+
+  if dataType ~= "hash" and dataType ~= "mixed" then
+    error(("Unsupported table type: %s"):format(tostring(dataType)), 3)
+  end
+
+  -- Flat group input is split into separate PriceClass entries by design.
+  -- This keeps { money = 5, gold = 1 } as two choices for an "or" group.
+  for i = 1, #currencyKeys do
+    local key = currencyKeys[i]
+    if data[key] ~= nil then
+      prices[#prices + 1] = PriceClass.new({ [key] = data[key] })
+    end
+  end
+
+  if data.item ~= nil then
+    prices[#prices + 1] = PriceClass.new({
+      item = data.item,
+      quantity = data.quantity,
+      keep = data.keep
+    })
+  end
+
+  -- Mixed tables append their array part after the direct flat entries.
+  if dataType == "mixed" then
+    for i = 1, #data do
+      prices[#prices + 1] = asPrice(data[i])
+    end
+  end
+
+  return prices
+end
+
+-- ° Builds the canonical table used by PriceGroupClass before the metatable is attached.
+local function normalizeGroup(data)
+  local group = {
+    operator = "or",
+    prices = {}
+  }
+
+  if data == nil then return group end
+
+  -- Constructors always copy existing groups to avoid shared mutable prices arrays.
+  if isPriceGroup(data) then
+    group.operator = data.operator
+    for i = 1, #data.prices do
+      group.prices[#group.prices + 1] = PriceClass.new(data.prices[i])
+    end
+    return group
+  end
+
+  -- Only groups carry an operator; plain price inputs keep the default "or".
+  if type(data) == "table" then
+    group.operator = GetValue(data.operator, "or")
+    if group.operator ~= "and" and group.operator ~= "or" then
+      error('PriceGroupClass.operator must be "and" or "or"', 3)
+    end
+  end
+
+  appendGroupPrices(group.prices, data)
+  return group
+end
+
+-- ° Merges one or more canonical costs arrays into a new canonical costs array.
+local function mergeCosts(...)
+  local merged = {}
+  local costLists = { ... }
+
+  for listIndex = 1, #costLists do
+    local costs = costLists[listIndex] or {}
+    for i = 1, #costs do
+      pushCost(merged, costs[i])
+    end
+  end
+
+  return merged
+end
+
+-- ° Checks whether two canonical Cost entries represent the same value.
+local function isSameCost(left, right)
+  for i = 1, #currencyKeys do
+    local key = currencyKeys[i]
+    if left[key] ~= nil or right[key] ~= nil then
+      return left[key] ~= nil and left[key] == right[key]
+    end
+  end
+
+  if left.item ~= nil or right.item ~= nil then
+    return left.item == right.item
+        and left.keep == right.keep
+        and left.quantity == right.quantity
+  end
+
+  return false
+end
+
+-- ° Rounds item quantities to the nearest integer.
+local function roundNearest(value)
+  return value >= 0 and math.floor(value + 0.5) or math.ceil(value - 0.5)
+end
+
+-- ° Multiplies a price without mutating the input.
+local function multiplyPrice(data, multiplier, roundItemQuantity)
+  if type(multiplier) ~= "number" then
+    error("Price multiplier must be a number", 3)
+  end
+
+  local multipliedPrice = PriceClass.new(data)
+  roundItemQuantity = roundItemQuantity or math.floor
+
+  for i = 1, #multipliedPrice.costs do
+    local cost = multipliedPrice.costs[i]
+
     for j = 1, #currencyKeys do
       local key = currencyKeys[j]
-      if entry[key] then
-        totals[key] += entry[key]
+      if cost[key] ~= nil then
+        cost[key] = cost[key] * multiplier
       end
+    end
+
+    if cost.item ~= nil then
+      cost.quantity = roundItemQuantity((cost.quantity or 1) * multiplier)
     end
   end
 
-  return totals
+  multipliedPrice.costs = mergeCosts(multipliedPrice.costs)
+  return multipliedPrice
 end
 
---- Computes the available quantity for an item entry.
-local function getItemQuantity(price, item)
-  local quantity = 0
-  local key = getItemMergeKey(item)
+-- ° Subtracts a price from another price without mutating either operand.
+local function subtractPrice(left, right)
+  return left + multiplyPrice(right, -1)
+end
 
-  for i = 1, #price do
-    local entry = price[i]
-    if entry.item and getItemMergeKey(entry) == key and isSameItemMeta(entry, item) then
-      quantity += entry.quantity or 1
-    end
+-- * ==========================================
+-- * PRICE CLASS
+-- * ==========================================
+
+--- Creates a canonical PriceClass.
+---@autodoc:config ignore:true
+---@param data? PriceInput (Price input to normalize <br> default:`nil`)
+---@return PriceClass
+function PriceClass.new(data)
+  return setmetatable(normalizePrice(data), PriceClass)
+end
+
+--- Creates a new independent copy of the current PriceClass.
+---@return PriceClass
+function PriceClass:copy()
+  return PriceClass.new(self)
+end
+
+--- Returns true when another price has the same costs.
+---@param other PriceInput (Price input to compare with the current price)
+---@return boolean
+function PriceClass:equals(other)
+  local success, otherPrice = pcall(asPrice, other)
+  if not success then return false end
+
+  return PriceClass.__eq(self, otherPrice)
+end
+
+--- Adds a price to the current PriceClass.
+---@param price PriceInput (Price input to add to the current price)
+---@return PriceClass
+function PriceClass:add(price)
+  waitPriceReady(self)
+
+  local normalizedPrice = asPrice(price)
+
+  -- Keep isProcessing consistent even when merging raises an error.
+  self.isProcessing = true
+  local success, err = pcall(function()
+    self.costs = mergeCosts(self.costs, normalizedPrice.costs)
+  end)
+  self.isProcessing = false
+
+  if not success then
+    error(err, 2)
   end
 
-  return quantity
+  return self
 end
 
---- Validates whether a price can be fully removed without mutation.
-local function canRemovePrice(price, priceToRemove)
-  local currencyTotals = getCurrencyTotals(price)
+--- Returns the canonical costs list.
+---@return Cost[]
+function PriceClass:get()
+  return self.costs
+end
 
-  for i = 1, #priceToRemove do
-    local entry = priceToRemove[i]
-    local currencyKey = getSingleCurrencyKey(entry)
+--- Removes every cost from the current PriceClass.
+---@return PriceClass
+function PriceClass:clear()
+  waitPriceReady(self)
 
-    if currencyKey then
-      if entry[currencyKey] < 0 then
-        return false, "invalid_negative_price"
-      end
-      if currencyTotals[currencyKey] < entry[currencyKey] then
-        return false, ("not_enough_%s"):format(currencyKey)
-      end
-      currencyTotals[currencyKey] -= entry[currencyKey]
-    elseif entry.item then
-      local quantity = entry.quantity or 1
-      if quantity < 0 then
-        return false, "invalid_negative_item_quantity"
-      end
-      if getItemQuantity(price, entry) < quantity then
-        return false, ("not_enough_item:%s"):format(entry.item)
-      end
-    else
-      return false, "unsupported_price_entry"
-    end
+  self.costs = {}
+  return self
+end
+
+--- Returns true when the PriceClass has no payable costs.
+---@return boolean
+function PriceClass:isFree()
+  for i = 1, #self.costs do
+    local cost = self.costs[i]
+    if cost.money ~= nil and cost.money ~= 0 then return false end
+    if cost.gold ~= nil and cost.gold ~= 0 then return false end
+    if cost.rol ~= nil and cost.rol ~= 0 then return false end
+    if cost.item ~= nil and cost.quantity ~= 0 then return false end
   end
 
   return true
 end
 
---- Removes a currency amount from matching currency entries.
-local function removeCurrency(price, key, amount)
-  local remaining = amount
+--- Returns true when the PriceClass contains only currency costs.
+---@return boolean
+function PriceClass:isCurrencyOnly()
+  if #self.costs == 0 then return false end
 
-  for i = 1, #price do
-    local entry = price[i]
-    if entry[key] then
-      local removed = math.min(entry[key], remaining)
-      entry[key] -= removed
-      remaining -= removed
-      if remaining <= 0 then return end
+  for i = 1, #self.costs do
+    if self.costs[i].item ~= nil then return false end
+  end
+
+  return true
+end
+
+--- Returns true when the PriceClass contains only item costs.
+---@return boolean
+function PriceClass:isItemOnly()
+  if #self.costs == 0 then return false end
+
+  for i = 1, #self.costs do
+    if self.costs[i].item == nil then return false end
+  end
+
+  return true
+end
+
+--- Returns the money amount.
+---@return number|nil
+function PriceClass:getMoney()
+  local cost = table.find(self.costs, function(cost)
+    return cost.money ~= nil
+  end)
+
+  return cost and cost.money or nil
+end
+
+--- Returns the gold amount.
+---@return number|nil
+function PriceClass:getGold()
+  local cost = table.find(self.costs, function(cost)
+    return cost.gold ~= nil
+  end)
+
+  return cost and cost.gold or nil
+end
+
+--- Returns the rol amount.
+---@return number|nil
+function PriceClass:getRol()
+  local cost = table.find(self.costs, function(cost)
+    return cost.rol ~= nil
+  end)
+
+  return cost and cost.rol or nil
+end
+
+--- Returns true when a currency cost exists.
+---@param key "money"|"gold"|"rol" (Currency cost key)
+---@return boolean
+function PriceClass:hasCurrency(key)
+  assertCurrencyKey(key, 2)
+
+  return table.find(self.costs, function(cost)
+    return cost[key] ~= nil
+  end) ~= false
+end
+
+--- Removes a currency cost from the current PriceClass.
+---@param key "money"|"gold"|"rol" (Currency cost key to remove)
+---@return PriceClass
+function PriceClass:removeCurrency(key)
+  assertCurrencyKey(key, 2)
+
+  waitPriceReady(self)
+
+  for i = #self.costs, 1, -1 do
+    if self.costs[i][key] ~= nil then
+      table.remove(self.costs, i)
+      break
     end
   end
+
+  return self
 end
 
---- Removes an item quantity from matching item entries.
-local function removeItem(price, item)
-  local remaining = item.quantity or 1
-  local key = getItemMergeKey(item)
+--- Returns all ItemCost entries.
+---@return ItemCost[]
+function PriceClass:getItems()
+  local items = {}
 
-  for i = 1, #price do
-    local entry = price[i]
-    if entry.item and getItemMergeKey(entry) == key and isSameItemMeta(entry, item) then
-      local removed = math.min(entry.quantity or 1, remaining)
-      entry.quantity = (entry.quantity or 1) - removed
-      remaining -= removed
-      if remaining <= 0 then return end
-    end
-  end
-end
-
--- * ==========================================
--- * OBJECT METHODS
--- * ==========================================
-
---- Adds a price to the current price.
----@param price table|integer|number (The price to add)
----@return Price (The mutated price)
-function PriceClass:add(price)
-  local formattedPrice = jo.pricing.formatPrice(price)
-
-  for i = 1, #formattedPrice do
-    self[#self + 1] = table.copy(formattedPrice[i])
-  end
-
-  return normalizePriceInPlace(self)
-end
-
---- Removes a price from the current price.
----@param price table|integer|number (The price to remove)
----@return Price|boolean,string? (The mutated price, or false and the reason)
-function PriceClass:remove(price)
-  local formattedPrice = jo.pricing.formatPrice(price)
-  local canRemove, reason = canRemovePrice(self, formattedPrice)
-
-  if not canRemove then
-    return false, reason
-  end
-
-  for i = 1, #formattedPrice do
-    local entry = formattedPrice[i]
-    local currencyKey = getSingleCurrencyKey(entry)
-
-    if currencyKey then
-      removeCurrency(self, currencyKey, entry[currencyKey])
-    elseif entry.item then
-      removeItem(self, entry)
+  for i = 1, #self.costs do
+    if self.costs[i].item ~= nil then
+      items[#items + 1] = self.costs[i]
     end
   end
 
-  return normalizePriceInPlace(self, true)
+  return items
 end
 
---- Applies a percentage to the current price.
----@param percentage number (The percentage to apply)
----@param roundUpItems? boolean (Whether item quantities should be rounded up)
----@return Price (The mutated price)
-function PriceClass:tax(percentage, roundUpItems)
-  percentage = percentage or 0
+--- Returns an ItemCost by item name and keep flag.
+---@param item string (Item name)
+---@param keep boolean (Item keep flag - `false`: consumed cost, `true`: required but kept)
+---@return ItemCost|nil
+function PriceClass:getItem(item, keep)
+  assertItemLookup(item, keep, 2)
 
-  local roundItemQuantity = roundUpItems and math.ceil or math.floor
+  return table.find(self.costs, function(cost)
+    return cost.item == item and cost.keep == keep
+  end) or nil
+end
 
-  for i = 1, #self do
-    local entry = self[i]
+--- Returns true when an ItemCost exists for an item name and keep flag.
+---@param item string (Item name)
+---@param keep boolean (Item keep flag - `false`: consumed cost, `true`: required but kept)
+---@return boolean
+function PriceClass:hasItem(item, keep)
+  return self:getItem(item, keep) ~= nil
+end
 
-    for j = 1, #currencyKeys do
-      local key = currencyKeys[j]
-      if entry[key] then
-        entry[key] *= percentage
+--- Removes an ItemCost from the current PriceClass.
+---@param item string (Item name)
+---@param keep boolean (Item keep flag - `false`: consumed cost, `true`: required but kept)
+---@return PriceClass
+function PriceClass:removeItem(item, keep)
+  assertItemLookup(item, keep, 2)
+
+  waitPriceReady(self)
+
+  for i = #self.costs, 1, -1 do
+    local cost = self.costs[i]
+    if cost.item == item and cost.keep == keep then
+      table.remove(self.costs, i)
+      break
+    end
+  end
+
+  return self
+end
+
+--- Creates a new PriceClass from two prices.
+---@autodoc:config ignore:true
+---@param left PriceInput (Left price input)
+---@param right PriceInput (Right price input)
+---@return PriceClass
+function PriceClass.__add(left, right)
+  local leftPrice = asPrice(left)
+  local rightPrice = asPrice(right)
+
+  return PriceClass.new({
+    costs = mergeCosts(leftPrice.costs, rightPrice.costs)
+  })
+end
+
+--- Multiplies a PriceClass by a numeric multiplier.
+---@autodoc:config ignore:true
+---@param left PriceClass|number (Left operand - `PriceClass` or multiplier)
+---@param right PriceClass|number (Right operand - `PriceClass` or multiplier)
+---@return PriceClass
+function PriceClass.__mul(left, right)
+  local price
+  local multiplier
+
+  if isPrice(left) and type(right) == "number" then
+    price = left
+    multiplier = right
+  elseif type(left) == "number" and isPrice(right) then
+    price = right
+    multiplier = left
+  else
+    error("PriceClass multiplication requires one PriceClass and one number", 2)
+  end
+
+  return multiplyPrice(price, multiplier, roundNearest)
+end
+
+--- Divides a PriceClass by a numeric divisor.
+---@autodoc:config ignore:true
+---@param left PriceClass (Price to divide)
+---@param right number (Divisor)
+---@return PriceClass
+function PriceClass.__div(left, right)
+  if not isPrice(left) or type(right) ~= "number" then
+    error("PriceClass division requires one PriceClass and one number", 2)
+  end
+
+  if right == 0 then
+    error("PriceClass division by zero", 2)
+  end
+
+  return PriceClass.__mul(left, 1 / right)
+end
+
+--- Returns the number of canonical costs.
+---@autodoc:config ignore:true
+---@param price PriceClass (Price instance to count)
+---@return number
+function PriceClass.__len(price)
+  waitPriceReady(price)
+
+  return #price.costs
+end
+
+--- Compares two PriceClass instances by value.
+---@autodoc:config ignore:true
+---@param left PriceClass (Left price instance)
+---@param right PriceClass (Right price instance)
+---@return boolean
+function PriceClass.__eq(left, right)
+  if not isPrice(left) or not isPrice(right) then return false end
+
+  waitPriceReady(left)
+  waitPriceReady(right)
+
+  if #left.costs ~= #right.costs then return false end
+
+  for i = 1, #left.costs do
+    local found = false
+
+    for j = 1, #right.costs do
+      if isSameCost(left.costs[i], right.costs[j]) then
+        found = true
+        break
       end
     end
-    if entry.item then
-      entry.quantity = roundItemQuantity((entry.quantity or 1) * percentage)
-    end
+
+    if not found then return false end
   end
 
-  return normalizePriceInPlace(self)
+  return true
 end
 
---- Checks if the price is free.
----@return boolean (Return `true` if the price is free)
-function PriceClass:isFree()
-  return #self == 1 and self[1].money == 0
+-- * ==========================================
+-- * PRICE GROUP CLASS
+-- * ==========================================
+
+--- Creates a canonical PriceGroupClass.
+---@autodoc:config ignore:true
+---@param data? PriceGroupInput (Price group input to normalize <br> default:`nil`)
+---@return PriceGroupClass
+function PriceGroupClass.new(data)
+  return setmetatable(normalizeGroup(data), PriceGroupClass)
 end
 
---- Copies the price.
----@return Price (The copied price)
-function PriceClass:copy()
-  return setPriceMetatable(copyWithoutMetatable(self))
+--- Creates a new independent copy of the current PriceGroupClass.
+---@return PriceGroupClass
+function PriceGroupClass:copy()
+  return PriceGroupClass.new(self)
 end
 
---- Converts the price to a plain table.
----@return table (The plain table)
-function PriceClass:toTable()
-  return copyWithoutMetatable(self)
+--- Returns true when the group contains no prices.
+---@return boolean
+function PriceGroupClass:isEmpty()
+  return #self.prices == 0
 end
 
---- Adds a price option to the prices set.
----@param price table|integer|number (The price to add)
----@return Prices (The mutated prices set)
-function PricesClass:addPrice(price)
-  local formattedPrice = jo.pricing.formatPrice(price)
-
-  if self.operator == "and" and #self > 0 then
-    self[1]:add(formattedPrice)
-  else
-    self[#self + 1] = formattedPrice
-  end
-
+--- Removes every price from the group.
+---@return PriceGroupClass
+function PriceGroupClass:clear()
+  self.prices = {}
   return self
 end
 
---- Removes a price option from the prices set.
----@param index integer (The price option index)
----@return Prices (The mutated prices set)
-function PricesClass:removePrice(index)
-  table.remove(self, index)
+--- Returns the number of prices in the group.
+---@return number
+function PriceGroupClass:count()
+  return #self.prices
+end
+
+--- Returns the number of prices in the group.
+---@autodoc:config ignore:true
+---@param group PriceGroupClass (Group instance to count)
+---@return number
+function PriceGroupClass.__len(group)
+  return #group.prices
+end
+
+--- Returns a PriceClass by index.
+---@param index number (Price index)
+---@return PriceClass|nil
+function PriceGroupClass:get(index)
+  if type(index) ~= "number" then
+    error("PriceGroupClass:get(index) requires a number index", 2)
+  end
+
+  return self.prices[index]
+end
+
+--- Replaces an existing PriceClass by index.
+---@param index number (Existing price index to replace)
+---@param price PriceInput (Replacement price input)
+---@return PriceGroupClass
+function PriceGroupClass:set(index, price)
+  if type(index) ~= "number" then
+    error("PriceGroupClass:set(index, price) requires a number index", 2)
+  end
+
+  if index < 1 or index > #self.prices then
+    error("PriceGroupClass:set(index, price) index is out of bounds", 2)
+  end
+
+  self.prices[index] = asPrice(price)
   return self
 end
 
---- Copies the prices set.
----@return Prices (The copied prices set)
-function PricesClass:copy()
-  local copy = {}
+--- Inserts a PriceClass into the group.
+---@param price PriceInput (Price input to insert)
+---@param index? number (Insertion index <br> default: append at the end)
+---@return PriceGroupClass
+function PriceGroupClass:insert(price, index)
+  local normalizedPrice = asPrice(price)
 
-  for i = 1, #self do
-    copy[i] = self[i]:copy()
+  if index == nil then
+    self.prices[#self.prices + 1] = normalizedPrice
+    return self
   end
 
-  return setPricesMetatable(copy, self.operator)
+  table.insert(self.prices, index, normalizedPrice)
+  return self
 end
 
---- Converts the prices set to a plain table.
----@return table (The plain table)
-function PricesClass:toTable()
-  local plain = { operator = self.operator }
-
-  for i = 1, #self do
-    plain[i] = self[i]:toTable()
+--- Removes a PriceClass from the group by index.
+---@param index number (Price index to remove)
+---@return PriceClass|nil
+function PriceGroupClass:remove(index)
+  if type(index) ~= "number" then
+    error("PriceGroupClass:remove(index) requires a number index", 2)
   end
 
-  return plain
+  return table.remove(self.prices, index)
+end
+
+--- Compacts an "and" PriceGroupClass into a new PriceClass.
+---@return PriceClass
+function PriceGroupClass:compact()
+  if self.operator ~= "and" then
+    error('PriceGroupClass:compact() is only allowed with operator = "and"', 2)
+  end
+
+  local price = PriceClass.new()
+  for i = 1, #self.prices do
+    price:add(self.prices[i])
+  end
+
+  return price
 end
 
 -- * ==========================================
 -- * PUBLIC API
 -- * ==========================================
 
---- A function to format a single price
----@param price table|integer|number (The price to format)
----@return Price (The formatted price)
-function jo.pricing.formatPrice(price)
-  if not price then return setPriceMetatable({ { money = 0 } }) end
-  if type(price) ~= "table" then return setPriceMetatable({ { money = price } }) end
-  if isPrice(price) then return price:copy() end
-  if price.item and not hasMixedItemPriceParts(price) then return setPriceMetatable({ normalizeEntry(price) }) end
-
-  local result = {}
-  local size = 1
-
-  if price.item then
-    size = addNormalizedEntry(result, size, getInlineItemEntry(price))
-  end
-
-  for key, value in pairs(price) do
-    if key ~= "operator" then
-      if price.item and type(key) == "string" and not isCurrencyKey(key) then
-        -- Item metadata from a mixed shorthand belongs to the inline item entry.
-      elseif type(key) == "string" and tonumber(key) == nil then
-        size = addNormalizedEntry(result, size, { [key] = value })
-      elseif type(value) == "table" then
-        if value.item then
-          if hasMixedItemPriceParts(value) then
-            local formattedPrice = jo.pricing.formatPrice(value)
-            for i = 1, #formattedPrice do
-              result[size] = formattedPrice[i]
-              size += 1
-            end
-          else
-            size = addNormalizedEntry(result, size, value)
-          end
-        else
-          local extra = {}
-          local start = size
-          for k, v in pairs(value) do
-            if k == "operator" then
-              -- Nested operators are ignored: only root `operator = "or"` creates alternatives.
-            elseif type(k) == "string" then
-              if validPriceKeys[k] then
-                size = addNormalizedEntry(result, size, { [k] = v })
-              else
-                extra[k] = v
-              end
-            else
-              size = addNormalizedEntry(result, size, v)
-            end
-          end
-          for i = start, size - 1 do
-            result[i] = table.merge(result[i], extra)
-          end
-        end
-      else
-        size = addNormalizedEntry(result, size, value)
-      end
-    end
-  end
-
-  return setPriceMetatable(result)
+--- Creates a canonical PriceClass.
+---@param data? PriceInput (Price input to normalize <br> default:`nil`)
+---@return PriceClass
+function jo.pricing.new(data)
+  return PriceClass.new(data)
 end
 
---- A function to format price variations.
---- Only a root `operator = "or"` creates alternatives; every other shape is a single AND price.
----@param prices table|integer|number (The prices to format)
----@return Prices (The formatted prices)
-function jo.pricing.formatPrices(prices)
-  if not prices then return setPricesMetatable({ jo.pricing.formatPrice(0) }, "and") end
-  if type(prices) ~= "table" then return setPricesMetatable({ jo.pricing.formatPrice(prices) }, "and") end
-  if isPrices(prices) then return prices:copy() end
-  if isPrice(prices) or prices.item then
-    return setPricesMetatable({ jo.pricing.formatPrice(prices) }, "and")
-  end
-
-  if prices.operator == "or" then
-    local formattedPrices = {}
-    local size = 1
-    local indexes, entries = getArrayLikeEntries(prices)
-
-    for i = 1, #indexes do
-      local index = indexes[i]
-      formattedPrices[size] = jo.pricing.formatPrice(entries[index])
-      normalizePriceInPlace(formattedPrices[size])
-      size += 1
-    end
-
-    for key, price in pairs(prices) do
-      if key ~= "operator" and type(key) == "string" and tonumber(key) == nil then
-        formattedPrices[size] = jo.pricing.formatPrice({ [key] = price })
-        normalizePriceInPlace(formattedPrices[size])
-        size += 1
-      end
-    end
-
-    if #formattedPrices == 0 then
-      formattedPrices[1] = jo.pricing.formatPrice(0)
-    end
-
-    return setPricesMetatable(formattedPrices, "or")
-  end
-
-  local price = jo.pricing.formatPrice(prices)
-  normalizePriceInPlace(price)
-
-  return setPricesMetatable({ price }, "and")
+--- Creates a canonical PriceGroupClass.
+---@param data? PriceGroupInput (Price group input to normalize <br> default:`nil`)
+---@return PriceGroupClass
+function jo.pricing.newGroup(data)
+  return PriceGroupClass.new(data)
 end
 
---- Checks if a price is free
----@param price table|integer|number (The price to check)
----@return boolean (Return `true` if the price is free)
-function jo.pricing.isPriceFree(price)
-  if isPrices(price) then
-    return #price == 1 and price[1]:isFree()
-  end
-  if type(price) == "table" and price[1] and type(price[1]) == "table" and price[1][1] then
-    local prices = jo.pricing.formatPrices(price)
-    return #prices == 1 and prices[1]:isFree()
-  end
-  return jo.pricing.formatPrice(price):isFree()
+--- Returns the canonical costs list for a price input.
+---@param price PriceInput (Price input)
+---@return Cost[]
+function jo.pricing.get(price)
+  return PriceClass.new(price):get()
 end
 
---- Merge prices
----@param ... table (The prices to merge)
----@return Price (The merged prices)
-function jo.pricing.mergePrices(...)
-  local prices = { ... }
-  prices = table.copy(prices)
-  prices.operator = "and"
-  return jo.pricing.formatPrices(prices)[1]
-end
-
---- Gets the tax price from a price and a percentage
----@param price table|integer|number (The price to tax)
----@param percentage number (The percentage to apply. Example: `0.2` returns 20% of the price)
----@param roundUpItems? boolean (Whether item quantities should be rounded up. Defaults to `false`)
----@return Price (The taxed price)
+--- Splits a price into tax and remaining prices.
+---@param price PriceInput (Price input to split)
+---@param percentage? number (Tax multiplier applied to the input price <br> default:`0`)
+---@param roundUpItems? boolean (Round item quantities up instead of down <br> default:`false`)
+---@return PriceClass, PriceClass
 function jo.pricing.tax(price, percentage, roundUpItems)
-  return jo.pricing.formatPrice(price):tax(percentage, roundUpItems)
+  percentage = percentage or 0
+
+  local basePrice = PriceClass.new(price)
+  local roundItemQuantity = roundUpItems and math.ceil or math.floor
+  local taxPrice = multiplyPrice(basePrice, percentage, roundItemQuantity)
+  local remainingPrice = subtractPrice(basePrice, taxPrice)
+
+  return taxPrice, remainingPrice
+end
+
+--- Returns true when a value is a PriceClass instance.
+---@param value any (Value to test)
+---@return boolean
+function jo.pricing.isPrice(value)
+  return isPrice(value)
+end
+
+--- Returns true when a value is a PriceGroupClass instance.
+---@param value any (Value to test)
+---@return boolean
+function jo.pricing.isPriceGroup(value)
+  return isPriceGroup(value)
 end

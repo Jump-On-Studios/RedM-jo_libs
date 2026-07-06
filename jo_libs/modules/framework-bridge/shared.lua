@@ -165,6 +165,51 @@ function jo.framework:getItemData(item)
   return jo.framework.inventoryItems[item]
 end
 
+local function addItemDataToCost(cost)
+  if type(cost) ~= "table" or not cost.item then return cost end
+
+  local itemData = jo.framework:getItemData(cost.item) or {}
+
+  for key, value in pairs(itemData) do
+    if cost[key] == nil then
+      cost[key] = value
+    end
+  end
+
+  return cost
+end
+
+--- A function to add inventory item data to every item cost inside a price
+---@param price table (The price to augment)
+---@return table (The mutated price)
+function jo.framework:addItemDataToPrice(price)
+  if type(price) ~= "table" then return price end
+
+  if price.item then
+    return addItemDataToCost(price)
+  end
+
+  if type(price.costs) == "table" then
+    for i = 1, #price.costs do
+      addItemDataToCost(price.costs[i])
+    end
+    return price
+  end
+
+  if type(price.prices) == "table" then
+    for i = 1, #price.prices do
+      jo.framework:addItemDataToPrice(price.prices[i])
+    end
+    return price
+  end
+
+  for i = 1, #price do
+    jo.framework:addItemDataToPrice(price[i])
+  end
+
+  return price
+end
+
 -------------
 -- Shortcut
 -------------
