@@ -2,12 +2,13 @@
   <li v-if="item" :id="`item-${id}`" :class="[
     'item',
     'clicker',
-    { 'with-icon': icon, 'disabled': item.disabled, 'active': active, },
+    { 'with-icon': icon, 'disabled': item.disabled, 'active': active, 'has-accent': color && color.accent },
     `icon-size-${item.iconSize}`
-  ]" @click="click()">
+  ]" :style="colorVars" @click="click()">
     <template v-if="render">
       <div :class="[{ 'bw opacity50': item.disabled }, 'image', item.iconClass]" v-if="icon">
-        <img :src="getImage(item.icon)" />
+        <img v-if="!(color && color.icon)" :src="getImage(item.icon)" />
+        <div v-else class="masked-icon" :style="{ backgroundColor: color.icon, '--icon-mask': `url('${getImage(item.icon)}')` }"></div>
       </div>
       <div class="current" v-if="item.iconRight">
         <div class="tick">
@@ -18,7 +19,7 @@
         <div v-if="item.prefix" :class="['prefix', { 'bw opacity50': item.disabled }]">
           <img :class="item.prefix" :src="getImage(item.prefix)" />
         </div>
-        <div class="title">
+        <div class="title" :style="color && color.title ? { color: color.title } : {}">
           <span class="main" v-html="item.title"></span>
           <span class="subtitle hapna" v-if="item.subtitle.length > 0" v-html="item.subtitle"></span>
         </div>
@@ -43,6 +44,7 @@
         </div>
       </h3>
       <div class="background"></div>
+      <div class="color-tint" v-if="color && color.background"></div>
     </template>
   </li>
 </template>
@@ -73,6 +75,23 @@ const props = defineProps({
 
 const price = computed(() => {
   return props.item.priceRight === true ? props.item.price : props.item.priceRight
+})
+
+// item.color accepts a string (applied to the title text) or a table:
+// { title?, background?, accent?, icon? }
+const color = computed(() => {
+  const c = props.item.color
+  if (!c) return false
+  if (typeof c === 'string') return { title: c }
+  return { title: c.title, background: c.background, accent: c.accent, icon: c.icon }
+})
+
+const colorVars = computed(() => {
+  if (!color.value) return {}
+  const vars = {}
+  if (color.value.background) vars['--item-bg-color'] = color.value.background
+  if (color.value.accent) vars['--item-accent-color'] = color.value.accent
+  return vars
 })
 
 function click() {
@@ -149,6 +168,13 @@ function getImage(url) {
     z-index: 10;
   }
 
+  // When an accent color is set, recolor the selection highlight instead of
+  // using the default red hover texture.
+  &.active.has-accent::after {
+    border-image-source: none;
+    border-color: var(--item-accent-color);
+  }
+
   &>* {
     display: block;
     z-index: 10;
@@ -164,6 +190,27 @@ function getImage(url) {
     z-index: 5;
     background-image: url('/assets/images/menu/selection_box_bg_1d.png');
     background-size: 100% 100%;
+  }
+
+  // Optional color overlay on top of the item background texture.
+  .color-tint {
+    position: absolute;
+    top: 0.3vh;
+    bottom: 0.3vh;
+    left: 0.6vh;
+    right: 0.6vh;
+    z-index: 6;
+    background-color: var(--item-bg-color);
+    pointer-events: none;
+  }
+
+  // Tinted icon: the icon image is used as a mask and filled with the color.
+  .masked-icon {
+    width: 100%;
+    padding-bottom: 100%;
+    background-color: currentColor;
+    -webkit-mask: var(--icon-mask) no-repeat center / contain;
+    mask: var(--icon-mask) no-repeat center / contain;
   }
 
   h3 {

@@ -29,6 +29,7 @@ class MenuItem {
   visible = true;
   description = "";
   image = false;
+  color = false;
   action = false;
   translate = false;
   translateDescription = false;
@@ -103,6 +104,9 @@ class MenuItem {
   }
   setImage(value) {
     this.image = value;
+  }
+  setColor(value) {
+    this.color = value;
   }
   setAction(value) {
     this.action = value;
@@ -232,6 +236,7 @@ class Menu {
         }
         if (item.description) newItem.setDescription(item.description);
         if (item.image) newItem.setImage(item.image);
+        if (item.color) newItem.setColor(item.color);
         if (item.action) newItem.setAction(item.action);
         if (item.data) newItem.setData(item.data);
         if (item.prefix) newItem.setPrefix(item.prefix);
