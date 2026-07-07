@@ -1,7 +1,6 @@
 jo.createModule("promptNui")
 jo.require("table")
 jo.require("raw-keys")
-jo.require("pricing")
 
 local NativeSendNUIMessage = SendNUIMessage
 local nuiLoaded = false
@@ -221,7 +220,9 @@ end
 --- Sets the prompt price and formats it with the shared pricing structure.
 --- @param price table|integer|number|boolean|nil (The prompt price. Set it to `false` if no price is required)
 function PromptClass:setPrice(price)
-    self.price = price and jo.pricing.formatPrice(price) or false
+    jo.require("framework")
+    jo.require("pricing")
+    self.price = price and jo.framework:addItemDataToPrice(jo.pricing.new(price):get()) or false
     self:refreshNUI("price")
 end
 
