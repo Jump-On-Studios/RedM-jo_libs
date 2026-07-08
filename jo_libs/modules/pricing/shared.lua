@@ -494,8 +494,16 @@ function PriceClass:add(price)
 end
 
 --- Returns the canonical costs list.
+---@ignore
+---@autodoc:config ignore:true
 ---@return Cost[]
 function PriceClass:get()
+  return self.costs
+end
+
+--- Returns the canonical costs list.
+---@return Cost[]
+function PriceClass:getCosts()
   return self.costs
 end
 
@@ -805,6 +813,20 @@ function PriceGroupClass:get(index)
   end
 
   return self.prices[index]
+end
+
+--- Returns the costs of a price by index.
+---@param index number (Price index)
+---@return Cost[]|nil
+function PriceGroupClass:getCosts(index)
+  if type(index) ~= "number" then
+    error("PriceGroupClass:getCosts(index) requires a number index", 2)
+  end
+  local price = self:get(index)
+  if not price then
+    error("PriceGroupClass:getCosts(index) index is out of bounds")
+  end
+  return price:getCosts()
 end
 
 --- Replaces an existing PriceClass by index.
