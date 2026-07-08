@@ -67,7 +67,8 @@ local config = {
         cameraSpeedUp = GetConvarInt("jo_libs:gizmo:keys:cameraSpeedUp", `INPUT_SELECT_PREV_WEAPON`),     -- Increase camera speed
         cameraSpeedDown = GetConvarInt("jo_libs:gizmo:keys:cameraSpeedDown", `INPUT_SELECT_NEXT_WEAPON`), -- Decrease camera speed
         rotationSnap = GetConvarInt("jo_libs:gizmo:keys:rotationSnap", `INPUT_FRONTEND_Y`),               -- Rotation snap key
-    }
+    },
+    onlyOnMove = GetConvarBool("jo_libs:gizmo:onlyOnMove", false)
 }
 
 -- =============================================================================
@@ -101,6 +102,7 @@ local needUpdateCamNUI = false
 local onMove = nil
 local groupName = "interaction_GizmoPrompts"
 local rotationSnap = nil
+local onlyOnMove = false
 
 local function pointEntity()
     PointCamAtEntity(cam, target)
@@ -363,6 +365,7 @@ end
 --- cfg.allowSnapToGround boolean (Allow snapping to ground - default `true`)
 --- cfg.rotationSnap number (Rotation snap value - default `5`)
 --- cfg.onMove function (Optional function fired when the entity move with the gizmo)
+--- cfg.onlyOnMove boolean (Optional if onMove set the position or rotation will only be send to the function)
 ---@param allowPlace? function (Optional callback to validate placement - receives proposed position as parameter)
 ---@return table|nil (Returns entity position and rotation data when completed, nil if already active)
 function jo.gizmo.moveEntity(entity, cfg, allowPlace)
@@ -399,6 +402,7 @@ function jo.gizmo.moveEntity(entity, cfg, allowPlace)
     rotationSnap = GetValue(cfg?.rotationSnap, config.rotationSnap) * math.pi / 180
     mode = "translate"
     onMove = cfg?.onMove
+    onlyOnMove = GetValue(cfg?.onlyOnMove, config.onlyOnMove)
 
     stored = {
         coords = GetEntityCoords(entity),
@@ -622,11 +626,15 @@ RegisterNUICallback("gizmo:UpdateEntity", function(data, cb)
     dprint("[GIZMO DEBUG] HookedFunc exists:", hookedFunc ~= nil)
 
     if (maxDistance and #(position - stored.coords) <= maxDistance) and (not hookedFunc or hookedFunc(position)) then
-        dprint("[GIZMO DEBUG] Position validation passed, updating entity")
-        SetEntityCoordsNoOffset(entity, position.x, position.y, position.z)
-        SetEntityRotation(entity, rotation.x, rotation.y, rotation.z)
+        if not onlyOnMove and onMove then
+            dprint("[GIZMO DEBUG] Position validation passed, updating entity")
+            SetEntityCoordsNoOffset(entity, position.x, position.y, position.z)
+            SetEntityRotation(entity, rotation.x, rotation.y, rotation.z)
+            dprint("[GIZMO DEBUG] Entity updated successfully")
+        else
+            dprint("[GIZMO DEBUG] onlyOnMove configuration passed, updating onMove")
+        end
         needUpdateCamNUI = true
-        dprint("[GIZMO DEBUG] Entity updated successfully")
         if onMove then
             onMove(position, rotation)
         end
@@ -674,7 +682,7 @@ if jo.debug then
             DeleteEntity(tempEntity)
             tempEntity = nil
         end
-    end)
+    end, false)
 
     jo.stopped(function()
         if tempEntity then
