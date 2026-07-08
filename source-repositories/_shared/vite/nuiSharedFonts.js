@@ -8,6 +8,48 @@ export function nuiSharedFonts({ rootUrl }) {
 
   return {
     name: 'nui-shared-fonts',
+    config(config) {
+      const onwarn = config.build?.rollupOptions?.onwarn
+
+      return {
+        build: {
+          rollupOptions: {
+            onwarn(warning, warn) {
+              if (isSharedFontResolutionWarning(warning.message)) {
+                return
+              }
+
+              if (onwarn) {
+                onwarn(warning, warn)
+                return
+              }
+
+              warn(warning)
+            },
+          },
+        },
+      }
+    },
+    configResolved(config) {
+      const warn = config.logger.warn.bind(config.logger)
+      const warnOnce = config.logger.warnOnce.bind(config.logger)
+
+      config.logger.warn = (message, options) => {
+        if (isSharedFontResolutionWarning(message)) {
+          return
+        }
+
+        warn(message, options)
+      }
+
+      config.logger.warnOnce = (message, options) => {
+        if (isSharedFontResolutionWarning(message)) {
+          return
+        }
+
+        warnOnce(message, options)
+      }
+    },
     configureServer(server) {
       server.middlewares.use('/assets/fonts', (req, res, next) => {
         const url = new URL(req.url ?? '/', 'http://localhost')
@@ -41,6 +83,14 @@ export function nuiSharedFonts({ rootUrl }) {
       }
     },
   }
+}
+
+function isSharedFontResolutionWarning(message) {
+  return (
+    typeof message === 'string' &&
+    message.includes('/assets/fonts/') &&
+    message.includes("didn't resolve at build time")
+  )
 }
 
 function contentTypeFor(path) {

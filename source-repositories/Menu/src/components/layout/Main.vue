@@ -7,6 +7,7 @@
           <img src="/assets/images/menu/selection_arrow_left.png">
         </span>
       </h2>
+      <MenuImage v-if="menuStore.cMenu.image" :image="menuStore.cMenu.image" class="menu-header-image" />
       <template v-if="showItems()">
         <List />
       </template>
@@ -30,6 +31,7 @@ import List from './List.vue'
 import Slider from './Slider.vue'
 import Price from './Price.vue'
 import Description from './Description.vue'
+import MenuImage from './MenuImage.vue'
 import Loading from './Loading.vue'
 import Footer from './Footer.vue'
 import { useDataStore } from '../../stores/datas'
@@ -105,3 +107,9 @@ onBeforeUnmount(() => {
   API.PlayAudio('menu_close');
 })
 </script>
+
+<style scoped lang="scss">
+.menu-header-image {
+  margin: 0.5vh 0 1vh;
+}
+</style>
