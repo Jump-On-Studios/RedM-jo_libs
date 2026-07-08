@@ -351,7 +351,7 @@ function jo.framework.UserClass:getJobGrade()
 end
 
 function jo.framework.UserClass:setJob(job, grade)
-  return self.data.Functions.SetJob(job, grade)
+  self.data.Functions.SetJob(job, grade)
 end
 
 function jo.framework.UserClass:getRPName()

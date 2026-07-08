@@ -361,7 +361,8 @@ function jo.framework.UserClass:getJobGrade()
 end
 
 function jo.framework.UserClass:setJob(job, grade)
-  return self.data.SetJob(job) and self.data.SetJobGrade(grade)
+  self.data.SetJob(job)
+  self.data.SetJobGrade(grade)
 end
 
 ---@return string name player's name

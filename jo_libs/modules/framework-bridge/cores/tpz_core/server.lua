@@ -45,7 +45,8 @@ function jo.framework.UserClass:getJobGrade()
 end
 
 function jo.framework.UserClass:setJob(job, grade)
-  return self.data.setJob(job) and self.data.setJobGrade(grade)
+  self.data.setJob(job)
+  self.data.setJobGrade(grade)
 end
 
 function jo.framework.UserClass:getGroup()

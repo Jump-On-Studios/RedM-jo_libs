@@ -86,7 +86,7 @@ function jo.framework.UserClass:getJobGrade()
 end
 
 function jo.framework.UserClass:setJob(job, grade)
-  return self.data.setJob(job, grade)
+  self.data.setJob(job, grade)
 end
 
 ---@return string name player's name
