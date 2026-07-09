@@ -222,7 +222,7 @@ end
 function PromptClass:setPrice(price)
     jo.require("framework")
     jo.require("pricing")
-    self.price = price and jo.framework:addItemDataToPrice(jo.pricing.new(price):get()) or false
+    self.price = price and jo.framework:addItemDataToPrice(jo.pricing.new(price):getCosts()) or false
     self:refreshNUI("price")
 end
 

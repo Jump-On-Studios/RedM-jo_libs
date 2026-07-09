@@ -380,7 +380,7 @@ addTest("price_getters", function()
     item = "water"
   })
 
-  assertSame(price:get(), price.costs, "get() must return costs")
+  assertSame(price:getCosts(), price.costs, "getCosts() must return costs")
   assertEqual(price:getMoney(), 2, "getMoney() mismatch")
   assertEqual(price:getGold(), 3, "getGold() mismatch")
   assertEqual(price:getRol(), 4, "getRol() mismatch")
