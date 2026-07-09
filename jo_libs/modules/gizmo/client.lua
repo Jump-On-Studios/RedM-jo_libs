@@ -173,16 +173,22 @@ local function showNUI(bool)
 
         if cam then
             dprint("[GIZMO DEBUG] Cleaning up camera, cam handle:", cam)
+            local closingCam = cam
             if previousCam == -1 then
                 RenderScriptCams(false, true, 500, true, true)
             else
-                SetCamActiveWithInterp(previousCam, cam, 500)
+                SetCamActiveWithInterp(previousCam, closingCam, 500)
             end
-            SetCamActive(cam, false)
-            DetachCam(cam)
-            DestroyCam(cam, true)
             cam = nil
-            dprint("[GIZMO DEBUG] Camera destroyed and reset")
+            CreateThread(function()
+                Wait(500)
+                if DoesCamExist(closingCam) then
+                    SetCamActive(closingCam, false)
+                    DetachCam(closingCam)
+                    DestroyCam(closingCam, true)
+                end
+            end)
+            dprint("[GIZMO DEBUG] Camera cleanup deferred and reset")
         else
             dprint("[GIZMO DEBUG] No camera to clean up")
         end
@@ -557,6 +563,13 @@ function jo.gizmo.moveEntity(entity, cfg, allowPlace)
                 rotation = GetEntityRotation(entity)
             }
 
+            if cfg?.onBeforeClose then
+                local closeCam = cfg.onBeforeClose(responseData, cam, previousCam)
+                if closeCam then
+                    previousCam = closeCam
+                end
+            end
+
             showNUI(false)
             break
         end
@@ -626,7 +639,7 @@ RegisterNUICallback("gizmo:UpdateEntity", function(data, cb)
     dprint("[GIZMO DEBUG] HookedFunc exists:", hookedFunc ~= nil)
 
     if (maxDistance and #(position - stored.coords) <= maxDistance) and (not hookedFunc or hookedFunc(position)) then
-        if not onlyOnMove and onMove then
+        if (not onlyOnMove and onMove) or not onMove then
             dprint("[GIZMO DEBUG] Position validation passed, updating entity")
             SetEntityCoordsNoOffset(entity, position.x, position.y, position.z)
             SetEntityRotation(entity, rotation.x, rotation.y, rotation.z)
