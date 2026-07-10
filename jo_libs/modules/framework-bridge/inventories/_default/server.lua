@@ -13,6 +13,15 @@ function jo.framework:canUseItem(source, item, amount, meta, remove)
   return false
 end
 
+--- Gets the quantity of a specific item in a player's inventory
+---@param source integer (The source ID of the player)
+---@param item string (The name of the item)
+---@param meta? table (The metadata of the item)
+---@return integer (Return the total quantity of the item in the player's inventory)
+function jo.framework:getItemCount(source, item, meta)
+  return 0
+end
+
 --- Registers an item as usable and attaches a callback function that executes when the item is used
 ---@param item string (The name of the item)
 ---@param closeAfterUsed? boolean (If the inventory needs to be closed after using the item <br> default:`true`)

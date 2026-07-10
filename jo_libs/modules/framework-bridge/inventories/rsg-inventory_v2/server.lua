@@ -101,3 +101,22 @@ function jo.framework:canUseItem(source, item, amount, meta, remove)
 
   return false
 end
+
+function jo.framework:getItemCount(source, item, meta)
+  local items = Inventory:GetItemsByName(source, item)
+  if not items or #items == 0 then
+    return 0
+  end
+  local count = 0
+  for i = 1, #items do
+    local data = items[i]
+    if meta then
+      if table.isEgal(data.info, meta, false, false, true) then
+        count = count + data.amount
+      end
+    else
+      count = count + data.amount
+    end
+  end
+  return count
+end
