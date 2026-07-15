@@ -90,7 +90,6 @@ local function menuNUIChange(data)
 
   local waiter = function()
     while menuNuiChangeInProgress do Wait(10) end
-    Wait(100)
   end
 
   if not currentData.item.bufferOnChange or table.find(currentData.item.sliders, function(slider) return slider.type == "grid" end) then
@@ -100,35 +99,39 @@ local function menuNUIChange(data)
   jo.timeout.noSpam("menuNUIChange", waiter, function()
     menuNuiChangeInProgress = true
 
+    -- Snapshot: currentData is overwritten by newer NUI events while this
+    -- callback yields, and previousData must match the data fired here
+    local current = { menu = currentData.menu, index = currentData.index, item = currentData.item }
+
     local oldButton = false
     if previousData.menu then
       oldButton = previousData.item
     end
 
-    if previousData.menu ~= currentData.menu or data.forceMenuEvent then
+    if previousData.menu ~= current.menu or data.forceMenuEvent then
       if oldButton then
         jo.menu.fireEvent(oldButton, "onExit")
         jo.menu.fireEvent(menus[previousData.menu], "onExit")
       end
-      jo.menu.fireEvent(menus[currentData.menu], "onEnter")
-      jo.menu.fireEvent(currentData.item, "onActive")
+      jo.menu.fireEvent(menus[current.menu], "onEnter")
+      jo.menu.fireEvent(current.item, "onActive")
     else
-      if previousData.index ~= currentData.index or data.forceItemEvent then
+      if previousData.index ~= current.index or data.forceItemEvent then
         if oldButton then
           jo.menu.fireEvent(oldButton, "onExit")
         end
-        jo.menu.fireEvent(currentData.item, "onActive")
+        jo.menu.fireEvent(current.item, "onActive")
       else
-        jo.menu.fireEvent(currentData.item, "onChange")
+        jo.menu.fireEvent(current.item, "onChange")
       end
       jo.menu.fireEvent(menus[previousData.menu], "onChange")
     end
 
     for i = 1, #jo.menu.listeners do
-      jo.menu.listeners[i].cb(currentData)
+      jo.menu.listeners[i].cb(current)
     end
 
-    previousData = table.copy(currentData)
+    previousData = table.copy(current)
     menuNuiChangeInProgress = false
   end)
 end
