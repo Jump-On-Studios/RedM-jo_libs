@@ -85,9 +85,11 @@ function jo.framework.UserClass:getJobGrade()
   return self.data.getJobgrade()
 end
 
+---@return boolean result of job and grade assignment
 function jo.framework.UserClass:setJob(job, grade)
-  self.data.setJob(job)
-  self.data.setJobGrade(grade)
+  local a = self.data.setJob(job)
+  local b = self.data.setJobGrade(grade)
+  return a and b
 end
 
 ---@return string name player's name
