@@ -22,6 +22,10 @@ function jo.framework:canUseItem(source, item, amount, meta, remove)
   return false
 end
 
+function jo.framework:getItemCount(source, item, meta)
+  return Inventory:getItemCount(source, nil, item, meta) or 0
+end
+
 function jo.framework:registerUseItem(item, closeAfterUsed, callback)
   if type(closeAfterUsed) == "function" then
     callback = closeAfterUsed

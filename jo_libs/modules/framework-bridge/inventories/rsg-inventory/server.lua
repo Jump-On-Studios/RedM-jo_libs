@@ -20,6 +20,15 @@ function jo.framework:canUseItem(source, item, amount, meta, remove)
   end
 end
 
+function jo.framework:getItemCount(source, item, meta)
+  local Player = self.UserClass:get(source)
+  local itemData = Player.data.Functions.GetItemByName(item)
+  if itemData then
+    return itemData.amount
+  end
+  return 0
+end
+
 function jo.framework:registerUseItem(item, closeAfterUsed, callback)
   if type(closeAfterUsed) == "function" then
     callback = closeAfterUsed

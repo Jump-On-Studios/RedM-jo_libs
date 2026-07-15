@@ -27,6 +27,15 @@ function jo.framework:canUseItem(source, item, amount, meta, remove)
   return false
 end
 
+---@param source integer source ID
+---@param item string name of the item
+---@param meta table metadata of the item
+---@return integer
+function jo.framework:getItemCount(source, item, meta)
+  local count = exports.gm_inventory:GetItem(source, item, meta, true)
+  return count or 0
+end
+
 ---@param item string name of the item
 ---@param callback function function fired when the item is used
 ---@param closeAfterUsed boolean if inventory needs to be closes
