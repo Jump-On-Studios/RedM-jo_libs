@@ -4,6 +4,7 @@ jo.createModule("timeout")
 jo.require("table")
 
 ---@class TimeoutClass : table Timeout class
+---@field id? string (The unique ID when registered in the delays list)
 local TimeoutClass = {
   msec = 1000,
   cb = function() end,
@@ -48,17 +49,15 @@ end
 --- Execute the callback function
 --- Automatically clears the timeout and passes any stored arguments to the callback
 function TimeoutClass:execute()
-  if self.id then
+  if self.canceled then
+    return false
+  end
+  self:clear()
+  self.cb(table.unpack(self.args))
+  if self.id and delays[self.id] == self then
     delays[self.id] = nil
   end
-  if not self.canceled then
-    self:clear()
-    self.cb(table.unpack(self.args))
-    self = nil
-    return true
-  end
-  self = nil
-  return false
+  return true
 end
 
 --- Change the callback function of the timeout
@@ -108,6 +107,16 @@ function jo.timeout.loop(msec, cb, ...)
   return t
 end
 
+--- Create a timeout registered in the delays list BEFORE it starts,
+--- so a callback executed synchronously can still be tracked by its id
+local function registerDelay(id, msec, cb, args)
+  local t = TimeoutClass:set(msec, cb, args)
+  t.id = id
+  delays[id] = t
+  t:start()
+  return t
+end
+
 --- A function to delay execution. If another delay is created with the same id, the previous one will be canceled
 ---@param id string (The unique ID of the delay)
 ---@param msec integer|function (The duration before execute cb or a waiter function)
@@ -117,11 +126,8 @@ end
 function jo.timeout.delay(id, msec, cb, ...)
   if delays[id] then
     delays[id]:clear()
-    delays[id] = nil
   end
-  delays[id] = jo.timeout.set(msec, cb, ...)
-  delays[id].id = id
-  return delays[id]
+  return registerDelay(id, msec, cb, table.pack(...))
 end
 
 
@@ -134,14 +140,15 @@ end
 function jo.timeout.noSpam(id, msec, cb, ...)
   if delays[id] then
     delays[id]:clear()
-    delays[id] = nil
-    delays[id] = jo.timeout.set(msec, cb, ...)
-    delays[id].id = id
-    return delays[id]
-  else
-    delays[id] = jo.timeout.set(msec, function() end)
-    delays[id].id = id
-    cb(...)
-    return delays[id]
+    return registerDelay(id, msec, cb, table.pack(...))
   end
+  -- Leading edge: register a placeholder BEFORE executing cb so calls fired
+  -- while cb is still running (it can yield) are treated as "second" calls,
+  -- then start the placeholder AFTER cb to keep the debounce window alive
+  local t = TimeoutClass:set(msec, function() end, {})
+  t.id = id
+  delays[id] = t
+  cb(...)
+  t:start()
+  return t
 end
