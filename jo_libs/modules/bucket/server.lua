@@ -41,7 +41,7 @@ local function addPlayerToBucket(source, bucketId)
     local bucket = playersBuckets[bucketId]
 
     if not bucket then
-        bucket = createBucket(bucket)
+        bucket = createBucket(bucketId)
     end
 
     -- Le joueur est déjà présent dans le bucket
@@ -88,7 +88,7 @@ local function removePlayerFromBucket(source, bucketId)
 
     -- Supprime complètement le bucket lorsqu'il est vide
     if #bucket.players == 0 then
-        playersBuckets[bucket] = nil
+        playersBuckets[bucketId] = nil
     end
 
     return true
