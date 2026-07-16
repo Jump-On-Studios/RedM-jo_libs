@@ -37,6 +37,7 @@ local forcedHide = false
 
 local function doesKeyIsInVisiblePrompt(prompt, keys)
     if not prompt.visible then return false end
+    if prompt.type == "separator" or not prompt.keyboardKeys then return false end
     for k = 1, #keys do
         if table.find(prompt.keyboardKeys, keys[k]) then
             return true, keys[k]
@@ -295,6 +296,14 @@ function GroupClass:isVisible()
     return self.visible
 end
 
+local function ensurePromptPage(group, page)
+    if not group.prompts[page] then
+        for i = 1, page do
+            group.prompts[i] = group.prompts[i] or {}
+        end
+    end
+end
+
 --- Adds a new prompt to the group on a specified page. <br>Creates or initializes pages as necessary, assigns the prompt's position, and returns the new prompt.
 --- @param key string (A key string for the prompt.)
 --- @param label string (The descriptive label for the prompt.)
@@ -313,17 +322,28 @@ function GroupClass:addPrompt(key, label, holdTime, page, price)
 
     page = page or 1
 
-    if not self.prompts[page] then
-        for i = 1, page do
-            self.prompts[i] = self.prompts[i] or {}
-        end
-    end
+    ensurePromptPage(self, page)
 
     table.insert(self.prompts[page], prompt)
     prompt.page = page
     prompt.position = #self.prompts[page]
 
     return prompt
+end
+
+--- Adds a visual separator to the group on a specified page.
+--- @param page? number (The page number to add the separator to<br> defaults to 1.)
+function GroupClass:addSeparator(page)
+    page = page or 1
+    ensurePromptPage(self, page)
+
+    local separator = {
+        type = "separator",
+        visible = true,
+        page = page,
+        position = #self.prompts[page] + 1
+    }
+    table.insert(self.prompts[page], separator)
 end
 
 local function isForcedHide()

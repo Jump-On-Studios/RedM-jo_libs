@@ -25,6 +25,10 @@ export function initGroup() {
               visible: true,
             },
             {
+              type: 'separator',
+              visible: true,
+            },
+            {
               label: 'ENTER Prompt',
               keyboardKeys: ['ENTER'],
               price: [{ gold: 3 }],
@@ -64,6 +68,10 @@ export function initGroup() {
               label: 'Page 2 ',
               keyboardKeys: ['P'],
               price: [{ money: 0 }],
+              visible: true,
+            },
+            {
+              type: 'separator',
               visible: true,
             },
             {
