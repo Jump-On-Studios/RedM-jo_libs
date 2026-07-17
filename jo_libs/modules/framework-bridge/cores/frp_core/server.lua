@@ -105,6 +105,7 @@ function jo.framework.UserClass:getJobGrade()
   return 0
 end
 
+---@return boolean result of job and grade assignment
 function jo.framework.UserClass:setJob(job, grade)
   return false
 end

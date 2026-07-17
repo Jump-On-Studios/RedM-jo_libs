@@ -61,7 +61,7 @@ end
 --- Sets the current job assigned to a player
 ---@param job string (The name of the job)
 ---@param grade number (The grade of the job)
----@return boolean (If job assignment was successful)
+---@return boolean (Returns the combined result of the job and grade assignment)
 function jo.framework.UserClass:setJob(job, grade)
   return false
 end
