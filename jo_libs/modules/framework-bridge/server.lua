@@ -710,6 +710,31 @@ function jo.framework:mergeInventoriesConfiguration(...)
   return inventoryConfig
 end
 
+--- Retrieves all online player source IDs whose job matches one of the given jobs
+---@param jobs string[] (List of job names to filter by, e.g. `{ "police", "sheriff" }`)
+---@return integer[] (Array of matching source IDs)
+function jo.framework:getPlayersWithJobs(jobs)
+  local targets = {}
+  if not jobs or #jobs == 0 then return targets end
+
+  local jobSet = {}
+  for i = 1, #jobs do jobSet[jobs[i]] = true end
+
+  local players = GetPlayers()
+  for i = 1, #players do
+    local src = tonumber(players[i])
+    local user = self:getUser(src)
+    if user and type(user) == "table" then
+      local job = user:getJob()
+      if job and jobSet[job] then
+        targets[#targets + 1] = src
+      end
+    end
+  end
+
+  return targets
+end
+
 -- -----------
 -- END LOAD CUSTOM FUNCTIONS
 -- -----------
