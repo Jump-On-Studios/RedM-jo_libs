@@ -195,7 +195,7 @@ class API {
       metaped_tint_hat_worn: "metaped_tint_generic_clean",
       metaped_tint_skirt_clean: "metaped_tint_generic_clean",
       metaped_tint_skirt_weathered: "metaped_tint_generic_clean",
-      metaped_tint_skirt_worn: "metaped_tint_generic",
+      metaped_tint_skirt_worn: "metaped_tint_generic_clean",
       metaped_tint_combined_leather1: "metaped_tint_combined_leather",
       metaped_tint_combined_leather2: "metaped_tint_combined_leather",
       metaped_tint_combined_leather3: "metaped_tint_combined_leather",
