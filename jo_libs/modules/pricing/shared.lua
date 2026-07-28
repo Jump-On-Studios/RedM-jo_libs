@@ -806,6 +806,33 @@ function PriceGroupClass.__len(group)
   return #group.prices
 end
 
+--- Multiplies every PriceClass in a PriceGroupClass by a numeric multiplier.
+---@autodoc:config ignore:true
+---@param left PriceGroupClass|number (Left operand - `PriceGroupClass` or multiplier)
+---@param right PriceGroupClass|number (Right operand - `PriceGroupClass` or multiplier)
+---@return PriceGroupClass
+function PriceGroupClass.__mul(left, right)
+  local group
+  local multiplier
+
+  if isPriceGroup(left) and type(right) == "number" then
+    group = left
+    multiplier = right
+  elseif type(left) == "number" and isPriceGroup(right) then
+    group = right
+    multiplier = left
+  else
+    error("PriceGroupClass multiplication requires one PriceGroupClass and one number", 2)
+  end
+
+  local multipliedGroup = group:copy()
+  for i = 1, #multipliedGroup.prices do
+    multipliedGroup.prices[i] = multipliedGroup.prices[i] * multiplier
+  end
+
+  return multipliedGroup
+end
+
 --- Returns a PriceClass by index.
 ---@param index number (Price index)
 ---@return PriceClass|nil
