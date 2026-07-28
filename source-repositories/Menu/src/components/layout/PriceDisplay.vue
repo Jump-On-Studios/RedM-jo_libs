@@ -1,7 +1,7 @@
 <template>
   <template v-if="props.price !== undefined && props.price !== false">
     <template v-if="Array.isArray(props.price)">
-      <div :class="['priceDisplay', { priceRight: props.right }]">
+      <div v-bind="$attrs" :class="['priceDisplay', { priceRight: props.right }]">
         <template v-if="props.price.length == 1 && props.price[0].money === 0">
           <span>
             {{ priceRounded(0) }}
@@ -63,7 +63,7 @@
       </div>
     </template>
     <template v-else>
-      <div :class="['priceDisplay', { priceRight: props.right }]">
+      <div v-bind="$attrs" :class="['priceDisplay', { priceRight: props.right }]">
         <div class="monetary">
           <template v-if="props.price.gold">
             <span class="gold">
@@ -89,6 +89,8 @@
 <script setup>
 import { computed } from "vue";
 import { useLangStore } from "../../stores/lang";
+defineOptions({ inheritAttrs: false });
+
 const props = defineProps({
   price: {
     default: false,
@@ -168,6 +170,7 @@ function sortItems(prices) {
   right: 0.92vh;
   display: flex;
   align-items: center;
+  font-family: "Crock";
   font-size: 1.5em;
   height: 100%;
 
@@ -175,7 +178,7 @@ function sortItems(prices) {
     position: static;
     top: auto;
     right: auto;
-    height: var(--price-height);
+    height: auto;
     white-space: nowrap;
   }
 }

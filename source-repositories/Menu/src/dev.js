@@ -17,6 +17,16 @@ let menu = {
       statistics: [
         { label: "test", type: "weapon-bar", value: [30, 100] },
         { label: "blabla", value: "test" },
+        { label: "Money price", type: "price", value: [{ money: 12.5 }] },
+        { label: "Gold price", type: "price", value: [{ gold: 3 }] },
+        {
+          label: "Mixed price",
+          type: "price",
+          value: [
+            { item: "horseLicense", quantity: 2, image: "boots", label: "Boots" },
+            { money: 5 },
+          ],
+        },
       ],
     },
     {
