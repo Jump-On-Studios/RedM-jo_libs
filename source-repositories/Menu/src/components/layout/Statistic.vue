@@ -109,8 +109,4 @@ function IsPossible(value) {
 }
 </script>
 
-<style scoped lang="scss">
-:deep(.stat-price) {
-  font-size: 1em;
-}
-</style>
+<style scoped lang="scss"></style>

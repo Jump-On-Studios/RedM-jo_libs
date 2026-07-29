@@ -55,11 +55,13 @@ body {
 }
 
 .fgold {
-  filter: brightness(0) saturate(100%) invert(90%) sepia(29%) saturate(3711%) hue-rotate(349deg) brightness(108%) contrast(101%) !important;
+  filter: brightness(0) saturate(100%) invert(90%) sepia(29%) saturate(3711%)
+    hue-rotate(349deg) brightness(108%) contrast(101%) !important;
 }
 
 .fgreen {
-  filter: brightness(0) saturate(100%) invert(52%) sepia(70%) saturate(3772%) hue-rotate(63deg) brightness(99%) contrast(102%) !important;
+  filter: brightness(0) saturate(100%) invert(52%) sepia(70%) saturate(3772%)
+    hue-rotate(63deg) brightness(99%) contrast(102%) !important;
 }
 
 .gold {
@@ -115,12 +117,12 @@ body {
     left: 0;
     top: 0;
 
-    &>* {
+    & > * {
       z-index: 10;
       position: relative;
     }
 
-    &>.background {
+    & > .background {
       content: "";
       z-index: 5;
       position: absolute;
@@ -151,7 +153,7 @@ header {
     text-align: center;
   }
 
-  &>.background {
+  & > .background {
     position: absolute;
     left: 0;
     top: 0;
@@ -283,7 +285,7 @@ main {
     opacity: 0.3;
   }
 
-  &>div {
+  & > div {
     display: grid;
   }
 
@@ -503,6 +505,18 @@ main {
     width: 100%;
     margin-bottom: 0.93vh;
 
+    .stat-price {
+      font-size: 1em;
+    }
+    .label {
+      text-align: left;
+    }
+
+    .value {
+      text-align: right;
+      max-width: 70%;
+    }
+
     .stat-bars {
       display: flex;
       column-gap: 0.46vh;
@@ -582,11 +596,13 @@ main {
 }
 
 .v-enter-active .container {
-  transition: -webkit-mask-position-y var(--transition-speed2) cubic-bezier(0, 0.5, 0.5, 1);
+  transition: -webkit-mask-position-y var(--transition-speed2)
+    cubic-bezier(0, 0.5, 0.5, 1);
 }
 
 .v-leave-active .container {
-  transition: -webkit-mask-position-y var(--transition-speed2) cubic-bezier(0.5, 0, 1, 0.5) var(--delay-leave);
+  transition: -webkit-mask-position-y var(--transition-speed2)
+    cubic-bezier(0.5, 0, 1, 0.5) var(--delay-leave);
   -webkit-mask-position-y: -130vh;
 }
 
@@ -605,7 +621,8 @@ main {
   -webkit-mask-repeat: no-repeat;
   -webkit-mask-size: 100% 120%;
   -webkit-mask-position-y: 18.5vh;
-  transition: all var(--transition-speed2) cubic-bezier(0.9, 0.01, 1, 0.5) var(--delay-leave);
+  transition: all var(--transition-speed2) cubic-bezier(0.9, 0.01, 1, 0.5)
+    var(--delay-leave);
 }
 
 .v-leave-active .smudge {
