@@ -337,7 +337,7 @@ end
 function jo.framework.UserClass:getIdentifiers()
   return {
     identifier = self.data.PlayerData.citizenid,
-    charid = 0
+    charid = self.data.PlayerData.citizenid
   }
 end
 
