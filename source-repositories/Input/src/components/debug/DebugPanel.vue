@@ -49,78 +49,82 @@ const stop = onDevLuaCall((method, data) => {
 onBeforeUnmount(stop)
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+// Dev-only tooling: deliberately outside the design tokens, so it never gets
+// mistaken for part of the panel being styled.
+$border: #555;
+
 .debug-panel {
   position: fixed;
   top: 12px;
   right: 12px;
   z-index: 100;
   width: 320px;
-  border: 1px solid #555;
+  border: 1px solid $border;
   background-color: rgba(0, 0, 0, 0.9);
   color: #fff;
   font-family: monospace;
   font-size: 12px;
-}
 
-.debug-panel__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 6px 8px;
-  border-bottom: 1px solid #555;
-  cursor: pointer;
-}
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 8px;
+    border-bottom: 1px solid $border;
+    cursor: pointer;
+  }
 
-.debug-panel.is-collapsed .debug-panel__header {
-  border-bottom: none;
-}
+  &.is-collapsed &__header {
+    border-bottom: none;
+  }
 
-.debug-panel__body {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 8px;
-}
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px;
+  }
 
-.debug-panel__scenarios {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 4px;
-}
+  &__scenarios {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px;
+  }
 
-.debug-panel__button {
-  padding: 6px;
-  border: 1px solid #555;
-  background-color: #222;
-  color: #fff;
-  font-family: inherit;
-  font-size: inherit;
-  cursor: pointer;
-}
+  &__button {
+    padding: 6px;
+    border: 1px solid $border;
+    background-color: #222;
+    color: #fff;
+    font-family: inherit;
+    font-size: inherit;
+    cursor: pointer;
 
-.debug-panel__button:hover {
-  background-color: #333;
-}
+    &:hover {
+      background-color: #333;
+    }
+  }
 
-.debug-panel__label {
-  margin-bottom: 4px;
-  color: #999;
-}
+  &__label {
+    margin-bottom: 4px;
+    color: #999;
+  }
 
-.debug-panel__output pre {
-  max-height: 260px;
-  margin: 0;
-  padding: 6px;
-  overflow: auto;
-  border: 1px solid #333;
-  background-color: #111;
-  user-select: text;
-  white-space: pre-wrap;
-  word-break: break-word;
-}
+  &__output pre {
+    max-height: 260px;
+    margin: 0;
+    padding: 6px;
+    overflow: auto;
+    border: 1px solid #333;
+    background-color: #111;
+    user-select: text;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
 
-.debug-panel__empty {
-  color: #666;
+  &__empty {
+    color: #666;
+  }
 }
 </style>

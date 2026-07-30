@@ -12,7 +12,7 @@ const props = defineProps<{ entry: TitleEntry }>()
 const style = useEntryStyle(() => props.entry)
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .entry-title {
   flex: 1;
   padding: var(--padding-block) var(--padding-input-x);

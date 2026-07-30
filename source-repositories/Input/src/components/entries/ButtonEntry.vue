@@ -25,18 +25,11 @@ function onClick() {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .entry-button {
-  flex: 1;
-  min-height: var(--field-height);
-  padding: var(--padding-input-y) var(--padding-input-x);
-  border: var(--border);
-  background-color: var(--color-field);
-  cursor: pointer;
-}
+  @include surface-button;
 
-.entry-button:hover {
-  border-color: var(--color-border-strong);
-  filter: brightness(1.4);
+  flex: 1;
+  padding: var(--padding-input-y) var(--padding-input-x);
 }
 </style>

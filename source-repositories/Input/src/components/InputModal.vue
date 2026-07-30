@@ -81,7 +81,7 @@ onBeforeUnmount(() => {
 })
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .input-overlay {
   position: fixed;
   inset: 0;
@@ -102,12 +102,10 @@ onBeforeUnmount(() => {
   border: var(--border);
   background-color: var(--color-background);
 
-  /*
-   * Never scrolls, and therefore never clips: a scrolling container would cut
-   * off the select list and the calendar, which are positioned absolutely so
-   * they overlay the rows instead of pushing them down. Tall content is handled
-   * by the price options, which scroll on their own.
-   */
+  // Never scrolls, and therefore never clips: a scrolling container would cut
+  // off the select list and the calendar, which are positioned absolutely so
+  // they overlay the rows instead of pushing them down. Tall content is handled
+  // by the price options, which scroll on their own.
   overflow: visible;
 }
 </style>

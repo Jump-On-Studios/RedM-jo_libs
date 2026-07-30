@@ -1,0 +1,94 @@
+// Shared style fragments, auto-injected into every <style lang="scss"> block by
+// the `additionalData` option in vite.config.ts. Nothing here may emit CSS on
+// its own: only @mixin and @function definitions, otherwise the output would be
+// duplicated once per component.
+//
+// The design tokens stay CSS custom properties in tokens.scss. They are read at
+// runtime and can be overridden per element, which SCSS variables cannot do.
+
+/// Secondary label: dimmed, smaller, small-caps.
+@mixin muted-label {
+  color: var(--color-text-dim);
+  font-size: var(--font-size-small);
+  font-variant-caps: small-caps;
+}
+
+/// Button that reads as a surface: bordered, brightens on hover.
+@mixin surface-button {
+  min-height: var(--field-height);
+  border: var(--border);
+  background-color: var(--color-field);
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    border-color: var(--color-border-strong);
+    filter: brightness(1.4);
+  }
+
+  &:disabled {
+    color: var(--color-placeholder);
+    cursor: not-allowed;
+  }
+}
+
+/// Square button holding a single glyph, used to remove things.
+@mixin icon-button {
+  flex: none;
+  width: 44px;
+  height: var(--field-height);
+  border: var(--border);
+  background-color: var(--color-field);
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--color-red-light);
+  }
+}
+
+/// Inline validation message.
+@mixin message {
+  font-size: var(--font-size-small);
+  line-height: 1.25;
+}
+
+/// Wrapper of an entry that opens a popover: positioning context, raised while
+/// open so the popover covers the rows underneath.
+@mixin popover-host {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+
+  &.is-open {
+    z-index: 20;
+  }
+}
+
+/// Panel opened under its trigger.
+///
+/// It must stay inside .input-container: anything teleported out escapes the
+/// ui-scaler transform. It is absolute rather than in the flow so it overlays
+/// the rows instead of pushing them down, which is why .input-container must
+/// never scroll — a scrolling ancestor would clip it.
+@mixin popover {
+  position: absolute;
+  top: calc(100% + 2px);
+  left: 0;
+}
+
+/// Field that opens a popover: current value on the left, caret on the right.
+@mixin popover-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-small);
+  width: 100%;
+  cursor: pointer;
+  text-align: left;
+}
+
+/// Caret of a popover trigger.
+@mixin caret {
+  flex: none;
+  color: var(--color-text-dim);
+  font-size: var(--font-size-small);
+}

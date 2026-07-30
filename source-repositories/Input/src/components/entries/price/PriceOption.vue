@@ -91,92 +91,69 @@ function removeRequirement(index: number) {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .price-option {
   display: flex;
   flex-direction: column;
   gap: var(--gap-small);
   padding: var(--gap-small);
   border: var(--border);
-}
 
-.price-option__header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--gap);
-}
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--gap);
+  }
 
-.price-option__title {
-  font-variant-caps: small-caps;
-}
+  &__title {
+    font-variant-caps: small-caps;
+  }
 
-.price-option__help {
-  color: var(--color-text-dim);
-  font-size: var(--font-size-small);
-  font-variant-caps: small-caps;
-}
+  &__help {
+    @include muted-label;
+  }
 
-.price-option__empty {
-  padding: var(--padding-block);
-  border: var(--border);
-  color: var(--color-text-dim);
-  text-align: center;
-}
+  &__empty {
+    padding: var(--padding-block);
+    border: var(--border);
+    color: var(--color-text-dim);
+    text-align: center;
+  }
 
-.price-option__requirements {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-small);
-}
+  &__requirements {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-small);
+  }
 
-.price-option__add {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
+  &__add {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
 
-.price-option__types {
-  display: flex;
-  gap: var(--gap-small);
+  &__types {
+    display: flex;
+    gap: var(--gap-small);
+  }
 }
 
 .price-type-button {
+  @include surface-button;
+
   flex: 1;
-  min-height: var(--field-height);
-  border: var(--border);
-  background-color: var(--color-field);
-  cursor: pointer;
-}
-
-.price-type-button:hover:not(:disabled) {
-  border-color: var(--color-border-strong);
-  filter: brightness(1.4);
-}
-
-.price-type-button:disabled {
-  color: var(--color-placeholder);
-  cursor: not-allowed;
 }
 
 .price-icon-button {
-  flex: none;
-  width: 44px;
-  height: var(--field-height);
-  border: var(--border);
-  background-color: var(--color-field);
-  cursor: pointer;
-}
-
-.price-icon-button:hover {
-  border-color: var(--color-red-light);
+  @include icon-button;
 }
 
 .price-message {
-  font-size: var(--font-size-small);
-}
+  @include message;
 
-.price-message--error {
-  color: var(--color-red-light);
+  &--error {
+    color: var(--color-red-light);
+  }
 }
 </style>

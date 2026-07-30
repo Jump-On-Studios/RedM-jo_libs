@@ -2,9 +2,9 @@
   <div class="dev-background"></div>
 </template>
 
-<style scoped>
-/* Stands in for the game behind the panel. Stripped from the build output by
-   the excludeBuildOutput plugin. */
+<style scoped lang="scss">
+// Stands in for the game behind the panel. Stripped from the build output by
+// the excludeBuildOutput plugin.
 .dev-background {
   position: fixed;
   inset: 0;

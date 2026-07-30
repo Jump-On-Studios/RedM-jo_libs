@@ -12,7 +12,7 @@ const props = defineProps<{ entry: LabelEntry }>()
 const style = useEntryStyle(() => props.entry)
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .entry-label {
   flex: 1;
   min-width: 0;

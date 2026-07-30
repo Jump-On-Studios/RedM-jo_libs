@@ -3,12 +3,12 @@ import { createPinia } from 'pinia'
 import { uiScaler } from './directives'
 import App from './App.vue'
 
-import './styles/reset.css'
-import './styles/fonts.css'
-import './styles/tokens.css'
-import './styles/fields.css'
+import './styles/reset.scss'
+import './styles/fonts.scss'
+import './styles/tokens.scss'
+import './styles/fields.scss'
 import '@vuepic/vue-datepicker/dist/main.css'
-import './styles/datepicker.css'
+import './styles/datepicker.scss'
 
 const app = createApp(App)
 

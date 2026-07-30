@@ -27,7 +27,7 @@ defineProps<{
 }>()
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .price-summary {
   display: flex;
   flex-direction: column;
@@ -36,37 +36,36 @@ defineProps<{
   border-left: 3px solid var(--color-border-strong);
   background-color: var(--color-surface);
   font-size: var(--font-size-small);
-}
 
-.price-summary__label {
-  color: var(--color-text-dim);
-  font-variant-caps: small-caps;
-}
+  &__label {
+    @include muted-label;
+  }
 
-.price-summary__line {
-  display: flex;
-  align-items: baseline;
-  gap: var(--gap-small);
-  min-width: 0;
-}
+  &__line {
+    display: flex;
+    align-items: baseline;
+    gap: var(--gap-small);
+    min-width: 0;
 
-.price-summary__line span {
-  flex: none;
-  color: var(--color-text-dim);
-  font-variant-caps: small-caps;
-}
+    span {
+      flex: none;
+      color: var(--color-text-dim);
+      font-variant-caps: small-caps;
+    }
 
-.price-summary__line strong {
-  min-width: 0;
-  font-weight: 500;
-  overflow-wrap: anywhere;
+    strong {
+      min-width: 0;
+      font-weight: 500;
+      overflow-wrap: anywhere;
+    }
+  }
 }
 
 .price-message {
-  font-size: var(--font-size-small);
-}
+  @include message;
 
-.price-message--warning {
-  color: #f0c674;
+  &--warning {
+    color: var(--color-warning);
+  }
 }
 </style>

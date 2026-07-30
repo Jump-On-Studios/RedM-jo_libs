@@ -19,7 +19,7 @@ defineProps<{ row: Entry[] }>()
 const emit = defineEmits<{ submit: [] }>()
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .input-row {
   display: flex;
   align-items: center;

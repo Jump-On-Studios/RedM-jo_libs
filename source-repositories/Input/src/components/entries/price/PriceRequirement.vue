@@ -67,7 +67,7 @@ const emit = defineEmits<{ remove: [] }>()
 const error = computed(() => requirementError(props.requirement))
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .price-requirement {
   display: flex;
   flex-wrap: wrap;
@@ -75,18 +75,18 @@ const error = computed(() => requirementError(props.requirement))
   gap: var(--gap-small);
   padding: var(--gap-small);
   border: var(--border);
-}
 
-.price-requirement.is-invalid {
-  border-color: var(--color-red-light);
-}
+  &.is-invalid {
+    border-color: var(--color-red-light);
+  }
 
-.price-requirement__kind {
-  flex: none;
-  width: 90px;
-  align-self: center;
-  color: var(--color-text-dim);
-  font-variant-caps: small-caps;
+  &__kind {
+    flex: none;
+    width: 90px;
+    align-self: center;
+    color: var(--color-text-dim);
+    font-variant-caps: small-caps;
+  }
 }
 
 .price-field {
@@ -95,18 +95,16 @@ const error = computed(() => requirementError(props.requirement))
   display: flex;
   flex-direction: column;
   gap: 4px;
-}
 
-.price-field--narrow {
-  flex: none;
-  width: 120px;
-  min-width: 0;
-}
+  &--narrow {
+    flex: none;
+    width: 120px;
+    min-width: 0;
+  }
 
-.price-field__label {
-  color: var(--color-text-dim);
-  font-size: var(--font-size-small);
-  font-variant-caps: small-caps;
+  &__label {
+    @include muted-label;
+  }
 }
 
 .price-checkbox {
@@ -118,34 +116,27 @@ const error = computed(() => requirementError(props.requirement))
   color: var(--color-text-dim);
   font-size: var(--font-size-small);
   cursor: pointer;
-}
 
-.price-checkbox input {
-  width: 16px;
-  height: 16px;
-  accent-color: var(--color-red);
-  cursor: pointer;
+  input {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--color-red);
+    cursor: pointer;
+  }
 }
 
 .price-icon-button {
-  flex: none;
-  width: 44px;
-  height: var(--field-height);
-  border: var(--border);
-  background-color: var(--color-field);
-  cursor: pointer;
-}
-
-.price-icon-button:hover {
-  border-color: var(--color-red-light);
+  @include icon-button;
 }
 
 .price-message {
-  flex: 1 0 100%;
-  font-size: var(--font-size-small);
-}
+  @include message;
 
-.price-message--error {
-  color: var(--color-red-light);
+  // Pushed onto its own line of the wrapping flex row.
+  flex: 1 0 100%;
+
+  &--error {
+    color: var(--color-red-light);
+  }
 }
 </style>

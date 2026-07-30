@@ -110,7 +110,7 @@ watch(allowOr, (allowed) => {
 watch(priceValue, (next) => (value.value = next), { immediate: true })
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .price-form {
   flex: 1;
   min-width: 0;
@@ -119,31 +119,23 @@ watch(priceValue, (next) => (value.value = next), { immediate: true })
   gap: var(--gap-small);
   padding: var(--gap-small);
   border: var(--border);
-}
 
-.price-form__title {
-  font-variant-caps: small-caps;
-}
+  &__title {
+    font-variant-caps: small-caps;
+  }
 
-/* The panel itself never scrolls, so the options carry their own scroll: this
-   is the only part that can realistically grow past the panel height. */
-.price-form__options {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-small);
-  max-height: 420px;
-  overflow-y: auto;
-}
+  // The panel itself never scrolls, so the options carry their own scroll: this
+  // is the only part that can realistically grow past the panel height.
+  &__options {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-small);
+    max-height: 420px;
+    overflow-y: auto;
+  }
 
-.price-form__add {
-  min-height: var(--field-height);
-  border: var(--border);
-  background-color: var(--color-field);
-  cursor: pointer;
-}
-
-.price-form__add:hover {
-  border-color: var(--color-border-strong);
-  filter: brightness(1.4);
+  &__add {
+    @include surface-button;
+  }
 }
 </style>

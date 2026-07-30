@@ -12,7 +12,7 @@ const props = defineProps<{ entry: DescriptionEntry }>()
 const style = useEntryStyle(() => props.entry)
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .entry-description {
   flex: 1;
   min-width: 0;

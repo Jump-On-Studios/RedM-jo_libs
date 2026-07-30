@@ -149,67 +149,51 @@ onBeforeUnmount(() => {
 })
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .entry-select {
-  position: relative;
-  flex: 1;
-  min-width: 0;
-}
+  @include popover-host;
 
-/* Raised while open so the list covers the rows underneath. */
-.entry-select.is-open {
-  z-index: 20;
-}
+  &__trigger {
+    @include popover-trigger;
+  }
 
-.entry-select__trigger {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--gap-small);
-  width: 100%;
-  cursor: pointer;
-  text-align: left;
-}
+  &__placeholder {
+    color: var(--color-placeholder);
+  }
 
-.entry-select__placeholder {
-  color: var(--color-placeholder);
-}
+  &__caret {
+    @include caret;
+  }
 
-.entry-select__caret {
-  flex: none;
-  color: var(--color-text-dim);
-  font-size: var(--font-size-small);
-}
+  &__list {
+    @include popover;
 
-.entry-select__list {
-  position: absolute;
-  top: calc(100% + 2px);
-  left: 0;
-  right: 0;
-  max-height: 220px;
-  overflow-y: auto;
-  border: var(--border);
-  background-color: var(--color-surface);
-}
+    right: 0;
+    max-height: 220px;
+    overflow-y: auto;
+    border: var(--border);
+    background-color: var(--color-surface);
+  }
 
-.entry-select__option {
-  display: block;
-  width: 100%;
-  padding: var(--padding-input-y) var(--padding-input-x);
-  cursor: pointer;
-  text-align: left;
-}
+  &__option {
+    display: block;
+    width: 100%;
+    padding: var(--padding-input-y) var(--padding-input-x);
+    cursor: pointer;
+    text-align: left;
 
-.entry-select__option.is-active {
-  background-color: var(--color-field);
-}
+    &.is-active {
+      background-color: var(--color-field);
+    }
 
-.entry-select__option.is-selected {
-  border-left: 3px solid var(--color-border-strong);
-}
+    &.is-selected {
+      border-left: 3px solid var(--color-border-strong);
+    }
+  }
 
-.entry-select__empty {
-  padding: var(--padding-input-y) var(--padding-input-x);
-  color: var(--color-text-dim);
+  &__empty {
+    padding: var(--padding-input-y) var(--padding-input-x);
+    color: var(--color-text-dim);
+  }
 }
 </style>

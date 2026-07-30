@@ -82,6 +82,7 @@ recevrait un sentinel. C'est le rôle du commentaire dans `stores/input.ts::open
 | `type="select"` | composant maison | PrimeVue supprimé : son CSS est en rem et il teleporte |
 | `type="date"` | `@vuepic/vue-datepicker` gardé | réécrire un calendrier était hors budget V1 |
 | Unités | px partout | seule exception : l'overlay, voir invariants |
+| Styles | SCSS dans tous les composants | nesting + mixins partagés, voir ci-dessous |
 | Base de scale | **1080** | tous les tokens px sont calibrés dessus (Minigame utilise 1024 pour ses propres layouts) |
 | Source du scale | **`innerHeight`** | voir invariant 5 |
 | Dev | `dev.ts` + `DebugPanel.vue` | valider les 9 types sans recompiler |
@@ -160,9 +161,31 @@ source-repositories/Input/
       entries/price/          PriceOption / PriceRequirement / PriceSummary
       debug/                  DebugPanel / DevBackground / DevComponent
     composables/              useEntryStyle / useEntryValue / useAutofocus
-    styles/                   tokens / reset / fonts / fields / datepicker
+    styles/                   _mixins + tokens / reset / fonts / fields / datepicker (.scss)
     dev.ts                    fixtures nommées, aucun auto-fire
 ```
+
+### SCSS
+
+Tous les `<style scoped>` sont en `lang="scss"`. `styles/_mixins.scss` est
+**auto-injecté dans chaque bloc** via `css.preprocessorOptions.scss.additionalData`
+dans `vite.config.ts` : pas besoin de `@use` dans les composants.
+
+⚠️ `_mixins.scss` ne doit **jamais émettre de CSS** — uniquement des `@mixin` et
+des `@function`. La moindre règle y serait dupliquée dans chaque composant.
+
+⚠️ **Les tokens restent des custom properties CSS**, pas des variables SCSS : ils
+sont lus au runtime et surchargeables par élément, ce que SCSS ne permet pas. Ne
+pas convertir `--color-*` en `$color-*`.
+
+Les mixins couvrent la duplication réelle constatée : `muted-label`,
+`surface-button`, `icon-button`, `message`, et le quatuor des popovers
+(`popover-host`, `popover`, `popover-trigger`, `caret`) partagé entre
+`SelectInput` et `DateInput`.
+
+Le nesting utilise la concaténation BEM (`&__element`). Conséquence à connaître :
+`grep entry-select__list` ne trouve plus la déclaration, seul `entry-select` la
+trouve.
 
 **Les composants d'entry sont autonomes** : ils reçoivent uniquement `:entry` et
 lisent/écrivent leur valeur dans le store via `useEntryValue(() => props.entry)`.

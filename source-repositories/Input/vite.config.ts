@@ -30,6 +30,16 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     },
   },
+  css: {
+    preprocessorOptions: {
+      scss: {
+        // Makes the shared mixins available in every component without each of
+        // them having to @use the partial. It defines no rule, so nothing is
+        // duplicated in the output.
+        additionalData: '@use "@/styles/mixins" as *;\n',
+      },
+    },
+  },
   build: {
     outDir,
     emptyOutDir: true,

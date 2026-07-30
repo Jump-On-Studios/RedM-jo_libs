@@ -108,41 +108,24 @@ function onKeyDown(event: KeyboardEvent) {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .entry-date {
-  position: relative;
-  flex: 1;
-  min-width: 0;
-}
+  @include popover-host;
 
-/* Raised while open so the calendar covers the rows underneath. */
-.entry-date.is-open {
-  z-index: 20;
-}
+  &__popover {
+    @include popover;
+  }
 
-.entry-date__popover {
-  position: absolute;
-  top: calc(100% + 2px);
-  left: 0;
-}
+  &__trigger {
+    @include popover-trigger;
+  }
 
-.entry-date__trigger {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--gap-small);
-  width: 100%;
-  cursor: pointer;
-  text-align: left;
-}
+  &__placeholder {
+    color: var(--color-placeholder);
+  }
 
-.entry-date__placeholder {
-  color: var(--color-placeholder);
-}
-
-.entry-date__caret {
-  flex: none;
-  color: var(--color-text-dim);
-  font-size: var(--font-size-small);
+  &__caret {
+    @include caret;
+  }
 }
 </style>
