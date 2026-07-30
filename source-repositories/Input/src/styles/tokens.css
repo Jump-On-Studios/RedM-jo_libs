@@ -1,0 +1,56 @@
+/*
+ * Every dimension is expressed in px against a 1080p reference viewport.
+ * The panel is scaled as a whole by the ui-scaler directive, so no relative
+ * unit (em, rem, vw, vh) may be used outside of the full-screen overlay.
+ */
+:root {
+  /* Colors */
+  --color-overlay: rgba(0, 0, 0, 0.8);
+  --color-background: #191919;
+  --color-surface: #232323;
+  --color-field: #2f2f2f;
+  --color-border: #4a4a4a;
+  --color-border-strong: #6e6e6e;
+  --color-text: #ffffff;
+  --color-text-dim: #9a9a9a;
+  --color-placeholder: #757575;
+  --color-red: #770000;
+  --color-red-light: #e20202;
+  --color-green: #007518;
+
+  /* Typography */
+  --font: Hapna, sans-serif;
+  --font-size: 18px;
+  --font-size-small: 15px;
+  --font-size-title: 22px;
+
+  /* Metrics */
+  --border: 1px solid var(--color-border);
+  --gap: 12px;
+  --gap-small: 6px;
+  --padding-container: 16px;
+  --padding-block: 12px;
+  --padding-input-y: 10px;
+  --padding-input-x: 12px;
+  --field-height: 44px;
+
+  /* Panel */
+  --modal-width: 1040px;
+  --modal-max-height: 864px;
+}
+
+body {
+  color: var(--color-text);
+  font-family: var(--font);
+  font-size: var(--font-size);
+  font-weight: 500;
+}
+
+/* Legacy helper classes accepted through `entry.class`. */
+.bg-red {
+  background-color: var(--color-red) !important;
+}
+
+.bg-green {
+  background-color: var(--color-green) !important;
+}

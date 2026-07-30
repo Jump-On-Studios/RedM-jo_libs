@@ -1,0 +1,65 @@
+/*
+ * Overrides for @vuepic/vue-datepicker. Its own stylesheet is rem-based and
+ * ships from node_modules, so this file only remaps its custom properties onto
+ * the px tokens of the panel. The calendar is rendered inline (teleport=false)
+ * so that it stays inside the element the ui-scaler directive will scale.
+ */
+.dp__theme_dark {
+  --dp-background-color: var(--color-field);
+  --dp-text-color: var(--color-text);
+  --dp-hover-color: #3d3d3d;
+  --dp-hover-text-color: var(--color-text);
+  --dp-hover-icon-color: var(--color-text-dim);
+  --dp-primary-color: var(--color-red);
+  --dp-primary-disabled-color: var(--color-red);
+  --dp-primary-text-color: var(--color-text);
+  --dp-secondary-color: var(--color-text-dim);
+  --dp-border-color: var(--color-border);
+  --dp-menu-border-color: var(--color-border);
+  --dp-border-color-hover: var(--color-border-strong);
+  --dp-border-color-focus: var(--color-border-strong);
+  --dp-disabled-color: #4f4f4f;
+  --dp-disabled-color-text: var(--color-text-dim);
+  --dp-scroll-bar-background: var(--color-background);
+  --dp-scroll-bar-color: var(--color-border);
+  --dp-icon-color: var(--color-text-dim);
+  --dp-danger-color: var(--color-red);
+  --dp-marker-color: var(--color-red);
+  --dp-tooltip-color: var(--color-surface);
+  --dp-range-between-dates-background-color: var(--dp-hover-color);
+  --dp-range-between-dates-text-color: var(--dp-hover-text-color);
+  --dp-range-between-border-color: var(--dp-hover-color);
+  --dp-border-radius: 0;
+  --dp-font-family: var(--font);
+  --dp-font-size: var(--font-size-small);
+  --dp-menu-min-width: 320px;
+  --dp-input-padding: var(--padding-input-y) var(--padding-input-x);
+}
+
+.dp__main {
+  flex: 1;
+  min-width: 0;
+}
+
+.dp__input {
+  min-height: var(--field-height);
+  border: var(--border);
+  color: var(--color-text);
+  background-color: var(--color-field);
+}
+
+.dp__input::placeholder {
+  color: var(--color-placeholder);
+  opacity: 1;
+}
+
+.dp__input:focus,
+.dp__input:focus-visible {
+  border-color: var(--color-border-strong);
+  outline: none;
+}
+
+/* Inline menu: keep it out of the flow so it does not resize the row. */
+.dp__menu {
+  border: var(--border);
+}

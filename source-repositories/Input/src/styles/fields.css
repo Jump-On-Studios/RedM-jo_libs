@@ -1,0 +1,30 @@
+/*
+ * Shared appearance of the editable controls. Kept global because the text,
+ * number, select, date and price inputs all render the same kind of field.
+ */
+.entry-input {
+  flex: 1;
+  min-width: 0;
+  min-height: var(--field-height);
+  padding: var(--padding-input-y) var(--padding-input-x);
+  border: var(--border);
+  background-color: var(--color-field);
+  color: var(--color-text);
+}
+
+.entry-input::placeholder {
+  color: var(--color-placeholder);
+  opacity: 1;
+}
+
+.entry-input:focus,
+.entry-input:focus-visible {
+  border-color: var(--color-border-strong);
+  outline: none;
+}
+
+/* Blinked by the store when a required entry is left empty. */
+.error {
+  border-color: var(--color-red-light) !important;
+  box-shadow: 0 0 5px var(--color-red-light);
+}
