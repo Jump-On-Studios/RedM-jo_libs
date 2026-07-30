@@ -125,10 +125,14 @@ watch(priceValue, (next) => (value.value = next), { immediate: true })
   font-variant-caps: small-caps;
 }
 
+/* The panel itself never scrolls, so the options carry their own scroll: this
+   is the only part that can realistically grow past the panel height. */
 .price-form__options {
   display: flex;
   flex-direction: column;
   gap: var(--gap-small);
+  max-height: 420px;
+  overflow-y: auto;
 }
 
 .price-form__add {

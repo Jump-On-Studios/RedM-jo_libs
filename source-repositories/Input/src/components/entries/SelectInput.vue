@@ -1,5 +1,5 @@
 <template>
-  <div ref="root" class="entry-select" :class="entry.class" :style="style">
+  <div ref="root" class="entry-select" :class="[entry.class, { 'is-open': isOpen }]" :style="style">
     <button
       ref="field"
       type="button"
@@ -15,9 +15,9 @@
     </button>
 
     <!--
-      The list is rendered in the flow, never teleported: it has to stay inside
-      the panel so the ui-scaler directive scales it too, and so the scrollable
-      container cannot clip it.
+      Overlays the rows below instead of pushing them down, and is never
+      teleported: it stays inside the panel so the ui-scaler directive scales it
+      along with everything else.
     -->
     <ul v-if="isOpen" class="entry-select__list">
       <li v-for="(option, index) in options" :key="index">
@@ -151,11 +151,14 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .entry-select {
+  position: relative;
   flex: 1;
   min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+}
+
+/* Raised while open so the list covers the rows underneath. */
+.entry-select.is-open {
+  z-index: 20;
 }
 
 .entry-select__trigger {
@@ -179,6 +182,10 @@ onBeforeUnmount(() => {
 }
 
 .entry-select__list {
+  position: absolute;
+  top: calc(100% + 2px);
+  left: 0;
+  right: 0;
   max-height: 220px;
   overflow-y: auto;
   border: var(--border);

@@ -1,5 +1,11 @@
 <template>
-  <div ref="root" class="entry-date" :class="entry.class" :style="style" @keydown="onKeyDown">
+  <div
+    ref="root"
+    class="entry-date"
+    :class="[entry.class, { 'is-open': isOpen }]"
+    :style="style"
+    @keydown="onKeyDown"
+  >
     <button
       ref="field"
       type="button"
@@ -14,25 +20,27 @@
     </button>
 
     <!--
-      The calendar uses the `inline` mode instead of the default popup: it stays
-      in the flow, inside the element the ui-scaler directive will scale, and the
-      scrollable panel cannot clip it.
+      The calendar uses the `inline` mode rather than the library popup, so it is
+      never teleported out of the panel, and our own absolute wrapper overlays it
+      on the rows below instead of pushing them down. Everything stays inside the
+      element the ui-scaler directive will scale.
     -->
-    <VueDatePicker
-      v-if="isOpen"
-      v-model="value"
-      inline
-      auto-apply
-      dark
-      prevent-min-max-navigation
-      :teleport="false"
-      :enable-time-picker="false"
-      :year-range="yearRange"
-      :start-date="startDate"
-      :format="entry.format"
-      :model-type="entry.format"
-      @update:model-value="close"
-    />
+    <div v-if="isOpen" class="entry-date__popover">
+      <VueDatePicker
+        v-model="value"
+        inline
+        auto-apply
+        dark
+        prevent-min-max-navigation
+        :teleport="false"
+        :enable-time-picker="false"
+        :year-range="yearRange"
+        :start-date="startDate"
+        :format="entry.format"
+        :model-type="entry.format"
+        @update:model-value="close"
+      />
+    </div>
   </div>
 </template>
 
@@ -102,11 +110,20 @@ function onKeyDown(event: KeyboardEvent) {
 
 <style scoped>
 .entry-date {
+  position: relative;
   flex: 1;
   min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+}
+
+/* Raised while open so the calendar covers the rows underneath. */
+.entry-date.is-open {
+  z-index: 20;
+}
+
+.entry-date__popover {
+  position: absolute;
+  top: calc(100% + 2px);
+  left: 0;
 }
 
 .entry-date__trigger {

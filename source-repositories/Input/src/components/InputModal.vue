@@ -91,14 +91,22 @@ onBeforeUnmount(() => {
 }
 
 .input-container {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: var(--gap);
   width: var(--modal-width);
   max-height: var(--modal-max-height);
   padding: var(--padding-container);
-  overflow-y: auto;
   border: var(--border);
   background-color: var(--color-background);
+
+  /*
+   * Never scrolls, and therefore never clips: a scrolling container would cut
+   * off the select list and the calendar, which are positioned absolutely so
+   * they overlay the rows instead of pushing them down. Tall content is handled
+   * by the price options, which scroll on their own.
+   */
+  overflow: visible;
 }
 </style>
