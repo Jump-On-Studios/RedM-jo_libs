@@ -2,21 +2,58 @@
   <div class="price-form" :class="[entry.class, { error: hasError }]" :style="style">
     <div class="price-form__title">Payment options</div>
 
-    <div class="price-form__options">
-      <PriceOption
+    <div
+      v-if="allowOr"
+      class="price-form__tabs"
+      role="tablist"
+      aria-label="Payment options"
+    >
+      <button
         v-for="(option, index) in options"
+        :id="`price-option-tab-${option.key}`"
         :key="option.key"
-        :option="option"
-        :index="index"
-        :available-types="availableTypes"
-        :can-remove="options.length > 1"
-        @remove="removeOption(index)"
-      />
+        type="button"
+        class="price-form__tab"
+        :class="{ active: option.key === activeOptionKey, invalid: optionError(option) }"
+        role="tab"
+        :aria-selected="option.key === activeOptionKey"
+        aria-controls="price-option-panel"
+        @click="selectOption(option.key)"
+      >
+        <span>Option {{ index + 1 }}</span>
+        <small>{{ option.requirements.length }}</small>
+        <span v-if="optionError(option)" aria-label="invalid"> *</span>
+      </button>
+
+      <button
+        type="button"
+        class="price-form__tab price-form__tab--add"
+        aria-label="Add another payment option"
+        @click="addOption"
+      >
+        +
+      </button>
     </div>
 
-    <button v-if="allowOr" type="button" class="price-form__add" @click="addOption">
-      + Add another way to pay
-    </button>
+    <div
+      id="price-option-panel"
+      class="price-form__options"
+      role="tabpanel"
+      :aria-labelledby="
+        allowOr && activeOption
+          ? `price-option-tab-${activeOption.key}`
+          : undefined
+      "
+    >
+      <PriceOption
+        v-if="activeOption"
+        :option="activeOption"
+        :index="activeOptionIndex"
+        :available-types="availableTypes"
+        :can-remove="options.length > 1"
+        @remove="removeOption(activeOptionIndex)"
+      />
+    </div>
 
     <PriceSummary
       v-if="summaryLines.length > 0"
@@ -38,6 +75,7 @@ import {
   areOptionsValid,
   buildPriceValue,
   createOption,
+  optionError,
   parsePriceValue,
   summarizeOption,
 } from '@/helpers/price'
@@ -60,6 +98,14 @@ const availableTypes = computed(() => {
 
 // The initial value comes from Lua in any shape jo.pricing accepts.
 const options = ref(parsePriceValue(props.entry.value, allowOr.value))
+const activeOptionKey = ref(options.value[0]?.key ?? null)
+
+const activeOptionIndex = computed(() => {
+  const index = options.value.findIndex((option) => option.key === activeOptionKey.value)
+  return index >= 0 ? index : 0
+})
+
+const activeOption = computed(() => options.value[activeOptionIndex.value] ?? null)
 
 const usableOptions = computed(() =>
   allowOr.value ? options.value : options.value.slice(0, 1),
@@ -92,17 +138,31 @@ const singleLabel = computed(() => {
 function addOption() {
   if (!allowOr.value) return
 
-  options.value.push(createOption())
+  const option = createOption()
+  options.value.push(option)
+  activeOptionKey.value = option.key
 }
 
 function removeOption(index: number) {
   if (options.value.length <= 1) return
 
+  const removedOption = options.value[index]
   options.value.splice(index, 1)
+
+  if (removedOption?.key === activeOptionKey.value) {
+    activeOptionKey.value = options.value[index]?.key ?? options.value[index - 1]?.key ?? null
+  }
+}
+
+function selectOption(key: string) {
+  if (options.value.some((option) => option.key === key)) activeOptionKey.value = key
 }
 
 watch(allowOr, (allowed) => {
-  if (!allowed && options.value.length > 1) options.value = [options.value[0]!]
+  if (!allowed && options.value.length > 1) {
+    options.value = [options.value[0]!]
+    activeOptionKey.value = options.value[0]?.key ?? null
+  }
 })
 
 // Publishes the canonical payload as soon as the form is mounted, so the entry
@@ -124,6 +184,39 @@ watch(priceValue, (next) => (value.value = next), { immediate: true })
     font-variant-caps: small-caps;
   }
 
+  &__tabs {
+    display: flex;
+    gap: var(--gap-small);
+  }
+
+  &__tab {
+    @include surface-button;
+
+    flex: 0 1 180px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+
+    small {
+      color: var(--color-text-dim);
+      font-size: var(--font-size-small);
+    }
+
+    &.active {
+      border-color: var(--color-border-strong);
+    }
+
+    &.invalid {
+      color: var(--color-red-light);
+    }
+
+    &--add {
+      flex: 0 0 44px;
+      font-size: var(--font-size-title);
+    }
+  }
+
   // The panel itself never scrolls, so the options carry their own scroll: this
   // is the only part that can realistically grow past the panel height.
   &__options {
@@ -134,8 +227,5 @@ watch(priceValue, (next) => (value.value = next), { immediate: true })
     overflow-y: auto;
   }
 
-  &__add {
-    @include surface-button;
-  }
 }
 </style>

@@ -105,9 +105,6 @@ onBeforeUnmount(() => {
   // border and no `cover`: the image is stretched so all four edges stay
   // visible. The flat colour only shows if the texture fails to load.
   background-color: var(--color-background);
-  background-image: url("/assets/ui/bg.png");
-  background-repeat: no-repeat;
-  background-size: 100% 100%;
 
   // Never scrolls, and therefore never clips: a scrolling container would cut
   // off the select list and the calendar, which are positioned absolutely so
