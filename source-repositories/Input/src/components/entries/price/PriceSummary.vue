@@ -8,9 +8,7 @@
     </template>
 
     <template v-else>
-      <span class="price-summary__label">
-        {{ warning ? 'Current options:' : 'Player can pay either:' }}
-      </span>
+      <span class="price-summary__label">What the player will see</span>
       <div v-for="(line, index) in lines" :key="index" class="price-summary__line">
         <span>Option {{ index + 1 }}</span>
         <strong>{{ line }}</strong>

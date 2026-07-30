@@ -5,15 +5,27 @@
         <div class="price-option__title">Option {{ index + 1 }}</div>
         <div class="price-option__help">Player must pay all of these</div>
       </div>
-      <button
-        v-if="canRemove"
-        type="button"
-        class="price-icon-button"
-        title="Remove payment option"
-        @click="emit('remove')"
-      >
-        X
-      </button>
+      <div class="price-option__actions">
+        <button
+          v-if="canDuplicate"
+          type="button"
+          class="price-option__action"
+          title="Duplicate payment option"
+          @click="emit('duplicate')"
+        >
+          Duplicate option
+        </button>
+        <button
+          v-if="canRemove"
+          type="button"
+          class="price-icon-button"
+          title="Remove payment option"
+          aria-label="Remove payment option"
+          @click="emit('remove')"
+        >
+          X
+        </button>
+      </div>
     </header>
 
     <div v-if="option.requirements.length === 0" class="price-option__empty">
@@ -68,9 +80,10 @@ const props = defineProps<{
   index: number
   availableTypes: CostTypeChoice[]
   canRemove: boolean
+  canDuplicate: boolean
 }>()
 
-const emit = defineEmits<{ remove: [] }>()
+const emit = defineEmits<{ remove: []; duplicate: [] }>()
 
 const error = computed(() => optionError(props.option))
 
@@ -104,6 +117,16 @@ function removeRequirement(index: number) {
     align-items: flex-start;
     justify-content: space-between;
     gap: var(--gap);
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--gap-small);
+  }
+
+  &__action {
+    @include surface-button;
   }
 
   &__title {

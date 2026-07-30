@@ -1,6 +1,14 @@
 <template>
   <div class="price-form" :class="[entry.class, { error: hasError }]" :style="style">
     <div class="price-form__title">Payment options</div>
+    <div class="price-form__description">
+      <template v-if="allowOr">
+        The player pays one of these options. Requirements inside an option are combined.
+      </template>
+      <template v-else>
+        The player pays all requirements in this option.
+      </template>
+    </div>
 
     <div
       v-if="allowOr"
@@ -51,6 +59,8 @@
         :index="activeOptionIndex"
         :available-types="availableTypes"
         :can-remove="options.length > 1"
+        :can-duplicate="allowOr"
+        @duplicate="duplicateOption(activeOptionIndex)"
         @remove="removeOption(activeOptionIndex)"
       />
     </div>
@@ -75,6 +85,7 @@ import {
   areOptionsValid,
   buildPriceValue,
   createOption,
+  createRequirement,
   optionError,
   parsePriceValue,
   summarizeOption,
@@ -141,6 +152,27 @@ function addOption() {
   const option = createOption()
   options.value.push(option)
   activeOptionKey.value = option.key
+}
+
+function duplicateOption(index: number) {
+  if (!allowOr.value) return
+
+  const source = options.value[index]
+  if (!source) return
+
+  const duplicate = createOption(
+    source.requirements.map((requirement) =>
+      createRequirement(requirement.type, {
+        value: requirement.value,
+        itemName: requirement.itemName,
+        quantity: requirement.quantity,
+        keep: requirement.keep,
+      }),
+    ),
+  )
+
+  options.value.splice(index + 1, 0, duplicate)
+  activeOptionKey.value = duplicate.key
 }
 
 function removeOption(index: number) {
