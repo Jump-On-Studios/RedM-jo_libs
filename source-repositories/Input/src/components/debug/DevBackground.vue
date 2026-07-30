@@ -9,7 +9,7 @@
   position: fixed;
   inset: 0;
   z-index: -1;
-  background-image: url('/assets/ui/dev_bg.jpg');
+  background-image: url("/assets/ui/capture.webp");
   background-position: center;
   background-size: cover;
 }
