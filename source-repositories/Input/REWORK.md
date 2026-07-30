@@ -165,6 +165,22 @@ source-repositories/Input/
     dev.ts                    fixtures nommées, aucun auto-fire
 ```
 
+### Images
+
+Elles vivent dans **`public/assets/ui/`** et sont référencées en **URL absolue**
+(`url('/assets/ui/bg.png')`), comme dans Menu, Prompt et Minigame. Avec
+`base: './'`, Vite réécrit ces URLs en relatif dans le CSS généré
+(`url(../assets/ui/bg.png)`), donc elles résolvent correctement sous `nui://`.
+Pas besoin de passer par `src/` ni par un import.
+
+Les fontes sont le seul cas particulier : elles sont **partagées** entre les
+repos, donc hors de `public/`, et c'est le plugin `nuiSharedFonts` qui les sert
+en dev puis réécrit leur URL au build.
+
+`excludeBuildOutput` ne retire que les assets **de dev** (`assets/ui/capture.webp`),
+comme Prompt retire `assets/images/debug` et Minigame `img/debug`. Le reste de
+`public/` est livré.
+
 ### SCSS
 
 Tous les `<style scoped>` sont en `lang="scss"`. `styles/_mixins.scss` est

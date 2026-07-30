@@ -18,67 +18,67 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted } from 'vue'
-import InputRow from '@/components/InputRow.vue'
-import { useInputStore } from '@/stores/input'
+import { onBeforeUnmount, onMounted } from "vue";
+import InputRow from "@/components/InputRow.vue";
+import { useInputStore } from "@/stores/input";
 
-const inputStore = useInputStore()
+const inputStore = useInputStore();
 
 /**
  * Set while Enter is held down, so a key repeat cannot submit the next panel
  * opened by the same interaction.
  */
-let ignoreEnter = false
+let ignoreEnter = false;
 
 /** Shared gate between the field-level Enter and the global one. */
 function acceptsEnter(): boolean {
-  if (ignoreEnter) return false
+  if (ignoreEnter) return false;
 
   if (inputStore.isEnterGuarded()) {
-    ignoreEnter = true
-    return false
+    ignoreEnter = true;
+    return false;
   }
 
-  return true
+  return true;
 }
 
 /** Enter pressed inside a field: submits whatever buttons the panel declares. */
 function submitFromField() {
-  if (!acceptsEnter()) return
+  if (!acceptsEnter()) return;
 
-  inputStore.submit('Enter')
+  inputStore.submit("Enter");
 }
 
 function onKeyDown(event: KeyboardEvent) {
-  if (event.code === 'Escape') {
-    event.preventDefault()
-    inputStore.cancel()
-    return
+  if (event.code === "Escape") {
+    event.preventDefault();
+    inputStore.cancel();
+    return;
   }
 
-  if (event.code !== 'Enter') return
-  if (!acceptsEnter()) return
+  if (event.code !== "Enter") return;
+  if (!acceptsEnter()) return;
   // A focused field handles its own Enter through the submit event.
-  if (document.activeElement?.tagName !== 'BODY') return
+  if (document.activeElement?.tagName !== "BODY") return;
   // With buttons on screen, the player is expected to pick one.
-  if (inputStore.hasButton) return
+  if (inputStore.hasButton) return;
 
-  inputStore.submit('Enter')
+  inputStore.submit("Enter");
 }
 
 function onKeyUp(event: KeyboardEvent) {
-  if (event.code === 'Enter') ignoreEnter = false
+  if (event.code === "Enter") ignoreEnter = false;
 }
 
 onMounted(() => {
-  window.addEventListener('keydown', onKeyDown)
-  window.addEventListener('keyup', onKeyUp)
-})
+  window.addEventListener("keydown", onKeyDown);
+  window.addEventListener("keyup", onKeyUp);
+});
 
 onBeforeUnmount(() => {
-  window.removeEventListener('keydown', onKeyDown)
-  window.removeEventListener('keyup', onKeyUp)
-})
+  window.removeEventListener("keydown", onKeyDown);
+  window.removeEventListener("keyup", onKeyUp);
+});
 </script>
 
 <style scoped lang="scss">
@@ -88,7 +88,8 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--color-overlay);
+  // background-color: var(--color-overlay);
+  background-color: rgba(0, 0, 0, 0.2);
 }
 
 .input-container {
@@ -99,8 +100,14 @@ onBeforeUnmount(() => {
   width: var(--modal-width);
   max-height: var(--modal-max-height);
   padding: var(--padding-container);
-  border: var(--border);
+
+  // Painted texture whose ragged edges are the panel border, hence no CSS
+  // border and no `cover`: the image is stretched so all four edges stay
+  // visible. The flat colour only shows if the texture fails to load.
   background-color: var(--color-background);
+  background-image: url("/assets/ui/bg.png");
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
 
   // Never scrolls, and therefore never clips: a scrolling container would cut
   // off the select list and the calendar, which are positioned absolutely so

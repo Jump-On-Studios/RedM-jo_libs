@@ -20,8 +20,11 @@ export default defineConfig({
     excludeBuildOutput({
       rootUrl: new URL('.', import.meta.url),
       outDir,
+      // Only the dev-only assets are stripped, like Prompt does with
+      // assets/images/debug and Minigame with img/debug. Everything else in
+      // public/assets/ui ships.
       paths: [
-        'assets/ui',
+        'assets/ui/capture.webp',
       ],
     }),
   ],
