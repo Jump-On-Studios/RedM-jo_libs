@@ -1,10 +1,6 @@
 <template>
   <section class="price-option">
     <header class="price-option__header">
-      <div>
-        <div class="price-option__title">Option {{ index + 1 }}</div>
-        <div class="price-option__help">Player must pay all of these</div>
-      </div>
       <div class="price-option__actions">
         <button
           v-if="canDuplicate"
@@ -13,26 +9,28 @@
           title="Duplicate payment option"
           @click="emit('duplicate')"
         >
-          Duplicate option
+          Duplicate
         </button>
         <button
           v-if="canRemove"
           type="button"
-          class="price-icon-button"
+          class="price-option__action"
           title="Remove payment option"
           aria-label="Remove payment option"
           @click="emit('remove')"
         >
-          X
+          Remove
         </button>
       </div>
     </header>
 
     <div v-if="option.requirements.length === 0" class="price-option__empty">
-      Choose what the player must pay for this option.
+      Add a requirement to this option.
     </div>
 
-    <span v-if="error" class="price-message price-message--error">{{ error }}</span>
+    <span v-if="error && option.requirements.length > 0" class="price-message price-message--error">
+      {{ error }}
+    </span>
 
     <div class="price-option__requirements">
       <PriceRequirement
@@ -109,13 +107,11 @@ function removeRequirement(index: number) {
   display: flex;
   flex-direction: column;
   gap: var(--gap-small);
-  padding: var(--gap-small);
-  border: var(--border);
 
   &__header {
     display: flex;
     align-items: flex-start;
-    justify-content: space-between;
+    justify-content: flex-end;
     gap: var(--gap);
   }
 
@@ -126,11 +122,12 @@ function removeRequirement(index: number) {
   }
 
   &__action {
-    @include surface-button;
-  }
-
-  &__title {
-    font-variant-caps: small-caps;
+    padding: 4px 0;
+    border: 0;
+    background: transparent;
+    color: var(--color-text-dim);
+    font-size: var(--font-size-small);
+    cursor: pointer;
   }
 
   &__help {
@@ -139,7 +136,6 @@ function removeRequirement(index: number) {
 
   &__empty {
     padding: var(--padding-block);
-    border: var(--border);
     color: var(--color-text-dim);
     text-align: center;
   }
@@ -147,7 +143,7 @@ function removeRequirement(index: number) {
   &__requirements {
     display: flex;
     flex-direction: column;
-    gap: var(--gap-small);
+    gap: 0;
   }
 
   &__add {
@@ -166,10 +162,6 @@ function removeRequirement(index: number) {
   @include surface-button;
 
   flex: 1;
-}
-
-.price-icon-button {
-  @include icon-button;
 }
 
 .price-message {

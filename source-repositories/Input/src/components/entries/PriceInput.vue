@@ -1,15 +1,5 @@
 <template>
   <div class="price-form" :class="[entry.class, { error: hasError }]" :style="style">
-    <div class="price-form__title">Payment options</div>
-    <div class="price-form__description">
-      <template v-if="allowOr">
-        The player pays one of these options. Requirements inside an option are combined.
-      </template>
-      <template v-else>
-        The player pays all requirements in this option.
-      </template>
-    </div>
-
     <div
       v-if="allowOr"
       class="price-form__tabs"
@@ -29,7 +19,7 @@
         @click="selectOption(option.key)"
       >
         <span>Option {{ index + 1 }}</span>
-        <small>{{ option.requirements.length }}</small>
+        <small v-if="option.requirements.length > 0">{{ option.requirements.length }}</small>
         <span v-if="optionError(option)" aria-label="invalid"> *</span>
       </button>
 
@@ -209,26 +199,26 @@ watch(priceValue, (next) => (value.value = next), { immediate: true })
   display: flex;
   flex-direction: column;
   gap: var(--gap-small);
-  padding: var(--gap-small);
-  border: var(--border);
-
-  &__title {
-    font-variant-caps: small-caps;
-  }
 
   &__tabs {
     display: flex;
-    gap: var(--gap-small);
+    gap: 0;
+    border-bottom: var(--border);
   }
 
   &__tab {
-    @include surface-button;
-
     flex: 0 1 180px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 6px;
+    min-height: var(--field-height);
+    padding: 0 var(--gap);
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    color: var(--color-text-dim);
+    cursor: pointer;
 
     small {
       color: var(--color-text-dim);
@@ -236,7 +226,8 @@ watch(priceValue, (next) => (value.value = next), { immediate: true })
     }
 
     &.active {
-      border-color: var(--color-border-strong);
+      border-bottom-color: var(--color-border-strong);
+      color: var(--color-text);
     }
 
     &.invalid {
@@ -245,6 +236,7 @@ watch(priceValue, (next) => (value.value = next), { immediate: true })
 
     &--add {
       flex: 0 0 44px;
+      padding: 0;
       font-size: var(--font-size-title);
     }
   }
@@ -258,6 +250,5 @@ watch(priceValue, (next) => (value.value = next), { immediate: true })
     max-height: 420px;
     overflow-y: auto;
   }
-
 }
 </style>

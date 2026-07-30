@@ -14,13 +14,40 @@ const style = useEntryStyle(() => props.entry)
 
 <style scoped lang="scss">
 .entry-title {
-  flex: 1;
-  padding: var(--padding-block) var(--padding-input-x);
-  border: var(--border);
-  background-color: var(--color-surface);
-  font-size: var(--font-size-title);
-  font-weight: bold;
-  font-variant-caps: small-caps;
+  position: relative;
+  flex: 0 1 auto;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 auto;
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 72px;
+  border: 0;
+  background: transparent;
+  color: #e6e4e0;
+  font-family: Crock, serif;
+  font-size: 30px;
+  font-weight: 400;
+  font-variant-caps: normal;
+  line-height: 1.1;
   text-align: center;
+  text-transform: uppercase;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border: 24px solid transparent;
+    border-right-width: 34px;
+    border-left-width: 34px;
+    border-image-source: url("/assets/ui/menu_header.png");
+    border-image-slice: 24 34;
+    border-image-width: 24px 34px;
+    border-image-repeat: stretch;
+    filter: sepia(0.06) saturate(0.35) brightness(0.92);
+    pointer-events: none;
+  }
 }
 </style>

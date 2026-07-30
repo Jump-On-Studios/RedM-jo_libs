@@ -73,11 +73,11 @@ const error = computed(() => requirementError(props.requirement))
   flex-wrap: wrap;
   align-items: flex-end;
   gap: var(--gap-small);
-  padding: var(--gap-small);
-  border: var(--border);
+  padding: var(--gap-small) 0;
+  border-bottom: var(--border);
 
   &.is-invalid {
-    border-color: var(--color-red-light);
+    color: var(--color-red-light);
   }
 
   &__kind {
