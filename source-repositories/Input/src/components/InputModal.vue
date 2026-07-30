@@ -2,10 +2,11 @@
   <!--
     The overlay is the only element allowed to use viewport units: it must cover
     the screen whatever the scale. The container below holds every px dimension
-    and is the element the ui-scaler directive will be applied to.
+    and carries the scaling, so the whole panel keeps the proportions it was
+    designed with on a 1080p viewport.
   -->
   <div class="input-overlay">
-    <div class="input-container">
+    <div v-ui-scaler="'center center'" class="input-container">
       <InputRow
         v-for="(row, rowIndex) in inputStore.rows"
         :key="rowIndex"

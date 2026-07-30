@@ -1,5 +1,6 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
+import { uiScaler } from './directives'
 import App from './App.vue'
 
 import './styles/reset.css'
@@ -12,4 +13,5 @@ import './styles/datepicker.css'
 const app = createApp(App)
 
 app.use(createPinia())
+app.directive('ui-scaler', uiScaler)
 app.mount('#app')
