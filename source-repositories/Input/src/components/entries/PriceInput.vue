@@ -320,25 +320,27 @@ watch(priceValue, (next) => (value.value = next), { immediate: true });
 
     &-count {
       position: absolute;
-      top: -7px;
-      right: -7px;
+      top: -5px;
+      right: -5px;
       z-index: 4;
       display: inline-grid;
       place-items: center;
       flex: none;
-      width: 22px;
-      height: 22px;
-      border: 1px solid var(--color-border-strong);
+      width: 18px;
+      height: 18px;
+      border: 0;
       border-radius: 50%;
       background-color: color-mix(
         in srgb,
-        var(--color-background) 68%,
-        transparent
+        var(--color-field) 76%,
+        var(--color-background)
       );
-      color: var(--color-text);
-      font-size: 13px;
+      box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-background) 86%, transparent);
+      color: var(--color-text-dim);
+      font-size: 11px;
       font-weight: 600;
       line-height: 1;
+      text-shadow: 0 1px 0 rgba(0, 0, 0, 0.65);
     }
 
     &-invalid {
@@ -352,6 +354,11 @@ watch(priceValue, (next) => (value.value = next), { immediate: true });
       &::before,
       &::after {
         opacity: 1;
+      }
+
+      .price-form__tab-count {
+        background-color: var(--color-red);
+        color: var(--color-text);
       }
     }
 
