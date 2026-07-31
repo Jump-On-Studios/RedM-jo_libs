@@ -6,7 +6,7 @@
 :root {
   /* Colors */
   --color-overlay: rgba(0, 0, 0, 0.8);
-  --color-background: #191919;
+  --color-background: #000000;
   --color-surface: #232323;
   --color-field: #2f2f2f;
   --color-border: #4a4a4a;
@@ -38,6 +38,15 @@
   /* Panel */
   --modal-width: 1040px;
   --modal-max-height: 90vh;
+  /* 9-patch backdrop: corner size taken from bg.png, then drawn at that same
+     size so the painted edges keep their native density (the source is 1024px
+     wide, the panel 1040px). The bleed pushes the ragged edges outwards so they
+     eat into the margin rather than into --padding-container. Patches overlap
+     by --backdrop-overlap so no seam can show between them; it only has to
+     outlast the scale, a quarter of the panel still leaves a whole pixel. */
+  --modal-frame-width: 96px;
+  --modal-bleed: 24px;
+  --backdrop-overlap: 4px;
 }
 
 body {
