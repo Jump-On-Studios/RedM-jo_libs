@@ -34,6 +34,14 @@
   --padding-input-y: 10px;
   --padding-input-x: 12px;
   --field-height: 44px;
+  /* The four painted entries stand taller than the legacy flat controls, which
+     keep --field-height so the price rows and their buttons stay as they are. */
+  --entry-field-height: 58px;
+  --entry-field-padding: 14px 18px;
+  --entry-field-font-size: 21px;
+  /* Thickness of the red frame drawn around a focused field, from hover.png.
+     The Menu draws it at 0.75vh, which is this on a 1080p viewport. */
+  --field-frame-width: 8px;
 
   /* Panel */
   --modal-width: 1040px;

@@ -86,9 +86,76 @@
   text-align: left;
 }
 
-/// Caret of a popover trigger.
+/// Caret of a popover trigger. Sized off the field it sits in, not off the
+/// panel, so it grows with --entry-field-font-size.
 @mixin caret {
   flex: none;
-  color: var(--color-text-dim);
-  font-size: var(--font-size-small);
+  color: var(--color-text);
+  font-size: 0.8em;
+}
+
+/// Painted surface of an editable field, ported from the Menu's item list
+/// (source-repositories/Menu/src/components/layout/ItemList.vue), which layers
+/// the same two bitmaps: `selection_box_bg_1d` for the box, `hover` for the red
+/// frame the game draws around whatever the player is on.
+///
+/// Both are white bitmaps whose shape only exists in their alpha, so the box is
+/// masked over a flat fill rather than painted: its colour keeps coming from a
+/// token, and --color-field still drives it. The frame is a 9-patch, kept at
+/// opacity 0 until the field takes focus so that revealing it never moves
+/// anything.
+///
+/// The Menu insets its texture from the item box because items sit flush
+/// against each other; the fields here are separated by --gap, so the texture
+/// fills its element and the frame lands right on its edge, as in the mockup.
+@mixin field-surface {
+  position: relative;
+  // Without a stacking context of its own, the texture's negative z-index would
+  // drop it behind the whole panel, next to the backdrop patches.
+  isolation: isolate;
+  border: 0;
+  background: transparent;
+  color: var(--color-text);
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-color: var(--color-field);
+    -webkit-mask-image: url("/assets/ui/selection_box_bg_1d.png");
+    -webkit-mask-size: 100% 100%;
+    -webkit-mask-repeat: no-repeat;
+  }
+
+  &::after {
+    @include selection-frame;
+
+    opacity: 0;
+  }
+
+  // :focus-within matches the element itself as well as its descendants, which
+  // covers both the wrapped inputs and the buttons that open a popover.
+  &:focus-within::after {
+    opacity: 1;
+  }
+
+  &:focus-within {
+    outline: none;
+  }
+}
+
+/// The red frame the game draws around whatever the player is on, from
+/// hover.png. Meant for a pseudo-element covering its host.
+@mixin selection-frame {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: var(--field-frame-width) solid transparent;
+  border-image-source: url("/assets/ui/hover.png");
+  border-image-slice: 10;
+  // The four edges of hover.png are plain straight lines, so stretching them
+  // costs nothing and avoids the rounding of `round`.
+  border-image-repeat: stretch;
+  pointer-events: none;
 }

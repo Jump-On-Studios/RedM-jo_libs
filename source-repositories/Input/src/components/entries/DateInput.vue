@@ -9,7 +9,7 @@
     <button
       ref="field"
       type="button"
-      class="entry-input entry-date__trigger"
+      class="entry-field entry-date__trigger"
       :class="{ error: hasError }"
       @click="toggle"
     >

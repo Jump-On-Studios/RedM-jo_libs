@@ -3,7 +3,7 @@
     <button
       ref="field"
       type="button"
-      class="entry-input entry-select__trigger"
+      class="entry-field entry-select__trigger"
       :class="{ error: hasError }"
       @click="toggle"
       @keydown="onKeyDown"
@@ -169,21 +169,30 @@ onBeforeUnmount(() => {
     @include popover;
 
     right: 0;
-    max-height: 220px;
+    max-height: 280px;
     overflow-y: auto;
     border: var(--border);
     background-color: var(--color-surface);
+    // Matches the trigger it drops from rather than the panel.
+    font-size: var(--entry-field-font-size);
   }
 
   &__option {
+    position: relative;
     display: block;
     width: 100%;
-    padding: var(--padding-input-y) var(--padding-input-x);
+    padding: var(--entry-field-padding);
     cursor: pointer;
     text-align: left;
 
+    // Same frame as a focused field, so keyboard and mouse land on the option
+    // the way they land on a Menu item.
     &.is-active {
       background-color: var(--color-field);
+
+      &::after {
+        @include selection-frame;
+      }
     }
 
     &.is-selected {
@@ -192,7 +201,7 @@ onBeforeUnmount(() => {
   }
 
   &__empty {
-    padding: var(--padding-input-y) var(--padding-input-x);
+    padding: var(--entry-field-padding);
     color: var(--color-text-dim);
   }
 }

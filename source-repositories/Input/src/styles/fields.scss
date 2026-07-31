@@ -1,7 +1,72 @@
 /*
- * Shared appearance of the editable controls. Kept global because the text,
- * number, select, date and price inputs all render the same kind of field.
+ * Shared appearance of the editable controls.
+ *
+ * .entry-field is the painted surface of the text, number, select and date
+ * entries: an element carrying the two bitmap layers of the field-surface mixin
+ * and, for the first two, wrapping the real control. The wrapper exists because
+ * an <input> is a replaced element and renders no ::before or ::after, so it
+ * cannot hold the layers itself; the select and date triggers are buttons and
+ * take the class directly.
+ *
+ * .entry-input is the older flat control, still worn by the price rows. Their
+ * layout is a chantier of its own and they keep the plain look until then.
  */
+.entry-field {
+  @include field-surface;
+
+  display: flex;
+  align-items: center;
+  gap: var(--gap-small);
+  flex: 1;
+  min-width: 0;
+  min-height: var(--entry-field-height);
+  padding: var(--entry-field-padding);
+  font-size: var(--entry-field-font-size);
+  cursor: text;
+}
+
+/* The control itself keeps no box of its own: the wrapper is the field. */
+.entry-field__control {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  outline: none;
+}
+
+.entry-field__control::placeholder {
+  color: var(--color-placeholder);
+  opacity: 1;
+}
+
+/* The game has no such widget: a number is typed, and the arrows would sit
+   right where the focus frame is drawn. */
+.entry-field__control::-webkit-outer-spin-button,
+.entry-field__control::-webkit-inner-spin-button {
+  margin: 0;
+  appearance: none;
+}
+
+/*
+ * Blinked by the store when a required entry is left empty. The frame is
+ * already red, so the field is flooded as well to tell the two apart: a frame
+ * alone would read as focus.
+ */
+.entry-field.error::after {
+  opacity: 1;
+}
+
+.entry-field.error::before {
+  background-color: var(--color-red);
+}
+
+/* The generic .error glow below is a rectangle, which the ragged box is not. */
+.entry-field.error {
+  box-shadow: none;
+}
+
 .entry-input {
   flex: 1;
   min-width: 0;

@@ -1,18 +1,19 @@
 <template>
-  <input
-    :id="entry.id"
-    ref="field"
-    v-model.number="value"
-    type="number"
-    class="entry-input"
-    :class="[entry.class, { error: hasError }]"
-    :style="style"
-    :placeholder="entry.placeholder"
-    :min="entry.min"
-    :max="entry.max"
-    :step="entry.step"
-    @keydown.enter="emit('submit')"
-  />
+  <!-- Wrapped for the same reason as the text entry, see TextInput.vue. -->
+  <label class="entry-field" :class="[entry.class, { error: hasError }]" :style="style">
+    <input
+      :id="entry.id"
+      ref="field"
+      v-model.number="value"
+      type="number"
+      class="entry-field__control"
+      :placeholder="entry.placeholder"
+      :min="entry.min"
+      :max="entry.max"
+      :step="entry.step"
+      @keydown.enter="emit('submit')"
+    />
+  </label>
 </template>
 
 <script setup lang="ts">

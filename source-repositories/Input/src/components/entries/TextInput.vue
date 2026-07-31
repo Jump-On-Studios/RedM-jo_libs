@@ -1,15 +1,20 @@
 <template>
-  <input
-    :id="entry.id"
-    ref="field"
-    v-model="value"
-    type="text"
-    class="entry-input"
-    :class="[entry.class, { error: hasError }]"
-    :style="style"
-    :placeholder="entry.placeholder"
-    @keydown.enter="emit('submit')"
-  />
+  <!--
+    The painted surface is the label, not the input: an <input> renders no
+    ::before or ::after, so it cannot carry the two bitmap layers itself. Being
+    a label, clicking anywhere on the box focuses the control.
+  -->
+  <label class="entry-field" :class="[entry.class, { error: hasError }]" :style="style">
+    <input
+      :id="entry.id"
+      ref="field"
+      v-model="value"
+      type="text"
+      class="entry-field__control"
+      :placeholder="entry.placeholder"
+      @keydown.enter="emit('submit')"
+    />
+  </label>
 </template>
 
 <script setup lang="ts">
