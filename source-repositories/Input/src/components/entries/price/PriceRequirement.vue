@@ -52,7 +52,7 @@
       title="Remove requirement"
       @click="emit('remove')"
     >
-      <span aria-hidden="true">×</span>
+      <img src="/assets/ui/trash.png" alt="" aria-hidden="true" />
     </button>
 
     <span v-if="error" class="price-message price-message--error">{{ error }}</span>
@@ -161,6 +161,7 @@ const error = computed(() => requirementError(props.requirement))
 
 .price-checkbox {
   position: relative;
+  align-self: center;
   flex: none;
   display: flex;
   align-items: center;
@@ -194,16 +195,17 @@ const error = computed(() => requirementError(props.requirement))
     &::before {
       content: "";
       display: block;
-      width: 20px;
-      height: 20px;
-      border: 1px solid var(--color-border-strong);
+      width: 24px;
+      height: 24px;
       background: var(--color-field);
+      background-image: url('/assets/ui/selection_box_square.png');
+      background-position: center;
+      background-size: 100% 100%;
     }
   }
 
   &:has(input:checked) span::before {
-    border-color: var(--color-red-light);
-    background: var(--color-red);
+    background-color: var(--color-red);
     box-shadow: inset 0 0 0 4px var(--color-field);
   }
 
@@ -220,17 +222,33 @@ const error = computed(() => requirementError(props.requirement))
 .price-icon-button {
   @include icon-button;
 
+  align-self: center;
   display: grid;
   place-items: center;
-  width: 42px;
-  color: var(--color-text-dim);
-  font-size: 24px;
-  line-height: 1;
+  width: 36px;
+  height: var(--field-height);
+  border: 0;
+  background: transparent;
+  color: var(--color-red-light);
+
+  img {
+    display: block;
+    width: 22px;
+    height: 22px;
+    opacity: 0.8;
+    transition: opacity 120ms ease, transform 120ms ease;
+  }
 
   &:hover,
   &:focus-visible {
-    color: var(--color-red-light);
+    border: 0;
+    background: transparent;
     outline: none;
+
+    img {
+      opacity: 1;
+      transform: scale(1.08);
+    }
   }
 }
 
