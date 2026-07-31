@@ -29,7 +29,7 @@
         aria-label="Add another payment option"
         @click="addOption"
       >
-        +
+        <span aria-hidden="true">+</span>
       </button>
     </div>
 
@@ -201,33 +201,59 @@ watch(priceValue, (next) => (value.value = next), { immediate: true })
   gap: var(--gap-small);
 
   &__tabs {
+    position: relative;
     display: flex;
-    gap: 0;
-    border-bottom: var(--border);
+    gap: 4px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid color-mix(in srgb, var(--color-text) 28%, transparent);
   }
 
   &__tab {
-    flex: 0 1 180px;
+    position: relative;
+    flex: 0 1 190px;
+    isolation: isolate;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 6px;
-    min-height: var(--field-height);
-    padding: 0 var(--gap);
+    min-height: 48px;
+    padding: 0 18px;
     border: 0;
-    border-bottom: 2px solid transparent;
     background: transparent;
     color: var(--color-text-dim);
     cursor: pointer;
+    transition: color 120ms ease, filter 120ms ease;
+
+    &::before {
+      content: "";
+      position: absolute;
+      inset: 2px 0;
+      z-index: -1;
+      background-color: color-mix(in srgb, var(--color-field) 86%, transparent);
+      -webkit-mask: url('/assets/ui/selection_box_bg_1d.png') center / 100% 100% no-repeat;
+      mask: url('/assets/ui/selection_box_bg_1d.png') center / 100% 100% no-repeat;
+      opacity: 0.55;
+    }
+
+    &::after {
+      @include selection-frame;
+      opacity: 0;
+      transition: opacity 120ms ease;
+    }
 
     small {
       color: var(--color-text-dim);
       font-size: var(--font-size-small);
+      opacity: 0.75;
     }
 
     &.active {
-      border-bottom-color: var(--color-border-strong);
       color: var(--color-text);
+
+      &::before,
+      &::after {
+        opacity: 1;
+      }
     }
 
     &.invalid {
@@ -238,6 +264,19 @@ watch(priceValue, (next) => (value.value = next), { immediate: true })
       flex: 0 0 44px;
       padding: 0;
       font-size: var(--font-size-title);
+
+      span {
+        transform: translateY(-1px);
+      }
+    }
+
+    &:hover,
+    &:focus-visible {
+      color: var(--color-text);
+
+      &::after {
+        opacity: 1;
+      }
     }
   }
 

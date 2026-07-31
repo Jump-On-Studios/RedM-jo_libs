@@ -1,6 +1,8 @@
 <template>
   <div class="price-summary">
-    <span v-if="warning" class="price-message price-message--warning">{{ warning }}</span>
+    <span v-if="warning" class="price-message price-message--warning">
+      {{ warning }}
+    </span>
 
     <template v-if="lines.length === 1">
       <span class="price-summary__label">{{ singleLabel }}</span>
@@ -9,7 +11,11 @@
 
     <template v-else>
       <span class="price-summary__label">Preview</span>
-      <div v-for="(line, index) in lines" :key="index" class="price-summary__line">
+      <div
+        v-for="(line, index) in lines"
+        :key="index"
+        class="price-summary__line"
+      >
         <span>Option {{ index + 1 }}</span>
         <strong>{{ line }}</strong>
       </div>
@@ -19,24 +25,37 @@
 
 <script setup lang="ts">
 defineProps<{
-  lines: string[]
-  warning: string | null
-  singleLabel: string
-}>()
+  lines: string[];
+  warning: string | null;
+  singleLabel: string;
+}>();
 </script>
 
 <style scoped lang="scss">
 .price-summary {
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: var(--padding-block);
+  gap: 6px;
+  padding: 15px 18px;
   border-left: 3px solid var(--color-border-strong);
-  background-color: var(--color-surface);
+  // background: color-mix(in srgb, var(--color-surface) 97%, transparent);
   font-size: var(--font-size-small);
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: url("/assets/ui/help_text_1c.png") center / 100% 100% no-repeat;
+    opacity: 0.1;
+  }
 
   &__label {
     @include muted-label;
+    position: relative;
+    color: var(--color-text);
+    letter-spacing: 0.04em;
   }
 
   &__line {
@@ -44,6 +63,7 @@ defineProps<{
     align-items: baseline;
     gap: var(--gap-small);
     min-width: 0;
+    position: relative;
 
     span {
       flex: none;
@@ -61,6 +81,7 @@ defineProps<{
 
 .price-message {
   @include message;
+  position: relative;
 
   &--warning {
     color: var(--color-warning);

@@ -4,6 +4,7 @@
 
     <template v-if="requirement.type === 'item'">
       <label class="price-field">
+        <span class="entry-field__caps" aria-hidden="true" />
         <span class="price-field__label">Item</span>
         <input
           v-model="requirement.itemName"
@@ -13,6 +14,7 @@
         />
       </label>
       <label class="price-field price-field--narrow">
+        <span class="entry-field__caps" aria-hidden="true" />
         <span class="price-field__label">Qty</span>
         <input
           v-model.number="requirement.quantity"
@@ -25,12 +27,13 @@
       </label>
       <label class="price-checkbox">
         <input v-model="requirement.keep" type="checkbox" />
-        <span>Keep item</span>
+        <span>Keep</span>
       </label>
     </template>
 
     <template v-else>
       <label class="price-field">
+        <span class="entry-field__caps" aria-hidden="true" />
         <span class="price-field__label">Amount</span>
         <input
           v-model.number="requirement.value"
@@ -49,7 +52,7 @@
       title="Remove requirement"
       @click="emit('remove')"
     >
-      X
+      <span aria-hidden="true">×</span>
     </button>
 
     <span v-if="error" class="price-message price-message--error">{{ error }}</span>
@@ -69,12 +72,13 @@ const error = computed(() => requirementError(props.requirement))
 
 <style scoped lang="scss">
 .price-requirement {
+  position: relative;
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
   gap: var(--gap-small);
-  padding: var(--gap-small) 0;
-  border-bottom: var(--border);
+  padding: 10px 0 12px;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-text) 22%, transparent);
 
   &.is-invalid {
     color: var(--color-red-light);
@@ -85,16 +89,62 @@ const error = computed(() => requirementError(props.requirement))
     width: 90px;
     align-self: center;
     color: var(--color-text-dim);
+    font-size: var(--font-size-small);
     font-variant-caps: small-caps;
+    letter-spacing: 0.04em;
   }
 }
 
 .price-field {
+  position: relative;
+  isolation: isolate;
   flex: 1;
   min-width: 140px;
   display: flex;
   flex-direction: column;
   gap: 4px;
+  min-height: 66px;
+  padding: 9px 13px 7px;
+  border: 0;
+  background: transparent;
+  color: var(--color-text);
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    left: calc(var(--entry-field-cap) - var(--entry-field-cap-overlap));
+    right: calc(var(--entry-field-cap) - var(--entry-field-cap-overlap));
+    z-index: -1;
+    background-color: var(--color-field);
+    -webkit-mask: url('/assets/ui/selection_box_bg_1d.png') center / 200% 100% no-repeat;
+    mask: url('/assets/ui/selection_box_bg_1d.png') center / 200% 100% no-repeat;
+  }
+
+  &::after {
+    @include selection-frame;
+    opacity: 0;
+    transition: opacity 120ms ease;
+  }
+
+  &:focus-within::after {
+    opacity: 1;
+  }
+
+  input {
+    position: relative;
+    min-height: 30px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--color-text);
+    outline: none;
+  }
+
+  input::placeholder {
+    color: var(--color-placeholder);
+    opacity: 1;
+  }
 
   &--narrow {
     flex: none;
@@ -104,10 +154,13 @@ const error = computed(() => requirementError(props.requirement))
 
   &__label {
     @include muted-label;
+    position: relative;
+    padding-left: 3px;
   }
 }
 
 .price-checkbox {
+  position: relative;
   flex: none;
   display: flex;
   align-items: center;
@@ -118,15 +171,67 @@ const error = computed(() => requirementError(props.requirement))
   cursor: pointer;
 
   input {
-    width: 16px;
-    height: 16px;
-    accent-color: var(--color-red);
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
     cursor: pointer;
+
+    &:focus-visible {
+      & + span::before {
+        outline: 2px solid var(--color-red-light);
+        outline-offset: 3px;
+      }
+    }
+  }
+
+  span {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+
+    &::before {
+      content: "";
+      display: block;
+      width: 20px;
+      height: 20px;
+      border: 1px solid var(--color-border-strong);
+      background: var(--color-field);
+    }
+  }
+
+  &:has(input:checked) span::before {
+    border-color: var(--color-red-light);
+    background: var(--color-red);
+    box-shadow: inset 0 0 0 4px var(--color-field);
+  }
+
+  &:has(input:checked) span::after {
+    content: "✓";
+    position: absolute;
+    left: 4px;
+    color: var(--color-text);
+    font-size: 15px;
+    line-height: 20px;
   }
 }
 
 .price-icon-button {
   @include icon-button;
+
+  display: grid;
+  place-items: center;
+  width: 42px;
+  color: var(--color-text-dim);
+  font-size: 24px;
+  line-height: 1;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--color-red-light);
+    outline: none;
+  }
 }
 
 .price-message {

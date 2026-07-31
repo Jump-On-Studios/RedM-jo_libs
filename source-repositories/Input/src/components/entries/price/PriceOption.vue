@@ -9,7 +9,8 @@
           title="Duplicate payment option"
           @click="emit('duplicate')"
         >
-          Duplicate
+          <span class="price-option__action-icon" aria-hidden="true">+</span>
+          <span>Duplicate</span>
         </button>
         <button
           v-if="canRemove"
@@ -122,12 +123,34 @@ function removeRequirement(index: number) {
   }
 
   &__action {
-    padding: 4px 0;
-    border: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 30px;
+    padding: 0 6px;
+    border: 1px solid transparent;
     background: transparent;
     color: var(--color-text-dim);
     font-size: var(--font-size-small);
     cursor: pointer;
+
+    &:hover,
+    &:focus-visible {
+      border-color: var(--color-border-strong);
+      color: var(--color-text);
+      outline: none;
+    }
+  }
+
+  &__action-icon {
+    display: inline-grid;
+    place-items: center;
+    width: 18px;
+    height: 18px;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+    font-size: 16px;
+    line-height: 1;
   }
 
   &__help {
@@ -161,7 +184,45 @@ function removeRequirement(index: number) {
 .price-type-button {
   @include surface-button;
 
+  position: relative;
+  isolation: isolate;
   flex: 1;
+  min-height: 50px;
+  border: 0;
+  background: transparent;
+  color: var(--color-text);
+  transition: filter 120ms ease, color 120ms ease;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-color: var(--color-field);
+    -webkit-mask: url('/assets/ui/selection_box_bg_1d.png') center / 100% 100% no-repeat;
+    mask: url('/assets/ui/selection_box_bg_1d.png') center / 100% 100% no-repeat;
+  }
+
+  &::after {
+    @include selection-frame;
+    opacity: 0;
+    transition: opacity 120ms ease;
+  }
+
+  &:hover:not(:disabled),
+  &:focus-visible:not(:disabled) {
+    color: var(--color-text);
+    outline: none;
+    filter: brightness(1.2);
+
+    &::after {
+      opacity: 1;
+    }
+  }
+
+  &:disabled {
+    opacity: 0.45;
+  }
 }
 
 .price-message {
