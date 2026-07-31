@@ -395,6 +395,7 @@ watch(priceValue, (next) => (value.value = next), { immediate: true });
     display: flex;
     flex-direction: column;
     gap: 8px;
+    background-color: color-mix(in srgb, var(--color-surface) 20%, transparent);
     padding: 20px 20px;
     border-left: 3px solid
       color-mix(in srgb, var(--color-border-strong) 58%, transparent);

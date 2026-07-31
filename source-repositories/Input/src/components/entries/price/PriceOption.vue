@@ -7,20 +7,20 @@
           v-if="canDuplicate"
           type="button"
           class="price-option__action"
-          title="Duplicate this option"
+          title="Duplicate option"
           @click="emit('duplicate')"
         >
-          Duplicate this option
+          Duplicate option
         </button>
         <button
           v-if="canRemove"
           type="button"
           class="price-option__action"
-          title="Remove this option"
-          aria-label="Remove this option"
+          title="Remove option"
+          aria-label="Remove option"
           @click="emit('remove')"
         >
-          Remove this option
+          Remove option
         </button>
       </div>
     </header>
@@ -29,7 +29,10 @@
       Add a requirement to this option.
     </div>
 
-    <span v-if="error && option.requirements.length > 0" class="price-message price-message--error">
+    <span
+      v-if="error && option.requirements.length > 0"
+      class="price-message price-message--error"
+    >
       {{ error }}
     </span>
 
@@ -70,8 +73,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import PriceRequirement from './PriceRequirement.vue'
+import { computed } from "vue";
+import PriceRequirement from "./PriceRequirement.vue";
 import {
   createRequirement,
   isTypeDisabled,
@@ -79,45 +82,45 @@ import {
   typeLabel,
   type CostTypeChoice,
   type PriceOption,
-} from '@/helpers/price'
-import type { PriceCostType } from '@/types/entries'
+} from "@/helpers/price";
+import type { PriceCostType } from "@/types/entries";
 
 const props = defineProps<{
-  option: PriceOption
-  index: number
-  availableTypes: CostTypeChoice[]
-  canRemove: boolean
-  canDuplicate: boolean
-}>()
+  option: PriceOption;
+  index: number;
+  availableTypes: CostTypeChoice[];
+  canRemove: boolean;
+  canDuplicate: boolean;
+}>();
 
-const emit = defineEmits<{ remove: []; duplicate: [] }>()
+const emit = defineEmits<{ remove: []; duplicate: [] }>();
 
-const error = computed(() => optionError(props.option))
+const error = computed(() => optionError(props.option));
 
 const requirementIcons: Partial<Record<PriceCostType, string>> = {
-  money: '/assets/ui/dollar.png',
-  gold: '/assets/ui/gold.png',
-  item: '/assets/ui/item.png',
-}
+  money: "/assets/ui/dollar.png",
+  gold: "/assets/ui/gold.png",
+  item: "/assets/ui/item.png",
+};
 
 function typeIcon(type: PriceCostType) {
-  return requirementIcons[type]
+  return requirementIcons[type];
 }
 
 function buttonTitle(type: PriceCostType) {
-  if (!isTypeDisabled(props.option, type)) return `Add ${typeLabel(type)}`
+  if (!isTypeDisabled(props.option, type)) return `Add ${typeLabel(type)}`;
 
-  return `${typeLabel(type)} is already in this option.`
+  return `${typeLabel(type)} is already in this option.`;
 }
 
 function addRequirement(type: PriceCostType) {
-  if (isTypeDisabled(props.option, type)) return
+  if (isTypeDisabled(props.option, type)) return;
 
-  props.option.requirements.push(createRequirement(type))
+  props.option.requirements.push(createRequirement(type));
 }
 
 function removeRequirement(index: number) {
-  props.option.requirements.splice(index, 1)
+  props.option.requirements.splice(index, 1);
 }
 </script>
 
@@ -201,7 +204,8 @@ function removeRequirement(index: number) {
       right: 0;
       left: 0;
       height: 1px;
-      background: url('/assets/ui/divider_line.png') center / 100% 100% no-repeat;
+      background: url("/assets/ui/divider_line.png") center / 100% 100%
+        no-repeat;
       opacity: 0.42;
       pointer-events: none;
     }
@@ -227,16 +231,23 @@ function removeRequirement(index: number) {
   background: transparent;
   color: var(--color-text);
   gap: 9px;
-  transition: filter 120ms ease, color 120ms ease;
+  transition:
+    filter 120ms ease,
+    color 120ms ease;
 
   &::before {
     content: "";
     position: absolute;
     inset: 0;
     z-index: -1;
-    background-color: color-mix(in srgb, var(--color-field) 78%, var(--color-background));
-    -webkit-mask: url('/assets/ui/selection_box_bg_1d.png') center / 100% 100% no-repeat;
-    mask: url('/assets/ui/selection_box_bg_1d.png') center / 100% 100% no-repeat;
+    background-color: color-mix(
+      in srgb,
+      var(--color-field) 78%,
+      var(--color-background)
+    );
+    -webkit-mask: url("/assets/ui/selection_box_bg_1d.png") center / 100% 100%
+      no-repeat;
+    mask: url("/assets/ui/selection_box_bg_1d.png") center / 100% 100% no-repeat;
   }
 
   &::after {
