@@ -1,6 +1,16 @@
 <template>
   <article class="price-requirement" :class="{ 'is-invalid': error }">
-    <span class="price-requirement__kind">{{ typeLabel(requirement.type) }}</span>
+    <span class="price-requirement__kind">
+      <span
+        v-if="requirementIcon(requirement.type)"
+        class="price-requirement__icon"
+        :class="`is-${requirement.type}`"
+        aria-hidden="true"
+      >
+        <img :src="requirementIcon(requirement.type)" alt="" />
+      </span>
+      <span>{{ typeLabel(requirement.type) }}</span>
+    </span>
 
     <template v-if="requirement.type === 'item'">
       <label class="price-field">
@@ -62,12 +72,23 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { requirementError, typeLabel, type PriceRequirement } from '@/helpers/price'
+import type { PriceCostType } from '@/types/entries'
 
 const props = defineProps<{ requirement: PriceRequirement }>()
 
 const emit = defineEmits<{ remove: [] }>()
 
 const error = computed(() => requirementError(props.requirement))
+
+const requirementIcons: Partial<Record<PriceCostType, string>> = {
+  money: '/assets/ui/dollar.png',
+  gold: '/assets/ui/gold.png',
+  item: '/assets/ui/item.png',
+}
+
+function requirementIcon(type: PriceCostType) {
+  return requirementIcons[type]
+}
 </script>
 
 <style scoped lang="scss">
@@ -91,10 +112,50 @@ const error = computed(() => requirementError(props.requirement))
     flex: none;
     width: 90px;
     align-self: center;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     color: var(--color-text-dim);
     font-size: var(--font-size-small);
     font-variant-caps: small-caps;
     letter-spacing: 0.04em;
+  }
+
+  &__icon {
+    position: relative;
+    display: block;
+    flex: none;
+    width: 18px;
+    height: 18px;
+    overflow: hidden;
+    filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.55));
+
+    img {
+      position: absolute;
+      display: block;
+      max-width: none;
+    }
+
+    &.is-money img {
+      top: -3px;
+      left: -8px;
+      width: 24px;
+      height: 24px;
+    }
+
+    &.is-gold img {
+      top: 2px;
+      left: 2px;
+      width: 14px;
+      height: 14px;
+    }
+
+    &.is-item img {
+      top: -1px;
+      left: -2px;
+      width: 19px;
+      height: 19px;
+    }
   }
 }
 
