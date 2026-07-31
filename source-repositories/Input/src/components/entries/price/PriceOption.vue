@@ -141,7 +141,7 @@ function removeRequirement(index: number) {
   &__heading {
     margin-right: auto;
     color: var(--color-text-dim);
-    font-size: 13px;
+    font-size: 15px;
     font-variant-caps: small-caps;
     letter-spacing: 0.08em;
   }

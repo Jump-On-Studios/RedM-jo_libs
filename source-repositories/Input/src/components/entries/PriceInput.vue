@@ -265,7 +265,7 @@ watch(priceValue, (next) => (value.value = next), { immediate: true });
 
     small {
       color: var(--color-text-dim);
-      font-size: 13px;
+      font-size: 15px;
     }
   }
 
