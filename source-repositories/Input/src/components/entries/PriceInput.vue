@@ -1,5 +1,9 @@
 <template>
-  <div class="price-form" :class="[entry.class, { error: hasError }]" :style="style">
+  <div
+    class="price-form"
+    :class="[entry.class, { error: hasError }]"
+    :style="style"
+  >
     <div class="price-form__heading">
       <span>Payment options</span>
       <small v-if="allowOr">Choose one or more ways to meet the price</small>
@@ -16,7 +20,10 @@
         :key="option.key"
         type="button"
         class="price-form__tab"
-        :class="{ active: option.key === activeOptionKey, invalid: optionError(option) }"
+        :class="{
+          active: option.key === activeOptionKey,
+          invalid: optionError(option),
+        }"
         role="tab"
         :aria-selected="option.key === activeOptionKey"
         aria-controls="price-option-panel"
@@ -30,7 +37,11 @@
         >
           {{ option.requirements.length }}
         </span>
-        <span v-if="optionError(option)" class="price-form__tab-invalid" aria-label="invalid">
+        <span
+          v-if="optionError(option)"
+          class="price-form__tab-invalid"
+          aria-label="invalid"
+        >
           !
         </span>
       </button>
@@ -77,11 +88,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
-import PriceOption from './price/PriceOption.vue'
-import PriceSummary from './price/PriceSummary.vue'
-import { useEntryStyle } from '@/composables/useEntryStyle'
-import { useEntryValue } from '@/composables/useEntryValue'
+import { computed, ref, watch } from "vue";
+import PriceOption from "./price/PriceOption.vue";
+import PriceSummary from "./price/PriceSummary.vue";
+import { useEntryStyle } from "@/composables/useEntryStyle";
+import { useEntryValue } from "@/composables/useEntryValue";
 import {
   ALL_COST_TYPES,
   areOptionsValid,
@@ -91,76 +102,85 @@ import {
   optionError,
   parsePriceValue,
   summarizeOption,
-} from '@/helpers/price'
-import type { PriceEntry, PriceResult } from '@/types/entries'
+} from "@/helpers/price";
+import type { PriceEntry, PriceResult } from "@/types/entries";
 
-const props = defineProps<{ entry: PriceEntry }>()
+const props = defineProps<{ entry: PriceEntry }>();
 
-const style = useEntryStyle(() => props.entry)
-const { value, hasError } = useEntryValue<PriceResult | null>(() => props.entry)
+const style = useEntryStyle(() => props.entry);
+const { value, hasError } = useEntryValue<PriceResult | null>(
+  () => props.entry,
+);
 
-const allowOr = computed(() => props.entry.allowOR ?? true)
+const allowOr = computed(() => props.entry.allowOR ?? true);
 
 const availableTypes = computed(() => {
-  const allowed = props.entry.options
+  const allowed = props.entry.options;
 
-  if (!allowed || allowed.length === 0) return ALL_COST_TYPES
+  if (!allowed || allowed.length === 0) return ALL_COST_TYPES;
 
-  return ALL_COST_TYPES.filter((choice) => allowed.includes(choice.value))
-})
+  return ALL_COST_TYPES.filter((choice) => allowed.includes(choice.value));
+});
 
 // The initial value comes from Lua in any shape jo.pricing accepts.
-const options = ref(parsePriceValue(props.entry.value, allowOr.value))
-const activeOptionKey = ref(options.value[0]?.key ?? null)
+const options = ref(parsePriceValue(props.entry.value, allowOr.value));
+const activeOptionKey = ref(options.value[0]?.key ?? null);
 
 const activeOptionIndex = computed(() => {
-  const index = options.value.findIndex((option) => option.key === activeOptionKey.value)
-  return index >= 0 ? index : 0
-})
+  const index = options.value.findIndex(
+    (option) => option.key === activeOptionKey.value,
+  );
+  return index >= 0 ? index : 0;
+});
 
-const activeOption = computed(() => options.value[activeOptionIndex.value] ?? null)
+const activeOption = computed(
+  () => options.value[activeOptionIndex.value] ?? null,
+);
 
 const usableOptions = computed(() =>
   allowOr.value ? options.value : options.value.slice(0, 1),
-)
+);
 
 /** Null while an option is incomplete, which makes the `required` check fail. */
-const priceValue = computed(() => buildPriceValue(options.value, allowOr.value))
+const priceValue = computed(() =>
+  buildPriceValue(options.value, allowOr.value),
+);
 
 const warning = computed(() => {
-  if (areOptionsValid(usableOptions.value)) return null
+  if (areOptionsValid(usableOptions.value)) return null;
 
-  return 'This price cannot be confirmed until every option is valid.'
-})
+  return "This price cannot be confirmed until every option is valid.";
+});
 
 const summaryLines = computed(() => {
-  if (options.value.length > 1 && allowOr.value) return options.value.map(summarizeOption)
+  if (options.value.length > 1 && allowOr.value)
+    return options.value.map(summarizeOption);
 
   return options.value
     .filter((option) => option.requirements.length > 0)
-    .map(summarizeOption)
-})
+    .map(summarizeOption);
+});
 
 const singleLabel = computed(() => {
-  if (warning.value) return 'Current draft:'
-  if (summaryLines.value[0] === 'Free') return 'Price:'
+  if (warning.value) return "Current draft:";
+  if (summaryLines.value[0] === "Free") return "Price:";
 
-  return 'Player pays:'
-})
+  return "Player pays:";
+});
 
 function addOption() {
-  if (!allowOr.value) return
+  if (!allowOr.value) return;
 
-  const option = createOption()
-  options.value.push(option)
-  activeOptionKey.value = option.key
+  const option = createOption();
+  options.value.push(option);
+  activeOptionKey.value = option.key;
 }
 
 function duplicateOption(index: number) {
-  if (!allowOr.value) return
+  if (!allowOr.value) return;
 
-  const source = options.value[index]
-  if (!source) return
+  const source = options.value[index];
+  if (!source) return;
 
   const duplicate = createOption(
     source.requirements.map((requirement) =>
@@ -171,37 +191,39 @@ function duplicateOption(index: number) {
         keep: requirement.keep,
       }),
     ),
-  )
+  );
 
-  options.value.splice(index + 1, 0, duplicate)
-  activeOptionKey.value = duplicate.key
+  options.value.splice(index + 1, 0, duplicate);
+  activeOptionKey.value = duplicate.key;
 }
 
 function removeOption(index: number) {
-  if (options.value.length <= 1) return
+  if (options.value.length <= 1) return;
 
-  const removedOption = options.value[index]
-  options.value.splice(index, 1)
+  const removedOption = options.value[index];
+  options.value.splice(index, 1);
 
   if (removedOption?.key === activeOptionKey.value) {
-    activeOptionKey.value = options.value[index]?.key ?? options.value[index - 1]?.key ?? null
+    activeOptionKey.value =
+      options.value[index]?.key ?? options.value[index - 1]?.key ?? null;
   }
 }
 
 function selectOption(key: string) {
-  if (options.value.some((option) => option.key === key)) activeOptionKey.value = key
+  if (options.value.some((option) => option.key === key))
+    activeOptionKey.value = key;
 }
 
 watch(allowOr, (allowed) => {
   if (!allowed && options.value.length > 1) {
-    options.value = [options.value[0]!]
-    activeOptionKey.value = options.value[0]?.key ?? null
+    options.value = [options.value[0]!];
+    activeOptionKey.value = options.value[0]?.key ?? null;
   }
-})
+});
 
 // Publishes the canonical payload as soon as the form is mounted, so the entry
 // already holds a value before any button is pressed.
-watch(priceValue, (next) => (value.value = next), { immediate: true })
+watch(priceValue, (next) => (value.value = next), { immediate: true });
 </script>
 
 <style scoped lang="scss">
@@ -213,6 +235,7 @@ watch(priceValue, (next) => (value.value = next), { immediate: true })
   flex-direction: column;
   gap: 10px;
   padding-top: 4px;
+  padding: 20px 0px;
 
   &::before {
     content: "";
@@ -221,7 +244,7 @@ watch(priceValue, (next) => (value.value = next), { immediate: true })
     right: 0;
     left: 0;
     height: 1px;
-    background: url('/assets/ui/divider_line.png') center / 100% 100% no-repeat;
+    background: url("/assets/ui/divider_line.png") center / 100% 100% no-repeat;
     opacity: 0.55;
     pointer-events: none;
   }
@@ -250,6 +273,7 @@ watch(priceValue, (next) => (value.value = next), { immediate: true })
     position: relative;
     display: flex;
     gap: 8px;
+
     padding-bottom: 2px;
   }
 
@@ -267,7 +291,9 @@ watch(priceValue, (next) => (value.value = next), { immediate: true })
     background: transparent;
     color: var(--color-text-dim);
     cursor: pointer;
-    transition: color 120ms ease, filter 120ms ease;
+    transition:
+      color 120ms ease,
+      filter 120ms ease;
 
     &::before {
       content: "";
@@ -275,8 +301,10 @@ watch(priceValue, (next) => (value.value = next), { immediate: true })
       inset: 2px 0;
       z-index: -1;
       background-color: color-mix(in srgb, var(--color-field) 68%, transparent);
-      -webkit-mask: url('/assets/ui/selection_box_bg_1d.png') center / 100% 100% no-repeat;
-      mask: url('/assets/ui/selection_box_bg_1d.png') center / 100% 100% no-repeat;
+      -webkit-mask: url("/assets/ui/selection_box_bg_1d.png") center / 100% 100%
+        no-repeat;
+      mask: url("/assets/ui/selection_box_bg_1d.png") center / 100% 100%
+        no-repeat;
       opacity: 0.72;
     }
 
@@ -302,7 +330,11 @@ watch(priceValue, (next) => (value.value = next), { immediate: true })
       height: 22px;
       border: 1px solid var(--color-border-strong);
       border-radius: 50%;
-      background-color: color-mix(in srgb, var(--color-background) 68%, transparent);
+      background-color: color-mix(
+        in srgb,
+        var(--color-background) 68%,
+        transparent
+      );
       color: var(--color-text);
       font-size: 13px;
       font-weight: 600;
@@ -336,7 +368,9 @@ watch(priceValue, (next) => (value.value = next), { immediate: true })
         height: 18px;
         object-fit: contain;
         opacity: 0.78;
-        transition: opacity 120ms ease, transform 120ms ease;
+        transition:
+          opacity 120ms ease,
+          transform 120ms ease;
       }
     }
 
@@ -355,15 +389,16 @@ watch(priceValue, (next) => (value.value = next), { immediate: true })
     }
   }
 
-  // The panel itself never scrolls, so the options carry their own scroll: this
-  // is the only part that can realistically grow past the panel height.
+  // The option header and add controls stay visible; only its requirement list
+  // owns the scroll area.
   &__options {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    max-height: 420px;
-    padding: 2px 0 0;
-    overflow-y: auto;
+    padding: 20px 20px;
+    border-left: 3px solid
+      color-mix(in srgb, var(--color-border-strong) 58%, transparent);
+    overflow: visible;
   }
 }
 </style>

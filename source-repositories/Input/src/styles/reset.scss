@@ -72,3 +72,29 @@ img {
   padding: 0;
   max-width: 100%;
 }
+
+/* The native scrollbar is too bright for the game's black-and-paper UI. */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: color-mix(in srgb, var(--color-background) 86%, var(--color-field));
+}
+
+::-webkit-scrollbar-thumb {
+  min-height: 36px;
+  border: 2px solid var(--color-background);
+  background-color: color-mix(in srgb, var(--color-field) 82%, var(--color-background));
+  background-image: none;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-red);
+  background-image: url('/assets/ui/hover.png');
+}
+
+::-webkit-scrollbar-corner {
+  background-color: var(--color-background);
+}

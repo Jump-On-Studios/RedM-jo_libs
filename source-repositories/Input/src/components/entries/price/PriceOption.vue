@@ -7,21 +7,20 @@
           v-if="canDuplicate"
           type="button"
           class="price-option__action"
-          title="Duplicate payment option"
+          title="Duplicate this option"
           @click="emit('duplicate')"
         >
-          <span class="price-option__action-icon" aria-hidden="true">+</span>
-          <span>Duplicate</span>
+          Duplicate this option
         </button>
         <button
           v-if="canRemove"
           type="button"
           class="price-option__action"
-          title="Remove payment option"
-          aria-label="Remove payment option"
+          title="Remove this option"
+          aria-label="Remove this option"
           @click="emit('remove')"
         >
-          Remove
+          Remove this option
         </button>
       </div>
     </header>
@@ -153,7 +152,6 @@ function removeRequirement(index: number) {
   &__action {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
     min-height: 26px;
     padding: 0 4px;
     border-bottom: 1px solid transparent;
@@ -170,17 +168,6 @@ function removeRequirement(index: number) {
     }
   }
 
-  &__action-icon {
-    display: inline-grid;
-    place-items: center;
-    width: 18px;
-    height: 18px;
-    border: 1px solid currentColor;
-    border-radius: 50%;
-    font-size: 16px;
-    line-height: 1;
-  }
-
   &__help {
     @include muted-label;
   }
@@ -195,6 +182,9 @@ function removeRequirement(index: number) {
     display: flex;
     flex-direction: column;
     gap: 0;
+    max-height: 260px;
+    padding-right: 8px;
+    overflow-y: auto;
   }
 
   &__add {
