@@ -113,7 +113,7 @@ onBeforeUnmount(() => {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: var(--gap);
+  gap: 14px;
   width: var(--modal-width);
   max-height: var(--modal-max-height);
   padding: var(--padding-container);
@@ -123,7 +123,6 @@ onBeforeUnmount(() => {
   // they overlay the rows instead of pushing them down. Tall content is handled
   // by the price options, which scroll on their own.
   overflow: visible;
-
 }
 
 // Painted backdrop, on its own layer.

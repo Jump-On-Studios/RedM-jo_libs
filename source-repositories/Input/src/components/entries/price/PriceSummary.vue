@@ -36,10 +36,10 @@ defineProps<{
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 15px 18px;
+  gap: 7px;
+  margin-top: 2px;
+  padding: 12px 16px 13px;
   border-left: 3px solid var(--color-border-strong);
-  // background: color-mix(in srgb, var(--color-surface) 97%, transparent);
   font-size: var(--font-size-small);
 
   &::before {

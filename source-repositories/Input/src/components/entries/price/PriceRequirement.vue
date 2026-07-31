@@ -78,7 +78,10 @@ const error = computed(() => requirementError(props.requirement))
   align-items: flex-end;
   gap: var(--gap-small);
   padding: 10px 0 12px;
-  border-bottom: 1px solid color-mix(in srgb, var(--color-text) 22%, transparent);
+
+  & + & {
+    padding-top: 6px;
+  }
 
   &.is-invalid {
     color: var(--color-red-light);
@@ -115,14 +118,15 @@ const error = computed(() => requirementError(props.requirement))
     inset: 0;
     left: calc(var(--entry-field-cap) - var(--entry-field-cap-overlap));
     right: calc(var(--entry-field-cap) - var(--entry-field-cap-overlap));
-    z-index: -1;
+    z-index: 0;
     background-color: var(--color-field);
-    -webkit-mask: url('/assets/ui/selection_box_bg_1d.png') center / 200% 100% no-repeat;
-    mask: url('/assets/ui/selection_box_bg_1d.png') center / 200% 100% no-repeat;
+    -webkit-mask: url('/assets/ui/selection_box_bg_1d.png') center / 100% 100% no-repeat;
+    mask: url('/assets/ui/selection_box_bg_1d.png') center / 100% 100% no-repeat;
   }
 
   &::after {
     @include selection-frame;
+    z-index: 2;
     opacity: 0;
     transition: opacity 120ms ease;
   }
@@ -139,6 +143,7 @@ const error = computed(() => requirementError(props.requirement))
     background: transparent;
     color: var(--color-text);
     outline: none;
+    z-index: 1;
   }
 
   input::placeholder {
@@ -155,6 +160,7 @@ const error = computed(() => requirementError(props.requirement))
   &__label {
     @include muted-label;
     position: relative;
+    z-index: 1;
     padding-left: 3px;
   }
 }

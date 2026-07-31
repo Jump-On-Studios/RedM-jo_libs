@@ -61,5 +61,30 @@
 
 /* Inline menu: keep it out of the flow so it does not resize the row. */
 .dp__menu {
-  border: var(--border);
+  border: 1px solid color-mix(in srgb, var(--color-border-strong) 60%, transparent);
+  background-color: var(--color-surface);
+  background-image: none !important;
+  box-shadow: 0 10px 0 rgba(0, 0, 0, 0.32);
+}
+
+.dp__calendar_header_item {
+  color: var(--color-text-dim);
+  font-variant-caps: small-caps;
+}
+
+.dp__cell_inner {
+  border-radius: 0;
+}
+
+.dp__cell_inner:hover {
+  border: 1px solid var(--color-red-light);
+  background-color: var(--color-field);
+}
+
+.dp__active_date {
+  background-color: var(--color-red);
+}
+
+.dp__today {
+  border: 1px solid var(--color-red-light);
 }

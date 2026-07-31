@@ -7,13 +7,13 @@
   /* Colors */
   --color-overlay: rgba(0, 0, 0, 0.8);
   --color-background: #000000;
-  --color-surface: #232323;
-  --color-field: #2f2f2f;
-  --color-border: #4a4a4a;
-  --color-border-strong: #6e6e6e;
+  --color-surface: #1d1c1b;
+  --color-field: #30302f;
+  --color-border: #42413f;
+  --color-border-strong: #8b8880;
   --color-text: #ffffff;
-  --color-text-dim: #9a9a9a;
-  --color-placeholder: #757575;
+  --color-text-dim: #aaa6a0;
+  --color-placeholder: #85817b;
   --color-red: #770000;
   --color-red-light: #e20202;
   --color-green: #007518;
@@ -27,10 +27,10 @@
 
   /* Metrics */
   --border: 1px solid var(--color-border);
-  --gap: 12px;
-  --gap-small: 6px;
-  --padding-container: 16px;
-  --padding-block: 12px;
+  --gap: 16px;
+  --gap-small: 8px;
+  --padding-container: 28px 30px 24px;
+  --padding-block: 14px;
   --padding-input-y: 10px;
   --padding-input-x: 12px;
   --field-height: 44px;
@@ -49,8 +49,8 @@
   --field-frame-width: 8px;
 
   /* Panel */
-  --modal-width: 1040px;
-  --modal-max-height: 90vh;
+  --modal-width: 1080px;
+  --modal-max-height: 88vh;
   /* 9-patch backdrop: corner size taken from bg.png, then drawn at that same
      size so the painted edges keep their native density (the source is 1024px
      wide, the panel 1040px). The bleed pushes the ragged edges outwards so they

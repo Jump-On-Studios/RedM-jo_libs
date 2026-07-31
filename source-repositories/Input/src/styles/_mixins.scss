@@ -129,13 +129,13 @@
     bottom: 0;
     left: calc(var(--entry-field-cap) - var(--entry-field-cap-overlap));
     right: calc(var(--entry-field-cap) - var(--entry-field-cap-overlap));
-    z-index: -1;
+    z-index: 0;
     background-color: var(--color-field);
     -webkit-mask-image: url("/assets/ui/selection_box_bg_1d.png");
-    // Twice the band and centred, so the band shows the middle half of the
-    // bitmap and its two ragged ends fall outside altogether. At 100% they
-    // ended up squeezed against the caps, which is what the join was.
-    -webkit-mask-size: 200% 100%;
+    // The middle band is already inset between the native caps. Keeping the
+    // mask at its natural full width preserves the opaque center of the
+    // texture instead of leaving only two isolated end caps visible.
+    -webkit-mask-size: 100% 100%;
     -webkit-mask-position: center;
     -webkit-mask-repeat: no-repeat;
   }
@@ -143,6 +143,7 @@
   &::after {
     @include selection-frame;
 
+    z-index: 2;
     opacity: 0;
   }
 
@@ -154,6 +155,13 @@
 
   &:focus-within {
     outline: none;
+  }
+
+  // Keep the painted layers inside the field's stacking context while the
+  // actual control and its text remain above the texture.
+  & > :not(.entry-field__caps) {
+    position: relative;
+    z-index: 1;
   }
 }
 

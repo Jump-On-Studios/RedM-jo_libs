@@ -1,6 +1,7 @@
 <template>
   <section class="price-option">
     <header class="price-option__header">
+      <span class="price-option__heading">Requirements</span>
       <div class="price-option__actions">
         <button
           v-if="canDuplicate"
@@ -54,7 +55,15 @@
           :title="buttonTitle(choice.value)"
           @click="addRequirement(choice.value)"
         >
-          {{ choice.label }}
+          <span
+            v-if="typeIcon(choice.value)"
+            class="price-type-button__icon"
+            :class="`is-${choice.value}`"
+            aria-hidden="true"
+          >
+            <img :src="typeIcon(choice.value)" alt="" />
+          </span>
+          <span>{{ choice.label }}</span>
         </button>
       </div>
     </div>
@@ -86,6 +95,16 @@ const emit = defineEmits<{ remove: []; duplicate: [] }>()
 
 const error = computed(() => optionError(props.option))
 
+const requirementIcons: Partial<Record<PriceCostType, string>> = {
+  money: '/assets/ui/dollar.png',
+  gold: '/assets/ui/gold.png',
+  item: '/assets/ui/item.png',
+}
+
+function typeIcon(type: PriceCostType) {
+  return requirementIcons[type]
+}
+
 function buttonTitle(type: PriceCostType) {
   if (!isTypeDisabled(props.option, type)) return `Add ${typeLabel(type)}`
 
@@ -111,9 +130,18 @@ function removeRequirement(index: number) {
 
   &__header {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: flex-end;
     gap: var(--gap);
+    min-height: 28px;
+  }
+
+  &__heading {
+    margin-right: auto;
+    color: var(--color-text-dim);
+    font-size: 13px;
+    font-variant-caps: small-caps;
+    letter-spacing: 0.08em;
   }
 
   &__actions {
@@ -126,9 +154,9 @@ function removeRequirement(index: number) {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    min-height: 30px;
-    padding: 0 6px;
-    border: 1px solid transparent;
+    min-height: 26px;
+    padding: 0 4px;
+    border-bottom: 1px solid transparent;
     background: transparent;
     color: var(--color-text-dim);
     font-size: var(--font-size-small);
@@ -136,7 +164,7 @@ function removeRequirement(index: number) {
 
     &:hover,
     &:focus-visible {
-      border-color: var(--color-border-strong);
+      border-bottom-color: var(--color-red-light);
       color: var(--color-text);
       outline: none;
     }
@@ -158,7 +186,7 @@ function removeRequirement(index: number) {
   }
 
   &__empty {
-    padding: var(--padding-block);
+    padding: 24px var(--padding-block);
     color: var(--color-text-dim);
     text-align: center;
   }
@@ -172,7 +200,9 @@ function removeRequirement(index: number) {
   &__add {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 6px;
+    padding-top: 8px;
+    border-top: 1px solid color-mix(in srgb, var(--color-text) 18%, transparent);
   }
 
   &__types {
@@ -187,10 +217,14 @@ function removeRequirement(index: number) {
   position: relative;
   isolation: isolate;
   flex: 1;
-  min-height: 50px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
   border: 0;
   background: transparent;
   color: var(--color-text);
+  gap: 9px;
   transition: filter 120ms ease, color 120ms ease;
 
   &::before {
@@ -198,7 +232,7 @@ function removeRequirement(index: number) {
     position: absolute;
     inset: 0;
     z-index: -1;
-    background-color: var(--color-field);
+    background-color: color-mix(in srgb, var(--color-field) 78%, var(--color-background));
     -webkit-mask: url('/assets/ui/selection_box_bg_1d.png') center / 100% 100% no-repeat;
     mask: url('/assets/ui/selection_box_bg_1d.png') center / 100% 100% no-repeat;
   }
@@ -209,14 +243,55 @@ function removeRequirement(index: number) {
     transition: opacity 120ms ease;
   }
 
+  &__icon {
+    position: relative;
+    display: block;
+    flex: none;
+    width: 24px;
+    height: 24px;
+    overflow: hidden;
+    filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.55));
+    transition: transform 120ms ease;
+
+    img {
+      position: absolute;
+      display: block;
+      max-width: none;
+    }
+
+    &.is-money img {
+      top: -8px;
+      left: -13px;
+      width: 40px;
+      height: 40px;
+    }
+
+    &.is-gold img {
+      inset: 0;
+      width: 24px;
+      height: 24px;
+    }
+
+    &.is-item img {
+      top: -3px;
+      left: -3px;
+      width: 30px;
+      height: 30px;
+    }
+  }
+
   &:hover:not(:disabled),
   &:focus-visible:not(:disabled) {
     color: var(--color-text);
     outline: none;
-    filter: brightness(1.2);
+    filter: brightness(1.18);
 
     &::after {
       opacity: 1;
+    }
+
+    .price-type-button__icon {
+      transform: scale(1.08);
     }
   }
 

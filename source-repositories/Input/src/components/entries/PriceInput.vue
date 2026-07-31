@@ -1,5 +1,9 @@
 <template>
   <div class="price-form" :class="[entry.class, { error: hasError }]" :style="style">
+    <div class="price-form__heading">
+      <span>Payment options</span>
+      <small v-if="allowOr">Choose one or more ways to meet the price</small>
+    </div>
     <div
       v-if="allowOr"
       class="price-form__tabs"
@@ -18,9 +22,17 @@
         aria-controls="price-option-panel"
         @click="selectOption(option.key)"
       >
-        <span>Option {{ index + 1 }}</span>
-        <small v-if="option.requirements.length > 0">{{ option.requirements.length }}</small>
-        <span v-if="optionError(option)" aria-label="invalid"> *</span>
+        <span class="price-form__tab-label">Option {{ index + 1 }}</span>
+        <span
+          v-if="option.requirements.length > 0"
+          class="price-form__tab-count"
+          :aria-label="`${option.requirements.length} requirements`"
+        >
+          {{ option.requirements.length }}
+        </span>
+        <span v-if="optionError(option)" class="price-form__tab-invalid" aria-label="invalid">
+          !
+        </span>
       </button>
 
       <button
@@ -29,7 +41,7 @@
         aria-label="Add another payment option"
         @click="addOption"
       >
-        <span aria-hidden="true">+</span>
+        <img src="/assets/ui/plus.png" alt="" aria-hidden="true" />
       </button>
     </div>
 
@@ -198,26 +210,47 @@ watch(priceValue, (next) => (value.value = next), { immediate: true })
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--gap-small);
+  gap: 10px;
+  padding-top: 4px;
+  border-top: 1px solid color-mix(in srgb, var(--color-text) 24%, transparent);
+
+  &__heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--gap);
+    min-height: 22px;
+
+    span {
+      color: var(--color-text);
+      font-size: var(--font-size-small);
+      font-variant-caps: small-caps;
+      letter-spacing: 0.08em;
+    }
+
+    small {
+      color: var(--color-text-dim);
+      font-size: 13px;
+    }
+  }
 
   &__tabs {
     position: relative;
     display: flex;
-    gap: 4px;
-    padding-bottom: 5px;
-    border-bottom: 1px solid color-mix(in srgb, var(--color-text) 28%, transparent);
+    gap: 8px;
+    padding-bottom: 2px;
   }
 
   &__tab {
     position: relative;
-    flex: 0 1 190px;
+    flex: 0 1 180px;
     isolation: isolate;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 6px;
-    min-height: 48px;
-    padding: 0 18px;
+    min-height: 42px;
+    padding: 0 16px;
     border: 0;
     background: transparent;
     color: var(--color-text-dim);
@@ -229,10 +262,10 @@ watch(priceValue, (next) => (value.value = next), { immediate: true })
       position: absolute;
       inset: 2px 0;
       z-index: -1;
-      background-color: color-mix(in srgb, var(--color-field) 86%, transparent);
+      background-color: color-mix(in srgb, var(--color-field) 68%, transparent);
       -webkit-mask: url('/assets/ui/selection_box_bg_1d.png') center / 100% 100% no-repeat;
       mask: url('/assets/ui/selection_box_bg_1d.png') center / 100% 100% no-repeat;
-      opacity: 0.55;
+      opacity: 0.72;
     }
 
     &::after {
@@ -241,10 +274,32 @@ watch(priceValue, (next) => (value.value = next), { immediate: true })
       transition: opacity 120ms ease;
     }
 
-    small {
-      color: var(--color-text-dim);
-      font-size: var(--font-size-small);
-      opacity: 0.75;
+    &-label {
+      white-space: nowrap;
+    }
+
+    &-count {
+      position: absolute;
+      top: -7px;
+      right: -7px;
+      z-index: 4;
+      display: inline-grid;
+      place-items: center;
+      flex: none;
+      width: 22px;
+      height: 22px;
+      border: 1px solid var(--color-border-strong);
+      border-radius: 50%;
+      background-color: color-mix(in srgb, var(--color-background) 68%, transparent);
+      color: var(--color-text);
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1;
+    }
+
+    &-invalid {
+      color: var(--color-red-light);
+      font-weight: 700;
     }
 
     &.active {
@@ -263,10 +318,13 @@ watch(priceValue, (next) => (value.value = next), { immediate: true })
     &--add {
       flex: 0 0 44px;
       padding: 0;
-      font-size: var(--font-size-title);
-
-      span {
-        transform: translateY(-1px);
+      img {
+        display: block;
+        width: 18px;
+        height: 18px;
+        object-fit: contain;
+        opacity: 0.78;
+        transition: opacity 120ms ease, transform 120ms ease;
       }
     }
 
@@ -277,6 +335,11 @@ watch(priceValue, (next) => (value.value = next), { immediate: true })
       &::after {
         opacity: 1;
       }
+
+      &.price-form__tab--add img {
+        opacity: 1;
+        transform: scale(1.08);
+      }
     }
   }
 
@@ -285,8 +348,9 @@ watch(priceValue, (next) => (value.value = next), { immediate: true })
   &__options {
     display: flex;
     flex-direction: column;
-    gap: var(--gap-small);
+    gap: 8px;
     max-height: 420px;
+    padding: 2px 0 0;
     overflow-y: auto;
   }
 }
