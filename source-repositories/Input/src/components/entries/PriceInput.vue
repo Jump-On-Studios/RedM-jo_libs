@@ -206,13 +206,25 @@ watch(priceValue, (next) => (value.value = next), { immediate: true })
 
 <style scoped lang="scss">
 .price-form {
+  position: relative;
   flex: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 10px;
   padding-top: 4px;
-  border-top: 1px solid color-mix(in srgb, var(--color-text) 24%, transparent);
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 1px;
+    background: url('/assets/ui/divider_line.png') center / 100% 100% no-repeat;
+    opacity: 0.55;
+    pointer-events: none;
+  }
 
   &__heading {
     display: flex;

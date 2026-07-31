@@ -198,11 +198,23 @@ function removeRequirement(index: number) {
   }
 
   &__add {
+    position: relative;
     display: flex;
     flex-direction: column;
     gap: 6px;
     padding-top: 8px;
-    border-top: 1px solid color-mix(in srgb, var(--color-text) 18%, transparent);
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 0;
+      left: 0;
+      height: 1px;
+      background: url('/assets/ui/divider_line.png') center / 100% 100% no-repeat;
+      opacity: 0.42;
+      pointer-events: none;
+    }
   }
 
   &__types {
