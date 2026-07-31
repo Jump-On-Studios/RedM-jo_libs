@@ -16,8 +16,21 @@ export interface DevScenario {
 }
 
 const confirmRow: IncomingEntry[] = [
-  { type: "button", id: "confirm", value: "Confirm", class: "bg-green" },
-  { type: "button", id: "close", value: "X", width: 5, ignoreRequired: true },
+  {
+    type: "button",
+    id: "confirm",
+    value: "Confirm",
+    prompt: "↵",
+    class: "bg-green",
+  },
+  {
+    type: "button",
+    id: "close",
+    value: "Close",
+    prompt: "X",
+    width: 5,
+    ignoreRequired: true,
+  },
 ];
 
 const selectOptions = [

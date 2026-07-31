@@ -46,7 +46,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, useTemplateRef } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue'
 import VueDatePicker from '@vuepic/vue-datepicker'
 import { useEntryStyle } from '@/composables/useEntryStyle'
 import { useEntryValue } from '@/composables/useEntryValue'
@@ -56,6 +56,7 @@ const props = defineProps<{ entry: DateEntry }>()
 
 const emit = defineEmits<{ submit: [] }>()
 
+const root = useTemplateRef<HTMLDivElement>('root')
 const field = useTemplateRef<HTMLButtonElement>('field')
 const style = useEntryStyle(() => props.entry)
 const { value, hasError } = useEntryValue<string | Date | null>(() => props.entry)
@@ -77,15 +78,31 @@ const displayValue = computed(() => {
   return String(current)
 })
 
-function close() {
+function close(restoreFocus = true) {
   isOpen.value = false
-  field.value?.focus()
+  if (restoreFocus) field.value?.focus()
+}
+
+function onDocumentPointerDown(event: PointerEvent) {
+  const target = event.target
+
+  if (!isOpen.value || !(target instanceof Node) || root.value?.contains(target)) return
+
+  close(false)
 }
 
 function toggle() {
   if (isOpen.value) close()
   else isOpen.value = true
 }
+
+onMounted(() => {
+  document.addEventListener('pointerdown', onDocumentPointerDown)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('pointerdown', onDocumentPointerDown)
+})
 
 /** Keeps the panel from submitting or closing while the calendar is open. */
 function onKeyDown(event: KeyboardEvent) {

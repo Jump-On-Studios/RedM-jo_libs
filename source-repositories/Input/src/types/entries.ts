@@ -105,6 +105,8 @@ export interface ButtonEntry extends CommonEntry {
   type: ButtonType
   value: string
   id: string
+  /** Optional controller/keyboard prompt rendered before the label. */
+  prompt?: string
   /** Skips validation and sends an empty result. */
   ignoreRequired?: boolean
 }

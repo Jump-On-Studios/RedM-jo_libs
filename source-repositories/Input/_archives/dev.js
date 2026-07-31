@@ -75,6 +75,7 @@ if (import.meta.env.DEV) {
               type: "action",
               value: "Confirm",
               id: "confirm",
+              prompt: "A",
               class: "bg-green",
             },
             // {
@@ -88,6 +89,7 @@ if (import.meta.env.DEV) {
               type: "action",
               id: "close",
               value: "X",
+              prompt: "B",
               width: 5,
               ignoreRequired: true,
             },

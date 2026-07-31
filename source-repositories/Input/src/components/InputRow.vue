@@ -26,6 +26,25 @@ const emit = defineEmits<{ submit: [] }>();
   gap: 12px;
   width: 100%;
 
+  &:has(.entry-button) {
+    position: relative;
+    justify-content: flex-end;
+    gap: 24px;
+    padding-top: 18px;
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 0;
+      left: 0;
+      height: 1px;
+      background: url('/assets/ui/divider_line.png') center / 100% 100% no-repeat;
+      opacity: 0.65;
+      pointer-events: none;
+    }
+  }
+
   &:has(.entry-label) {
     gap: 16px;
 

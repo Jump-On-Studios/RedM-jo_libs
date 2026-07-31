@@ -6,7 +6,7 @@
   >
     <div class="price-form__heading">
       <span>Payment options</span>
-      <small v-if="allowOr">Choose one or more ways to meet the price</small>
+      <small v-if="allowOr">Set how the price can be paid</small>
     </div>
     <div
       v-if="allowOr"
@@ -335,7 +335,8 @@ watch(priceValue, (next) => (value.value = next), { immediate: true });
         var(--color-field) 76%,
         var(--color-background)
       );
-      box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-background) 86%, transparent);
+      box-shadow: 0 0 0 1px
+        color-mix(in srgb, var(--color-background) 86%, transparent);
       color: var(--color-text-dim);
       font-size: 11px;
       font-weight: 600;
@@ -371,8 +372,8 @@ watch(priceValue, (next) => (value.value = next), { immediate: true });
       padding: 0;
       img {
         display: block;
-        width: 18px;
-        height: 18px;
+        width: 28px;
+        height: 28px;
         object-fit: contain;
         opacity: 0.78;
         transition:
@@ -391,7 +392,7 @@ watch(priceValue, (next) => (value.value = next), { immediate: true });
 
       &.price-form__tab--add img {
         opacity: 1;
-        transform: scale(1.08);
+        transform: scale(1.1);
       }
     }
   }
