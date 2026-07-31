@@ -5,6 +5,7 @@
     a label, clicking anywhere on the box focuses the control.
   -->
   <label class="entry-field" :class="[entry.class, { error: hasError }]" :style="style">
+    <span class="entry-field__caps" aria-hidden="true" />
     <input
       :id="entry.id"
       ref="field"

@@ -39,6 +39,11 @@
   --entry-field-height: 58px;
   --entry-field-padding: 14px 18px;
   --entry-field-font-size: 21px;
+  /* Width of the two ragged ends of the field box, taken from
+     selection_box_bg_1d.png at its own scale, and how far the stretched middle
+     runs under them so no join shows. */
+  --entry-field-cap: 56px;
+  --entry-field-cap-overlap: 20px;
   /* Thickness of the red frame drawn around a focused field, from hover.png.
      The Menu draws it at 0.75vh, which is this on a 1080p viewport. */
   --field-frame-width: 8px;

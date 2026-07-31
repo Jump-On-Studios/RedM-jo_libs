@@ -117,14 +117,26 @@
   background: transparent;
   color: var(--color-text);
 
+  // Middle of the box. Stretching this part is what a 9-patch does anyway: the
+  // bitmap's centre is a flat wash and takes it without showing. Only its two
+  // ragged ends must not be stretched, and .entry-field__caps redraws them at
+  // their own size on top. The band runs under the caps by --entry-field-cap-
+  // overlap so its own squeezed ends stay hidden and no join is left showing.
   &::before {
     content: "";
     position: absolute;
-    inset: 0;
+    top: 0;
+    bottom: 0;
+    left: calc(var(--entry-field-cap) - var(--entry-field-cap-overlap));
+    right: calc(var(--entry-field-cap) - var(--entry-field-cap-overlap));
     z-index: -1;
     background-color: var(--color-field);
     -webkit-mask-image: url("/assets/ui/selection_box_bg_1d.png");
-    -webkit-mask-size: 100% 100%;
+    // Twice the band and centred, so the band shows the middle half of the
+    // bitmap and its two ragged ends fall outside altogether. At 100% they
+    // ended up squeezed against the caps, which is what the join was.
+    -webkit-mask-size: 200% 100%;
+    -webkit-mask-position: center;
     -webkit-mask-repeat: no-repeat;
   }
 

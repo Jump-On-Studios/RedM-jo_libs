@@ -13,6 +13,7 @@
       :class="{ error: hasError }"
       @click="toggle"
     >
+      <span class="entry-field__caps" aria-hidden="true" />
       <span :class="{ 'entry-date__placeholder': !displayValue }">
         {{ displayValue || entry.placeholder || '' }}
       </span>
