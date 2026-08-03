@@ -40,6 +40,8 @@ files {
 	"nui/**/**.webp",
 	"nui/**/**.mp3",
 	"nui/**/**.gif",
+	--Locales
+	"locales/**"
 }
 
 ui_page "nui://jo_libs/nui/index.html"
@@ -49,7 +51,8 @@ shared_scripts {
 }
 
 jo_libs {
-	"version-checker"
+	"version-checker",
+	"i18n",
 }
 
 dependencies {

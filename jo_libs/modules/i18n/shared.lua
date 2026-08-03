@@ -3,6 +3,14 @@ jo.require("hook")
 local dict = {}
 local initialized = false
 local currentLocale = GetConvar("jo_libs:i18n:locale", "en")
+local useGlobalLocales = false
+local metaKey = "jo_libs_extra"
+for i = 0, GetNumResourceMetadata(GetCurrentResourceName(), metaKey) - 1 do
+  local key = GetResourceMetadata(GetCurrentResourceName(), metaKey, i)
+  if key == '["i18n:i18n:useGlobalLocales:true"]' or key == '["i18n:i18n:useGlobalLocales"]' or key == "i18n:i18n:useGlobalLocales" then
+    useGlobalLocales = true
+  end
+end
 
 jo.createModule("i18n")
 
@@ -28,7 +36,7 @@ local function formatKeys(source, target, prefix)
 end
 
 local function loadLocale(locale)
-  local strings = jo.file.load(("@%s.locales.%s"):format(jo.resourceName, locale))
+  local strings = jo.file.loadJson(("@%s.locales.%s"):format(jo.resourceName, locale))
   if not strings then
     return {}
   end
@@ -44,7 +52,11 @@ end
 --- Load a locale
 ---@param locale string (The locale to load)
 function jo.i18n.loadLocale(locale)
-  local strings = loadLocale("en")
+  table.wipe(dict)
+  if jo.resourceName ~= "jo_libs" and useGlobalLocales then
+    dict = exports.jo_libs:jo_i18n_getEntries()
+  end
+  local strings = table.merge(dict, loadLocale("en"))
   if locale ~= "en" then
     table.merge(strings, loadLocale(locale))
   end
@@ -93,7 +105,7 @@ end
 function jo.i18n.addEntry(key, value)
   dict[key] = value
 end
-exports("addEntry", jo.i18n.addEntry)
+exports("jo_i18n_addEntry", jo.i18n.addEntry)
 
 --- Add multiple entries to the i18n dictionary
 ---@param entries table (The entries to add)
@@ -101,7 +113,7 @@ function jo.i18n.addEntries(entries)
   local strings = formatKeys(entries, {})
   table.merge(dict, strings)
 end
-exports("addEntries", jo.i18n.addEntries)
+exports("jo_i18n_addEntries", jo.i18n.addEntries)
 
 --- Get all entries
 ---@return table (The entries)
@@ -111,7 +123,7 @@ function jo.i18n.getEntries()
   end
   return dict
 end
-exports("getEntries", jo.i18n.getEntries)
+exports("jo_i18n_getEntries", jo.i18n.getEntries)
 
 --- Translate a key
 ---@param key string (The key to translate)
@@ -122,7 +134,9 @@ function jo.i18n.__(key)
   end
   return dict[key] or ("#%s"):format(key)
 end
-exports("__", jo.i18n.__)
+exports("jo_i18n___", jo.i18n.__)
 
 --- Export the i18n module
 _G.__ = jo.i18n.__
+
+jo.ready(jo.i18n.init)

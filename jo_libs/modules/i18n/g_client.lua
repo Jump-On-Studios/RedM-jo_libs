@@ -13,6 +13,7 @@ if allowSwitchLocale then
 
     local locale = args[1]
     SetResourceKvp("locale", locale)
+    jo.i18n.setLocale(locale)
     TriggerEvent("jo_libs:i18n:switchLocale", locale)
   end, false)
 end
