@@ -20,7 +20,7 @@ local function formatKeys(source, target, prefix)
     if type(value) == "table" then
       formatKeys(value, target, fullKey)
     else
-      target[fullKey] = value
+      target[fullKey] = GetConvar("jo_libs:i18n:translations:" .. fullKey, value)
     end
   end
 
