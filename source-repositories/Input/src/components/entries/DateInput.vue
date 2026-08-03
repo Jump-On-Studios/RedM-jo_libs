@@ -8,6 +8,7 @@
   >
     <button
       ref="field"
+      :id="entry.id"
       type="button"
       class="entry-field entry-date__trigger"
       :class="{ error: hasError }"

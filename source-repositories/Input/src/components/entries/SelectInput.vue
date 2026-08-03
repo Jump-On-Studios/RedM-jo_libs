@@ -2,6 +2,7 @@
   <div ref="root" class="entry-select" :class="[entry.class, { 'is-open': isOpen }]" :style="style">
     <button
       ref="field"
+      :id="entry.id"
       type="button"
       class="entry-field entry-select__trigger"
       :class="{ error: hasError }"
