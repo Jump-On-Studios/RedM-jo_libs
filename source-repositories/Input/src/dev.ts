@@ -32,15 +32,14 @@ const confirmRow: IncomingEntry[] = [
     type: "button",
     id: "confirm",
     value: "Confirm",
-    prompt: "↵",
-    class: "bg-green",
+    icon: "/assets/ui/tick.png",
+    class: "success",
   },
   {
     type: "button",
     id: "close",
     value: "Close",
-    prompt: "X",
-    width: 5,
+    class: "flat",
     ignoreRequired: true,
   },
 ];
@@ -303,14 +302,18 @@ export const scenarios: DevScenario[] = [
             type: "button",
             id: "confirm",
             value: "Confirm",
-            class: "bg-green",
+            icon: "/assets/ui/tick.png",
+            class: "success",
           },
-          { type: "action", id: "delete", value: "Delete", class: "bg-red" },
+          { type: "action", id: "delete", value: "Delete", class: "danger" },
+          { type: "button", id: "warning", value: "Review", class: "warning" },
+          { type: "button", id: "muted", value: "Details", class: "muted" },
+          { type: "button", id: "flat", value: "Close", class: "flat" },
           {
             type: "button",
-            id: "close",
-            value: "X",
-            width: 5,
+            id: "legacy-close",
+            value: "Legacy green",
+            class: "bg-green",
             ignoreRequired: true,
           },
         ],
@@ -329,6 +332,57 @@ export const scenarios: DevScenario[] = [
           },
         ],
         [{ type: "text", id: "name", placeholder: "Optional" }],
+      ]),
+  },
+  {
+    id: "button-styles",
+    label: "Button styles",
+    run: () =>
+      newInput([
+        [{ type: "title", value: "Button styles" }],
+        [
+          {
+            type: "description",
+            value:
+              "Every built-in button style, including the legacy background classes.",
+          },
+        ],
+        [{ type: "button", id: "default", value: "Default" }],
+        [
+          {
+            type: "button",
+            id: "success",
+            value: "Success",
+            icon: "/assets/ui/tick.png",
+            class: "success",
+          },
+          {
+            type: "button",
+            id: "danger",
+            value: "Danger",
+            icon: "/assets/ui/trash.png",
+            class: "danger",
+          },
+        ],
+        [
+          { type: "button", id: "warning", value: "Warning", class: "warning" },
+          { type: "button", id: "muted", value: "Muted", class: "muted" },
+          { type: "button", id: "flat", value: "Flat", class: "flat" },
+        ],
+        [
+          {
+            type: "button",
+            id: "legacy-red",
+            value: "Legacy red",
+            class: "bg-red",
+          },
+          {
+            type: "button",
+            id: "legacy-green",
+            value: "Legacy green",
+            class: "bg-green",
+          },
+        ],
       ]),
   },
   {

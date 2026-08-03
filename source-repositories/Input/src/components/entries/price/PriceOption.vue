@@ -232,43 +232,13 @@ function removeRequirement(index: number) {
 }
 
 .price-type-button {
-  @include surface-button;
+  @include textured-button;
 
-  position: relative;
-  isolation: isolate;
   flex: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
   min-height: 46px;
+  padding: 0 14px;
   border: 0;
-  background: transparent;
-  color: var(--color-text);
   gap: 9px;
-  transition:
-    filter 120ms ease,
-    color 120ms ease;
-
-  &::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    background-color: color-mix(
-      in srgb,
-      var(--color-field) 78%,
-      var(--color-background)
-    );
-    -webkit-mask: url("/assets/ui/selection_box_bg_1d.png") center / 100% 100%
-      no-repeat;
-    mask: url("/assets/ui/selection_box_bg_1d.png") center / 100% 100% no-repeat;
-  }
-
-  &::after {
-    @include selection-frame;
-    opacity: 0;
-    transition: opacity 120ms ease;
-  }
 
   &__icon {
     position: relative;
@@ -309,21 +279,9 @@ function removeRequirement(index: number) {
 
   &:hover:not(:disabled),
   &:focus-visible:not(:disabled) {
-    color: var(--color-text);
-    outline: none;
-    filter: brightness(1.18);
-
-    &::after {
-      opacity: 1;
-    }
-
     .price-type-button__icon {
       transform: scale(1.08);
     }
-  }
-
-  &:disabled {
-    opacity: 0.45;
   }
 }
 

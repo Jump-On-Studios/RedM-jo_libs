@@ -3,17 +3,18 @@
   <button
     type="button"
     class="entry-button"
-    :class="[
-      entry.class,
-      { 'entry-button--compact': entry.id === 'close' },
-    ]"
+    :class="entry.class"
     :style="style"
     @click="onClick"
   >
     <span class="entry-button__content">
-      <span v-if="entry.prompt" class="entry-button__prompt" aria-hidden="true">
-        {{ entry.prompt }}
-      </span>
+      <img
+        v-if="entry.icon"
+        class="entry-button__icon"
+        :src="entry.icon"
+        alt=""
+        aria-hidden="true"
+      />
       <!-- eslint-disable-next-line vue/no-v-html -- markup comes from the Lua caller -->
       <span class="entry-button__label" v-html="entry.value" />
     </span>
@@ -37,52 +38,94 @@ function onClick() {
 
 <style scoped lang="scss">
 .entry-button {
-  @include surface-button;
+  @include textured-button;
 
   flex: 0 0 auto;
   min-width: 0;
-  min-height: 34px;
-  padding: 0;
-  border: 0;
-  background: transparent !important;
-  color: #e7e0d5;
-  font-family: Crock, serif;
-  font-size: 22px;
-  text-transform: uppercase;
+  min-height: 54px;
+  padding: 8px 32px;
+  letter-spacing: 0.02em;
 
   &:hover:not(:disabled),
   &:focus-visible {
-    border-color: transparent;
-    background: transparent !important;
-    color: var(--color-text);
-    filter: none;
-    outline: none;
+    color: var(--button-hover-text, var(--button-text, var(--color-text)));
   }
 
   &__content {
+    position: relative;
+    z-index: 1;
     display: inline-flex;
     align-items: center;
     gap: 10px;
     white-space: nowrap;
   }
 
-  &__prompt {
-    display: inline-grid;
-    place-items: center;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    background: #e7e0d5;
-    color: #28241f;
-    font-family: Hapna, sans-serif;
-    font-size: 19px;
-    font-weight: 700;
-    line-height: 1;
+  &__icon {
+    flex: none;
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.55));
   }
 
-  &--compact {
-    min-width: 0;
-    width: auto !important;
+  &.success {
+    --button-surface: color-mix(
+      in srgb,
+      var(--color-green) 48%,
+      var(--color-field)
+    );
+  }
+
+  &.danger {
+    --button-surface: color-mix(
+      in srgb,
+      var(--color-red) 58%,
+      var(--color-field)
+    );
+  }
+
+  &.warning {
+    --button-surface: color-mix(
+      in srgb,
+      var(--color-warning) 28%,
+      var(--color-field)
+    );
+    --button-text: var(--color-warning);
+  }
+
+  &.muted {
+    --button-surface: color-mix(
+      in srgb,
+      var(--color-field) 70%,
+      var(--color-background)
+    );
+    --button-text: var(--color-text-dim);
+  }
+
+  &.flat {
+    background: transparent;
+    color: var(--button-text, var(--color-text-dim));
+    filter: none;
+
+    &::before,
+    &::after {
+      opacity: 0;
+    }
+
+    &:hover:not(:disabled),
+    &:focus-visible:not(:disabled) {
+      color: var(--button-hover-text, var(--color-text));
+      filter: none;
+
+      &::after {
+        opacity: 0;
+      }
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-border-strong);
+      outline-offset: 3px;
+    }
   }
 }
 </style>

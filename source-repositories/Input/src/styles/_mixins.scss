@@ -13,21 +13,72 @@
   font-variant-caps: small-caps;
 }
 
-/// Button that reads as a surface: bordered, brightens on hover.
-@mixin surface-button {
-  min-height: var(--field-height);
-  border: var(--border);
-  background-color: var(--color-field);
+/// Button surface shared by input buttons and price requirement buttons.
+///
+/// The texture is painted on a pseudo-element so the host can keep accepting
+/// arbitrary inline styles and custom classes. `--button-surface` and
+/// `--button-text` are intentionally CSS variables: a caller can override them
+/// through the entry's `style` object without replacing the 9-patch layers.
+@mixin textured-button {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  border: 0;
+  background: transparent;
+  color: var(--button-text, var(--color-text));
+  font-family: Crock, serif;
+  font-size: var(--button-font-size, 22px);
   cursor: pointer;
+  transition:
+    color 120ms ease,
+    filter 120ms ease,
+    opacity 120ms ease;
 
-  &:hover:not(:disabled) {
-    border-color: var(--color-border-strong);
-    filter: brightness(1.4);
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-color: var(
+      --button-surface,
+      color-mix(
+        in srgb,
+        var(--color-field) 78%,
+        var(--color-background)
+      )
+    );
+    -webkit-mask: url("/assets/ui/selection_box_bg_1d.png") center / 100% 100%
+      no-repeat;
+    mask: url("/assets/ui/selection_box_bg_1d.png") center / 100% 100% no-repeat;
+    pointer-events: none;
+  }
+
+  &::after {
+    @include selection-frame;
+
+    z-index: 2;
+    opacity: 0;
+    transition: opacity 120ms ease;
+  }
+
+  &:hover:not(:disabled),
+  &:focus-visible:not(:disabled) {
+    color: var(--button-hover-text, var(--button-text, var(--color-text)));
+    filter: brightness(1.18);
+    outline: none;
+
+    &::after {
+      opacity: 1;
+    }
   }
 
   &:disabled {
     color: var(--color-placeholder);
     cursor: not-allowed;
+    opacity: 0.45;
   }
 }
 
