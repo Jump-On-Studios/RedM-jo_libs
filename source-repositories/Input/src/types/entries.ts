@@ -23,8 +23,14 @@ export const BUTTON_TYPES = ['button', 'action'] as const
 /** Result types that can receive the initial keyboard focus. */
 export const FOCUSABLE_TYPES = ['text', 'number', 'select'] as const
 
+/** Zones of the panel a row can be sent to. `content` is the only one scrolling. */
+export const ROW_POSITIONS = ['header', 'content', 'footer'] as const
+
 export type ResultType = (typeof RESULT_TYPES)[number]
 export type ButtonType = (typeof BUTTON_TYPES)[number]
+export type RowPosition = (typeof ROW_POSITIONS)[number]
+
+export const DEFAULT_ROW_POSITION: RowPosition = 'content'
 
 export interface CommonEntry {
   /** Always defined once the store has normalized the payload. */
@@ -135,11 +141,14 @@ export interface IncomingEntry extends Record<string, unknown> {
 /** Raw row as received from Lua, before the store normalizes its columns. */
 export interface IncomingRow extends Record<string, unknown> {
   columns?: IncomingEntry[]
+  position?: string
 }
 
 /** Row once the store has normalized every column it holds. */
 export interface Row extends Record<string, unknown> {
   columns: Entry[]
+  /** Always defined once the store has normalized the payload. */
+  position: RowPosition
 }
 
 export interface NewInputPayload {
@@ -207,4 +216,11 @@ export function isButtonType(type: EntryType): type is ButtonType {
 
 export function isFocusableType(type: EntryType): boolean {
   return (FOCUSABLE_TYPES as readonly string[]).includes(type)
+}
+
+/** Falls back to `content` for a missing or unknown position. */
+export function toRowPosition(value: unknown): RowPosition {
+  return (ROW_POSITIONS as readonly unknown[]).includes(value)
+    ? (value as RowPosition)
+    : DEFAULT_ROW_POSITION
 }

@@ -63,6 +63,14 @@ que `columns` : une row sans ce tableau rend une row vide (scénario dev
 Toute clé posée au niveau de la row (autre que `columns`) traverse le Lua et le
 store sans être touchée — c'est la raison d'être de ce format.
 
+**`position`** — première clé de row à en profiter : `'header' | 'content' |
+'footer'`, la zone de la modale où la row atterrit. Absente ou inconnue ⇒
+`content`, le seul repli, et le seul appliqué (le Lua ne valide rien, c'est
+`toRowPosition()` dans `types/entries.ts` qui tranche). `stores/input.ts` garde
+`rows` **à plat** et expose trois getters `headerRows` / `contentRows` /
+`footerRows` : le résultat, les `priceIds` et l'autofocus suivent donc toujours
+l'ordre déclaré par l'appelant, pas l'ordre visuel.
+
 **`for` → `target`** — `for` étant un mot-clé réservé en Lua, la cible d'un label
 s'écrit `target`. `parseRows` renomme l'ancienne clé `["for"]`, et le NUI ne lit
 plus que `target` (`LabelEntry.vue`).
@@ -135,6 +143,15 @@ C'est d'ailleurs ce que faisait l'ancien code : le conteneur ne scrollait pas no
 plus (`overflow: hidden`), seule la liste d'options de prix avait son scroll
 interne. `.price-form__options` a récupéré ce `max-height` + `overflow-y: auto`,
 car c'est la seule partie qui peut réellement dépasser la hauteur du panneau.
+
+Depuis les positions de row, le conteneur porte trois zones — `.input-header`,
+`.input-content`, `.input-footer` — et **le scroller est `.input-content`**. La
+règle du clipping vaut pour lui aussi : un select ou un datepicker posé dans une
+row `header` ou `footer` n'est plus clippé, dans une row `content` il l'est comme
+avant. ⚠️ La zone centrale est en `flex: 1 1 auto` et **jamais** `flex: 1` : ce
+raccourci pose un `flex-basis: 0`, et dans un conteneur à hauteur automatique le
+contenu ne compte alors plus dans la hauteur intrinsèque — le panneau s'écrase.
+Header et footer sont en `flex-shrink: 0`, c'est le contenu qui cède la hauteur.
 
 ### 3. Aucun teleport
 

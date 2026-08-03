@@ -92,11 +92,15 @@ end
 --- A function to open the nui input
 ---@param options table (Options of the input)
 --- options.rows table (The list of rows. A row is a table with a `columns` array: `{ columns = { { type = "title", value = "Title" } } }`)
+--- options.rows[].position? string ("header" | "content" | "footer". Zone of the panel the row is sent to, "content" by default. Only "content" scrolls)
 --- options.lang? table (The inputNui translations)
 ---@param cb? function (The return function. If missing, the function is syncrhonous)
 ---
 --- For backward compatibility, a row can also be the array of columns itself,
 --- and a label can use the `["for"]` key instead of `target`.
+---
+--- Row-level keys travel to the NUI untouched: `position` is not validated here,
+--- the NUI falls back to "content" for anything it does not know.
 function jo.input.nui(options, cb)
   if nuiOpened then return false, eprint("Input NUI is already opened") end
   nuiOpened = true

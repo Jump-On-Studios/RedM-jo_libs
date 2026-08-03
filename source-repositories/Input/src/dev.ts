@@ -1,18 +1,23 @@
-import type { IncomingEntry } from "@/types/entries";
+import type { IncomingEntry, IncomingRow } from "@/types/entries";
 
 /** Stands in for SendNUIMessage, which only exists inside the game client. */
 export function SendNUIMessage(message: unknown) {
   window.postMessage(message, "*");
 }
 
+/** A scenario row: its columns alone, or the whole row when it needs a position. */
+type DevRow = IncomingEntry[] | IncomingRow;
+
 /**
  * Scenarios are written as plain arrays of columns, exactly like the legacy Lua
  * format, and wrapped here into the `{ columns }` rows the NUI now expects.
  */
-function newInput(rows: IncomingEntry[][]) {
+function newInput(rows: DevRow[]) {
   SendNUIMessage({
     event: "newInput",
-    data: { rows: rows.map((columns) => ({ columns })) },
+    data: {
+      rows: rows.map((row) => (Array.isArray(row) ? { columns: row } : row)),
+    },
   });
 }
 
@@ -53,8 +58,16 @@ export const scenarios: DevScenario[] = [
     label: "All types",
     run: () =>
       newInput([
-        [{ type: "title", value: "Enter the horse's price" }],
-        [{ type: "description", value: "A description for the panel" }],
+        {
+          position: "header",
+          columns: [{ type: "title", value: "Enter the horse's price" }],
+        },
+        {
+          position: "header",
+          columns: [
+            { type: "description", value: "A description for the panel" },
+          ],
+        },
         [
           { type: "label", value: "Name:", target: "name", width: 10 },
           {
@@ -95,7 +108,7 @@ export const scenarios: DevScenario[] = [
           },
         ],
         [{ type: "price", id: "price", allowOR: true, required: true }],
-        confirmRow,
+        { position: "footer", columns: confirmRow },
       ]),
   },
   {
@@ -316,6 +329,44 @@ export const scenarios: DevScenario[] = [
           },
         ],
         [{ type: "text", id: "name", placeholder: "Optional" }],
+      ]),
+  },
+  {
+    id: "positions",
+    label: "Header / content / footer",
+    // Long enough to hit --modal-max-height: only the middle zone may scroll,
+    // the title and the buttons stay pinned.
+    run: () =>
+      newInput([
+        {
+          position: "header",
+          columns: [{ type: "title", value: "Pick your horses" }],
+        },
+        {
+          position: "header",
+          columns: [
+            {
+              type: "description",
+              value: "The title and the buttons stay put while this list scrolls.",
+            },
+          ],
+        },
+        ...Array.from({ length: 15 }, (_, index) => ({
+          columns: [
+            {
+              type: "label" as const,
+              value: `Horse ${index + 1}:`,
+              target: `horse${index}`,
+              width: 15,
+            },
+            {
+              type: "text" as const,
+              id: `horse${index}`,
+              placeholder: "A name",
+            },
+          ],
+        })),
+        { position: "footer", columns: confirmRow },
       ]),
   },
   {

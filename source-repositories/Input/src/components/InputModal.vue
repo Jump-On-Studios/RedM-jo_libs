@@ -15,15 +15,33 @@
           :class="patch"
         />
       </div>
-      <div class="input-scroll">
-        <div class="input-content">
-          <InputRow
-            v-for="(row, rowIndex) in inputStore.rows"
-            :key="rowIndex"
-            :row="row"
-            @submit="submitFromField"
-          />
-        </div>
+      <!--
+        The three zones a row can be sent to. Each one is rendered only when it
+        holds something, otherwise the gap of the container would leave a hole.
+      -->
+      <div v-if="inputStore.headerRows.length" class="input-header">
+        <InputRow
+          v-for="(row, rowIndex) in inputStore.headerRows"
+          :key="rowIndex"
+          :row="row"
+          @submit="submitFromField"
+        />
+      </div>
+      <div v-if="inputStore.contentRows.length" class="input-content">
+        <InputRow
+          v-for="(row, rowIndex) in inputStore.contentRows"
+          :key="rowIndex"
+          :row="row"
+          @submit="submitFromField"
+        />
+      </div>
+      <div v-if="inputStore.footerRows.length" class="input-footer">
+        <InputRow
+          v-for="(row, rowIndex) in inputStore.footerRows"
+          :key="rowIndex"
+          :row="row"
+          @submit="submitFromField"
+        />
       </div>
     </div>
   </div>
@@ -117,26 +135,40 @@ onBeforeUnmount(() => {
   position: relative;
   display: flex;
   flex-direction: column;
+  gap: 14px;
   width: var(--modal-width);
   max-height: var(--modal-max-height);
   padding: var(--padding-container);
 
-  // The scroll owner is the inner viewport so the backdrop can keep the full
-  // natural height of the content instead of stopping at max-height.
+  // The scroll owner is .input-content so the backdrop can keep the full
+  // natural height of the panel instead of stopping at max-height.
   overflow: visible;
 }
 
-.input-scroll {
-  min-height: 0;
-  overflow-x: hidden;
-  overflow-y: auto;
+// Pinned zones: they never give up height, the content does it for them.
+.input-header,
+.input-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  flex-shrink: 0;
 }
 
 .input-content {
   display: flex;
   flex-direction: column;
   gap: 14px;
-  min-height: 100%;
+
+  // `flex-basis: auto`, and not the `flex: 1` shorthand which resolves to a 0
+  // basis: the container is auto-height, so a 0 basis would make this zone
+  // contribute nothing to its intrinsic height and collapse the panel. With an
+  // auto basis the panel still sizes to its content, and once
+  // --modal-max-height caps it, `min-height: 0` lets this zone — and only this
+  // one — shrink and scroll, which pushes the header and the footer apart.
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 // Painted backdrop, on its own layer.

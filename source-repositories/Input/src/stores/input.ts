@@ -6,6 +6,7 @@ import {
   isFocusableType,
   isResultEntry,
   isResultType,
+  toRowPosition,
   type Entry,
   type NewInputPayload,
   type Row,
@@ -72,6 +73,20 @@ export const useInputStore = defineStore('input', {
 
       return ids
     },
+
+    // The three zones of the panel. `rows` stays flat, so the result, the price
+    // ids and the autofocus keep following the order the caller declared.
+    headerRows(state): Row[] {
+      return state.rows.filter((row) => row.position === 'header')
+    },
+
+    contentRows(state): Row[] {
+      return state.rows.filter((row) => row.position === 'content')
+    },
+
+    footerRows(state): Row[] {
+      return state.rows.filter((row) => row.position === 'footer')
+    },
   },
 
   actions: {
@@ -117,8 +132,13 @@ export const useInputStore = defineStore('input', {
           normalizedColumns.push(normalized)
         })
 
-        // Spread first: any row-level key the Lua caller declared is kept.
-        rows.push({ ...row, columns: normalizedColumns })
+        // Spread first: any row-level key the Lua caller declared is kept, and
+        // the normalized position wins over the raw one.
+        rows.push({
+          ...row,
+          columns: normalizedColumns,
+          position: toRowPosition(row?.position),
+        })
       })
 
       this.rows = rows
