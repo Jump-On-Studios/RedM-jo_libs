@@ -37,6 +37,7 @@ end
 --- A function to open the nui input
 ---@param options table (Options of the input)
 --- options.rows table (The list of rows content)
+--- options.lang? table (The inputNui translations)
 ---@param cb? function (The return function. If missing, the function is syncrhonous)
 function jo.input.nui(options, cb)
   if nuiOpened then return false, eprint("Input NUI is already opened") end
@@ -54,10 +55,27 @@ function jo.input.nui(options, cb)
     nuiOpened = false
   end
   nuiResult = promise.new()
+
+  local inputStrings = {}
+  local language = type(options.lang) == "table" and options.lang or {}
+  for key, value in pairs(language) do
+    if type(key) == "string" and key:sub(1, 8) == "inputNui" and type(value) == "string" then
+      inputStrings[key] = value
+    end
+  end
+
+  SendNUIMessage({
+    messageTargetUiName = "jo_input",
+    event = "setStrings",
+    data = inputStrings
+  })
+
   SendNUIMessage({
     messageTargetUiName = "jo_input",
     event = "newInput",
-    data = options
+    data = {
+      rows = options.rows
+    }
   })
   SetNuiFocus(true, true)
   SetNuiFocusKeepInput(false)

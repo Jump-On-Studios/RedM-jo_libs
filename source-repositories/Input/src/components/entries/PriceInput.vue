@@ -5,14 +5,16 @@
     :style="style"
   >
     <div class="price-form__heading">
-      <span>Payment options</span>
-      <small v-if="allowOr">Set how the price can be paid</small>
+      <span v-i18n="'inputNuiPaymentOptions'">Payment options</span>
+      <small v-if="allowOr" v-i18n="'inputNuiOrExplanation'">
+        Set how the price can be paid
+      </small>
     </div>
     <div
       v-if="allowOr"
       class="price-form__tabs"
       role="tablist"
-      aria-label="Payment options"
+      :aria-label="getString('inputNuiPaymentOptions', 'Payment options')"
     >
       <button
         v-for="(option, index) in options"
@@ -29,11 +31,13 @@
         aria-controls="price-option-panel"
         @click="selectOption(option.key)"
       >
-        <span class="price-form__tab-label">Option {{ index + 1 }}</span>
+        <span class="price-form__tab-label">
+          {{ getString("inputNuiOption", "Option") }} {{ index + 1 }}
+        </span>
         <span
           v-if="optionError(option)"
           class="price-form__tab-invalid"
-          aria-label="invalid"
+          :aria-label="getString('inputNuiInvalid', 'invalid')"
         >
           !
         </span>
@@ -42,7 +46,9 @@
       <button
         type="button"
         class="price-form__tab price-form__tab--add"
-        aria-label="Add another payment option"
+        :aria-label="
+          getString('inputNuiAddPaymentOption', 'Add another payment option')
+        "
         @click="addOption"
       >
         <img src="/assets/ui/plus.png" alt="" aria-hidden="true" />
@@ -86,12 +92,14 @@ import PriceOption from "./price/PriceOption.vue";
 import PriceSummary from "./price/PriceSummary.vue";
 import { useEntryStyle } from "@/composables/useEntryStyle";
 import { useEntryValue } from "@/composables/useEntryValue";
+import { useLangStore } from "@/stores/lang";
 import {
   ALL_COST_TYPES,
   areOptionsValid,
   buildPriceValue,
   createOption,
   createRequirement,
+  isFreeOption,
   optionError,
   parsePriceValue,
   summarizeOption,
@@ -101,6 +109,7 @@ import type { PriceEntry, PriceResult } from "@/types/entries";
 const props = defineProps<{ entry: PriceEntry }>();
 
 const style = useEntryStyle(() => props.entry);
+const langStore = useLangStore();
 const { value, hasError } = useEntryValue<PriceResult | null>(
   () => props.entry,
 );
@@ -142,7 +151,10 @@ const priceValue = computed(() =>
 const warning = computed(() => {
   if (areOptionsValid(usableOptions.value)) return null;
 
-  return "This price cannot be confirmed until every option is valid.";
+  return langStore.getString(
+    "inputNuiPriceInvalid",
+    "This price cannot be confirmed until every option is valid.",
+  );
 });
 
 const summaryLines = computed(() => {
@@ -155,11 +167,17 @@ const summaryLines = computed(() => {
 });
 
 const singleLabel = computed(() => {
-  if (warning.value) return "Current draft:";
-  if (summaryLines.value[0] === "Free") return "Price:";
+  if (warning.value)
+    return langStore.getString("inputNuiCurrentDraft", "Current draft:");
+  if (usableOptions.value.length === 1 && isFreeOption(usableOptions.value[0]!))
+    return langStore.getString("inputNuiPrice", "Price:");
 
-  return "Player pays:";
+  return langStore.getString("inputNuiPlayerPays", "Player pays:");
 });
+
+function getString(key: string, fallback: string) {
+  return langStore.getString(key, fallback);
+}
 
 function addOption() {
   if (!allowOr.value) return;
@@ -359,8 +377,7 @@ watch(priceValue, (next) => (value.value = next), { immediate: true });
     }
   }
 
-  // The option header and add controls stay visible; only its requirement list
-  // owns the scroll area.
+  // The option content participates in the modal's main scroll area.
   &__options {
     display: flex;
     flex-direction: column;

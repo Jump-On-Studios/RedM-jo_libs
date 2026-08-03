@@ -10,13 +10,15 @@
     </template>
 
     <template v-else>
-      <span class="price-summary__label">Preview</span>
+      <span class="price-summary__label" v-i18n="'inputNuiPreview'">
+        Preview
+      </span>
       <div
         v-for="(line, index) in lines"
         :key="index"
         class="price-summary__line"
       >
-        <span>Option {{ index + 1 }}</span>
+        <span>{{ getString("inputNuiOption", "Option") }} {{ index + 1 }}</span>
         <strong>{{ line }}</strong>
       </div>
     </template>
@@ -24,11 +26,19 @@
 </template>
 
 <script setup lang="ts">
+import { useLangStore } from '@/stores/lang'
+
 defineProps<{
   lines: string[];
   warning: string | null;
   singleLabel: string;
 }>();
+
+const langStore = useLangStore()
+
+function getString(key: string, fallback: string) {
+  return langStore.getString(key, fallback)
+}
 </script>
 
 <style scoped lang="scss">

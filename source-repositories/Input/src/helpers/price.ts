@@ -5,6 +5,7 @@ import type {
   PriceResult,
   PriceValue,
 } from '@/types/entries'
+import { useLangStore } from '@/stores/lang'
 
 /** Editable form of a single cost inside a payment option. */
 export interface PriceRequirement {
@@ -33,6 +34,13 @@ export const ALL_COST_TYPES: CostTypeChoice[] = [
   { value: 'rol', label: 'ROL' },
   { value: 'item', label: 'Item' },
 ]
+
+const COST_TYPE_KEYS: Record<PriceCostType, string> = {
+  money: 'inputNuiMoney',
+  gold: 'inputNuiGold',
+  rol: 'inputNuiRol',
+  item: 'inputNuiItem',
+}
 
 const CURRENCY_TYPES: CurrencyCostType[] = ['money', 'gold', 'rol']
 
@@ -66,7 +74,9 @@ export function createOption(requirements: PriceRequirement[] = []): PriceOption
 }
 
 export function typeLabel(type: PriceCostType): string {
-  return ALL_COST_TYPES.find((choice) => choice.value === type)?.label ?? type
+  const fallback = ALL_COST_TYPES.find((choice) => choice.value === type)?.label ?? type
+
+  return useLangStore().getString(COST_TYPE_KEYS[type], fallback)
 }
 
 /** Currencies are unique inside an option, items can be repeated. */
@@ -80,8 +90,15 @@ export function isTypeDisabled(option: PriceOption, type: PriceCostType): boolea
 
 export function requirementError(requirement: PriceRequirement): string | null {
   if (requirement.type === 'item') {
-    if (!requirement.itemName?.trim()) return 'Item name is required.'
-    if (Number(requirement.quantity || 0) <= 0) return 'Quantity must be greater than 0.'
+    if (!requirement.itemName?.trim()) {
+      return useLangStore().getString('inputNuiItemNameRequired', 'Item name is required.')
+    }
+    if (Number(requirement.quantity || 0) <= 0) {
+      return useLangStore().getString(
+        'inputNuiQuantityPositive',
+        'Quantity must be greater than 0.',
+      )
+    }
     return null
   }
 
@@ -89,22 +106,35 @@ export function requirementError(requirement: PriceRequirement): string | null {
 
   // Money is the only cost allowed to be free.
   if (requirement.type === 'money') {
-    if (value < 0) return 'Money cannot be negative.'
+    if (value < 0) {
+      return useLangStore().getString('inputNuiMoneyNegative', 'Money cannot be negative.')
+    }
     return null
   }
 
-  if (value <= 0) return 'Amount must be greater than 0.'
+  if (value <= 0) {
+    return useLangStore().getString(
+      'inputNuiAmountPositive',
+      'Amount must be greater than 0.',
+    )
+  }
 
   return null
 }
 
 export function optionError(option: PriceOption): string | null {
   if (option.requirements.length === 0) {
-    return 'This payment option needs at least one requirement.'
+    return useLangStore().getString(
+      'inputNuiOptionRequirement',
+      'This payment option needs at least one requirement.',
+    )
   }
 
   if (option.requirements.some((requirement) => requirementError(requirement) !== null)) {
-    return 'Fix invalid requirements in this option.'
+    return useLangStore().getString(
+      'inputNuiOptionInvalidRequirements',
+      'Fix invalid requirements in this option.',
+    )
   }
 
   return null
@@ -249,10 +279,15 @@ function formatNumber(value: unknown): string {
 
 function summarizeRequirement(requirement: PriceRequirement): string {
   if (requirement.type === 'item') {
-    const name = requirement.itemName?.trim() || 'missing item'
+    const name =
+      requirement.itemName?.trim() ||
+      useLangStore().getString('inputNuiMissingItem', 'missing item')
     const quantity = Math.max(Number(requirement.quantity || 1), 1)
+    const kept = requirement.keep
+      ? ` ${useLangStore().getString('inputNuiKept', 'kept')}`
+      : ''
 
-    return `${formatNumber(quantity)}x ${name}${requirement.keep ? ' kept' : ''}`
+    return `${formatNumber(quantity)}x ${name}${kept}`
   }
 
   return `${typeLabel(requirement.type)} ${formatNumber(requirement.value)}`
@@ -269,8 +304,10 @@ export function isFreeOption(option: PriceOption): boolean {
 }
 
 export function summarizeOption(option: PriceOption): string {
-  if (option.requirements.length === 0) return 'No requirement set'
-  if (isFreeOption(option)) return 'Free'
+  if (option.requirements.length === 0) {
+    return useLangStore().getString('inputNuiNoRequirementSet', 'No requirement set')
+  }
+  if (isFreeOption(option)) return useLangStore().getString('inputNuiFree', 'Free')
 
   return option.requirements.map(summarizeRequirement).join(' + ')
 }

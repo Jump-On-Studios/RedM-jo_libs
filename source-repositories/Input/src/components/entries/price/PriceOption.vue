@@ -1,32 +1,36 @@
 <template>
   <section class="price-option">
     <header class="price-option__header">
-      <span class="price-option__heading">Requirements</span>
+      <span class="price-option__heading" v-i18n="'inputNuiRequirements'">
+        Requirements
+      </span>
       <div class="price-option__actions">
         <button
           v-if="canDuplicate"
           type="button"
           class="price-option__action"
-          title="Duplicate option"
+          :title="getString('inputNuiDuplicateOption', 'Duplicate option')"
           @click="emit('duplicate')"
         >
-          Duplicate option
+          <span v-i18n="'inputNuiDuplicateOption'">Duplicate option</span>
         </button>
         <button
           v-if="canRemove"
           type="button"
           class="price-option__action"
-          title="Remove option"
-          aria-label="Remove option"
+          :title="getString('inputNuiRemoveOption', 'Remove option')"
+          :aria-label="getString('inputNuiRemoveOption', 'Remove option')"
           @click="emit('remove')"
         >
-          Remove option
+          <span v-i18n="'inputNuiRemoveOption'">Remove option</span>
         </button>
       </div>
     </header>
 
     <div v-if="option.requirements.length === 0" class="price-option__empty">
-      Add a requirement to this option.
+      <span v-i18n="'inputNuiAddRequirementToOption'">
+        Add a requirement to this option.
+      </span>
     </div>
 
     <span
@@ -46,7 +50,9 @@
     </div>
 
     <div class="price-option__add">
-      <span class="price-option__help">Add requirement</span>
+      <span class="price-option__help" v-i18n="'inputNuiAddRequirement'">
+        Add requirement
+      </span>
       <div class="price-option__types">
         <button
           v-for="choice in availableTypes"
@@ -65,7 +71,7 @@
           >
             <img :src="typeIcon(choice.value)" alt="" />
           </span>
-          <span>{{ choice.label }}</span>
+          <span>{{ typeLabel(choice.value) }}</span>
         </button>
       </div>
     </div>
@@ -83,6 +89,7 @@ import {
   type CostTypeChoice,
   type PriceOption,
 } from "@/helpers/price";
+import { useLangStore } from "@/stores/lang";
 import type { PriceCostType } from "@/types/entries";
 
 const props = defineProps<{
@@ -95,6 +102,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{ remove: []; duplicate: [] }>();
 
+const langStore = useLangStore();
 const error = computed(() => optionError(props.option));
 
 const requirementIcons: Partial<Record<PriceCostType, string>> = {
@@ -108,9 +116,18 @@ function typeIcon(type: PriceCostType) {
 }
 
 function buttonTitle(type: PriceCostType) {
-  if (!isTypeDisabled(props.option, type)) return `Add ${typeLabel(type)}`;
+  if (!isTypeDisabled(props.option, type)) {
+    return `${getString("inputNuiAddCost", "Add")} ${typeLabel(type)}`;
+  }
 
-  return `${typeLabel(type)} is already in this option.`;
+  return `${typeLabel(type)} ${getString(
+    "inputNuiAlreadyInOption",
+    "is already in this option.",
+  )}`;
+}
+
+function getString(key: string, fallback: string) {
+  return langStore.getString(key, fallback);
 }
 
 function addRequirement(type: PriceCostType) {

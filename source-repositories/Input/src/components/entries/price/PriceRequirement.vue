@@ -15,7 +15,7 @@
     <template v-if="requirement.type === 'item'">
       <label class="price-field">
         <span class="entry-field__caps" aria-hidden="true" />
-        <span class="price-field__label">Item</span>
+        <span class="price-field__label" v-i18n="'inputNuiItem'">Item</span>
         <input
           v-model="requirement.itemName"
           type="text"
@@ -25,7 +25,7 @@
       </label>
       <label class="price-field price-field--narrow">
         <span class="entry-field__caps" aria-hidden="true" />
-        <span class="price-field__label">Qty</span>
+        <span class="price-field__label" v-i18n="'inputNuiQuantity'">Qty</span>
         <input
           v-model.number="requirement.quantity"
           type="number"
@@ -37,14 +37,16 @@
       </label>
       <label class="price-checkbox">
         <input v-model="requirement.keep" type="checkbox" />
-        <span>Keep</span>
+        <span v-i18n="'inputNuiKeep'">Keep</span>
       </label>
     </template>
 
     <template v-else>
       <label class="price-field">
         <span class="entry-field__caps" aria-hidden="true" />
-        <span class="price-field__label">Amount</span>
+        <span class="price-field__label" v-i18n="'inputNuiAmount'">
+          Amount
+        </span>
         <input
           v-model.number="requirement.value"
           type="number"
@@ -59,7 +61,7 @@
     <button
       type="button"
       class="price-icon-button"
-      title="Remove requirement"
+      :title="getString('inputNuiRemoveRequirement', 'Remove requirement')"
       @click="emit('remove')"
     >
       <img src="/assets/ui/trash.png" alt="" aria-hidden="true" />
@@ -72,12 +74,14 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { requirementError, typeLabel, type PriceRequirement } from '@/helpers/price'
+import { useLangStore } from '@/stores/lang'
 import type { PriceCostType } from '@/types/entries'
 
 const props = defineProps<{ requirement: PriceRequirement }>()
 
 const emit = defineEmits<{ remove: [] }>()
 
+const langStore = useLangStore()
 const error = computed(() => requirementError(props.requirement))
 
 const requirementIcons: Partial<Record<PriceCostType, string>> = {
@@ -88,6 +92,10 @@ const requirementIcons: Partial<Record<PriceCostType, string>> = {
 
 function requirementIcon(type: PriceCostType) {
   return requirementIcons[type]
+}
+
+function getString(key: string, fallback: string) {
+  return langStore.getString(key, fallback)
 }
 </script>
 

@@ -35,7 +35,13 @@
           {{ option.label }}
         </button>
       </li>
-      <li v-if="options.length === 0" class="entry-select__empty">No option available</li>
+      <li
+        v-if="options.length === 0"
+        class="entry-select__empty"
+        v-i18n="'inputNuiNoOptionAvailable'"
+      >
+        No option available
+      </li>
     </ul>
   </div>
 </template>
