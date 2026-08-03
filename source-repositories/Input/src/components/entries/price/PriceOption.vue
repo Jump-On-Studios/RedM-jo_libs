@@ -185,9 +185,6 @@ function removeRequirement(index: number) {
     display: flex;
     flex-direction: column;
     gap: 0;
-    max-height: 260px;
-    padding-right: 8px;
-    overflow-y: auto;
   }
 
   &__add {

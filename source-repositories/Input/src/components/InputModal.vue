@@ -15,12 +15,16 @@
           :class="patch"
         />
       </div>
-      <InputRow
-        v-for="(row, rowIndex) in inputStore.rows"
-        :key="rowIndex"
-        :row="row"
-        @submit="submitFromField"
-      />
+      <div class="input-scroll">
+        <div class="input-content">
+          <InputRow
+            v-for="(row, rowIndex) in inputStore.rows"
+            :key="rowIndex"
+            :row="row"
+            @submit="submitFromField"
+          />
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -113,16 +117,26 @@ onBeforeUnmount(() => {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 14px;
   width: var(--modal-width);
   max-height: var(--modal-max-height);
   padding: var(--padding-container);
 
-  // Never scrolls, and therefore never clips: a scrolling container would cut
-  // off the select list and the calendar, which are positioned absolutely so
-  // they overlay the rows instead of pushing them down. Tall content is handled
-  // by the price options, which scroll on their own.
+  // The scroll owner is the inner viewport so the backdrop can keep the full
+  // natural height of the content instead of stopping at max-height.
   overflow: visible;
+}
+
+.input-scroll {
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.input-content {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 100%;
 }
 
 // Painted backdrop, on its own layer.
