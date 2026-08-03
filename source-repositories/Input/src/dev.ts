@@ -5,8 +5,15 @@ export function SendNUIMessage(message: unknown) {
   window.postMessage(message, "*");
 }
 
+/**
+ * Scenarios are written as plain arrays of columns, exactly like the legacy Lua
+ * format, and wrapped here into the `{ columns }` rows the NUI now expects.
+ */
 function newInput(rows: IncomingEntry[][]) {
-  SendNUIMessage({ event: "newInput", data: { rows } });
+  SendNUIMessage({
+    event: "newInput",
+    data: { rows: rows.map((columns) => ({ columns })) },
+  });
 }
 
 export interface DevScenario {
@@ -49,7 +56,7 @@ export const scenarios: DevScenario[] = [
         [{ type: "title", value: "Enter the horse's price" }],
         [{ type: "description", value: "A description for the panel" }],
         [
-          { type: "label", value: "Name:", for: "name", width: 10 },
+          { type: "label", value: "Name:", target: "name", width: 10 },
           {
             type: "text",
             id: "name",
@@ -58,7 +65,7 @@ export const scenarios: DevScenario[] = [
           },
         ],
         [
-          { type: "label", value: "Amount:", for: "amount", width: 10 },
+          { type: "label", value: "Amount:", target: "amount", width: 10 },
           {
             type: "number",
             id: "amount",
@@ -69,7 +76,7 @@ export const scenarios: DevScenario[] = [
           },
         ],
         [
-          { type: "label", value: "Birthday:", for: "birthday", width: 10 },
+          { type: "label", value: "Birthday:", target: "birthday", width: 10 },
           {
             type: "date",
             id: "birthday",
@@ -79,7 +86,7 @@ export const scenarios: DevScenario[] = [
           },
         ],
         [
-          { type: "label", value: "Choice:", for: "choice", width: 10 },
+          { type: "label", value: "Choice:", target: "choice", width: 10 },
           {
             type: "select",
             id: "choice",
@@ -135,7 +142,7 @@ export const scenarios: DevScenario[] = [
       newInput([
         [{ type: "title", value: "Date input" }],
         [
-          { type: "label", value: "Birthday:", for: "birthday", width: 20 },
+          { type: "label", value: "Birthday:", target: "birthday", width: 20 },
           {
             type: "date",
             id: "birthday",
@@ -310,5 +317,31 @@ export const scenarios: DevScenario[] = [
         ],
         [{ type: "text", id: "name", placeholder: "Optional" }],
       ]),
+  },
+  {
+    id: "rows-without-columns",
+    label: "Rows without columns",
+    // Posted raw, bypassing newInput: the Lua parser normalizes the legacy
+    // format before it ever reaches here, so a row missing its `columns` only
+    // happens when something sends to the NUI directly. It must render an empty
+    // row rather than throw.
+    run: () =>
+      SendNUIMessage({
+        event: "newInput",
+        data: {
+          rows: [
+            { columns: [{ type: "title", value: "Rows without columns" }] },
+            [{ type: "description", value: "Legacy row, dropped silently." }],
+            { columns: {} },
+            {},
+            {
+              columns: [
+                { type: "text", id: "name", placeholder: "Still focusable" },
+              ],
+            },
+            { columns: [{ type: "button", id: "confirm", value: "Confirm" }] },
+          ],
+        },
+      }),
   },
 ];

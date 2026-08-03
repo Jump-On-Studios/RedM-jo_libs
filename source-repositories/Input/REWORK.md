@@ -41,12 +41,31 @@ L'objectif du rework :
 
 ## ⚠️ Contrat avec le Lua — à ne jamais casser
 
-[`jo_libs/modules/input/client.lua`](../../jo_libs/modules/input/client.lua) **n'a
-pas été modifié** et ne doit pas l'être sans raison. Le contrat :
+[`jo_libs/modules/input/client.lua`](../../jo_libs/modules/input/client.lua) ne doit
+pas être modifié sans raison. Le contrat :
 
 **Entrée** — message `window.postMessage` de forme `{ event: 'newInput', data: { rows } }`.
 On garde `event`, on ne passe **pas** à `{ type, data }` comme Prompt et Minigame,
 sinon il faut toucher au Lua.
+
+**Forme d'une row** — un objet portant un tableau `columns` :
+
+```js
+{ rows: [ { columns: [ { type: 'label', value: 'Nom:', target: 'name' }, … ] }, … ] }
+```
+
+Côté Lua, `parseRows` normalise avant l'envoi et accepte en rétrocompatibilité
+l'ancien format, où la row **est** le tableau de colonnes. Le NUI, lui, ne connaît
+que `columns` : une row sans ce tableau rend une row vide (scénario dev
+« Rows without columns »). ⚠️ Un `columns` vide est encodé `{}` et non `[]` par le
+`json.encode` du Lua, d'où le garde `Array.isArray` dans `stores/input.ts::open()`.
+
+Toute clé posée au niveau de la row (autre que `columns`) traverse le Lua et le
+store sans être touchée — c'est la raison d'être de ce format.
+
+**`for` → `target`** — `for` étant un mot-clé réservé en Lua, la cible d'un label
+s'écrit `target`. `parseRows` renomme l'ancienne clé `["for"]`, et le NUI ne lit
+plus que `target` (`LabelEntry.vue`).
 
 **Sortie validée** — `POST jo_input:click` avec :
 
@@ -55,7 +74,7 @@ sinon il faut toucher au Lua.
 ```
 
 `priceIds` liste les ids des entries `price`, pour que `convertNUIPrice`
-(client.lua:84) sache lesquelles repasser dans `jo.pricing`.
+(client.lua:160) sache lesquelles repasser dans `jo.pricing`.
 
 **Sortie annulation** — `POST jo_input:click` avec le body `false` (pas un objet).
 Le Lua résout sa promise à `false`.

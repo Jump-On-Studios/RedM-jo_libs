@@ -2,7 +2,7 @@
   <div class="input-row">
     <component
       :is="ENTRY_COMPONENTS[entry.type]"
-      v-for="entry in row"
+      v-for="entry in row.columns"
       :key="entry.id"
       :entry="entry"
       @submit="emit('submit')"
@@ -12,9 +12,9 @@
 
 <script setup lang="ts">
 import { ENTRY_COMPONENTS } from "@/components/entries";
-import type { Entry } from "@/types/entries";
+import type { Row } from "@/types/entries";
 
-defineProps<{ row: Entry[] }>();
+defineProps<{ row: Row }>();
 
 const emit = defineEmits<{ submit: [] }>();
 </script>

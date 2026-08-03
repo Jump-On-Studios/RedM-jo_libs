@@ -48,7 +48,8 @@ export interface DescriptionEntry extends CommonEntry {
 export interface LabelEntry extends CommonEntry {
   type: 'label'
   value: string
-  for?: string
+  /** Id of the entry the label points at. `for` is reserved in Lua, hence the name. */
+  target?: string
 }
 
 export interface TextEntry extends CommonEntry {
@@ -131,8 +132,18 @@ export interface IncomingEntry extends Record<string, unknown> {
   id?: string
 }
 
+/** Raw row as received from Lua, before the store normalizes its columns. */
+export interface IncomingRow extends Record<string, unknown> {
+  columns?: IncomingEntry[]
+}
+
+/** Row once the store has normalized every column it holds. */
+export interface Row extends Record<string, unknown> {
+  columns: Entry[]
+}
+
 export interface NewInputPayload {
-  rows: IncomingEntry[][]
+  rows: IncomingRow[]
 }
 
 // * ==========================================

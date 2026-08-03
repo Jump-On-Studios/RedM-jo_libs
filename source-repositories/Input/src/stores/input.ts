@@ -8,6 +8,7 @@ import {
   isResultType,
   type Entry,
   type NewInputPayload,
+  type Row,
 } from '@/types/entries'
 
 /** Number of blinks played on a missing required field. */
@@ -36,7 +37,7 @@ function isEmpty(value: unknown): boolean {
 
 interface InputState {
   visible: boolean
-  rows: Entry[][]
+  rows: Row[]
   /** Current value of every result entry, keyed by entry id. */
   values: Record<string, unknown>
   /** Entries currently blinking because they are required and empty. */
@@ -64,7 +65,7 @@ export const useInputStore = defineStore('input', {
       const ids: string[] = []
 
       state.rows.forEach((row) => {
-        row.forEach((entry) => {
+        row.columns.forEach((entry) => {
           if (entry.type === 'price') ids.push(entry.id)
         })
       })
@@ -77,7 +78,7 @@ export const useInputStore = defineStore('input', {
     open(payload: NewInputPayload) {
       this.clearErrorTimers()
 
-      const rows: Entry[][] = []
+      const rows: Row[] = []
       const values: Record<string, unknown> = {}
       let hasButton = false
       let autofocusId: string | null = null
@@ -86,9 +87,12 @@ export const useInputStore = defineStore('input', {
       const incomingRows = Array.isArray(payload?.rows) ? payload.rows : []
 
       incomingRows.forEach((row, rowIndex) => {
-        const normalizedRow: Entry[] = []
+        const normalizedColumns: Entry[] = []
+        // An empty `columns` is encoded as `{}` by the Lua json encoder, not as
+        // an array, so the shape has to be checked rather than trusted.
+        const columns = Array.isArray(row?.columns) ? row.columns : []
 
-        row.forEach((entry, entryIndex) => {
+        columns.forEach((entry, entryIndex) => {
           const normalized = { ...entry } as Entry
 
           if (normalized.id === undefined) {
@@ -110,10 +114,11 @@ export const useInputStore = defineStore('input', {
             }
           }
 
-          normalizedRow.push(normalized)
+          normalizedColumns.push(normalized)
         })
 
-        rows.push(normalizedRow)
+        // Spread first: any row-level key the Lua caller declared is kept.
+        rows.push({ ...row, columns: normalizedColumns })
       })
 
       this.rows = rows
@@ -163,7 +168,7 @@ export const useInputStore = defineStore('input', {
       let valid = true
 
       this.rows.forEach((row) => {
-        row.forEach((entry) => {
+        row.columns.forEach((entry) => {
           if (!isResultEntry(entry)) return
 
           result[entry.id] = toPlain(this.values[entry.id])

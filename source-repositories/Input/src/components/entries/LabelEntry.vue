@@ -1,6 +1,6 @@
 <template>
   <!-- eslint-disable-next-line vue/no-v-html -- markup comes from the Lua caller -->
-  <label class="entry-label" :class="entry.class" :style="style" :for="entry.for" v-html="entry.value" />
+  <label class="entry-label" :class="entry.class" :style="style" :for="entry.target" v-html="entry.value" />
 </template>
 
 <script setup lang="ts">

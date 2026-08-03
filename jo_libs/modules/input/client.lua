@@ -34,11 +34,69 @@ function jo.input.loadNUI()
   jo.nui.load("jo_input", "nui://jo_libs/nui/input/index.html")
 end
 
+--- Normalizes a column: renames the `for` key, reserved in Lua, into `target`.
+--- Returns a shallow copy so the caller's table is never mutated.
+---@param column any The raw column sent by the caller
+---@return any The normalized column
+local function parseColumn(column)
+  if type(column) ~= "table" then return column end
+
+  local parsed = {}
+  for key, value in pairs(column) do
+    if key ~= "for" then parsed[key] = value end
+  end
+
+  if column["for"] ~= nil and parsed.target == nil then
+    parsed.target = column["for"]
+  end
+
+  return parsed
+end
+
+--- Normalizes the rows into the current format: a row is an object holding a
+--- `columns` array. The legacy format, where the row *is* the array of columns,
+--- is still accepted; any other row-level key travels untouched.
+--- The column order is preserved, so the ids the NUI derives from the indexes
+--- stay the same whatever the format used.
+---@param rows table|nil (The list of rows sent by the caller)
+---@return table (The rows in the `{ columns = { ... } }` format)
+local function parseRows(rows)
+  if type(rows) ~= "table" then return {} end
+
+  local parsed = {}
+  for i = 1, #rows do
+    local row = rows[i]
+    if type(row) == "table" then
+      local columns = type(row.columns) == "table" and row.columns or row
+      local parsedRow = {}
+
+      -- Legacy rows carry nothing but their columns, hence the guard.
+      if columns ~= row then
+        for key, value in pairs(row) do
+          if key ~= "columns" then parsedRow[key] = value end
+        end
+      end
+
+      parsedRow.columns = {}
+      for j = 1, #columns do
+        parsedRow.columns[j] = parseColumn(columns[j])
+      end
+
+      parsed[#parsed + 1] = parsedRow
+    end
+  end
+
+  return parsed
+end
+
 --- A function to open the nui input
 ---@param options table (Options of the input)
---- options.rows table (The list of rows content)
+--- options.rows table (The list of rows. A row is a table with a `columns` array: `{ columns = { { type = "title", value = "Title" } } }`)
 --- options.lang? table (The inputNui translations)
 ---@param cb? function (The return function. If missing, the function is syncrhonous)
+---
+--- For backward compatibility, a row can also be the array of columns itself,
+--- and a label can use the `["for"]` key instead of `target`.
 function jo.input.nui(options, cb)
   if nuiOpened then return false, eprint("Input NUI is already opened") end
   nuiOpened = true
@@ -74,7 +132,7 @@ function jo.input.nui(options, cb)
     messageTargetUiName = "jo_input",
     event = "newInput",
     data = {
-      rows = options.rows
+      rows = parseRows(options.rows)
     }
   })
   SetNuiFocus(true, true)
