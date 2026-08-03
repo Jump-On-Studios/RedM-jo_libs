@@ -189,8 +189,9 @@ function getString(key: string, fallback: string) {
     right: calc(var(--entry-field-cap) - var(--entry-field-cap-overlap));
     z-index: 0;
     background-color: var(--color-field);
-    -webkit-mask: url('/assets/ui/selection_box_bg_1d.png') center / 100% 100% no-repeat;
-    mask: url('/assets/ui/selection_box_bg_1d.png') center / 100% 100% no-repeat;
+    // Keep only the source middle between the native left/right caps.
+    -webkit-mask: url('/assets/ui/selection_box_bg_1d.png') center / 135% 100% no-repeat;
+    mask: url('/assets/ui/selection_box_bg_1d.png') center / 135% 100% no-repeat;
   }
 
   &::after {

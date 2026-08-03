@@ -132,10 +132,12 @@
     z-index: 0;
     background-color: var(--color-field);
     -webkit-mask-image: url("/assets/ui/selection_box_bg_1d.png");
-    // The middle band is already inset between the native caps. Keeping the
-    // mask at its natural full width preserves the opaque center of the
-    // texture instead of leaving only two isolated end caps visible.
-    -webkit-mask-size: 100% 100%;
+    // The source is 432px wide and each native cap is 56px wide. The middle
+    // source region is therefore 320px wide. Rendering the mask at 135% crops
+    // 56px from both sides while stretching only that middle region across the
+    // band; using 100% here would paint the whole source a second time and
+    // create the visible seams at the caps.
+    -webkit-mask-size: 135% 100%;
     -webkit-mask-position: center;
     -webkit-mask-repeat: no-repeat;
   }
