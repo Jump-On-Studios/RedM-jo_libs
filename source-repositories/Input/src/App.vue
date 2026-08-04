@@ -1,7 +1,9 @@
 <template>
   <Bridge />
   <component :is="DevComponent" v-if="DevComponent" />
-  <InputModal v-if="inputStore.visible" />
+  <Transition name="input-modal">
+    <InputModal v-if="inputStore.visible" />
+  </Transition>
 </template>
 
 <script setup lang="ts">

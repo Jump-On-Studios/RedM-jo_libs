@@ -1,47 +1,53 @@
 <template>
   <!--
     The overlay is the only element allowed to use viewport units: it must cover
-    the screen whatever the scale. The container below holds every px dimension
-    and carries the scaling, so the whole panel keeps the proportions it was
-    designed with on a 1080p viewport.
+    the screen whatever the scale. The stage carries the scaling while the
+    container keeps the px layout dimensions, so the whole panel preserves the
+    proportions it was designed with on a 1080p viewport.
   -->
   <div class="input-overlay">
-    <div ref="container" v-ui-scaler="'center center'" class="input-container">
-      <div class="input-backdrop" aria-hidden="true">
-        <span
-          v-for="patch in BACKDROP_PATCHES"
-          :key="patch"
-          class="input-backdrop__patch"
-          :class="patch"
-        />
-      </div>
-      <!--
-        The three zones a row can be sent to. Each one is rendered only when it
-        holds something, otherwise the gap of the container would leave a hole.
-      -->
-      <div v-if="inputStore.headerRows.length" class="input-header">
-        <InputRow
-          v-for="(row, rowIndex) in inputStore.headerRows"
-          :key="rowIndex"
-          :row="row"
-          @submit="submitFromField"
-        />
-      </div>
-      <div v-if="inputStore.contentRows.length" class="input-content">
-        <InputRow
-          v-for="(row, rowIndex) in inputStore.contentRows"
-          :key="rowIndex"
-          :row="row"
-          @submit="submitFromField"
-        />
-      </div>
-      <div v-if="inputStore.footerRows.length" class="input-footer">
-        <InputRow
-          v-for="(row, rowIndex) in inputStore.footerRows"
-          :key="rowIndex"
-          :row="row"
-          @submit="submitFromField"
-        />
+    <div class="input-overlay__shade" aria-hidden="true" />
+    <div v-ui-scaler="'center center'" class="input-stage">
+      <div class="input-smudge" aria-hidden="true" />
+      <div class="input-animation-surface">
+        <div ref="container" class="input-container">
+          <div class="input-backdrop" aria-hidden="true">
+            <span
+              v-for="patch in BACKDROP_PATCHES"
+              :key="patch"
+              class="input-backdrop__patch"
+              :class="patch"
+            />
+          </div>
+          <!--
+            The three zones a row can be sent to. Each one is rendered only when it
+            holds something, otherwise the gap of the container would leave a hole.
+          -->
+          <div v-if="inputStore.headerRows.length" class="input-header">
+            <InputRow
+              v-for="(row, rowIndex) in inputStore.headerRows"
+              :key="rowIndex"
+              :row="row"
+              @submit="submitFromField"
+            />
+          </div>
+          <div v-if="inputStore.contentRows.length" class="input-content">
+            <InputRow
+              v-for="(row, rowIndex) in inputStore.contentRows"
+              :key="rowIndex"
+              :row="row"
+              @submit="submitFromField"
+            />
+          </div>
+          <div v-if="inputStore.footerRows.length" class="input-footer">
+            <InputRow
+              v-for="(row, rowIndex) in inputStore.footerRows"
+              :key="rowIndex"
+              :row="row"
+              @submit="submitFromField"
+            />
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -128,7 +134,34 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.input-overlay__shade {
+  position: absolute;
+  inset: 0;
   background-color: var(--color-overlay);
+  pointer-events: none;
+}
+
+// The scaler stays on the stable stage. The animated surface is slightly
+// larger so its temporary mask also contains the backdrop's ragged bleed.
+.input-stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: var(--modal-width);
+  max-height: var(--modal-max-height);
+}
+
+.input-animation-surface {
+  position: relative;
+  z-index: 1;
+  width: calc(100% + var(--modal-bleed) * 2);
+  margin: calc(var(--modal-bleed) * -1);
+  padding: var(--modal-bleed);
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 110%;
+  -webkit-mask-position-y: 0;
 }
 
 .input-container {
@@ -173,12 +206,14 @@ onBeforeUnmount(() => {
 
 // Painted backdrop, on its own layer.
 //
-// The mask lives on elements of its own rather than on .input-container: a mask
-// clips the element *and its children*, so masking the container itself would
-// cut off the select list and the calendar exactly like a scroll would.
+// The backdrop mask lives on elements of its own rather than on
+// .input-container: a mask clips the element *and its children*. The temporary
+// transition mask is therefore carried by the larger animation surface and is
+// removed once the enter finishes, leaving select lists and calendars free to
+// overflow at rest.
 //
 // It sits behind the rows through `z-index: -1`, which stays inside the panel
-// because the ui-scaler transform makes .input-container a stacking context.
+// because the ui-scaler transform makes .input-stage a stacking context.
 //
 // Same 9-patch idea as the title (see TitleEntry.vue) — corners kept, edges
 // stretched — but cut by hand into nine elements instead of being handed to
@@ -284,5 +319,91 @@ onBeforeUnmount(() => {
       );
     }
   }
+}
+
+// Opening/closing animation ported from Menu. The one-second transition on the
+// root gives Vue the same lifecycle window as Menu; the visible movements keep
+// their original, shorter timings.
+.input-modal-enter-active,
+.input-modal-leave-active {
+  transition: all 1s ease;
+
+  .input-animation-surface {
+    -webkit-mask-image: url("/assets/ui/background_mask.png");
+  }
+}
+
+.input-modal-enter-from .input-animation-surface,
+.input-modal-leave-to .input-animation-surface {
+  -webkit-mask-position-y: -130vh;
+}
+
+.input-modal-enter-active .input-animation-surface {
+  transition: -webkit-mask-position-y 0.4s cubic-bezier(0, 0.5, 0.5, 1);
+}
+
+.input-modal-leave-active .input-animation-surface {
+  transition: -webkit-mask-position-y 0.4s cubic-bezier(0.5, 0, 1, 0.5) 0.1s;
+  -webkit-mask-position-y: -130vh;
+}
+
+// The smudge sits underneath the masked surface and is only exposed while the
+// panel leaves, exactly like the sibling layers in Menu.
+.input-smudge {
+  display: none;
+  position: absolute;
+  left: calc(var(--modal-bleed) * -1);
+  top: calc(var(--modal-bleed) * -1);
+  width: calc(100% + var(--modal-bleed) * 2);
+  height: calc(100% + var(--modal-bleed) * 2);
+  background-image: url("/assets/ui/background_smudge.png");
+  background-size: 100% 100%;
+  opacity: 1;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(180deg, black 75%, transparent);
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 120%;
+  -webkit-mask-position-y: 18.5vh;
+  transition: all 0.4s cubic-bezier(0.9, 0.01, 1, 0.5) 0.1s;
+}
+
+.input-modal-leave-active .input-smudge {
+  display: block;
+}
+
+.input-modal-leave-to .input-smudge {
+  -webkit-mask-position-y: -130vh;
+}
+
+// Form rows and the dedicated overlay shade follow Menu's main-content fade.
+.input-modal-enter-from .input-overlay__shade,
+.input-modal-leave-to .input-overlay__shade,
+.input-modal-enter-from .input-header,
+.input-modal-enter-from .input-content,
+.input-modal-enter-from .input-footer,
+.input-modal-leave-to .input-header,
+.input-modal-leave-to .input-content,
+.input-modal-leave-to .input-footer {
+  opacity: 0;
+}
+
+.input-modal-enter-active .input-overlay__shade {
+  transition: opacity 0.4s ease-in 0.1s;
+}
+
+.input-modal-enter-active .input-header,
+.input-modal-enter-active .input-content,
+.input-modal-enter-active .input-footer {
+  transition: opacity 0.2s ease-in 0.1s;
+}
+
+.input-modal-leave-active .input-overlay__shade {
+  transition: opacity 0.4s ease-in;
+}
+
+.input-modal-leave-active .input-header,
+.input-modal-leave-active .input-content,
+.input-modal-leave-active .input-footer {
+  transition: opacity 0.2s ease-in;
 }
 </style>
