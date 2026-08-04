@@ -1,10 +1,16 @@
 // Shared style fragments, auto-injected into every <style lang="scss"> block by
 // the `additionalData` option in vite.config.ts. Nothing here may emit CSS on
-// its own: only @mixin and @function definitions, otherwise the output would be
-// duplicated once per component.
+// its own: only @mixin, @function and variable definitions, otherwise the
+// output would be duplicated once per component.
 //
 // The design tokens stay CSS custom properties in tokens.scss. They are read at
 // runtime and can be overridden per element, which SCSS variables cannot do.
+// The palette forwarded below is their source, and holds the blends that have
+// to be resolved at build time — see _palette.scss for why.
+
+@forward 'palette';
+
+@use 'palette' as *;
 
 /// Secondary label: dimmed, smaller, small-caps.
 @mixin muted-label {
@@ -42,14 +48,7 @@
     position: absolute;
     inset: 0;
     z-index: -1;
-    background-color: var(
-      --button-surface,
-      color-mix(
-        in srgb,
-        var(--color-field) 78%,
-        var(--color-background)
-      )
-    );
+    background-color: var(--button-surface, #{$button-surface});
     -webkit-mask: url("/assets/ui/selection_box_bg_1d.png") center / 100% 100%
       no-repeat;
     mask: url("/assets/ui/selection_box_bg_1d.png") center / 100% 100% no-repeat;

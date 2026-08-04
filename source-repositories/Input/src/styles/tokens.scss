@@ -4,20 +4,22 @@
  * unit (em, rem, vw, vh) may be used outside of the full-screen overlay.
  */
 :root {
-  /* Colors */
+  /* Colors. Emitted from the Sass palette, which is the single source: the
+   * blends derived from it have to be resolved at build time. See
+   * _palette.scss. */
   --color-overlay: rgba(0, 0, 0, 0.6);
-  --color-background: #0a0a0a;
-  --color-surface: #1d1c1b;
-  --color-field: #30302f;
-  --color-border: #42413f;
-  --color-border-strong: #8b8880;
-  --color-text: #ffffff;
-  --color-text-dim: #aaa6a0;
-  --color-placeholder: #85817b;
-  --color-red: #770000;
-  --color-red-light: #e20202;
-  --color-green: #007518;
-  --color-warning: #f0c674;
+  --color-background: #{$color-background};
+  --color-surface: #{$color-surface};
+  --color-field: #{$color-field};
+  --color-border: #{$color-border};
+  --color-border-strong: #{$color-border-strong};
+  --color-text: #{$color-text};
+  --color-text-dim: #{$color-text-dim};
+  --color-placeholder: #{$color-placeholder};
+  --color-red: #{$color-red};
+  --color-red-light: #{$color-red-light};
+  --color-green: #{$color-green};
+  --color-warning: #{$color-warning};
 
   /* Typography */
   --font: Hapna, sans-serif;

@@ -311,7 +311,7 @@ watch(priceValue, (next) => (value.value = next), { immediate: true });
       position: absolute;
       inset: 2px 0;
       z-index: -1;
-      background-color: color-mix(in srgb, var(--color-field) 68%, transparent);
+      background-color: $price-tab-surface;
       -webkit-mask: url("/assets/ui/selection_box_bg_1d.png") center / 100% 100%
         no-repeat;
       mask: url("/assets/ui/selection_box_bg_1d.png") center / 100% 100%
@@ -382,10 +382,9 @@ watch(priceValue, (next) => (value.value = next), { immediate: true });
     display: flex;
     flex-direction: column;
     gap: 8px;
-    background-color: color-mix(in srgb, var(--color-surface) 20%, transparent);
+    background-color: $price-options-surface;
     padding: 20px 20px;
-    border-left: 3px solid
-      color-mix(in srgb, var(--color-border-strong) 58%, transparent);
+    border-left: 3px solid $price-options-rule;
     overflow: visible;
   }
 }

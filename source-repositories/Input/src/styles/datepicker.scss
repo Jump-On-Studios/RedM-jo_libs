@@ -61,7 +61,7 @@
 
 /* Inline menu: keep it out of the flow so it does not resize the row. */
 .dp__menu {
-  border: 1px solid color-mix(in srgb, var(--color-border-strong) 60%, transparent);
+  border: 1px solid $popover-border;
   background-color: var(--color-surface);
   background-image: none !important;
   box-shadow: 0 10px 0 rgba(0, 0, 0, 0.32);

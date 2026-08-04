@@ -80,13 +80,13 @@ img {
 }
 
 ::-webkit-scrollbar-track {
-  background-color: color-mix(in srgb, var(--color-background) 86%, var(--color-field));
+  background-color: $scrollbar-track;
 }
 
 ::-webkit-scrollbar-thumb {
   min-height: 36px;
   border: 2px solid var(--color-background);
-  background-color: color-mix(in srgb, var(--color-field) 82%, var(--color-background));
+  background-color: $scrollbar-thumb;
   background-image: none;
 }
 

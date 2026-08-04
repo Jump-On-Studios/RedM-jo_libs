@@ -69,36 +69,20 @@ function onClick() {
   }
 
   &.success {
-    --button-surface: color-mix(
-      in srgb,
-      var(--color-green) 48%,
-      var(--color-field)
-    );
+    --button-surface: #{$button-surface-success};
   }
 
   &.danger {
-    --button-surface: color-mix(
-      in srgb,
-      var(--color-red) 58%,
-      var(--color-field)
-    );
+    --button-surface: #{$button-surface-danger};
   }
 
   &.warning {
-    --button-surface: color-mix(
-      in srgb,
-      var(--color-warning) 28%,
-      var(--color-field)
-    );
+    --button-surface: #{$button-surface-warning};
     --button-text: var(--color-warning);
   }
 
   &.muted {
-    --button-surface: color-mix(
-      in srgb,
-      var(--color-field) 70%,
-      var(--color-background)
-    );
+    --button-surface: #{$button-surface-muted};
     --button-text: var(--color-text-dim);
   }
 

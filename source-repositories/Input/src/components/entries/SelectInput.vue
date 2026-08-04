@@ -180,7 +180,7 @@ onBeforeUnmount(() => {
     max-height: 280px;
     overflow-y: auto;
     padding: 6px;
-    border: 1px solid color-mix(in srgb, var(--color-border-strong) 60%, transparent);
+    border: 1px solid $popover-border;
     background-color: var(--color-surface);
     box-shadow: 0 10px 0 rgba(0, 0, 0, 0.32);
     // Matches the trigger it drops from rather than the panel.
