@@ -106,9 +106,9 @@ const langStore = useLangStore();
 const error = computed(() => optionError(props.option));
 
 const requirementIcons: Partial<Record<PriceCostType, string>> = {
-  money: "/assets/ui/dollar.png",
-  gold: "/assets/ui/gold.png",
-  item: "/assets/ui/item.png",
+  money: "./assets/ui/dollar.png",
+  gold: "./assets/ui/gold.png",
+  item: "./assets/ui/item.png",
 };
 
 function typeIcon(type: PriceCostType) {

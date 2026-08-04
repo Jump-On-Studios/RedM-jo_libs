@@ -85,9 +85,9 @@ const langStore = useLangStore()
 const error = computed(() => requirementError(props.requirement))
 
 const requirementIcons: Partial<Record<PriceCostType, string>> = {
-  money: '/assets/ui/dollar.png',
-  gold: '/assets/ui/gold.png',
-  item: '/assets/ui/item.png',
+  money: './assets/ui/dollar.png',
+  gold: './assets/ui/gold.png',
+  item: './assets/ui/item.png',
 }
 
 function requirementIcon(type: PriceCostType) {
