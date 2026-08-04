@@ -1,0 +1,166 @@
+/*
+ * Shared appearance of the editable controls.
+ *
+ * .entry-field is the painted surface of the text, number, select and date
+ * entries: an element carrying the two bitmap layers of the field-surface mixin
+ * and, for the first two, wrapping the real control. The wrapper exists because
+ * an <input> is a replaced element and renders no ::before or ::after, so it
+ * cannot hold the layers itself; the select and date triggers are buttons and
+ * take the class directly.
+ *
+ * .entry-input is the older flat control, still worn by the price rows. Their
+ * layout is a chantier of its own and they keep the plain look until then.
+ */
+.entry-field {
+  @include field-surface;
+
+  display: flex;
+  align-items: center;
+  gap: var(--gap-small);
+  flex: 1;
+  min-width: 0;
+  min-height: var(--entry-field-height);
+  padding: var(--entry-field-padding);
+  font-size: var(--entry-field-font-size);
+  cursor: text;
+}
+
+/*
+ * The two ragged ends of the box, redrawn at the bitmap's own scale on top of
+ * the stretched middle. Nothing here is a 1:1 copy of the panel's nine patches:
+ * a field is barely taller than the bitmap, so only the horizontal axis is cut,
+ * three ways instead of nine.
+ *
+ * The element exists because the field has one ::before left for the middle and
+ * one ::after for the focus frame, and the two caps need a box each.
+ */
+.entry-field__caps {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.entry-field__caps::before,
+.entry-field__caps::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: var(--entry-field-cap);
+  background-color: var(--color-field);
+  /*
+   * Two mask layers intersected: the bitmap at its natural width, so the
+   * painted end keeps its own density and the box merely crops it, and a
+   * gradient that dissolves the cap towards the middle. The fade is what makes
+   * the join disappear — the cap and the stretched band cannot be tonally
+   * identical, since one is the end of the bitmap and the other its middle, so
+   * they are blended rather than butted together.
+   *
+   * The fade is confined to the last --entry-field-cap-overlap px, which is
+   * exactly the strip the stretched band runs under. Fading any earlier would
+   * dissolve the cap over nothing at all and let the panel show through.
+   */
+  -webkit-mask-image: url("/assets/ui/selection_box_bg_1d.png"), linear-gradient(black, black);
+  -webkit-mask-size: 432px 100%, 100% 100%;
+  -webkit-mask-repeat: no-repeat, no-repeat;
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+
+.entry-field__caps::before {
+  left: 0;
+  -webkit-mask-position: left center, left center;
+  -webkit-mask-image: url("/assets/ui/selection_box_bg_1d.png"),
+    linear-gradient(
+      to right,
+      black calc(100% - var(--entry-field-cap-overlap)),
+      transparent 100%
+    );
+}
+
+.entry-field__caps::after {
+  right: 0;
+  -webkit-mask-position: right center, right center;
+  -webkit-mask-image: url("/assets/ui/selection_box_bg_1d.png"),
+    linear-gradient(
+      to left,
+      black calc(100% - var(--entry-field-cap-overlap)),
+      transparent 100%
+    );
+}
+
+/* The error flood has to reach the caps too, they are separate elements. */
+.entry-field.error .entry-field__caps::before,
+.entry-field.error .entry-field__caps::after {
+  background-color: var(--color-red);
+}
+
+/* The control itself keeps no box of its own: the wrapper is the field. */
+.entry-field__control {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  outline: none;
+}
+
+.entry-field__control::placeholder {
+  color: var(--color-placeholder);
+  opacity: 1;
+}
+
+/* The game has no such widget: a number is typed, and the arrows would sit
+   right where the focus frame is drawn. */
+.entry-field__control::-webkit-outer-spin-button,
+.entry-field__control::-webkit-inner-spin-button {
+  margin: 0;
+  appearance: none;
+}
+
+/*
+ * Blinked by the store when a required entry is left empty. The frame is
+ * already red, so the field is flooded as well to tell the two apart: a frame
+ * alone would read as focus.
+ */
+.entry-field.error::after {
+  opacity: 1;
+}
+
+.entry-field.error::before {
+  background-color: var(--color-red);
+}
+
+/* The generic .error glow below is a rectangle, which the ragged box is not. */
+.entry-field.error {
+  box-shadow: none;
+}
+
+.entry-input {
+  flex: 1;
+  min-width: 0;
+  min-height: var(--field-height);
+  padding: var(--padding-input-y) var(--padding-input-x);
+  border: var(--border);
+  background-color: var(--color-field);
+  color: var(--color-text);
+}
+
+.entry-input::placeholder {
+  color: var(--color-placeholder);
+  opacity: 1;
+}
+
+.entry-input:focus,
+.entry-input:focus-visible {
+  border-color: var(--color-border-strong);
+  outline: none;
+}
+
+/* Blinked by the store when a required entry is left empty. */
+.error {
+  border-color: var(--color-red-light) !important;
+  box-shadow: 0 0 5px var(--color-red-light);
+}

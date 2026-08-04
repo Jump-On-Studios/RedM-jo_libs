@@ -1,0 +1,66 @@
+// Palette, and everything derived from it.
+//
+// ⚠️ No color-mix() anywhere in this project. The game runs the NUI in CEF
+// (Chromium 103) and color-mix() only landed in Chromium 111. Worse, it fails
+// silently: the declarations all read `color-mix(in srgb, var(--token) …%, …)`,
+// and a declaration holding a var() is only resolved at computed-value time —
+// the parser accepts it, devtools does not strike it out, and the property then
+// falls back to its *initial* value. A button surface became `transparent` and
+// a `border-left` became `border-style: none`, with nothing to show for it.
+//
+// So the palette lives here, as Sass variables, and every blend is computed at
+// build time. tokens.scss emits these same variables as the --color-* custom
+// properties, which stay the runtime API: anything reading a token directly
+// still honours an override. What no longer follows such an override are the
+// blends below — they are frozen at build time by design.
+//
+// This file must not emit any CSS: it is forwarded by _mixins.scss, which is
+// injected into every stylesheet.
+
+@use 'sass:color';
+@use 'sass:math';
+
+/// color.mix() leaves fractional channels, which Sass then has to write as
+/// `rgb(15.545%, …)`. Rounding them back to whole channels lets it emit plain
+/// hex instead: shorter, and nothing for an old parser to disagree about.
+@function mix-opaque($color, $onto, $weight) {
+  $mixed: color.mix($color, $onto, $weight);
+
+  @return rgb(
+    math.round(color.channel($mixed, 'red', $space: rgb)),
+    math.round(color.channel($mixed, 'green', $space: rgb)),
+    math.round(color.channel($mixed, 'blue', $space: rgb))
+  );
+}
+
+$color-background: #0a0a0a;
+$color-surface: #1d1c1b;
+$color-field: #30302f;
+$color-border: #42413f;
+$color-border-strong: #8b8880;
+$color-text: #ffffff;
+$color-text-dim: #aaa6a0;
+$color-placeholder: #85817b;
+$color-red: #770000;
+$color-red-light: #e20202;
+$color-green: #007518;
+$color-warning: #f0c674;
+
+// Painted surface of a button, per variant. Read through
+// `var(--button-surface, …)`, so a caller can still override the whole surface
+// from the entry's `style` object.
+$button-surface: mix-opaque($color-field, $color-background, 78%);
+$button-surface-success: mix-opaque($color-green, $color-field, 48%);
+$button-surface-danger: mix-opaque($color-red, $color-field, 58%);
+$button-surface-warning: mix-opaque($color-warning, $color-field, 28%);
+$button-surface-muted: mix-opaque($color-field, $color-background, 70%);
+
+// Translucent tints. Mixing a colour with `transparent` is just that colour at
+// the matching alpha, which is what these are.
+$price-tab-surface: color.change($color-field, $alpha: 0.68);
+$price-options-surface: color.change($color-surface, $alpha: 0.2);
+$price-options-rule: color.change($color-border-strong, $alpha: 0.58);
+$popover-border: color.change($color-border-strong, $alpha: 0.6);
+
+$scrollbar-track: mix-opaque($color-background, $color-field, 86%);
+$scrollbar-thumb: mix-opaque($color-field, $color-background, 82%);

@@ -34,10 +34,69 @@ function jo.input.loadNUI()
   jo.nui.load("jo_input", "nui://jo_libs/nui/input/index.html")
 end
 
---- A function to open the nui input
----@param options table (Options of the input)
---- options.rows table (The list of rows content)
----@param cb? function (The return function. If missing, the function is syncrhonous)
+--- Normalizes a column and returns a shallow copy so the caller's table is never mutated.
+---@param column any The raw column sent by the caller
+---@return any The normalized column
+local function parseColumn(column)
+  if type(column) ~= "table" then return column end
+
+  local parsed = {}
+  for key, value in pairs(column) do
+    if key ~= "for" then parsed[key] = value end
+  end
+
+  if column["for"] ~= nil and parsed.target == nil then
+    parsed.target = column["for"]
+  end
+
+  return parsed
+end
+
+--- Normalizes rows into the canonical object format and preserves row-level
+--- metadata alongside the `columns` array.
+--- The column order is preserved, so the ids the NUI derives from the indexes
+--- stay stable.
+---@param rows table|nil (The list of rows sent by the caller)
+---@return table (The rows in the `{ columns = { ... } }` format)
+local function parseRows(rows)
+  if type(rows) ~= "table" then return {} end
+
+  local parsed = {}
+  for i = 1, #rows do
+    local row = rows[i]
+    if type(row) == "table" then
+      local columns = type(row.columns) == "table" and row.columns or row
+      local parsedRow = {}
+
+      -- Copy row-level metadata before normalizing its columns.
+      if columns ~= row then
+        for key, value in pairs(row) do
+          if key ~= "columns" then parsedRow[key] = value end
+        end
+      end
+
+      parsedRow.columns = {}
+      for j = 1, #columns do
+        parsedRow.columns[j] = parseColumn(columns[j])
+      end
+
+      parsed[#parsed + 1] = parsedRow
+    end
+  end
+
+  return parsed
+end
+
+---@description Opens the NUI input panel.
+---@description Rows use `{ columns = { ... } }`. A row can be placed in the `header`, `content`, or `footer` zone; only `content` scrolls.
+---@description Button entries support the `success`, `danger`, `warning`, `muted`, and `flat` classes, an optional `icon` URL, and the shared `class`, `style`, and `width` properties.
+---@param options table (Options of the input.)
+--- options.rows table (List of row objects. Each row contains a `columns` array.)
+---     options.rows.columns table (Entries rendered in each row.)
+---     options.rows.position? string (Panel zone: `header`, `content`, or `footer`. Defaults to `content`; only `content` scrolls.)
+--- options.lang? table (Translation table. Only string keys prefixed with `inputNui` are sent to the NUI.)
+---@param cb? function (Called with the result. When omitted, the function waits synchronously and returns the result.)
+---@return table|false|nil (Result when called synchronously, `false` on cancellation, or `nil` when a callback is provided.)
 function jo.input.nui(options, cb)
   if nuiOpened then return false, eprint("Input NUI is already opened") end
   nuiOpened = true
@@ -54,10 +113,27 @@ function jo.input.nui(options, cb)
     nuiOpened = false
   end
   nuiResult = promise.new()
+
+  local inputStrings = {}
+  local language = type(options.lang) == "table" and options.lang or {}
+  for key, value in pairs(language) do
+    if type(key) == "string" and key:sub(1, 8) == "inputNui" and type(value) == "string" then
+      inputStrings[key] = value
+    end
+  end
+
+  SendNUIMessage({
+    messageTargetUiName = "jo_input",
+    event = "setStrings",
+    data = inputStrings
+  })
+
   SendNUIMessage({
     messageTargetUiName = "jo_input",
     event = "newInput",
-    data = options
+    data = {
+      rows = parseRows(options.rows)
+    }
   })
   SetNuiFocus(true, true)
   SetNuiFocusKeepInput(false)

@@ -1,0 +1,50 @@
+/* Resolved by the nuiSharedFonts vite plugin: served from
+ * jo_libs/nui/assets/fonts in dev, rewritten to ../../assets/fonts at build. */
+
+@font-face {
+  font-family: "Crock";
+  src: url("/assets/fonts/crock.ttf") format("truetype");
+  font-display: block;
+}
+
+@font-face {
+  font-family: "Hapna";
+  src: url("/assets/fonts/HapnaLight.ttf") format("truetype");
+  font-display: block;
+  font-weight: 300;
+}
+
+@font-face {
+  font-family: "Hapna";
+  src: url("/assets/fonts/Hapna.ttf") format("truetype");
+  font-display: block;
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: "Hapna";
+  src: url("/assets/fonts/HapnaMedium.ttf") format("truetype");
+  font-display: block;
+  font-weight: 500;
+}
+
+@font-face {
+  font-family: "Hapna";
+  src: url("/assets/fonts/HapnaDemiBold.ttf") format("truetype");
+  font-display: block;
+  font-weight: 600;
+}
+
+@font-face {
+  font-family: "Hapna";
+  src: url("/assets/fonts/HapnaBold.ttf") format("truetype");
+  font-display: block;
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: "Hapna";
+  src: url("/assets/fonts/HapnaExtraBold.ttf") format("truetype");
+  font-display: block;
+  font-weight: 800;
+}

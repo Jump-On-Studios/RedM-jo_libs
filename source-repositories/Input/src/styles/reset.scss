@@ -1,0 +1,100 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+  padding: 0;
+  font-weight: normal;
+}
+
+p {
+  margin: 0;
+  padding: 0;
+}
+
+ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+button {
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  line-height: normal;
+  appearance: none;
+}
+
+button::-moz-focus-inner {
+  border: 0;
+}
+
+button,
+input,
+select,
+textarea {
+  margin: 0;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: 1.15;
+}
+
+input {
+  border-radius: 0;
+  color-scheme: dark;
+}
+
+/* Typing is the whole point of this NUI, so text fields opt back in. */
+input,
+textarea {
+  user-select: text;
+}
+
+img {
+  margin: 0;
+  padding: 0;
+  max-width: 100%;
+}
+
+/* The native scrollbar is too bright for the game's black-and-paper UI. */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: $scrollbar-track;
+}
+
+::-webkit-scrollbar-thumb {
+  min-height: 36px;
+  border: 2px solid var(--color-background);
+  background-color: $scrollbar-thumb;
+  background-image: none;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-red);
+  background-image: url('/assets/ui/hover.png');
+}
+
+::-webkit-scrollbar-corner {
+  background-color: var(--color-background);
+}

@@ -1,0 +1,233 @@
+// Shared style fragments, auto-injected into every <style lang="scss"> block by
+// the `additionalData` option in vite.config.ts. Nothing here may emit CSS on
+// its own: only @mixin, @function and variable definitions, otherwise the
+// output would be duplicated once per component.
+//
+// The design tokens stay CSS custom properties in tokens.scss. They are read at
+// runtime and can be overridden per element, which SCSS variables cannot do.
+// The palette forwarded below is their source, and holds the blends that have
+// to be resolved at build time — see _palette.scss for why.
+
+@forward 'palette';
+
+@use 'palette' as *;
+
+/// Secondary label: dimmed, smaller, small-caps.
+@mixin muted-label {
+  color: var(--color-text-dim);
+  font-size: var(--font-size-small);
+  font-variant-caps: small-caps;
+}
+
+/// Button surface shared by input buttons and price requirement buttons.
+///
+/// The texture is painted on a pseudo-element so the host can keep accepting
+/// arbitrary inline styles and custom classes. `--button-surface` and
+/// `--button-text` are intentionally CSS variables: a caller can override them
+/// through the entry's `style` object without replacing the 9-patch layers.
+@mixin textured-button {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  border: 0;
+  background: transparent;
+  color: var(--button-text, var(--color-text));
+  font-family: Crock, serif;
+  font-size: var(--button-font-size, 22px);
+  cursor: pointer;
+  transition:
+    color 120ms ease,
+    filter 120ms ease,
+    opacity 120ms ease;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-color: var(--button-surface, #{$button-surface});
+    -webkit-mask: url("/assets/ui/selection_box_bg_1d.png") center / 100% 100%
+      no-repeat;
+    mask: url("/assets/ui/selection_box_bg_1d.png") center / 100% 100% no-repeat;
+    pointer-events: none;
+  }
+
+  &::after {
+    @include selection-frame;
+
+    z-index: 2;
+    opacity: 0;
+    transition: opacity 120ms ease;
+  }
+
+  &:hover:not(:disabled),
+  &:focus-visible:not(:disabled) {
+    color: var(--button-hover-text, var(--button-text, var(--color-text)));
+    filter: brightness(1.18);
+    outline: none;
+
+    &::after {
+      opacity: 1;
+    }
+  }
+
+  &:disabled {
+    color: var(--color-placeholder);
+    cursor: not-allowed;
+    opacity: 0.45;
+  }
+}
+
+/// Square button holding a single glyph, used to remove things.
+@mixin icon-button {
+  flex: none;
+  width: 44px;
+  height: var(--field-height);
+  border: var(--border);
+  background-color: var(--color-field);
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--color-red-light);
+  }
+}
+
+/// Inline validation message.
+@mixin message {
+  font-size: var(--font-size-small);
+  line-height: 1.25;
+}
+
+/// Wrapper of an entry that opens a popover: positioning context, raised while
+/// open so the popover covers the rows underneath.
+@mixin popover-host {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+
+  &.is-open {
+    z-index: 20;
+  }
+}
+
+/// Panel opened under its trigger.
+///
+/// It must stay inside .input-container: anything teleported out escapes the
+/// ui-scaler transform. It is absolute rather than in the flow so it overlays
+/// the rows instead of pushing them down, which is why .input-container must
+/// never scroll — a scrolling ancestor would clip it.
+@mixin popover {
+  position: absolute;
+  top: calc(100% + 2px);
+  left: 0;
+}
+
+/// Field that opens a popover: current value on the left, caret on the right.
+@mixin popover-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-small);
+  width: 100%;
+  cursor: pointer;
+  text-align: left;
+}
+
+/// Caret of a popover trigger. Sized off the field it sits in, not off the
+/// panel, so it grows with --entry-field-font-size.
+@mixin caret {
+  flex: none;
+  color: var(--color-text);
+  font-size: 0.8em;
+}
+
+/// Painted surface of an editable field, ported from the Menu's item list
+/// (source-repositories/Menu/src/components/layout/ItemList.vue), which layers
+/// the same two bitmaps: `selection_box_bg_1d` for the box, `hover` for the red
+/// frame the game draws around whatever the player is on.
+///
+/// Both are white bitmaps whose shape only exists in their alpha, so the box is
+/// masked over a flat fill rather than painted: its colour keeps coming from a
+/// token, and --color-field still drives it. The frame is a 9-patch, kept at
+/// opacity 0 until the field takes focus so that revealing it never moves
+/// anything.
+///
+/// The Menu insets its texture from the item box because items sit flush
+/// against each other; the fields here are separated by --gap, so the texture
+/// fills its element and the frame lands right on its edge, as in the mockup.
+@mixin field-surface {
+  position: relative;
+  // Without a stacking context of its own, the texture's negative z-index would
+  // drop it behind the whole panel, next to the backdrop patches.
+  isolation: isolate;
+  border: 0;
+  background: transparent;
+  color: var(--color-text);
+
+  // Middle of the box. Stretching this part is what a 9-patch does anyway: the
+  // bitmap's centre is a flat wash and takes it without showing. Only its two
+  // ragged ends must not be stretched, and .entry-field__caps redraws them at
+  // their own size on top. The band runs under the caps by --entry-field-cap-
+  // overlap so its own squeezed ends stay hidden and no join is left showing.
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: calc(var(--entry-field-cap) - var(--entry-field-cap-overlap));
+    right: calc(var(--entry-field-cap) - var(--entry-field-cap-overlap));
+    z-index: 0;
+    background-color: var(--color-field);
+    -webkit-mask-image: url("/assets/ui/selection_box_bg_1d.png");
+    // The source is 432px wide and each native cap is 56px wide. The middle
+    // source region is therefore 320px wide. Rendering the mask at 135% crops
+    // 56px from both sides while stretching only that middle region across the
+    // band; using 100% here would paint the whole source a second time and
+    // create the visible seams at the caps.
+    -webkit-mask-size: 135% 100%;
+    -webkit-mask-position: center;
+    -webkit-mask-repeat: no-repeat;
+  }
+
+  &::after {
+    @include selection-frame;
+
+    z-index: 2;
+    opacity: 0;
+  }
+
+  // :focus-within matches the element itself as well as its descendants, which
+  // covers both the wrapped inputs and the buttons that open a popover.
+  &:focus-within::after {
+    opacity: 1;
+  }
+
+  &:focus-within {
+    outline: none;
+  }
+
+  // Keep the painted layers inside the field's stacking context while the
+  // actual control and its text remain above the texture.
+  & > :not(.entry-field__caps) {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+/// The red frame the game draws around whatever the player is on, from
+/// hover.png. Meant for a pseudo-element covering its host.
+@mixin selection-frame {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: var(--field-frame-width) solid transparent;
+  border-image-source: url("/assets/ui/hover.png");
+  border-image-slice: 10;
+  // The four edges of hover.png are plain straight lines, so stretching them
+  // costs nothing and avoids the rounding of `round`.
+  border-image-repeat: stretch;
+  pointer-events: none;
+}

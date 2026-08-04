@@ -1,0 +1,81 @@
+/*
+ * Every dimension is expressed in px against a 1080p reference viewport.
+ * The panel is scaled as a whole by the ui-scaler directive, so no relative
+ * unit (em, rem, vw, vh) may be used outside of the full-screen overlay.
+ */
+:root {
+  /* Colors. Emitted from the Sass palette, which is the single source: the
+   * blends derived from it have to be resolved at build time. See
+   * _palette.scss. */
+  --color-overlay: rgba(0, 0, 0, 0.6);
+  --color-background: #{$color-background};
+  --color-surface: #{$color-surface};
+  --color-field: #{$color-field};
+  --color-border: #{$color-border};
+  --color-border-strong: #{$color-border-strong};
+  --color-text: #{$color-text};
+  --color-text-dim: #{$color-text-dim};
+  --color-placeholder: #{$color-placeholder};
+  --color-red: #{$color-red};
+  --color-red-light: #{$color-red-light};
+  --color-green: #{$color-green};
+  --color-warning: #{$color-warning};
+
+  /* Typography */
+  --font: Hapna, sans-serif;
+  --font-size: 19px;
+  --font-size-small: 19px;
+  --font-size-title: 22px;
+
+  /* Metrics */
+  --border: 1px solid var(--color-border);
+  --gap: 16px;
+  --gap-small: 8px;
+  --padding-container: 28px 30px 24px;
+  --padding-block: 14px;
+  --padding-input-y: 10px;
+  --padding-input-x: 12px;
+  --field-height: 44px;
+  /* The four painted entries stand taller than the legacy flat controls, which
+     keep --field-height so the price rows and their buttons stay as they are. */
+  --entry-field-height: 58px;
+  --entry-field-padding: 14px 18px;
+  --entry-field-font-size: 21px;
+  /* Width of the two ragged ends of the field box, taken from
+     selection_box_bg_1d.png at its own scale, and how far the stretched middle
+     runs under them so no join shows. */
+  --entry-field-cap: 56px;
+  --entry-field-cap-overlap: 20px;
+  /* Thickness of the red frame drawn around a focused field, from hover.png.
+     The Menu draws it at 0.75vh, which is this on a 1080p viewport. */
+  --field-frame-width: 8px;
+
+  /* Panel */
+  --modal-width: 1080px;
+  --modal-max-height: 95vh;
+  /* 9-patch backdrop: corner size taken from bg.png, then drawn at that same
+     size so the painted edges keep their native density (the source is 1024px
+     wide, the panel 1040px). The bleed pushes the ragged edges outwards so they
+     eat into the margin rather than into --padding-container. Patches overlap
+     by --backdrop-overlap so no seam can show between them; it only has to
+     outlast the scale, a quarter of the panel still leaves a whole pixel. */
+  --modal-frame-width: 96px;
+  --modal-bleed: 24px;
+  --backdrop-overlap: 4px;
+}
+
+body {
+  color: var(--color-text);
+  font-family: var(--font);
+  font-size: var(--font-size);
+  font-weight: 500;
+}
+
+/* Legacy helper classes accepted through `entry.class`. */
+.bg-red {
+  background-color: var(--color-red) !important;
+}
+
+.bg-green {
+  background-color: var(--color-green) !important;
+}
