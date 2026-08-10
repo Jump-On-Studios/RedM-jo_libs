@@ -46,12 +46,11 @@ local function doesKeyIsInVisiblePrompt(prompt, keys)
     return false
 end
 
-local function keyDown(vk)
+local function keyDown(key)
     if not currentGroupVisible then return end
     local group = currentGroupVisible
     local page = group.currentPage
     local prompts = group.prompts[page]
-    local key = jo.rawKeys.getKeyFromVK(vk)
     if not key then return end
     local alias = jo.rawKeys.getAliasFromStandardKey(key)
     local keys = { key }
@@ -80,8 +79,8 @@ local function keyDown(vk)
     end
 end
 
-local function keyUp(vk)
-    local key = jo.rawKeys.getKeyFromVK(vk)
+local function keyUp(key)
+    if not key then return end
     SendNUIMessage({
         type = "keyUp",
         data = {
@@ -104,8 +103,8 @@ CreateThread(function()
     while not nuiLoaded do Wait(100) end
     for k = 1, #vks do
         local vk = vks[k]
-        local listener = jo.rawKeys.listen(vk, function(isPressed)
-            if isPressed then keyDown(vk) else keyUp(vk) end
+        local listener = jo.rawKeys.listen(vk, function(isPressed, key)
+            if isPressed then keyDown(key) else keyUp(key) end
         end)
         table.insert(vk_listener, listener)
     end
