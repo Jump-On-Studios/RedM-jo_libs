@@ -2,7 +2,7 @@ jo.createModule("pricing")
 jo.require("table")
 jo.require("framework")
 
-local currencyKeys = { "money", "gold", "rol" }
+local currencyKeys = { "money", "gold", "rol", "bloodmoney" }
 
 -- * ==========================================
 -- * TYPES
@@ -17,12 +17,15 @@ local currencyKeys = { "money", "gold", "rol" }
 ---@class RolCost
 ---@field rol number
 
+---@class BloodmoneyCost
+---@field bloodmoney number
+
 ---@class ItemCost
 ---@field item string
 ---@field quantity number
 ---@field keep boolean
 
----@alias Cost MoneyCost|GoldCost|RolCost|ItemCost
+---@alias Cost MoneyCost|GoldCost|RolCost|BloodmoneyCost|ItemCost
 ---@alias PriceInput PriceClass|Cost|Cost[]|number|table|nil
 ---@alias PriceGroupInput PriceGroupClass|PriceClass|PriceInput|PriceInput[]|table|nil
 
@@ -62,7 +65,7 @@ end
 -- ° Validates a public currency key argument and raises a clear API error.
 local function assertCurrencyKey(key, level)
   if not isCurrencyKey(key) then
-    error("Currency key must be money, gold or rol", level or 3)
+    error("Currency key must be money, gold, rol or bloodmoney", level or 3)
   end
 end
 
@@ -526,6 +529,7 @@ function PriceClass:isFree()
     if cost.money ~= nil and cost.money ~= 0 then return false end
     if cost.gold ~= nil and cost.gold ~= 0 then return false end
     if cost.rol ~= nil and cost.rol ~= 0 then return false end
+    if cost.bloodmoney ~= nil and cost.bloodmoney ~= 0 then return false end
     if cost.item ~= nil and cost.quantity ~= 0 then return false end
   end
 
@@ -586,8 +590,18 @@ function PriceClass:getRol()
   return cost and cost.rol or nil
 end
 
+--- Returns the bloodmoney amount.
+---@return number|nil
+function PriceClass:getBloodmoney()
+  local cost = table.find(self.costs, function(cost)
+    return cost.bloodmoney ~= nil
+  end)
+
+  return cost and cost.bloodmoney or nil
+end
+
 --- Returns true when a currency cost exists.
----@param key "money"|"gold"|"rol" (Currency cost key)
+---@param key "money"|"gold"|"rol"|"bloodmoney" (Currency cost key)
 ---@return boolean
 function PriceClass:hasCurrency(key)
   assertCurrencyKey(key, 2)
@@ -598,7 +612,7 @@ function PriceClass:hasCurrency(key)
 end
 
 --- Removes a currency cost from the current PriceClass.
----@param key "money"|"gold"|"rol" (Currency cost key to remove)
+---@param key "money"|"gold"|"rol"|"bloodmoney" (Currency cost key to remove)
 ---@return PriceClass
 function PriceClass:removeCurrency(key)
   assertCurrencyKey(key, 2)

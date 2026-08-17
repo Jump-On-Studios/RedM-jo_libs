@@ -80,6 +80,7 @@ local function assertPriceShape(price, expected)
   if expected.money ~= nil then assertCurrency(price, "money", expected.money) end
   if expected.gold ~= nil then assertCurrency(price, "gold", expected.gold) end
   if expected.rol ~= nil then assertCurrency(price, "rol", expected.rol) end
+  if expected.bloodmoney ~= nil then assertCurrency(price, "bloodmoney", expected.bloodmoney) end
 
   local items = expected.items or {}
   for i = 1, #items do
@@ -485,8 +486,8 @@ addTest("price_clear_mutates_self", function()
 end)
 
 addTest("price_currency_only_and_item_only", function()
-  assertTrue(newPrice({ money = 2, gold = 3 }):isCurrencyOnly(), "currency-only price must be currency-only")
-  assertTrue(not newPrice({ money = 2, gold = 3 }):isItemOnly(), "currency-only price must not be item-only")
+  assertTrue(newPrice({ money = 2, gold = 3, bloodmoney = 4 }):isCurrencyOnly(), "currency-only price must be currency-only")
+  assertTrue(not newPrice({ money = 2, gold = 3, bloodmoney = 4 }):isItemOnly(), "currency-only price must not be item-only")
   assertTrue(newPrice({
     { item = "water" },
     { item = "acid" }
@@ -505,7 +506,7 @@ addTest("price_is_free", function()
   assertTrue(newPrice():isFree(), "empty price must be free")
   assertTrue(newPrice({ costs = {} }):isFree(), "empty costs price must be free")
   assertTrue(newPrice({ money = 0 }):isFree(), "zero money price must be free")
-  assertTrue(newPrice({ money = 0, gold = 0, rol = 0 }):isFree(), "zero currencies price must be free")
+  assertTrue(newPrice({ money = 0, gold = 0, rol = 0, bloodmoney = 0 }):isFree(), "zero currencies price must be free")
   assertTrue(newPrice({ item = "water", quantity = 0 }):isFree(), "zero quantity item price must be free")
   assertTrue(not newPrice({ money = -1 }):isFree(), "negative money cost must not be free")
   assertTrue(not newPrice({ item = "water" }):isFree(), "item price must not be free")
@@ -516,27 +517,31 @@ addTest("pricing_tax_splits_tax_and_remaining_prices", function()
     money = 10,
     gold = 2,
     rol = 4,
+    bloodmoney = 6,
     item = "water",
     quantity = 3
   })
   local taxPrice, remainingPrice = jo.pricing.tax(price, 0.5)
 
-  assertCostCount(price, 4)
+  assertCostCount(price, 5)
   assertCurrency(price, "money", 10)
   assertCurrency(price, "gold", 2)
   assertCurrency(price, "rol", 4)
+  assertCurrency(price, "bloodmoney", 6)
   assertItem(price, "water", 3, false)
 
-  assertCostCount(taxPrice, 4)
+  assertCostCount(taxPrice, 5)
   assertCurrency(taxPrice, "money", 5)
   assertCurrency(taxPrice, "gold", 1)
   assertCurrency(taxPrice, "rol", 2)
+  assertCurrency(taxPrice, "bloodmoney", 3)
   assertItem(taxPrice, "water", 1, false)
 
-  assertCostCount(remainingPrice, 4)
+  assertCostCount(remainingPrice, 5)
   assertCurrency(remainingPrice, "money", 5)
   assertCurrency(remainingPrice, "gold", 1)
   assertCurrency(remainingPrice, "rol", 2)
+  assertCurrency(remainingPrice, "bloodmoney", 3)
   assertItem(remainingPrice, "water", 2, false)
 end)
 
@@ -830,8 +835,8 @@ addTest("simplified_config_matrix", function()
     {
       name = "pricing_all_currency_types",
       kind = "price",
-      input = { money = 50, gold = 2, rol = 7 },
-      expected = { count = 3, money = 50, gold = 2, rol = 7 }
+      input = { money = 50, gold = 2, rol = 7, bloodmoney = 9 },
+      expected = { count = 4, money = 50, gold = 2, rol = 7, bloodmoney = 9 }
     },
     {
       name = "stable_item_default_quantity",

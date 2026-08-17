@@ -29,8 +29,8 @@ jo.framework:loadInventoryFiles("server")
 -- -----------
 
 --- Checks if a player has sufficient funds of a specified currency type
----@param price number|table (The amount of money the player needs to have <br> if table: {money = 1, gold = 1, rol = 1})
----@param moneyType? integer (`0`: dollar, `1`: gold, `2`: rol <br> default:`1`)
+---@param price number|table (The amount of money the player needs to have <br> if table: {money = 1, gold = 1, rol = 1, bloodmoney = 1})
+---@param moneyType? integer (`0`: dollar, `1`: gold, `2`: rol, `3`: bloodmoney <br> default:`1`)
 ---@param removeIfCan? boolean (Remove the money if the player has enough <br> default:`false`)
 ---@return boolean (Return `true` if the player has more money than the amount)
 function jo.framework.UserClass:canBuy(price, moneyType, removeIfCan)
@@ -38,7 +38,9 @@ function jo.framework.UserClass:canBuy(price, moneyType, removeIfCan)
     return false, eprint("Price value is nil")
   end
   if type(price) == "table" then
-    if moneyType == 2 then
+    if moneyType == 3 then
+      price = price.bloodmoney
+    elseif moneyType == 2 then
       price = price.rol
     elseif moneyType == 1 then
       price = price.gold
@@ -46,12 +48,15 @@ function jo.framework.UserClass:canBuy(price, moneyType, removeIfCan)
       price = price.money
     end
   end
-  price = math.abs(price)
   moneyType = GetValue(moneyType, 0)
   if not price then
     return false, eprint("PRICE IS NIL !")
   end
+  price = math.abs(price)
   local money = self:getMoney(moneyType)
+  if money == nil then
+    return false, eprint("Money type %s is not supported by your framework", tostring(moneyType))
+  end
   local hasEnough = money >= price
   if removeIfCan == true and hasEnough then
     self:removeMoney(price, moneyType)
@@ -121,8 +126,8 @@ end
 
 --- Checks if a player has sufficient funds of a specified currency type
 ---@param source integer (The source ID of the player)
----@param amount number (The amount of money the player needs to have <br> {money = 10.5, gold = 3, rol = 1.5})
----@param moneyType? integer|string (`0`: dollar, `1`: gold, `2`: rol <br> default:`1`)
+---@param amount number (The amount of money the player needs to have <br> {money = 10.5, gold = 3, rol = 1.5, bloodmoney = 1})
+---@param moneyType? integer|string (`0`: dollar, `1`: gold, `2`: rol, `3`: bloodmoney <br> default:`1`)
 ---@param removeIfCan? boolean (Remove the money if the player has enough <br> default:`false`)
 ---@return boolean (Returns `true` if the player has more money than the amount)
 function jo.framework:canUserBuy(source, amount, moneyType, removeIfCan)
@@ -130,6 +135,8 @@ function jo.framework:canUserBuy(source, amount, moneyType, removeIfCan)
     moneyType = 1
   elseif moneyType == "rol" then
     moneyType = 2
+  elseif moneyType == "bloodmoney" then
+    moneyType = 3
   elseif type(moneyType) ~= "number" then
     moneyType = 0
   end
@@ -151,6 +158,12 @@ function jo.framework:canUserBuy(source, amount, moneyType, removeIfCan)
         return false, eprint("No rol define in the price: %s", json.encode(amount))
       else
         amount = amount.rol
+      end
+    elseif moneyType == 3 then
+      if not amount.bloodmoney then
+        return false, eprint("No bloodmoney define in the price: %s", json.encode(amount))
+      else
+        amount = amount.bloodmoney
       end
     end
   end
@@ -199,6 +212,10 @@ function jo.framework:canUserPayWith(source, prices, removeIfCan)
       if not jo.framework:canUserBuy(source, price.rol, 2, false) then
         return false, i
       end
+    elseif price.bloodmoney then
+      if not jo.framework:canUserBuy(source, price.bloodmoney, 3, false) then
+        return false, i
+      end
     end
   end
 
@@ -214,6 +231,8 @@ function jo.framework:canUserPayWith(source, prices, removeIfCan)
       jo.framework:removeMoney(source, price.gold, 1)
     elseif price.rol then
       jo.framework:removeMoney(source, price.rol, 2)
+    elseif price.bloodmoney then
+      jo.framework:removeMoney(source, price.bloodmoney, 3)
     end
   end
 
@@ -247,6 +266,8 @@ function jo.framework:refundUserWith(source, prices)
       jo.framework:addMoney(source, price.gold, 1)
     elseif price.rol then
       jo.framework:addMoney(source, price.rol, 2)
+    elseif price.bloodmoney then
+      jo.framework:addMoney(source, price.bloodmoney, 3)
     end
   end
 end
@@ -254,7 +275,7 @@ end
 --- A function to give money to a player
 ---@param source integer (The source ID of the player)
 ---@param amount number (The amount of money to add)
----@param moneyType? integer (`0`: dollar, `1`: gold, `2`: rol <br> default:`0`)
+---@param moneyType? integer (`0`: dollar, `1`: gold, `2`: rol, `3`: bloodmoney <br> default:`0`)
 ---@return boolean (Return `true` if the money is successfully added)
 function jo.framework:addMoney(source, amount, moneyType)
   local user = jo.framework.UserClass:get(source)
@@ -264,7 +285,7 @@ end
 --- A function to remove money from a player's account
 ---@param source integer (The source ID of the player)
 ---@param amount number (The amount of money to remove)
----@param moneyType? integer (`0`: dollar, `1`: gold, `2`: rol <br> default:`0`)
+---@param moneyType? integer (`0`: dollar, `1`: gold, `2`: rol, `3`: bloodmoney <br> default:`0`)
 ---@return boolean (Return `true` if the money is successfully removed)
 function jo.framework:removeMoney(source, amount, moneyType)
   local user = jo.framework.UserClass:get(source)
