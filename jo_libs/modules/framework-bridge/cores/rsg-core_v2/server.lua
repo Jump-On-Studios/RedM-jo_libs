@@ -298,7 +298,12 @@ function jo.framework.UserClass:getMoney(moneyType)
   if moneyType == 0 then
     return self.data.Functions.GetMoney("cash")
   elseif moneyType == 1 then
-    return self.data.Functions.GetMoney("gold")
+    local gold = self.data.Functions.GetMoney("gold")
+    if gold == nil then
+      oprint("Gold is not supported by this RSG Core version")
+      return 0
+    end
+    return gold
   elseif moneyType == 2 then
     oprint("Roll in not supported by your Framework")
     oprint("Please check jo_libs docs to edit jo.framework.UserClass:getMoney() function")
@@ -306,10 +311,26 @@ function jo.framework.UserClass:getMoney(moneyType)
   end
 end
 
+function jo.framework.UserClass:canUseMoney(amount, moneyType)
+  if moneyType == 1 and amount % 1 ~= 0 then
+    oprint("Gold amount must be an integer")
+    return false
+  end
+  return true
+end
+
 function jo.framework.UserClass:removeMoney(amount, moneyType)
   if moneyType == 0 then
     return self.data.Functions.RemoveMoney("cash", amount)
   elseif moneyType == 1 then
+    if amount % 1 ~= 0 then
+      oprint("Gold amount must be an integer")
+      return false
+    end
+    if self.data.Functions.GetMoney("gold") == nil then
+      oprint("Gold is not supported by this RSG Core version")
+      return false
+    end
     return self.data.Functions.RemoveMoney("gold", amount)
   elseif moneyType == 2 then
     oprint("The Roll was not removed - Roll in not supported by your Framework")
@@ -322,6 +343,14 @@ function jo.framework.UserClass:addMoney(amount, moneyType)
   if moneyType == 0 then
     return self.data.Functions.AddMoney("cash", amount)
   elseif moneyType == 1 then
+    if amount % 1 ~= 0 then
+      oprint("Gold amount must be an integer")
+      return false
+    end
+    if self.data.Functions.GetMoney("gold") == nil then
+      oprint("Gold is not supported by this RSG Core version")
+      return false
+    end
     return self.data.Functions.AddMoney("gold", amount)
   elseif moneyType == 2 then
     oprint("Roll in not supported by your Framework")

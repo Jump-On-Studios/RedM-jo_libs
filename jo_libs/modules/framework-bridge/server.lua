@@ -51,6 +51,9 @@ function jo.framework.UserClass:canBuy(price, moneyType, removeIfCan)
   if not price then
     return false, eprint("PRICE IS NIL !")
   end
+  if self.canUseMoney and not self:canUseMoney(price, moneyType) then
+    return false
+  end
   local money = self:getMoney(moneyType)
   local hasEnough = money >= price
   if removeIfCan == true and hasEnough then
@@ -209,11 +212,17 @@ function jo.framework:canUserPayWith(source, prices, removeIfCan)
     if price.item and not price.keep then
       jo.framework:removeItem(source, price.item, price.quantity or 1, price.meta)
     elseif price.money then
-      jo.framework:removeMoney(source, price.money, 0)
+      if jo.framework:removeMoney(source, price.money, 0) == false then
+        return false, i
+      end
     elseif price.gold then
-      jo.framework:removeMoney(source, price.gold, 1)
+      if jo.framework:removeMoney(source, price.gold, 1) == false then
+        return false, i
+      end
     elseif price.rol then
-      jo.framework:removeMoney(source, price.rol, 2)
+      if jo.framework:removeMoney(source, price.rol, 2) == false then
+        return false, i
+      end
     end
   end
 

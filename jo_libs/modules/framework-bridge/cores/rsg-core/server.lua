@@ -298,7 +298,9 @@ function jo.framework.UserClass:getMoney(moneyType)
   if moneyType == 0 then
     return self.data.Functions.GetMoney("cash")
   elseif moneyType == 1 then
-    return self.data.Functions.GetMoney("gold")
+    oprint("Gold in not supported by your Framework")
+    oprint("Please check jo_libs docs to edit jo.framework.UserClass:getMoney() function")
+    return 0
   elseif moneyType == 2 then
     oprint("Roll in not supported by your Framework")
     oprint("Please check jo_libs docs to edit jo.framework.UserClass:getMoney() function")
@@ -310,7 +312,8 @@ function jo.framework.UserClass:removeMoney(amount, moneyType)
   if moneyType == 0 then
     return self.data.Functions.RemoveMoney("cash", amount)
   elseif moneyType == 1 then
-    return self.data.Functions.RemoveMoney("gold", amount)
+    oprint("The Gold was not removed - Gold in not supported by your Framework")
+    oprint("Please check jo_libs docs to edit jo.framework.UserClass:removeMoney() function")
   elseif moneyType == 2 then
     oprint("The Roll was not removed - Roll in not supported by your Framework")
     oprint("Please check jo_libs docs to edit jo.framework.UserClass:removeMoney() function")
@@ -322,7 +325,8 @@ function jo.framework.UserClass:addMoney(amount, moneyType)
   if moneyType == 0 then
     return self.data.Functions.AddMoney("cash", amount)
   elseif moneyType == 1 then
-    return self.data.Functions.AddMoney("gold", amount)
+    oprint("Gold in not supported by your Framework")
+    oprint("Please check jo_libs docs to edit jo.framework.UserClass:addMoney() function")
   elseif moneyType == 2 then
     oprint("Roll in not supported by your Framework")
     oprint("Please check jo_libs docs to edit jo.framework.UserClass:addMoney() function")
