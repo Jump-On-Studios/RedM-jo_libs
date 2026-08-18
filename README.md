@@ -87,6 +87,18 @@ jo_libs {
 ```
 3. You can now use the libraries inside of your resource with the jo global variable.
 
+## Git hooks
+
+The repository includes a shared pre-commit hook that checks that every JSON locale contains exactly the same keys as `jo_libs/locales/en.json`. On Windows, the hook uses the built-in PowerShell, so Python is not required. Python 3 is only used as a fallback on systems without PowerShell.
+
+After cloning the repository, activate it once from the repository root:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+The check reads the staged versions of the locale files. A commit is rejected when a locale has missing keys, extra keys, or invalid JSON.
+
 ## 👥 Community
 
 For help, discussion, support or any other conversations:
