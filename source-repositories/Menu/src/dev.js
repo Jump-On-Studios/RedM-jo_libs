@@ -910,6 +910,21 @@ let menu = {
 if (import.meta.env.DEV) {
   window.postMessage({
     event: "updateLang",
+    lang: {
+      bigTitle: "Menu",
+      headerTitle: "Menu",
+      color: "Color",
+      of: "%1 of %2",
+      selection: "Selection",
+      buy: "Buy",
+      back: "Back",
+      select: "Select",
+      price: "Price",
+      devise: "$",
+      number: "Number %1",
+      free: "Free",
+      variation: "Variation",
+    },
   });
 
   window.postMessage({

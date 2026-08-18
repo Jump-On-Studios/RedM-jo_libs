@@ -99,6 +99,9 @@ class API {
     for (var i = 1; i < strings.length; i++) {
       var regexp = new RegExp('%' + i, 'gi');
       result = result.replace(regexp, strings[i]);
+      if (i === 1) {
+        result = result.replace(/%d/gi, strings[i]);
+      }
     }
     return result;
   }

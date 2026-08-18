@@ -2,6 +2,7 @@ jo.menu.exports = {}
 jo.require("timeout")
 jo.require("nui")
 jo.require("string")
+jo.require("i18n")
 
 local nuiLoaded = false
 local menuNuiChangeInProgress = false
@@ -720,6 +721,10 @@ function jo.menu.show(show, keepInput, hideRadar, playMenuAnimation, hideCursor)
       previousKeepingInput = IsNuiFocusKeepingInput()
       SetNuiFocus(true, not hideCursor)
       SetNuiFocusKeepInput(keepInput)
+      SendNUIMessage({
+        event = "updateLang",
+        lang = table.merge(jo.i18n.getNamespace("common"), jo.i18n.getNamespace("menu"))
+      })
       SendNUIMessage({ event = "updateShow", show = show, cancelAnimation = not playMenuAnimation })
       loopMenu()
     end

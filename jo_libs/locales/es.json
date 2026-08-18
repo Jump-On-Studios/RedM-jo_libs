@@ -56,6 +56,12 @@
     "variation": "Variación",
     "zoom": "Zoom"
   },
+  "menu": {
+    "bigTitle": "Menú",
+    "headerTitle": "Menú",
+    "selection": "Selección",
+    "devise": "$"
+  },
   "inputNui": {
     "paymentOptions": "Opciones de pago",
     "orExplanation": "Define cómo se puede pagar el precio",
