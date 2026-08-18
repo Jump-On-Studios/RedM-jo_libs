@@ -81,7 +81,7 @@ end
 ---@param callback function (The callback to register)
 ---@param priority number (The priority of the callback)
 function jo.i18n.onLocaleChange(callback, priority)
-  jo.hook.registerAction("jo_i18n_locale_change", callback, priority)
+  jo.hook.registerAction("jo_i18n_locale_changed", callback, priority)
 end
 exports("onLocaleChange", jo.i18n.onLocaleChange)
 
