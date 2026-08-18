@@ -6,15 +6,6 @@ jo.require("callback")
 ---@class UserClass
 jo.framework.UserClass = {}
 
---- Validates an amount before using it with a framework currency.
---- Framework bridges can override this method to enforce currency-specific rules.
----@param amount number (The currency amount to validate)
----@param moneyType integer (The type of currency: `0`: dollar, `1`: gold, `2`: rol)
----@return boolean (Return `true` when the amount can be used)
-function jo.framework.UserClass:validateMoneyAmount(amount, moneyType)
-  return true
-end
-
 -------------
 -- VARIABLES
 -------------
@@ -59,7 +50,7 @@ function jo.framework.UserClass:canBuy(price, moneyType, removeIfCan)
   if not price then
     return false, eprint("PRICE IS NIL !")
   end
-  if not self:validateMoneyAmount(price, moneyType) then
+  if self.validateMoneyAmount and not self:validateMoneyAmount(price, moneyType) then
     return false
   end
   price = math.abs(price)
