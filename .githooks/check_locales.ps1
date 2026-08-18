@@ -54,11 +54,11 @@ function Get-LocaleKeys {
   try {
     $data = Read-IndexOrWorktree -RelativePath $relativePath | ConvertFrom-Json
   } catch {
-    throw "JSON invalide ou fichier introuvable : $relativePath"
+    throw "Invalid JSON or missing file: $relativePath"
   }
 
   if ($null -eq $data) {
-    throw "La racine doit être un objet JSON : $relativePath"
+    throw "The JSON root must be an object: $relativePath"
   }
 
   return [System.Collections.Generic.HashSet[string]]::new(
@@ -79,7 +79,7 @@ try {
     try {
       $localeKeys = Get-LocaleKeys -Filename $localeFile.Name
     } catch {
-      Write-LocalError "[locales] ERREUR: $($_.Exception.Message)"
+      Write-LocalError "[locales] ERROR: $($_.Exception.Message)"
       $errors++
       continue
     }
@@ -88,24 +88,24 @@ try {
     $extraKeys = @($localeKeys | Where-Object { -not $referenceKeys.Contains($_) } | Sort-Object)
 
     if ($missingKeys.Count -gt 0) {
-      Write-LocalError "[locales] ERREUR: $($localeFile.Name) contient des clés manquantes:`n  - $($missingKeys -join "`n  - ")"
+      Write-LocalError "[locales] ERROR: $($localeFile.Name) missing keys: $($missingKeys -join ", ")"
       $errors++
     }
 
     if ($extraKeys.Count -gt 0) {
-      Write-LocalError "[locales] ERREUR: $($localeFile.Name) contient des clés absentes de en.json:`n  + $($extraKeys -join "`n  + ")"
+      Write-LocalError "[locales] ERROR: $($localeFile.Name) extra keys not present in en.json: $($extraKeys -join ", ")"
       $errors++
     }
   }
 
   if ($errors -gt 0) {
-    Write-LocalError "[locales] Commit refusé. Synchronise les clés avec en.json."
+    Write-LocalError "[locales] Commit rejected. Synchronize keys with en.json."
     exit 1
   }
 
-  Write-Output "[locales] OK: $($referenceKeys.Count) clés vérifiées dans $($localeFiles.Count) fichiers."
+  Write-Output "[locales] OK: $($referenceKeys.Count) keys checked in $($localeFiles.Count) files."
   exit 0
 } catch {
-  Write-LocalError "[locales] ERREUR: $($_.Exception.Message)"
+  Write-LocalError "[locales] ERROR: $($_.Exception.Message)"
   exit 1
 }

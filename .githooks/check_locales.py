@@ -46,12 +46,12 @@ def load_locale(filename: str, use_index: bool) -> set[str]:
     try:
         data = json.loads(read_index_or_worktree(relative_path, use_index))
     except FileNotFoundError:
-        raise ValueError(f"fichier introuvable: {relative_path}") from None
+        raise ValueError(f"missing file: {relative_path}") from None
     except json.JSONDecodeError as error:
-        raise ValueError(f"JSON invalide à la ligne {error.lineno}: {relative_path}") from None
+        raise ValueError(f"invalid JSON at line {error.lineno}: {relative_path}") from None
 
     if not isinstance(data, dict):
-        raise ValueError(f"la racine doit être un objet JSON: {relative_path}")
+        raise ValueError(f"JSON root must be an object: {relative_path}")
 
     return flatten_keys(data)
 
@@ -62,7 +62,7 @@ def main() -> int:
     try:
         reference_keys = load_locale("en.json", use_index)
     except ValueError as error:
-        print(f"[locales] ERREUR: {error}", file=sys.stderr)
+        print(f"[locales] ERROR: {error}", file=sys.stderr)
         return 1
 
     errors = 0
@@ -75,7 +75,7 @@ def main() -> int:
         try:
             locale_keys = load_locale(locale_path.name, use_index)
         except ValueError as error:
-            print(f"[locales] ERREUR: {error}", file=sys.stderr)
+            print(f"[locales] ERROR: {error}", file=sys.stderr)
             errors += 1
             continue
 
@@ -84,27 +84,23 @@ def main() -> int:
 
         if missing_keys:
             print(
-                f"[locales] ERREUR: {locale_path.name} contient des clés manquantes:",
+                f"[locales] ERROR: {locale_path.name} missing keys: {', '.join(missing_keys)}",
                 file=sys.stderr,
             )
-            for key in missing_keys:
-                print(f"  - {key}", file=sys.stderr)
             errors += 1
 
         if extra_keys:
             print(
-                f"[locales] ERREUR: {locale_path.name} contient des clés absentes de en.json:",
+                f"[locales] ERROR: {locale_path.name} extra keys not present in en.json: {', '.join(extra_keys)}",
                 file=sys.stderr,
             )
-            for key in extra_keys:
-                print(f"  + {key}", file=sys.stderr)
             errors += 1
 
     if errors:
-        print("[locales] Commit refusé. Synchronise les clés avec en.json.", file=sys.stderr)
+        print("[locales] Commit rejected. Synchronize keys with en.json.", file=sys.stderr)
         return 1
 
-    print(f"[locales] OK: {len(reference_keys)} clés vérifiées dans {len(locale_files)} fichiers.")
+    print(f"[locales] OK: {len(reference_keys)} keys checked in {len(locale_files)} files.")
     return 0
 
 
