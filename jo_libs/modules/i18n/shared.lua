@@ -125,6 +125,30 @@ function jo.i18n.getEntries()
 end
 exports("jo_i18n_getEntries", jo.i18n.getEntries)
 
+--- Get all entries below a namespace.
+---@param namespace string (The namespace to extract)
+---@return table (The namespace entries with relative keys)
+function jo.i18n.getNamespace(namespace)
+  if not initialized then
+    jo.i18n.init()
+  end
+
+  if type(namespace) ~= "string" or namespace == "" then
+    return {}
+  end
+
+  local prefix = namespace .. "."
+  local entries = {}
+  for key, value in pairs(dict) do
+    if type(key) == "string" and key:sub(1, #prefix) == prefix then
+      entries[key:sub(#prefix + 1)] = value
+    end
+  end
+
+  return entries
+end
+exports("jo_i18n_getNamespace", jo.i18n.getNamespace)
+
 --- Translate a key
 ---@param key string (The key to translate)
 ---@return string (The translated key)

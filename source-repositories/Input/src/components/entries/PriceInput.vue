@@ -5,8 +5,8 @@
     :style="style"
   >
     <div class="price-form__heading">
-      <span v-i18n="'inputNuiPaymentOptions'">Payment options</span>
-      <small v-if="allowOr" v-i18n="'inputNuiOrExplanation'">
+      <span v-i18n="'paymentOptions'">Payment options</span>
+      <small v-if="allowOr" v-i18n="'orExplanation'">
         Set how the price can be paid
       </small>
     </div>
@@ -14,7 +14,7 @@
       v-if="allowOr"
       class="price-form__tabs"
       role="tablist"
-      :aria-label="getString('inputNuiPaymentOptions', 'Payment options')"
+      :aria-label="getString('paymentOptions', 'Payment options')"
     >
       <button
         v-for="(option, index) in options"
@@ -32,12 +32,12 @@
         @click="selectOption(option.key)"
       >
         <span class="price-form__tab-label">
-          {{ getString("inputNuiOption", "Option") }} {{ index + 1 }}
+          {{ getString("option", "Option") }} {{ index + 1 }}
         </span>
         <span
           v-if="optionError(option)"
           class="price-form__tab-invalid"
-          :aria-label="getString('inputNuiInvalid', 'invalid')"
+          :aria-label="getString('invalid', 'invalid')"
         >
           !
         </span>
@@ -47,7 +47,7 @@
         type="button"
         class="price-form__tab price-form__tab--add"
         :aria-label="
-          getString('inputNuiAddPaymentOption', 'Add another payment option')
+          getString('addPaymentOption', 'Add another payment option')
         "
         @click="addOption"
       >
@@ -152,7 +152,7 @@ const warning = computed(() => {
   if (areOptionsValid(usableOptions.value)) return null;
 
   return langStore.getString(
-    "inputNuiPriceInvalid",
+    "priceInvalid",
     "This price cannot be confirmed until every option is valid.",
   );
 });
@@ -168,11 +168,11 @@ const summaryLines = computed(() => {
 
 const singleLabel = computed(() => {
   if (warning.value)
-    return langStore.getString("inputNuiCurrentDraft", "Current draft:");
+    return langStore.getString("currentDraft", "Current draft:");
   if (usableOptions.value.length === 1 && isFreeOption(usableOptions.value[0]!))
-    return langStore.getString("inputNuiPrice", "Price:");
+    return langStore.getString("price", "Price:");
 
-  return langStore.getString("inputNuiPlayerPays", "Player pays:");
+  return langStore.getString("playerPays", "Player pays:");
 });
 
 function getString(key: string, fallback: string) {

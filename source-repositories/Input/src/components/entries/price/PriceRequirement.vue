@@ -15,7 +15,7 @@
     <template v-if="requirement.type === 'item'">
       <label class="price-field">
         <span class="entry-field__caps" aria-hidden="true" />
-        <span class="price-field__label" v-i18n="'inputNuiItem'">Item</span>
+        <span class="price-field__label" v-i18n="'item'">Item</span>
         <input
           v-model="requirement.itemName"
           type="text"
@@ -25,7 +25,7 @@
       </label>
       <label class="price-field price-field--narrow">
         <span class="entry-field__caps" aria-hidden="true" />
-        <span class="price-field__label" v-i18n="'inputNuiQuantity'">Qty</span>
+        <span class="price-field__label" v-i18n="'quantity'">Qty</span>
         <input
           v-model.number="requirement.quantity"
           type="number"
@@ -37,14 +37,14 @@
       </label>
       <label class="price-checkbox">
         <input v-model="requirement.keep" type="checkbox" />
-        <span v-i18n="'inputNuiKeep'">Keep</span>
+        <span v-i18n="'keep'">Keep</span>
       </label>
     </template>
 
     <template v-else>
       <label class="price-field">
         <span class="entry-field__caps" aria-hidden="true" />
-        <span class="price-field__label" v-i18n="'inputNuiAmount'">
+        <span class="price-field__label" v-i18n="'amount'">
           Amount
         </span>
         <input
@@ -61,7 +61,7 @@
     <button
       type="button"
       class="price-icon-button"
-      :title="getString('inputNuiRemoveRequirement', 'Remove requirement')"
+      :title="getString('removeRequirement', 'Remove requirement')"
       @click="emit('remove')"
     >
       <img src="/assets/ui/trash.png" alt="" aria-hidden="true" />

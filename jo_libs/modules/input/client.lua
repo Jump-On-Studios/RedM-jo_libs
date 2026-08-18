@@ -1,5 +1,6 @@
 jo.createModule("input")
 jo.require("pricing")
+jo.require("i18n")
 
 local nuiResult = nil
 local nuiOpened = false
@@ -94,7 +95,6 @@ end
 --- options.rows table (List of row objects. Each row contains a `columns` array.)
 ---     options.rows.columns table (Entries rendered in each row.)
 ---     options.rows.position? string (Panel zone: `header`, `content`, or `footer`. Defaults to `content`; only `content` scrolls.)
---- options.lang? table (Translation table. Only string keys prefixed with `inputNui` are sent to the NUI.)
 ---@param cb? function (Called with the result. When omitted, the function waits synchronously and returns the result.)
 ---@return table|false|nil (Result when called synchronously, `false` on cancellation, or `nil` when a callback is provided.)
 function jo.input.nui(options, cb)
@@ -114,13 +114,7 @@ function jo.input.nui(options, cb)
   end
   nuiResult = promise.new()
 
-  local inputStrings = {}
-  local language = type(options.lang) == "table" and options.lang or {}
-  for key, value in pairs(language) do
-    if type(key) == "string" and key:sub(1, 8) == "inputNui" and type(value) == "string" then
-      inputStrings[key] = value
-    end
-  end
+  local inputStrings = jo.i18n.getNamespace("inputNui")
 
   SendNUIMessage({
     messageTargetUiName = "jo_input",

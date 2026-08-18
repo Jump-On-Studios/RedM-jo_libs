@@ -10,7 +10,7 @@
     </template>
 
     <template v-else>
-      <span class="price-summary__label" v-i18n="'inputNuiPreview'">
+      <span class="price-summary__label" v-i18n="'preview'">
         Preview
       </span>
       <div
@@ -18,7 +18,7 @@
         :key="index"
         class="price-summary__line"
       >
-        <span>{{ getString("inputNuiOption", "Option") }} {{ index + 1 }}</span>
+        <span>{{ getString("option", "Option") }} {{ index + 1 }}</span>
         <strong>{{ line }}</strong>
       </div>
     </template>

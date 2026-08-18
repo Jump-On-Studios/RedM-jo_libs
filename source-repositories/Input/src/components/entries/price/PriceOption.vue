@@ -1,7 +1,7 @@
 <template>
   <section class="price-option">
     <header class="price-option__header">
-      <span class="price-option__heading" v-i18n="'inputNuiRequirements'">
+      <span class="price-option__heading" v-i18n="'requirements'">
         Requirements
       </span>
       <div class="price-option__actions">
@@ -9,26 +9,26 @@
           v-if="canDuplicate"
           type="button"
           class="price-option__action"
-          :title="getString('inputNuiDuplicateOption', 'Duplicate option')"
+          :title="getString('duplicateOption', 'Duplicate option')"
           @click="emit('duplicate')"
         >
-          <span v-i18n="'inputNuiDuplicateOption'">Duplicate option</span>
+          <span v-i18n="'duplicateOption'">Duplicate option</span>
         </button>
         <button
           v-if="canRemove"
           type="button"
           class="price-option__action"
-          :title="getString('inputNuiRemoveOption', 'Remove option')"
-          :aria-label="getString('inputNuiRemoveOption', 'Remove option')"
+          :title="getString('removeOption', 'Remove option')"
+          :aria-label="getString('removeOption', 'Remove option')"
           @click="emit('remove')"
         >
-          <span v-i18n="'inputNuiRemoveOption'">Remove option</span>
+          <span v-i18n="'removeOption'">Remove option</span>
         </button>
       </div>
     </header>
 
     <div v-if="option.requirements.length === 0" class="price-option__empty">
-      <span v-i18n="'inputNuiAddRequirementToOption'">
+      <span v-i18n="'addRequirementToOption'">
         Add a requirement to this option.
       </span>
     </div>
@@ -50,7 +50,7 @@
     </div>
 
     <div class="price-option__add">
-      <span class="price-option__help" v-i18n="'inputNuiAddRequirement'">
+      <span class="price-option__help" v-i18n="'addRequirement'">
         Add requirement
       </span>
       <div class="price-option__types">
@@ -117,11 +117,11 @@ function typeIcon(type: PriceCostType) {
 
 function buttonTitle(type: PriceCostType) {
   if (!isTypeDisabled(props.option, type)) {
-    return `${getString("inputNuiAddCost", "Add")} ${typeLabel(type)}`;
+    return `${getString("addCost", "Add")} ${typeLabel(type)}`;
   }
 
   return `${typeLabel(type)} ${getString(
-    "inputNuiAlreadyInOption",
+    "alreadyInOption",
     "is already in this option.",
   )}`;
 }

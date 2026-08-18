@@ -39,7 +39,7 @@
       <li
         v-if="options.length === 0"
         class="entry-select__empty"
-        v-i18n="'inputNuiNoOptionAvailable'"
+        v-i18n="'noOptionAvailable'"
       >
         No option available
       </li>
