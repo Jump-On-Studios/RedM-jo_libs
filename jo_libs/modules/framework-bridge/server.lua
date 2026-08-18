@@ -6,6 +6,15 @@ jo.require("callback")
 ---@class UserClass
 jo.framework.UserClass = {}
 
+--- Validates an amount before using it with a framework currency.
+--- Framework bridges can override this method to enforce currency-specific rules.
+---@param amount number (The currency amount to validate)
+---@param moneyType integer (The type of currency: `0`: dollar, `1`: gold, `2`: rol)
+---@return boolean (Return `true` when the amount can be used)
+function jo.framework.UserClass:validateMoneyAmount(amount, moneyType)
+  return true
+end
+
 -------------
 -- VARIABLES
 -------------
@@ -37,6 +46,7 @@ function jo.framework.UserClass:canBuy(price, moneyType, removeIfCan)
   if not price then
     return false, eprint("Price value is nil")
   end
+  moneyType = GetValue(moneyType, 0)
   if type(price) == "table" then
     if moneyType == 2 then
       price = price.rol
@@ -46,15 +56,20 @@ function jo.framework.UserClass:canBuy(price, moneyType, removeIfCan)
       price = price.money
     end
   end
-  price = math.abs(price)
-  moneyType = GetValue(moneyType, 0)
   if not price then
     return false, eprint("PRICE IS NIL !")
   end
+  if not self:validateMoneyAmount(price, moneyType) then
+    return false
+  end
+  price = math.abs(price)
   local money = self:getMoney(moneyType)
   local hasEnough = money >= price
   if removeIfCan == true and hasEnough then
-    self:removeMoney(price, moneyType)
+    local removalResult = self:removeMoney(price, moneyType)
+    if moneyType == 1 and removalResult == false then
+      return false
+    end
   end
   return hasEnough
 end
@@ -211,7 +226,9 @@ function jo.framework:canUserPayWith(source, prices, removeIfCan)
     elseif price.money then
       jo.framework:removeMoney(source, price.money, 0)
     elseif price.gold then
-      jo.framework:removeMoney(source, price.gold, 1)
+      if jo.framework:removeMoney(source, price.gold, 1) == false then
+        return false, i
+      end
     elseif price.rol then
       jo.framework:removeMoney(source, price.rol, 2)
     end
