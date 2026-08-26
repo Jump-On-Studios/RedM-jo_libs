@@ -239,6 +239,7 @@ end
 ---@field nextPageKey string
 ---@field nextPageListener integer|nil
 ---@field currentPage number
+---@field suppressNativePrompts boolean|integer[]
 local GroupClass = {}
 GroupClass.__index = GroupClass
 
@@ -252,6 +253,7 @@ function GroupClass:new()
         nextPageKey = "A",
         nextPageListener = nil,
         currentPage = 1,
+        suppressNativePrompts = true,
     }, self)
 end
 
@@ -287,6 +289,51 @@ end
 --- @param key string (The key string to be used for pagination.)
 function GroupClass:setNextPageKey(key)
     self.nextPageKey = string.upper(key)
+end
+
+--- Configures which native RedM prompt types are suppressed while this group is displayed.
+--- Call without an argument or with `true` to suppress the default types 1 through 12.
+--- Pass `false` or an empty table to suppress none, or an integer array to suppress only those types.
+--- @param value? boolean|integer[]
+function GroupClass:setSuppressNativePrompts(value)
+    if value == nil or value == true then
+        self.suppressNativePrompts = true
+        return
+    end
+
+    if value == false then
+        self.suppressNativePrompts = false
+        return
+    end
+
+    if type(value) ~= "table" then
+        return eprint("GroupClass:setSuppressNativePrompts > value must be nil, a boolean, or an integer array")
+    end
+
+    local amount = 0
+    for index, promptType in pairs(value) do
+        amount = amount + 1
+        if type(index) ~= "number" or index < 1 or index % 1 ~= 0
+            or type(promptType) ~= "number" or promptType % 1 ~= 0 then
+            return eprint("GroupClass:setSuppressNativePrompts > value must be an integer array")
+        end
+    end
+
+    if amount ~= #value then
+        return eprint("GroupClass:setSuppressNativePrompts > value must be a contiguous integer array")
+    end
+
+    local promptTypes = {}
+    local knownPromptTypes = {}
+    for i = 1, #value do
+        local promptType = value[i]
+        if not knownPromptTypes[promptType] then
+            knownPromptTypes[promptType] = true
+            promptTypes[#promptTypes + 1] = promptType
+        end
+    end
+
+    self.suppressNativePrompts = promptTypes
 end
 
 --- Returns whether the group is currently visible.
@@ -361,8 +408,15 @@ local function startLoop()
     CreateThread(function()
         while jo.promptNui.isDisplayed() do
             -- Standard group display operations
-            for i = 1, 12 do
-                UiPromptDisablePromptTypeThisFrame(i)
+            local suppressedNativePromptTypes = currentGroupVisible and currentGroupVisible.suppressNativePrompts
+            if suppressedNativePromptTypes == true then
+                for i = 1, 12 do
+                    UiPromptDisablePromptTypeThisFrame(i)
+                end
+            elseif type(suppressedNativePromptTypes) == "table" then
+                for i = 1, #suppressedNativePromptTypes do
+                    UiPromptDisablePromptTypeThisFrame(suppressedNativePromptTypes[i])
+                end
             end
 
             if currentGroupVisible and isForcedHide() then
