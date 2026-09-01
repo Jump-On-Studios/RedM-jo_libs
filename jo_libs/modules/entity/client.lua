@@ -294,3 +294,53 @@ function jo.entity.deleteScenariosFromEntity(entity, size, maxScenario, maxAttem
 		end
 	end)
 end
+
+local noReactionsFlags = {
+	26,  -- PCF_DisableMelee
+	29,  -- PCF_DisableMeleeHitReactions
+	47,  -- PCF_DisableBloodPoolCreation
+	68,  -- PCF_DoNothingWhenOnFootByDefault
+	77,  -- PCF_DisableExplosionReactions
+	87,  -- PCF_DisablePedAvoidance
+	111, -- PCF_DisableWeirdPedEvents
+	113, -- PCF_DisableShockingEvents
+	174, -- PCF_DisableEvasiveStep
+	217, -- PCF_SupressShockingEvents
+	254, -- Full immunity vs melee and range attack
+	263, -- PCF_NoCriticalHits
+	286, -- PCF_DisableEvasiveDives
+	305, -- PCF_DisableHeadGore
+	306, -- PCF_DisableLimbGore
+	351, -- PCF_DisableIntimidationBackingAway
+	356, -- PCF_BlockRobberyInteractionEscape
+	388, -- PCF_DisableFatallyWoundedBehaviour
+	397, -- PCF_DisableStuckResponse
+	518, -- PCF_DisableWalkAway
+	584  -- PCF_DisableInjuredMovement
+}
+
+--- Make a ped totally inert: it will not react, flee, panic, ragdoll, be targeted or take damage
+--- - Useful for decorative NPCs like shopkeepers or mannequins
+--- - Does not freeze the ped: call `FreezeEntityPosition()` yourself if needed
+---@param entity integer (The ped ID to make inert)
+function jo.entity.noReactions(entity)
+	if not DoesEntityExist(entity) then return eprint("Entity does not exist", entity) end
+
+	for i = 1, #noReactionsFlags do
+		SetPedConfigFlag(entity, noReactionsFlags[i], true)
+	end
+
+	SetBlockingOfNonTemporaryEvents(entity, true)
+	TaskSetBlockingOfNonTemporaryEvents(entity, true)
+	SetPedFleeAttributes(entity, 0, false)
+
+	SetPedCanBeTargetted(entity, false)
+	SetPedCanBeLassoed(entity, false)
+	SetPedCanRagdoll(entity, false)
+
+	SetEntityInvincible(entity, true)
+	SetEntityCanBeDamaged(entity, false)
+	SetPedCanBeIncapacitated(entity, false)
+	SetPedIncapacitationModifiers(entity, false, 0, 0, 0)
+	SetPedIncapacitationTotalBleedOutDuration(entity, 0.0)
+end
