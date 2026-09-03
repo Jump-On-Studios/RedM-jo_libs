@@ -321,8 +321,25 @@ function jo.framework.UserClass:getRPName()
   return ("%s %s"):format(self.data.firstname, self.data.lastname)
 end
 
+-- Waiters resolved once vorp_core has inserted the new character in DB and set it as the used character
+local newCharacterWaiters = {}
+
+AddEventHandler("vorp:SelectedCharacter", function(source, _character)
+  local waiter = newCharacterWaiters[source]
+  if not waiter then return end
+  newCharacterWaiters[source] = nil
+  -- Resolve on the next tick: vorp_core sets the player state bags right after firing this event
+  Wait(0)
+  waiter:resolve(true)
+end)
+
+--- Create a new user
+---@param source integer (The source ID of the player)
+---@param data table (The data of the user)
+---@param spawnCoordinate vector4 (The spawn coordinate of the user)
+---@param isDead boolean (Whether the user is dead)
 function jo.framework:createUser(source, data, spawnCoordinate, isDead)
-  if isDead == nil then isDead = false end
+  isDead = GetValue(isDead, false)
   spawnCoordinate = GetValue(spawnCoordinate, vec4(2537.684, -1278.066, 49.218, 42.520))
   data = GetValue(data, {})
   data.firstname = GetValue(data.firstname, "")
@@ -336,12 +353,21 @@ function jo.framework:createUser(source, data, spawnCoordinate, isDead)
     skin = json.encode(GetValue(data.skin, {})),
     comps = json.encode(GetValue(data.comps, {})),
     compTints = "[]",
-    age = data.age,
-    gender = data.skin.model == "mp_male" and "Male" or "Female",
+    age = GetValue(data.age, 30),
+    gender = data.skin.sex == "mp_male" and "Male" or "Female",
     charDescription = GetValue(data.charDescription, ""),
     nickname = GetValue(data.nickname, "")
   }
+  local waiter = promise.new()
+  newCharacterWaiters[source] = waiter
   Core.getUser(source).addCharacter(convertData)
+  SetTimeout(5000, function()
+    if newCharacterWaiters[source] ~= waiter then return end
+    newCharacterWaiters[source] = nil
+    wprint("createUser: vorp_core did not confirm the character creation in time, continuing anyway")
+    waiter:resolve(false)
+  end)
+  Await(waiter)
   TriggerClientEvent("vorp:initCharacter", source, spawnCoordinate.xyz, spawnCoordinate.w, isDead)
   SetTimeout(3000, function()
     TriggerEvent("vorp_NewCharacter", source)

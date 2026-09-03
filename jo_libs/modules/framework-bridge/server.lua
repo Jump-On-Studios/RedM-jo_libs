@@ -433,7 +433,7 @@ end
 ---@param standard table (The standardized clothes data)
 ---@return table (Return clothes data with framework-specific keys)
 function jo.framework:revertClothes(standard)
-  standard = table.copy(standard)
+  standard = table.copy(standard or {})
   local clothes = self:revertClothesInternal(standard)
 
   if jo.debug then
@@ -502,7 +502,7 @@ end
 ---@param standard table (The standardized skin data)
 ---@return table (Return skin data with framework-specific keys)
 function jo.framework:revertSkin(standard)
-  standard = table.copy(standard)
+  standard = table.copy(standard or {})
   local skin = self:revertSkinInternal(standard)
 
   for key, data in pairs(skin.overlays or {}) do
