@@ -361,10 +361,10 @@ end
 ---@param data table (The user data to create)
 ---@param spawnCoordinate vector (The spawn location for the player)
 ---@param isDead? boolean (Whether the player starts as dead)
----@return table (Return the newly created user data)
+---@return boolean (Return true if the user was created successfully)
 ---@autodoc:config ignore:true
 function jo.framework:createUser(source, data, spawnCoordinate, isDead)
-  return {}
+  return false
 end
 
 -- Listener for item removed of the player inventory

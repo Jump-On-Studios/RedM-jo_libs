@@ -184,7 +184,8 @@ function jo.framework:updateUserSkinInternal(source, skin, overwrite)
 end
 
 function jo.framework:createUser(source, data, spawnCoordinate, isDead)
-  return {}
+  -- #TODO
+  return false
 end
 
 AddEventHandler("redemrp:selectCharacter", function()

@@ -273,4 +273,5 @@ end
 
 function jo.framework:createUser(source, data, spawnCoordinate, isDead)
   -- #TODO
+  return false
 end

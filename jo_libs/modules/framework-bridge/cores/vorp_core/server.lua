@@ -338,6 +338,7 @@ end)
 ---@param data table (The data of the user)
 ---@param spawnCoordinate vector4 (The spawn coordinate of the user)
 ---@param isDead boolean (Whether the user is dead)
+---@return promise.promise waiter (A promise that resolves when the character is created)
 function jo.framework:createUser(source, data, spawnCoordinate, isDead)
   isDead = GetValue(isDead, false)
   spawnCoordinate = GetValue(spawnCoordinate, vec4(2537.684, -1278.066, 49.218, 42.520))
@@ -367,11 +368,12 @@ function jo.framework:createUser(source, data, spawnCoordinate, isDead)
     wprint("createUser: vorp_core did not confirm the character creation in time, continuing anyway")
     waiter:resolve(false)
   end)
-  Await(waiter)
+  local created = Await(waiter)
   TriggerClientEvent("vorp:initCharacter", source, spawnCoordinate.xyz, spawnCoordinate.w, isDead)
   SetTimeout(3000, function()
     TriggerEvent("vorp_NewCharacter", source)
   end)
+  return created
 end
 
 -- Existing character event

@@ -374,7 +374,8 @@ end
 ---@return table (Return the newly created user data)
 ---@autodoc:config ignore:true
 function jo.framework:createUser(source, data, spawnCoordinate, isDead)
-
+  -- #TODO
+  return false
 end
 
 AddEventHandler("tpz_core:isPlayerReady", function(source)
