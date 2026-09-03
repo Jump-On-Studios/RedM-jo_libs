@@ -1159,24 +1159,79 @@ function jo.framework:updateUserSkinInternal(source, skin, overwrite)
   end
 end
 
+-- Players whose character is being created through jo.framework:createUser
+local pendingCharacterSelection = {}
+-- Waiters resolved once rsg-core has created the player (RSGCore:Server:PlayerLoaded)
+local newPlayerWaiters = {}
+
+AddEventHandler("RSGCore:Server:PlayerLoaded", function(Player)
+  local source = Player.PlayerData.source
+  local waiter = newPlayerWaiters[source]
+  if not waiter then return end
+  newPlayerWaiters[source] = nil
+  -- Next tick: rsg-core sends the player data to the client right after firing this event
+  Wait(0)
+  waiter:resolve(true)
+end)
+
+--- Get the first free character slot (cid) of the player
+---@param source integer (The source ID of the player)
+---@return integer cid (The first slot without character)
+local function getFreeCharacterSlot(source)
+  local license = RSGCore.Functions.GetIdentifier(source, "license")
+  local rows = MySQL.query.await("SELECT cid FROM players WHERE license = ?", { license })
+  local used = {}
+  for r = 1, #rows do
+    used[tonumber(rows[r].cid)] = true
+  end
+  local cid = 0
+  repeat
+    cid = cid + 1
+  until not used[cid]
+  return cid
+end
+
+--- Create a new user
+---@param source integer (The source ID of the player)
+---@param data table (The data of the user)
+---@param spawnCoordinate vector4 (Unused on RSG: rsg-spawn handles the spawn of new characters)
+---@param isDead boolean (Unused on RSG: rsg-spawn revives new characters)
 function jo.framework:createUser(source, data, spawnCoordinate, isDead)
-  if isDead == nil then isDead = false end
-  spawnCoordinate = GetValue(spawnCoordinate, vec4(2537.684, -1278.066, 49.218, 42.520))
   data = GetValue(data, {})
-  data.firstname = GetValue(data.firstname, "")
-  data.lastname = GetValue(data.lastname, "")
   data.skin = self:revertSkin(data.skin)
   data.comps = self:revertClothes(data.comps)
-  local convertData = {
-    source = source,
-    charinfo = {
-      firstname = GetValue(data.firstname, ""),
-      lastname = data.lastname,
-      gender = data.skin.sex == 1 and "0" or "1"
-    }
+  data.cid = data.cid or getFreeCharacterSlot(source)
+
+  local charinfo = {
+    firstname = GetValue(data.firstname, ""),
+    lastname = GetValue(data.lastname, ""),
+    nationality = data.nationality,
+    birthdate = data.birthdate,
+    gender = data.skin.sex == 2 and 1 or 0,
+    cid = data.cid,
   }
-  RSGCore.Player.CheckPlayerData(source, convertData)
-  jo.triggerEvent.server(source, "rsg-appearance:server:SaveSkin", data.skin, data.comps)
+
+  local waiter = promise.new()
+  newPlayerWaiters[source] = waiter
+  pendingCharacterSelection[source] = true
+
+  if GetResourceState("rsg-multicharacter") == "started" then
+    jo.emit.triggerServerWithSource(source, "rsg-multicharacter:server:createCharacter", charinfo)
+  else
+    RSGCore.Player.Login(source, false, { cid = data.cid, charinfo = charinfo })
+  end
+
+  SetTimeout(5000, function()
+    if newPlayerWaiters[source] ~= waiter then return end
+    newPlayerWaiters[source] = nil
+    wprint("createUser: rsg-core did not confirm the player creation in time, continuing anyway")
+    waiter:resolve(false)
+  end)
+  local created = Await(waiter)
+
+  -- Without the oldplayer argument, rsg-appearance inserts the skin and opens the rsg-spawn UI for a new player
+  jo.emit.triggerServerWithSource(source, "rsg-appearance:server:SaveSkin", data.skin, data.comps)
+  return created
 end
 
 -------------
@@ -1184,8 +1239,6 @@ end
 -------------
 
 
-
-local pendingCharacterSelection = {}
 
 -- New character event
 RegisterNetEvent("rsg-multicharacter:server:createCharacter", function()
