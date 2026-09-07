@@ -53,12 +53,19 @@ if jo and jo.name == jo_libs then
 end
 
 function GetHashFromString(value)
-  if type(value) == "string" then
+  local t = type(value)
+  if t == "string" then
     local number = tonumber(value)
     if number then return math.toSigned(number) end
     return joaat(value)
   end
-  return value
+  if t == "number" then
+    return value
+  end
+  if value ~= nil and value ~= false then
+    jo.utils.debug("GetHashFromString: unexpected type " .. t)
+  end
+  return 0
 end
 
 function UnJson(value)

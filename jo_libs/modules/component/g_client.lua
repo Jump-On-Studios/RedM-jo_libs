@@ -251,7 +251,10 @@ local function updateComponentWearableState(ped, category, hash, state)
   end
   state = GetHashFromString(state)
   Entity(ped).state:set("wearableState:" .. category, state)
-  UpdateShopItemWearableState(ped, type(hash) == "table" and hash.hash or hash, state)
+  local itemHash = hash
+  if type(hash) == "table" then itemHash = hash.hash end
+  if not itemHash then return end
+  UpdateShopItemWearableState(ped, itemHash, state)
 end
 
 -------------
@@ -524,8 +527,8 @@ function jo.component.apply(ped, category, _data)
 
     addCachedComponent(ped, nil, categoryHash, data.hash, data.wearableState, data.drawable, data.albedo, data.normal, data.material, data.palette, data.tint0, data.tint1, data.tint2)
   elseif data.wearableState then
-    local comp = jo.component.getComponentEquiped(ped, categoryHash)
-    updateComponentWearableState(ped, categoryHash, comp, data.wearableState)
+    local compHash = jo.component.getComponentEquiped(ped, categoryHash)
+    updateComponentWearableState(ped, categoryHash, compHash, data.wearableState)
   else
     RemoveTagFromMetaPed(ped, categoryHash, 0)
     if categoryHash == `neckwear` then
@@ -763,8 +766,8 @@ function jo.component.setWearableState(ped, category, data, state)
 
   if categoryHash == `neckwear` then
     if stateHash == `base` then
-      local beardHard, beard = jo.component.getComponentEquiped(ped, "beards_complete")
-      if beardHard then
+      local beardHash, beard = jo.component.getComponentEquiped(ped, "beards_complete")
+      if beardHash then
         jo.component.apply(ped, beard.category, beard)
       end
     elseif stateHash == `mask_up` then
