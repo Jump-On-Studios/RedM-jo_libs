@@ -109,7 +109,8 @@ end
 function jo.entity.create(model, coords, ...)
 	local args = { ... }
 	local networked, fadeDuration = false, 0
-	if type(coords) == vector4 then
+
+	if type(coords) == "vector4" then
 		networked = GetValue(args[1], false)
 		fadeDuration = GetValue(args[2], 0)
 	else
@@ -296,12 +297,12 @@ function jo.entity.deleteScenariosFromEntity(entity, size, maxScenario, maxAttem
 end
 
 local noReactionsFlags = {
-	26,  -- PCF_DisableMelee
-	29,  -- PCF_DisableMeleeHitReactions
-	47,  -- PCF_DisableBloodPoolCreation
-	68,  -- PCF_DoNothingWhenOnFootByDefault
-	77,  -- PCF_DisableExplosionReactions
-	87,  -- PCF_DisablePedAvoidance
+	26, -- PCF_DisableMelee
+	29, -- PCF_DisableMeleeHitReactions
+	47, -- PCF_DisableBloodPoolCreation
+	68, -- PCF_DoNothingWhenOnFootByDefault
+	77, -- PCF_DisableExplosionReactions
+	87, -- PCF_DisablePedAvoidance
 	111, -- PCF_DisableWeirdPedEvents
 	113, -- PCF_DisableShockingEvents
 	174, -- PCF_DisableEvasiveStep
@@ -316,7 +317,7 @@ local noReactionsFlags = {
 	388, -- PCF_DisableFatallyWoundedBehaviour
 	397, -- PCF_DisableStuckResponse
 	518, -- PCF_DisableWalkAway
-	584  -- PCF_DisableInjuredMovement
+	584 -- PCF_DisableInjuredMovement
 }
 
 --- Make a ped totally inert: it will not react, flee, panic, ragdoll, be targeted or take damage
