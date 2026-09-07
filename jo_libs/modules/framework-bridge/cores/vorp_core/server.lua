@@ -1,3 +1,5 @@
+jo.require("database")
+
 -------------
 -- FRAMEWORK CLASS
 -------------
@@ -1165,24 +1167,115 @@ function jo.framework:revertClothesInternal(standard)
   return reverted
 end
 
-function jo.framework:getUserClothesInternal(source)
-  local clothes = {}
+-------------
+-- EXTENDED COMPONENTS
+-------------
+--`compPlayer` holds one integer per category and `compTints` is keyed by the component
+--hash: hash-less components and wearable states have no place there
 
-  local user = self.UserClass:get(source)
-  clothes = UnJson(user.data.comps)
-  local clothesTints = UnJson(user.data.compTints)
-  for category, data in pairs(clothesTints) do
+--also used by g_server.lua
+jo.framework.extraComponentsColumn = "jo_compExtra"
+
+---@param charid integer (the character identifier)
+---@return table (the extended data, split into `clothes` and `skin`)
+local function getExtraComponents(charid)
+  local raw = MySQL.scalar.await(("SELECT `%s` FROM characters WHERE charidentifier = ?"):format(jo.framework.extraComponentsColumn), { charid })
+  local extra = UnJson(raw)
+  extra.clothes = extra.clothes or {}
+  extra.skin = extra.skin or {}
+
+  return extra
+end
+
+---@param charid integer (the character identifier)
+---@param extra table (the extended data to persist)
+local function setExtraComponents(charid, extra)
+  MySQL.update(("UPDATE characters SET `%s` = ? WHERE charidentifier = ?"):format(jo.framework.extraComponentsColumn),
+    { json.encode(extra), charid })
+end
+
+---Build the framework clothes table from the raw database values
+---@param comps any (the raw `compPlayer` value)
+---@param compTints any (the raw `compTints` value)
+---@param extra table (the extended components)
+---@return table (the clothes, with framework category names)
+local function buildClothes(comps, compTints, extra)
+  local clothes = UnJson(comps)
+
+  for category, data in pairs(UnJson(compTints)) do
     for hash, data2 in pairs(data) do
       if tonumber(clothes[category]) == tonumber(hash) then
         clothes[category] = {
           hash = clothes[category]
         }
         table.merge(clothes[category], data2)
+        --legacy: the wearable state used to be written under the `state` key
+        if clothes[category].state and not clothes[category].wearableState then
+          clothes[category].wearableState = clothes[category].state
+        end
       end
     end
   end
 
+  --hash-less components and wearable states: the dedicated column wins
+  for category, data in pairs(extra) do
+    if type(clothes[category]) ~= "table" then
+      clothes[category] = { hash = tonumber(clothes[category]) or 0 }
+    end
+    table.merge(clothes[category], data)
+  end
+
   return clothes
+end
+
+---Extract the fields that neither `compPlayer` nor `compTints` can restore
+---@param value table (the component data)
+---@param hash integer (the component hash, 0 if it has none)
+---@return table? (the extended fields, nil if there is nothing to store)
+function jo.framework:extractExtraComponent(value, hash)
+  local data = {}
+
+  --with a hash, ApplyShopItemToPed restores the tag and compTints holds the tint
+  if hash == 0 then
+    for _, field in ipairs({ "drawable", "albedo", "normal", "material", "palette", "tint0", "tint1", "tint2" }) do
+      data[field] = value[field]
+    end
+  end
+
+  local state = value.wearableStateHash
+  if not state or state == 0 then state = value.wearableState end
+  if not state or state == 0 then state = value.state end
+  state = GetHashFromString(state)
+  data.wearableState = state ~= 0 and state or nil
+
+  return next(data) and data or nil
+end
+
+---Read a character skin & clothes straight from the database, bypassing the user object.
+---Used during multicharacter selection, when no character is used yet.
+---@param charid integer (the character identifier)
+---@param identifier string (the owner identifier, checked against the row)
+---@return table? skin (nil if the character does not belong to `identifier`)
+---@return table? clothes
+function jo.framework:getCharacterAppearanceFromDatabase(charid, identifier)
+  local row = MySQL.single.await(([[
+    SELECT skinPlayer, compPlayer, compTints, `%s` AS extra
+    FROM characters WHERE charidentifier = ? AND identifier = ?
+  ]]):format(jo.framework.extraComponentsColumn), { charid, identifier })
+  if not row then return nil, nil end
+
+  local extra = UnJson(row.extra)
+  local skin = UnJson(row.skinPlayer)
+  table.merge(skin, extra.skin or {})
+
+  return skin, buildClothes(row.compPlayer, row.compTints, extra.clothes or {})
+end
+
+function jo.framework:getUserClothesInternal(source)
+  local user = self.UserClass:get(source)
+  if not user then return {} end
+
+  return buildClothes(user.data.comps, user.data.compTints, getExtraComponents(user.data.charIdentifier).clothes)
 end
 
 function jo.framework:updateUserClothesInternal(source, clothes, overwrite)
@@ -1199,27 +1292,32 @@ function jo.framework:updateUserClothesInternal(source, clothes, overwrite)
   for category, value in pairs(clothes) do
     newClothes[category] = table.copy(value)
     if type(value) == "table" then
-      if not value.drawable and not value.wearableState then
-        newClothes[category].comp = GetValue(value?.hash, 0)
-      else
-        newClothes[category].comp = value
-      end
+      --`comp` has to stay an integer: 0xD3A7B003ED343FD9 rejects tables since mr-947
+      newClothes[category].comp = tonumber(GetValue(value?.hash, 0)) or 0
     end
   end
   local user = self.UserClass:get(source)
+  if not user then return end
   local tints = overwrite and {} or UnJson(user.data.compTints)
+  local extra = getExtraComponents(user.data.charIdentifier)
+  if overwrite then extra.clothes = {} end
   for category, value in pairs(clothes) do
-    if type(value) == "table" and GetValue(value?.hash, 0) ~= 0 then
-      local tint = {
-        state = value.state
-      }
-      if value.palette and value.palette ~= 0 then
-        tint.tint0 = GetValue(value.tint0, 0)
-        tint.tint1 = GetValue(value.tint1, 0)
-        tint.tint2 = GetValue(value.tint2, 0)
-        tint.palette = GetValue(value.palette, 0)
+    if type(value) ~= "table" then
+      extra.clothes[category] = nil
+    else
+      local hash = tonumber(GetValue(value?.hash, 0)) or 0
+      extra.clothes[category] = self:extractExtraComponent(value, hash)
+
+      if hash ~= 0 then
+        local tint = {}
+        if value.palette and value.palette ~= 0 then
+          tint.tint0 = GetValue(value.tint0, 0)
+          tint.tint1 = GetValue(value.tint1, 0)
+          tint.tint2 = GetValue(value.tint2, 0)
+          tint.palette = GetValue(value.palette, 0)
+        end
+        tints[category] = { [hash] = tint }
       end
-      tints[category] = { [value.hash] = tint }
     end
   end
   for _, value in pairs(tints) do
@@ -1230,12 +1328,17 @@ function jo.framework:updateUserClothesInternal(source, clothes, overwrite)
 
   TriggerClientEvent("vorpcharacter:updateCache", source, nil, newClothes)
   user.data.updateCompTints(json.encode(tints))
+  setExtraComponents(user.data.charIdentifier, extra)
 end
 
 function jo.framework:getUserSkinInternal(source)
   local user = self.UserClass:get(source)
   if not user then return {} end
-  return UnJson(user.data.skin)
+
+  local skin = UnJson(user.data.skin)
+  table.merge(skin, getExtraComponents(user.data.charIdentifier).skin)
+
+  return skin
 end
 
 function jo.framework:updateUserSkinInternal(source, skin, overwrite)
@@ -1245,6 +1348,22 @@ function jo.framework:updateUserSkinInternal(source, skin, overwrite)
       skin[cat] = nil
     end
   end
+
+  local user = self.UserClass:get(source)
+  if user then
+    local extra = getExtraComponents(user.data.charIdentifier)
+    if overwrite then extra.skin = {} end
+    --`skinPlayer` only holds integers, and these are the keys vorp_character forwards
+    --to 0xD3A7B003ED343FD9 (client.lua:294)
+    for _, key in ipairs({ "Hair", "Beard" }) do
+      if type(skin[key]) == "table" then
+        extra.skin[key] = skin[key]
+        skin[key] = tonumber(skin[key].hash) or 0
+      end
+    end
+    setExtraComponents(user.data.charIdentifier, extra)
+  end
+
   if overwrite then
     TriggerClientEvent("vorpcharacter:updateCache", source, skin)
   else
