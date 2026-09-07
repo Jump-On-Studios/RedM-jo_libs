@@ -11,7 +11,28 @@ jo.require("component", true)
 -- VARIABLES
 -------------
 local delays = {}
-local isRefreshing = false
+--- Meta tags applied by hand (drawable/albedo/normal/material), per ped and per category. The game keeps its own in `Global_1952637.f_3467` and pushes it back on every slot refresh (short_update.c:49774 `func_1597`), because `UpdatePedVariation` can drop it. We do the same.
+local metaTags = {}
+--- Pending streaming requests, released after the refresh the way the game does with `_RELEASE_METAPED_ASSET_REQUEST`.
+local assetRequests = {}
+--- Face categories touched since the last refresh.
+local faceRefresh = {}
+--- `isMp` flag of the components applied since the last refresh. The game carries one flag for the whole batch and hands it to the refresh too (abigail2_1.c:34993).
+local batchIsMp = {}
+
+--- Categories the game refreshes with `0x704C908E9C405136` (fm_deathmatch_controller.c:32942 `func_1144`: head, eyes, hair, teeth, beard).
+local faceCategories = {
+  [`heads`] = true,
+  [`eyes`] = true,
+  [`teeth`] = true,
+  [`hair`] = true,
+  [`hair_bonnet`] = true,
+  [`beards`] = true,
+  [`beards_chin`] = true,
+  [`beards_chops`] = true,
+  [`beards_mustache`] = true,
+  [`beards_complete`] = true,
+}
 
 ---@Class Component
 local Component = {}
@@ -38,7 +59,8 @@ local function SetTextureOutfitTints(ped, category, palette, tint0, tint1, tint2
   return InvokeNative(0x4EFC1F8FF1AD94DE, ped, jo.component.getCategoryHash(category), GetHashFromString(palette), tint0, tint1,
     tint2)
 end
-local function SetActiveMetaPedComponentsUpdated(ped) return InvokeNative(0xAAB86462966168CE, ped, true) end
+--- The second argument is the same `isMp` flag the game feeds to `ApplyShopItemToPed` and `UpdateShopItemWearableState`, not a constant: in SP scripts the three share one variable (RDR3-Decompiled-Scripts abigail2_1.c:34980-34993), MP scripts just always pass true.
+local function SetActiveMetaPedComponentsUpdated(ped, isMp) return InvokeNative(0xAAB86462966168CE, ped, isMp == nil and true or isMp) end
 local function N_0x704C908E9C405136(ped) return InvokeNative(0x704C908E9C405136, ped) end
 local function GetShopItemBaseLayers(hash, metapedType, isMp)
   return InvokeNative(0x63342C50EC115CE8,
@@ -60,19 +82,155 @@ local function GetMetaPedAssetTint(ped, index)
 end
 local function GetNumComponentsInPed(ped) return InvokeNative(0x90403E8107B60E81, ped) or 0 end
 local function GetShopItemComponentCategory(...) return InvokeNative(0x5FF9A878C3D115B8, ...) end
-local function UpdateShopItemWearableState(ped, hash, state)
-  return InvokeNative(0x66B957AAC2EAAEAB, ped, GetHashFromString(hash), GetHashFromString(state), 0, true, 1)
+--- 5th argument is `isMp`, the same flag as `ApplyShopItemToPed` (abigail2_1.c:34983), not a constant.
+local function UpdateShopItemWearableState(ped, hash, state, isMp)
+  return InvokeNative(0x66B957AAC2EAAEAB, ped, GetHashFromString(hash), GetHashFromString(state), 0, isMp == nil and true or isMp, 1)
 end
 local function SetMetaPedTag(ped, drawable, albedo, normal, material, palette, tint0, tint1, tint2)
   return InvokeNative(
     0xBC6DF00D7A4A6819, ped, GetHashFromString(drawable), GetHashFromString(albedo), GetHashFromString(normal),
     GetHashFromString(material), GetHashFromString(palette), tint0, tint1, tint2)
 end
+--- Hard removal of a category: the item leaves the ped, not only its tag. This is what the game uses when it releases a slot (short_update.c:28230 `func_892`).
+local function RemoveShopItemFromPedByCategory(ped, category, p2, p3)
+  return InvokeNative(0xDF631E4BCE1B1FC4, ped, jo.component.getCategoryHash(category), p2 or 0, p3 == nil and true or p3)
+end
+--- The game requests the metaped asset and waits for it before applying a component (short_update.c `func_1619`/`func_1621`, fme_golden_hat.c:8947).
+local function RequestMetaPedComponent(metapedType, hash, isMp)
+  return InvokeNative(0xF6D9E1F3560CBF8E, metapedType, GetHashFromString(hash), 0, isMp and true or false, 1, Citizen.ResultAsInteger())
+end
+--- Meta tag flavor of the same mechanism, for a component described by its drawable/albedo/normal/material (short_update.c:13457). Still unnamed in the nativedb.
+local function N_0x3FCBB5FCFD968698(drawable, albedo, normal, material)
+  return InvokeNative(0x3FCBB5FCFD968698, GetHashFromString(drawable), GetHashFromString(albedo), GetHashFromString(normal), GetHashFromString(material), 0, Citizen.ResultAsInteger())
+end
+local function IsMetaPedAssetValid(request) return InvokeNative(0x93FFD92F05EC32FD, request) == 1 end
+local function HasMetaPedAssetLoaded(request) return InvokeNative(0xB0B2C6D170B0E8E5, request) == 1 end
+local function ReleaseMetaPedAssetRequest(request) return InvokeNative(0x13E7320C762F0477, request) end
 
-local function refreshPed(ped)
-  SetActiveMetaPedComponentsUpdated(ped)
+--- The game has two refresh recipes, and in both `0x704C908E9C405136` comes BEFORE `UpdatePedVariation`:
+---  - clothes: `SetActiveMetaPedComponentsUpdated` then `UpdatePedVariation` (short_update.c:28304)
+---  - head/hair/teeth/beard: `0x704C908E9C405136` then `UpdatePedVariation` (fm_deathmatch_controller.c:32979)
+---@param ped integer (The entity ID)
+---@param withFace? boolean (`false` to skip the face components reset<br>Default: `true`)
+---@param isMp? boolean (The `isMp` flag of the components that changed<br>Default: `true`)
+local function refreshPed(ped, withFace, isMp)
+  if withFace ~= false then
+    N_0x704C908E9C405136(ped)
+  end
+  SetActiveMetaPedComponentsUpdated(ped, isMp)
   UpdatePedVariation(ped)
-  N_0x704C908E9C405136(ped)
+end
+
+-------------
+-- ASSET STREAMING
+-------------
+
+local function holdAssetRequest(ped, request)
+  if not request or request == -1 then return end
+  assetRequests[ped] = assetRequests[ped] or {}
+  assetRequests[ped][#assetRequests[ped] + 1] = request
+end
+
+local function releaseAssetRequests(ped)
+  local requests = assetRequests[ped]
+  if not requests then return end
+  for i = 1, #requests do
+    if IsMetaPedAssetValid(requests[i]) then
+      ReleaseMetaPedAssetRequest(requests[i])
+    end
+  end
+  assetRequests[ped] = nil
+end
+
+--- Waits for the requested assets, the way the game does before applying an outfit (short_update.c `func_1621`). An invalid request counts as done: that is the case of an item the engine does not stream.
+---@param ped integer (The entity ID)
+---@param timeout? integer (Max wait in ms<br>Default: `3000`)
+---@return boolean (`true` if every request is loaded)
+local function waitAssetRequests(ped, timeout)
+  local requests = assetRequests[ped]
+  if not requests or #requests == 0 then return true end
+  local deadline = GetGameTimer() + (timeout or 3000)
+  repeat
+    local loaded = 0
+    for i = 1, #requests do
+      if not IsMetaPedAssetValid(requests[i]) or HasMetaPedAssetLoaded(requests[i]) then
+        loaded = loaded + 1
+      end
+    end
+    if loaded >= #requests then return true end
+    Wait(0)
+  until GetGameTimer() > deadline
+  if jo.debug then eprint("Some metaped assets are still not loaded on ped:", ped) end
+  return false
+end
+
+-------------
+-- END ASSET STREAMING
+-------------
+
+-------------
+-- META TAGS
+-------------
+
+local function rememberMetaTag(ped, categoryHash, data)
+  metaTags[ped] = metaTags[ped] or {}
+  metaTags[ped][categoryHash] = {
+    drawable = data.drawable,
+    albedo = data.albedo,
+    normal = data.normal,
+    material = data.material,
+    palette = data.palette,
+    tint0 = data.tint0,
+    tint1 = data.tint1,
+    tint2 = data.tint2,
+  }
+end
+
+local function forgetMetaTag(ped, categoryHash)
+  if not metaTags[ped] then return end
+  metaTags[ped][categoryHash] = nil
+  if next(metaTags[ped]) == nil then metaTags[ped] = nil end
+end
+
+--- Pushes the meta tags back after a refresh, like `func_1597`
+local function reapplyMetaTags(ped)
+  if not metaTags[ped] then return end
+  for _, data in pairs(metaTags[ped]) do
+    SetMetaPedTag(ped, data.drawable, data.albedo, data.normal, data.material, data.palette, data.tint0, data.tint1, data.tint2)
+  end
+end
+
+-------------
+-- END META TAGS
+-------------
+
+--- Removes a category and every tag of its slot, the way the game releases a slot (short_update.c:28230 `func_892`).
+--- The game picks between hard and soft removal depending on the context; the module has to cover both because it mixes shop items and meta tags on the same category: the soft removal clears the tag, the hard one drops the shop item.
+---@param ped integer (The entity ID)
+---@param category string|integer (The category name or hash)
+---@param hard? boolean (`true` to also remove the shop item)
+local function removeCategoryGroup(ped, category, hard)
+  local group = jo.component.getCategoryGroup(category)
+  for i = 1, #group do
+    RemoveTagFromMetaPed(ped, group[i], 0)
+    if hard then
+      RemoveShopItemFromPedByCategory(ped, group[i], 0, true)
+    end
+  end
+end
+
+--- Clears the categories that cannot coexist with the one about to be applied.
+---@param ped integer (The entity ID)
+---@param category string|integer (The category name or hash)
+---@param includeSelf? boolean (`true` to also clear the category itself)
+local function clearExclusiveCategories(ped, category, includeSelf)
+  local categoryHash = jo.component.getCategoryHash(category)
+  local group = jo.component.getExclusiveCategories(categoryHash)
+  for i = 1, #group do
+    if includeSelf or group[i] ~= categoryHash then
+      RemoveTagFromMetaPed(ped, group[i], 0)
+    end
+  end
 end
 
 local function GetCategoryOfComponentAtIndex(ped, componentIndex)
@@ -254,7 +412,7 @@ local function updateComponentWearableState(ped, category, hash, state)
   local itemHash = hash
   if type(hash) == "table" then itemHash = hash.hash end
   if not itemHash then return end
-  UpdateShopItemWearableState(ped, itemHash, state)
+  UpdateShopItemWearableState(ped, itemHash, state, jo.component.isMpComponent(ped, itemHash))
 end
 
 -------------
@@ -299,7 +457,6 @@ end
 ---@param ped integer the entity ID
 ---@return table
 local function initCachePedComponents(ped)
-  while isRefreshing do Wait(0) end
   if not jo.cache.component.color[ped] then
     local numComponent = GetNumComponentsInPed(ped)
     if not numComponent then return {} end -- No component detected on the ped
@@ -334,7 +491,7 @@ local function reapplyComponentStats(ped)
           if jo.debug then
             dprint("Reapply state of %s: %s (%d)", category, jo.component.getWearableStateNameFromHash(state), state)
           end
-          UpdateShopItemWearableState(ped, hash, state)
+          UpdateShopItemWearableState(ped, hash, state, jo.component.isMpComponent(ped, hash))
         end
       end
     end
@@ -355,12 +512,19 @@ local function reapplyCached(ped)
   if not jo.cache.component.color[ped] then return end
   delays["refresh" .. ped] = jo.timeout.delay("jo_libs:component:reapplyCachedColor" .. ped,
     function() jo.component.waitPedLoaded(ped) end, function()
-      refreshPed(ped)
-      -- jo.component.waitPedLoaded(ped)
+      --the game only replays `0x704C908E9C405136` when a face category changed (fm_deathmatch_controller.c:32942)
+      local withFace = faceRefresh[ped] == true
+      local isMp = batchIsMp[ped]
+      refreshPed(ped, withFace, isMp)
       reapplyComponentStats(ped)
+      --an `UpdatePedVariation` can drop the meta tags, the game pushes them back after every refresh (short_update.c:49774 `func_1597`)
+      reapplyMetaTags(ped)
       reapplyComponentsColor(ped)
       jo.cache.component.color[ped] = nil
-      refreshPed(ped)
+      faceRefresh[ped] = nil
+      batchIsMp[ped] = nil
+      refreshPed(ped, withFace, isMp)
+      releaseAssetRequests(ped)
     end)
 end
 
@@ -374,12 +538,13 @@ end
 
 --- A function to refresh the ped components
 --- @param ped integer (The entity ID)
-function jo.component.refreshPed(ped)
+--- @param withFace? boolean (`false` to skip the face components reset<br>Default: `true`)
+function jo.component.refreshPed(ped, withFace)
   ped = ped or PlayerPedId()
   if delays["refresh" .. ped] then
     delays["refresh" .. ped]:execute()
   end
-  refreshPed(ped)
+  refreshPed(ped, withFace)
 end
 
 --- A function to wait the refresh of ped
@@ -470,13 +635,18 @@ function jo.component.apply(ped, category, _data)
     if not categoryHash then
       return dprint("Wrong component hash:", categoryName, data.hash)
     end
+    --the real category of the item wins over the one passed by the caller
+    categoryName = jo.component.getCategoryNameFromHash(categoryHash)
+    --the game carries one `isMp` for the whole batch and hands it to the refresh, so keep the flag of what we just applied
+    batchIsMp[ped] = isMp
   end
 
   local cached = initCachePedComponents(ped)
   if cached and cached[categoryHash] then
     if categoryName ~= "unknown" then
+      local states = jo.component.data.wearableStates[categoryName]
       local stateName = jo.component.getWearableStateNameFromHash(cached[categoryHash].wearableStateHash)
-      if not Entity(ped).state["wearableState:" .. categoryName] and stateName ~= "base" and table.includes(list, stateName) then
+      if not Entity(ped).state["wearableState:" .. categoryName] and stateName ~= "base" and table.includes(states, stateName) then
         dprint("Save the wearable state of %s: %s", categoryName, tostring(stateName))
         Entity(ped).state["wearableState:" .. categoryName] = cached[categoryHash].wearableStateHash
       end
@@ -484,44 +654,42 @@ function jo.component.apply(ped, category, _data)
   end
   resetCachedColor(ped, categoryHash)
 
-  if data.hash or data.albedo or data.palette then
-    if data.hash or data.albedo then
-      if data.hash and category ~= "horse_bridles" then
-        RemoveTagFromMetaPed(ped, categoryHash, 0)
-      end
-      if (categoryHash == `neckwear`) then
-        RemoveTagFromMetaPed(ped, `neckerchiefs`, 0)
-      end
-      if (category == "ponchos") then
-        RemoveTagFromMetaPed(ped, `cloaks`, 0)
-      end
-      if (category == "cloaks") then
-        RemoveTagFromMetaPed(ped, `ponchos`, 0)
-      end
-      if category == "coats" then
-        RemoveTagFromMetaPed(ped, "coats_closed", 0)
-      elseif category == "coats_closed" then
-        RemoveTagFromMetaPed(ped, "coats", 0)
-      elseif category == "skirts" then
-        RemoveTagFromMetaPed(ped, "pants", 0)
-      end
+  if faceCategories[categoryHash] then
+    faceRefresh[ped] = true
+  end
 
+  --`drawable` alone is a valid entry point: it is the game's meta tag path (`SetMetaPedTag`), which needs no shop item hash
+  if data.hash or data.albedo or data.drawable or data.palette then
+    if data.hash or data.albedo or data.drawable then
       --switch shop item to metatag to allow component mix
-      if category == "hats" or category == "masks" or data.albedo then
+      if categoryName == "hats" or categoryName == "masks" or data.albedo then
         data = convertToMetaTag(ped, data)
       end
 
+      local useMetaTag = (data.drawable or data.albedo) and true or false
+
+      if categoryName ~= "horse_bridles" then
+        --the game does not clear the category before applying a shop item, `ApplyShopItemToPed` replaces in place (short_update.c:28254 `func_893`), so we only evict the incompatible variants
+        --on the meta tag path nothing replaces the tag already applied, the category itself has to be released (`func_1597`, short_update.c:49774)
+        clearExclusiveCategories(ped, categoryHash, useMetaTag)
+      end
+
       if data.hash and data.hash ~= 0 then
+        holdAssetRequest(ped, RequestMetaPedComponent(GetMetaPedType(ped), data.hash, isMp))
         ApplyShopItemToPed(ped, data.hash, false, isMp, false)
       end
 
-      if data.drawable or data.albedo then
+      if useMetaTag then
+        holdAssetRequest(ped, N_0x3FCBB5FCFD968698(data.drawable, data.albedo, data.normal, data.material))
         SetMetaPedTag(ped, data.drawable, data.albedo, data.normal, data.material, data.palette, data.tint0, data.tint1, data.tint2)
+        rememberMetaTag(ped, categoryHash, data)
+      else
+        forgetMetaTag(ped, categoryHash)
       end
 
-      local state = data.wearableState or Entity(ped).state["wearableState:" .. category]
+      local state = data.wearableState or Entity(ped).state["wearableState:" .. categoryName]
       if state and (data.wearableState or state ~= `base`) then
-        updateComponentWearableState(ped, category, data, state)
+        updateComponentWearableState(ped, categoryName, data, state)
       end
     end
 
@@ -530,14 +698,9 @@ function jo.component.apply(ped, category, _data)
     local compHash = jo.component.getComponentEquiped(ped, categoryHash)
     updateComponentWearableState(ped, categoryHash, compHash, data.wearableState)
   else
-    RemoveTagFromMetaPed(ped, categoryHash, 0)
-    if categoryHash == `neckwear` then
-      RemoveTagFromMetaPed(ped, `neckerchiefs`, 0)
-    elseif categoryHash == `ponchos` then
-      RemoveTagFromMetaPed(ped, `cloaks`, 0)
-    elseif categoryHash == `cloaks` then
-      RemoveTagFromMetaPed(ped, `ponchos`, 0)
-    end
+    --applying "nothing": the game releases the whole slot (short_update.c:28254 `func_893`). We force the hard removal to leave nothing behind, since the module does not know whether the category holds a shop item or a meta tag.
+    removeCategoryGroup(ped, categoryHash, true)
+    forgetMetaTag(ped, categoryHash)
   end
   reapplyCached(ped)
 end
@@ -560,6 +723,34 @@ function jo.component.removeAllClothes(ped)
   end
 end
 
+--- A function to drop every cached state of a ped (meta tags, pending asset requests, cached colors). Call it when an entity handle is recycled.
+---@param ped integer (The entity ID)
+function jo.component.clearCache(ped)
+  releaseAssetRequests(ped)
+  metaTags[ped] = nil
+  faceRefresh[ped] = nil
+  batchIsMp[ped] = nil
+  jo.cache.component.color[ped] = nil
+end
+
+--- A function to request the metaped assets of a list of components and wait for them. The game always streams a component in before applying it (short_update.c `func_1619`/`func_1621`, fme_golden_hat.c:8947).
+--- The requests stay held until the next refresh, then they are released.
+---@param ped integer (The entity ID)
+---@param components table (Table of component data, indexed by category or not)
+---@return boolean (`true` if every asset is loaded)
+function jo.component.preloadComponents(ped, components)
+  if not components then return true end
+  if not DoesEntityExist(ped) then return false end
+  local metapedType = GetMetaPedType(ped)
+  for _, component in pairs(components) do
+    local data = jo.component.formatComponentData(component)
+    if data and isValidValue(data.hash) then
+      holdAssetRequest(ped, RequestMetaPedComponent(metapedType, data.hash, jo.component.isMpComponent(ped, data.hash)))
+    end
+  end
+  return waitAssetRequests(ped)
+end
+
 --- A function to apply multiple components to a ped
 ---@param ped integer (The entity ID)
 ---@param components table (Table of components indexed by category name with component data)
@@ -567,6 +758,8 @@ function jo.component.applyComponents(ped, components)
   if not ped then return end
   if not DoesEntityExist(ped) then return end
   if not components then return end
+
+  jo.component.preloadComponents(ped, components)
 
   jo.component.removeAllClothes(ped)
 
@@ -624,10 +817,13 @@ function jo.component.applySkin(ped, skin)
       else
         jo.utils.loadGameData(modelHash, true)
         dprint("model loaded", skin.model)
+        local previousPed = ped
         SetPlayerModel(PlayerId(), modelHash, true)
         Wait(100)
         ped = PlayerPedId()
         SetModelAsNoLongerNeeded(modelHash)
+        --the handle changes, the meta tags and requests of the previous ped are meaningless
+        jo.component.clearCache(previousPed)
       end
     end
   end
@@ -683,9 +879,11 @@ function jo.component.applySkin(ped, skin)
   jo.component.waitPedLoaded(ped)
 
   local eyes = skin.eyesHash or jo.component.getEyesFromIndex(ped, skin.eyesIndex)
-  jo.component.apply(ped, "eyes", eyes)
-
   local teeth = skin.teethHash or jo.component.getTeethFromIndex(ped, skin.teethIndex)
+
+  jo.component.preloadComponents(ped, { eyes, teeth, skin.hair, skin.beards, skin.beards_complete, skin.beards_mustache, skin.beards_chops, skin.beards_chin, skin.hair_bonnet })
+
+  jo.component.apply(ped, "eyes", eyes)
   jo.component.apply(ped, "teeth", teeth)
 
   jo.component.apply(ped, "hair", skin.hair)

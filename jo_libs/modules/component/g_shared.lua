@@ -152,12 +152,96 @@ for i = 1, #jo.component.data.pedClothes do
   jo.component.data.clothesCategories[hash] = category
 end
 
+--metaped tags the game knows (short_update.c:50274 `func_1617`) but that are missing from `pedCategories`. They are not directly wearable, we only want to clear them along with their group and to name them in the logs.
+jo.component.data.extraCategories = {
+  "hatband",       -- MPC_TAG_HAT_BANDS
+  "scarves",       -- MPC_TAG_SCARVES
+  "eyecaps",       -- MPC_TAG_EYE_CAPS
+  "face_props",    -- MPC_TAG_FACE_PROPS
+  "gunbelts_high", -- MPC_TAG_GUNBELTS_HIGH
+  "blouses",       -- MPC_TAG_BLOUSES
+  "stockings",     -- MPC_TAG_STOCKINGS
+}
+
 jo.component.data.categoryName = {}
 for i = 1, #jo.component.data.order do
   local category = jo.component.data.order[i]
   local hash = jo.component.getCategoryHash(category)
   jo.component.data.categoryName[hash] = category
 end
+for i = 1, #jo.component.data.extraCategories do
+  local category = jo.component.data.extraCategories[i]
+  jo.component.data.categoryName[jo.component.getCategoryHash(category)] = category
+end
+jo.component.data.categoryName[1524025505] = "collars" --MPC_TAG_COLLARS, the exact tag name could not be recovered
+
+-------------
+-- CATEGORY GROUPS
+-------------
+--the game does not think in categories but in "slots" (`MP_COMPONENT_TYPE_*`, net_main_offline.c:155374 `func_6004`). Each slot holds up to 5 metaped tags read from the metadata (net_main_offline.c:172871 `func_6599`, `TAG` field), and when it releases a slot it removes ALL of its tags, not only the one of the item (short_update.c:28230 `func_892`).
+--the slot -> tags table lives in the game metadata, which is not in the decompiled scripts: the groups below are rebuilt from the `MPC_TAG_*` list (short_update.c:50274) and from the conflicts the module already handled. Complete it in game if a sibling tag is missing.
+jo.component.data.categoryGroups = {}
+
+local function registerCategoryGroup(categories)
+  local group = {}
+  for i = 1, #categories do
+    group[i] = jo.component.getCategoryHash(categories[i])
+  end
+  for i = 1, #group do
+    jo.component.data.categoryGroups[group[i]] = group
+  end
+end
+
+registerCategoryGroup({ "hats", "hat_accessories", "hatband", "headwear" })
+registerCategoryGroup({ "neckwear", "neckerchiefs", "scarves", 1524025505 })
+registerCategoryGroup({ "masks", "masks_large" })
+registerCategoryGroup({ "eyewear", "eyecaps" })
+registerCategoryGroup({ "coats", "coats_closed" })
+registerCategoryGroup({ "ponchos", "cloaks" })
+registerCategoryGroup({ "shirts_full", "shirts_full_overpants" })
+registerCategoryGroup({ "gunbelts", "gunbelts_high" })
+registerCategoryGroup({ "pants", "skirts" })
+
+--- Return every category hash the game clears together with this one when it releases the slot.
+--- Used on removal only: a slot holds several tags that can coexist (a hat and its band), clearing them all only makes sense when undressing the category.
+---@param category string|integer (The category name or hash)
+---@return table (An array of category hashes, at least the category itself)
+function jo.component.getCategoryGroup(category)
+  local hash = jo.component.getCategoryHash(category)
+  return jo.component.data.categoryGroups[hash] or { hash }
+end
+
+--categories that cannot coexist. The game does not need this: there `ApplyShopItemToPed` replaces the item within its slot (short_update.c:28254 `func_893`), so applying a `coats_closed` evicts the `coats`. On the RedM side categories are applied by hand, so the other variant has to be cleared on apply.
+jo.component.data.exclusiveCategories = {}
+
+local function registerExclusiveCategories(categories)
+  local group = {}
+  for i = 1, #categories do
+    group[i] = jo.component.getCategoryHash(categories[i])
+  end
+  for i = 1, #group do
+    jo.component.data.exclusiveCategories[group[i]] = group
+  end
+end
+
+registerExclusiveCategories({ "coats", "coats_closed" })
+registerExclusiveCategories({ "ponchos", "cloaks" })
+registerExclusiveCategories({ "neckwear", "neckerchiefs" })
+registerExclusiveCategories({ "shirts_full", "shirts_full_overpants" })
+--the module only cleared `pants` from `skirts`, the relation becomes symmetric
+registerExclusiveCategories({ "pants", "skirts" })
+
+--- Return the categories that cannot be worn at the same time as this one
+---@param category string|integer (The category name or hash)
+---@return table (An array of category hashes, at least the category itself)
+function jo.component.getExclusiveCategories(category)
+  local hash = jo.component.getCategoryHash(category)
+  return jo.component.data.exclusiveCategories[hash] or { hash }
+end
+
+-------------
+-- END CATEGORY GROUPS
+-------------
 
 jo.component.data.wearableStates = {
   shirts_full = {
