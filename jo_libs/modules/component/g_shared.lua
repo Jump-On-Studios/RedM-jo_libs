@@ -8,8 +8,9 @@ jo.createModule("component")
 function jo.component.getCategoryHash(category)
   if type(category) == "number" then return category end
 
+  --the category is named after the bundle in the game, `horse_feathers` stays the public name
   if category == "horse_feathers" then
-    return -287556490
+    return joaat("horse_accessories_bundle")
   end
 
   return joaat(category)
