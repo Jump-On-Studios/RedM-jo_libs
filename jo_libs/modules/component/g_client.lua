@@ -517,13 +517,13 @@ local function reapplyCached(ped)
       local isMp = batchIsMp[ped]
       refreshPed(ped, withFace, isMp)
       reapplyComponentStats(ped)
-      --an `UpdatePedVariation` can drop the meta tags, the game pushes them back after every refresh (short_update.c:49774 `func_1597`)
-      reapplyMetaTags(ped)
       reapplyComponentsColor(ped)
       jo.cache.component.color[ped] = nil
       faceRefresh[ped] = nil
       batchIsMp[ped] = nil
       refreshPed(ped, withFace, isMp)
+      --an `UpdatePedVariation` can drop the meta tags, the game pushes them back after the refresh (short_update.c:49774 `func_1597`)
+      reapplyMetaTags(ped)
       releaseAssetRequests(ped)
     end)
 end
