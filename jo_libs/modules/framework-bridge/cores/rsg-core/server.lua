@@ -5,6 +5,11 @@ local RSGCore = exports["rsg-core"]:GetCoreObject()
 
 jo.framework.core = RSGCore
 
+AddEventHandler("RSGCore:Server:UpdateObject", function()
+  RSGCore = exports["rsg-core"]:GetCoreObject()
+  jo.framework.core = RSGCore
+end)
+
 -------------
 -- VARIABLES
 -------------

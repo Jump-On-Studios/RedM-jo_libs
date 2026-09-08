@@ -2,6 +2,10 @@ local RSGCore = exports["rsg-core"]:GetCoreObject()
 local Inventory = exports["rsg-inventory"]
 jo.framework.inv = Inventory
 
+AddEventHandler("RSGCore:Server:UpdateObject", function()
+  RSGCore = exports["rsg-core"]:GetCoreObject()
+end)
+
 -------------
 -- INVENTORY
 -------------
