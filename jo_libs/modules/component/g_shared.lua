@@ -44,7 +44,9 @@ jo.component.data.pedCategories = {
   "dresses",
   "shawls",
   "chemises",
+  "blouses",   -- MPC_TAG_BLOUSES
   "knickers",
+  "stockings", -- MPC_TAG_STOCKINGS
   "gloves",
   "coats",
   "coats_closed",
@@ -61,6 +63,7 @@ jo.component.data.pedCategories = {
   "unionsuits_full",
   "spats",
   "gunbelts",
+  "gunbelts_high", -- MPC_TAG_GUNBELTS_HIGH
   "gauntlets",
   "wrist_bindings",
   "holsters_left",
@@ -96,16 +99,21 @@ jo.component.data.pedCategories = {
   "badges",
   "gunbelt_accs",
   "eyewear",
+  "eyecaps",    -- MPC_TAG_EYE_CAPS
+  "face_props", -- MPC_TAG_FACE_PROPS
   "masks",
   "masks_large",
   "hats",
   "hat_accessories",
+  "hatband", -- MPC_TAG_HAT_BANDS
   "headwear",
   "hair",
   "beards_complete",
   "teeth",
   "neckwear",
   "neckerchiefs",
+  "scarves", -- MPC_TAG_SCARVES
+  "collars", -- MPC_TAG_COLLARS
   "armor",
 }
 jo.component.data.horseCategories = {
@@ -157,27 +165,11 @@ for i = 1, #jo.component.data.pedClothes do
   jo.component.data.clothesCategories[hash] = category
 end
 
---metaped tags the game knows (short_update.c:50274 `func_1617`) but that are missing from `pedCategories`. They are not directly wearable, we only want to clear them along with their group and to name them in the logs.
-jo.component.data.extraCategories = {
-  "hatband",       -- MPC_TAG_HAT_BANDS
-  "scarves",       -- MPC_TAG_SCARVES
-  "eyecaps",       -- MPC_TAG_EYE_CAPS
-  "face_props",    -- MPC_TAG_FACE_PROPS
-  "gunbelts_high", -- MPC_TAG_GUNBELTS_HIGH
-  "blouses",       -- MPC_TAG_BLOUSES
-  "stockings",     -- MPC_TAG_STOCKINGS
-  "collars",       -- MPC_TAG_COLLARS
-}
-
 jo.component.data.categoryName = {}
 for i = 1, #jo.component.data.order do
   local category = jo.component.data.order[i]
   local hash = jo.component.getCategoryHash(category)
   jo.component.data.categoryName[hash] = category
-end
-for i = 1, #jo.component.data.extraCategories do
-  local category = jo.component.data.extraCategories[i]
-  jo.component.data.categoryName[jo.component.getCategoryHash(category)] = category
 end
 
 -------------
