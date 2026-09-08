@@ -92,8 +92,8 @@ local function SetMetaPedTag(ped, drawable, albedo, normal, material, palette, t
     GetHashFromString(material), GetHashFromString(palette), tint0, tint1, tint2)
 end
 --- Hard removal of a category: the item leaves the ped, not only its tag. This is what the game uses when it releases a slot (short_update.c:28230 `func_892`).
-local function RemoveShopItemFromPedByCategory(ped, category, p2, p3)
-  return InvokeNative(0xDF631E4BCE1B1FC4, ped, jo.component.getCategoryHash(category), p2 or 0, p3 == nil and true or p3)
+local function RemoveShopItemFromPedByCategory(ped, category)
+  return InvokeNative(0xDF631E4BCE1B1FC4, ped, jo.component.getCategoryHash(category), 0, true)
 end
 --- The game requests the metaped asset and waits for it before applying a component (short_update.c `func_1619`/`func_1621`, fme_golden_hat.c:8947).
 local function RequestMetaPedComponent(metapedType, hash, isMp)
@@ -225,18 +225,15 @@ local function clearDeadPedsCache()
   end
 end
 
---- Removes a category and every tag of its slot, the way the game releases a slot (short_update.c:28230 `func_892`).
---- The game picks between hard and soft removal depending on the context; the module has to cover both because it mixes shop items and meta tags on the same category: the soft removal clears the tag, the hard one drops the shop item.
+--- Removes the tag AND the shop item of a category: the module doesn't know which of the two holds the category.
 ---@param ped integer (The entity ID)
 ---@param category string|integer (The category name or hash)
----@param hard? boolean (`true` to also remove the shop item)
-local function removeCategoryGroup(ped, category, hard)
-  local group = jo.component.getCategoryGroup(category)
+---@param withGroup? boolean (`true` to release the whole slot, the way the game does (short_update.c:28230 `func_892`))
+local function removeCategory(ped, category, withGroup)
+  local group = withGroup and jo.component.getCategoryGroup(category) or { jo.component.getCategoryHash(category) }
   for i = 1, #group do
     RemoveTagFromMetaPed(ped, group[i], 0)
-    if hard then
-      RemoveShopItemFromPedByCategory(ped, group[i], 0, true)
-    end
+    RemoveShopItemFromPedByCategory(ped, group[i])
   end
 end
 
@@ -730,8 +727,7 @@ function jo.component.apply(ped, category, _data)
     local compHash = jo.component.getComponentEquiped(ped, categoryHash)
     updateComponentWearableState(ped, categoryHash, compHash, data.wearableState)
   else
-    --applying "nothing": the game releases the whole slot (short_update.c:28254 `func_893`). We force the hard removal to leave nothing behind, since the module does not know whether the category holds a shop item or a meta tag.
-    removeCategoryGroup(ped, categoryHash, true)
+    removeCategory(ped, categoryHash, data.removeGroup)
     forgetMetaTag(ped, categoryHash)
   end
   reapplyCached(ped)
@@ -740,8 +736,9 @@ end
 --- A function to remove a component component
 ---@param ped integer (The entity ID)
 ---@param category integer|string (The category of component to remove)
-function jo.component.remove(ped, category)
-  return jo.component.apply(ped, category, 0)
+---@param withGroup? boolean (`true` to also remove the sibling categories of the slot, ex: the hat band with the hat<br>Default: `false`)
+function jo.component.remove(ped, category, withGroup)
+  return jo.component.apply(ped, category, { remove = true, removeGroup = withGroup })
 end
 
 --- A function to remove all clothing components from a ped
@@ -751,7 +748,7 @@ function jo.component.removeAllClothes(ped)
   jo.component.setWearableState(ped, "bodies_upper", nil, "BASE")
   for i = 1, #jo.component.data.pedClothes do
     local category = jo.component.data.pedClothes[i]
-    jo.component.remove(ped, category)
+    jo.component.remove(ped, category, true)
   end
 end
 
