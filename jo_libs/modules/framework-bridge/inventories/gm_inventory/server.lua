@@ -4,6 +4,10 @@ local useGMInventory = GetResourceState("gm_inventory") == "started"
 jo.framework.inv = Inventory
 local inventories = {}
 
+AddEventHandler("RSGCore:Server:UpdateObject", function()
+  RSGCore = exports["rsg-core"]:GetCoreObject()
+end)
+
 -------------
 -- INVENTORY
 -------------

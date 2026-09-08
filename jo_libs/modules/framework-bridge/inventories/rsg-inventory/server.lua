@@ -5,6 +5,10 @@
 local RSGCore = exports["rsg-core"]:GetCoreObject()
 local inventoriesCreated = {}
 
+AddEventHandler("RSGCore:Server:UpdateObject", function()
+  RSGCore = exports["rsg-core"]:GetCoreObject()
+end)
+
 -------------
 -- INVENTORY
 -------------

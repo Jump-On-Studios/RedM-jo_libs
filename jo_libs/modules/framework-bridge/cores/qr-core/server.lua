@@ -5,6 +5,11 @@ local QRCore = exports["qr-core"]:GetCoreObject()
 
 jo.framework.core = QRCore
 
+AddEventHandler("QRCore:Server:UpdateObject", function()
+  QRCore = exports["qr-core"]:GetCoreObject()
+  jo.framework.core = QRCore
+end)
+
 -------------
 -- USER CLASS
 -------------
