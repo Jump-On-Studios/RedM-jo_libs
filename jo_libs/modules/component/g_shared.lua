@@ -12,6 +12,11 @@ function jo.component.getCategoryHash(category)
     return -287556490
   end
 
+  --MPC_TAG_COLLARS, the exact tag name could not be recovered
+  if category == "collars" then
+    return 1524025505
+  end
+
   return joaat(category)
 end
 
@@ -161,6 +166,7 @@ jo.component.data.extraCategories = {
   "gunbelts_high", -- MPC_TAG_GUNBELTS_HIGH
   "blouses",       -- MPC_TAG_BLOUSES
   "stockings",     -- MPC_TAG_STOCKINGS
+  "collars",       -- MPC_TAG_COLLARS
 }
 
 jo.component.data.categoryName = {}
@@ -173,7 +179,6 @@ for i = 1, #jo.component.data.extraCategories do
   local category = jo.component.data.extraCategories[i]
   jo.component.data.categoryName[jo.component.getCategoryHash(category)] = category
 end
-jo.component.data.categoryName[1524025505] = "collars" --MPC_TAG_COLLARS, the exact tag name could not be recovered
 
 -------------
 -- CATEGORY GROUPS
@@ -193,7 +198,7 @@ local function registerCategoryGroup(categories)
 end
 
 registerCategoryGroup({ "hats", "hat_accessories", "hatband", "headwear" })
-registerCategoryGroup({ "neckwear", "neckerchiefs", "scarves", 1524025505 })
+registerCategoryGroup({ "neckwear", "neckerchiefs", "scarves", "collars" })
 registerCategoryGroup({ "masks", "masks_large" })
 registerCategoryGroup({ "eyewear", "eyecaps" })
 registerCategoryGroup({ "coats", "coats_closed" })
