@@ -142,6 +142,13 @@ local function releaseAssetRequests(ped)
   assetRequests[ped] = nil
 end
 
+AddEventHandler("onResourceStop", function(resource)
+  if resource ~= GetCurrentResourceName() then return end
+  for ped in pairs(assetRequests) do
+    releaseAssetRequests(ped)
+  end
+end)
+
 --- Waits for the requested assets, the way the game does before applying an outfit (short_update.c `func_1621`). An invalid request counts as done: that is the case of an item the engine does not stream.
 ---@param ped integer (The entity ID)
 ---@param timeout? integer (Max wait in ms<br>Default: `3000`)
@@ -203,6 +210,20 @@ end
 -------------
 -- END META TAGS
 -------------
+
+--the caches are indexed by entity handle, and the game recycles them
+local pedCaches = { metaTags, assetRequests, faceRefresh, batchIsMp, jo.cache.component.color }
+
+--- Drops the state kept for the peds that don't exist anymore
+local function clearDeadPedsCache()
+  for i = 1, #pedCaches do
+    for ped in pairs(pedCaches[i]) do
+      if not DoesEntityExist(ped) then
+        jo.component.clearCache(ped)
+      end
+    end
+  end
+end
 
 --- Removes a category and every tag of its slot, the way the game releases a slot (short_update.c:28230 `func_892`).
 --- The game picks between hard and soft removal depending on the context; the module has to cover both because it mixes shop items and meta tags on the same category: the soft removal clears the tag, the hard one drops the shop item.
@@ -512,6 +533,7 @@ local function reapplyCached(ped)
   if not jo.cache.component.color[ped] then return end
   delays["refresh" .. ped] = jo.timeout.delay("jo_libs:component:reapplyCachedColor" .. ped,
     function() jo.component.waitPedLoaded(ped) end, function()
+      clearDeadPedsCache()
       --the game only replays `0x704C908E9C405136` when a face category changed (fm_deathmatch_controller.c:32942)
       local withFace = faceRefresh[ped] == true
       local isMp = batchIsMp[ped]
@@ -830,8 +852,9 @@ function jo.component.applySkin(ped, skin)
         Wait(100)
         ped = PlayerPedId()
         SetModelAsNoLongerNeeded(modelHash)
-        --the handle changes, the meta tags and requests of the previous ped are meaningless
+        --the previous ped is gone, and the new handle can be a recycled one still holding the state of a dead ped
         jo.component.clearCache(previousPed)
+        jo.component.clearCache(ped)
       end
     end
   end
