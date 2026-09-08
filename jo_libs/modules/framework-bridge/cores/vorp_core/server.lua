@@ -366,7 +366,13 @@ end)
 -- SKIN & CLOTHES
 -------------
 
+--the skin tone and the index are nil when they cannot be read back from the component
 local function getHeadHash(sex, skin)
+  --a hash-less component is defined by its drawable and its textures: no skin tone can be
+  --read back from it, so it goes through untouched
+  if type(skin.HeadType) == "table" then
+    return skin.HeadType
+  end
   if skin.HeadType == 0 then
     return skin.HeadType, 1, 1
   end
@@ -388,6 +394,12 @@ end
 
 local function getBodyUpperHash(sex, skin)
   dprint("getBodyUpperHash", sex, skin.BodyType, skin.Torso)
+  if type(skin.BodyType) == "table" then
+    return skin.BodyType
+  end
+  if type(skin.Torso) == "table" then
+    return skin.Torso
+  end
   if skin.BodyType == 0 and skin.Torso == 0 then
     return skin.BodyType, 1, 1
   end
@@ -421,6 +433,12 @@ end
 
 local function getBodyLowerHash(sex, skin)
   dprint("getBodyLowerHash", sex, skin.LegsType, skin.Legs, skin.Body)
+  if type(skin.LegsType) == "table" then
+    return skin.LegsType
+  end
+  if type(skin.Legs) == "table" then
+    return skin.Legs
+  end
   if skin.LegsType == 0 and skin.Legs == 0 then
     return skin.LegsType, 1, 1
   end
@@ -462,7 +480,12 @@ function jo.framework:standardizeSkinInternal(skin)
   local bodySkinTint = 1
   local bodyIndex = 1
   local headIndex = 1
+  --a hash-less head or body carries no skin tone, so the tints must not be compared
+  local headTinted, bodyTinted
   standard.headHash, skinTint, headIndex = getHeadHash(standard.model, skin)
+  headTinted = skinTint ~= nil
+  skinTint = skinTint or 1
+  headIndex = headIndex or 1
   dprint("Head", standard.headHash, skinTint, headIndex)
   if standard.headHash == 0 then
     standard.headHash = jo.component.getHeadFromSkinTone(standard.model, 1, 1)
@@ -471,6 +494,8 @@ function jo.framework:standardizeSkinInternal(skin)
   end
   skin.HeadType = nil
   standard.bodyUpperHash, bodySkinTint, bodyIndex = getBodyUpperHash(standard.model, skin)
+  bodyTinted = bodySkinTint ~= nil
+  bodySkinTint = bodySkinTint or 1
   dprint("Head", standard.bodyUpperHash, bodySkinTint, bodyIndex)
   if bodyIndex == 6 then
     standard.bodyUpperHash = jo.component.getBodiesUpperFromSkinTone(standard.model, 5, skinTint)
@@ -482,7 +507,7 @@ function jo.framework:standardizeSkinInternal(skin)
     standard.bodyUpperHash = jo.component.getBodiesUpperFromSkinTone(standard.model, 1, skinTint)
   end
   --Fixed the VORP head component issue
-  if bodySkinTint ~= skinTint then
+  if headTinted and bodyTinted and bodySkinTint ~= skinTint then
     dprint("Wrong head tint. Switch it")
     standard.headHash = jo.component.getHeadFromSkinTone(standard.model, headIndex, bodySkinTint)
   end
@@ -1176,6 +1201,32 @@ end
 --also used by g_server.lua
 jo.framework.extraComponentsColumn = "jo_compExtra"
 
+--the `skinPlayer` keys holding a component, so the only ones that can be a table.
+--`Hair`, `Beard` and `Eyes` are vorp names, forwarded to 0xD3A7B003ED343FD9 (vorp_character
+--client.lua:290-294) where a table fails since mr-947. The others keep their standard name:
+--`revertSkin` copies them as-is (framework-bridge/server.lua:520) and vorp_character reads
+--the skin by explicit key only, so they stay untouched on its side.
+--any component can be defined without a hash, by its drawable and its textures, so every one
+--of them can hold a table. `Torso`/`BodyType` and `Legs`/`LegsType` are two keys for the same
+--component, and both are stored: vorp reads either one.
+--`Teeth` is a component as well, moved to the clothes by `updateUserSkinInternal`.
+--also used by g_server.lua
+jo.framework.skinComponents = {
+  "Hair",
+  "Beard",
+  "Eyes",
+  "HeadType",
+  "BodyType",
+  "Torso",
+  "LegsType",
+  "Legs",
+  "beards_chin",
+  "beards_chops",
+  "beards_mustache",
+  "beards",
+  "hair_bonnet",
+}
+
 ---@param charid integer (the character identifier)
 ---@return table (the extended data, split into `clothes` and `skin`)
 local function getExtraComponents(charid)
@@ -1230,23 +1281,9 @@ end
 
 ---Extract the fields that neither `compPlayer` nor `compTints` can restore
 ---@param value table (the component data)
----@param hash integer (the component hash, 0 if it has none)
 ---@return table? (the extended fields, nil if there is nothing to store)
-function jo.framework:extractExtraComponent(value, hash)
-  local data = {}
-
-  --with a hash, ApplyShopItemToPed restores the tag and compTints holds the tint
-  if hash == 0 then
-    for _, field in ipairs({ "drawable", "albedo", "normal", "material", "palette", "tint0", "tint1", "tint2" }) do
-      data[field] = value[field]
-    end
-  end
-
-  local state = value.wearableStateHash
-  if not state or state == 0 then state = value.wearableState end
-  if not state or state == 0 then state = value.state end
-  state = GetHashFromString(state)
-  data.wearableState = state ~= 0 and state or nil
+function jo.framework:extractExtraComponent(value)
+  local data = table.copy(value)
 
   return next(data) and data or nil
 end
@@ -1353,9 +1390,9 @@ function jo.framework:updateUserSkinInternal(source, skin, overwrite)
   if user then
     local extra = getExtraComponents(user.data.charIdentifier)
     if overwrite then extra.skin = {} end
-    --`skinPlayer` only holds integers, and these are the keys vorp_character forwards
-    --to 0xD3A7B003ED343FD9 (client.lua:294)
-    for _, key in ipairs({ "Hair", "Beard" }) do
+    --`skinPlayer` only holds integers
+    for i = 1, #jo.framework.skinComponents do
+      local key = jo.framework.skinComponents[i]
       if type(skin[key]) == "table" then
         extra.skin[key] = skin[key]
         skin[key] = tonumber(skin[key].hash) or 0

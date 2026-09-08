@@ -16,59 +16,68 @@ end)
 jo.require("database")
 
 MySQL.ready(function()
-  local column = jo.framework.extraComponentsColumn
-  --the legacy format can only predate the column, so migrating on creation is enough
-  if not jo.database.addColumn("characters", column, "LONGTEXT NULL DEFAULT NULL") then return end
-
-  --table-shaped entries make 0xD3A7B003ED343FD9 fail since mr-947, and they hold the
-  --extended data: move them instead of dropping them.
-  --a healthy compPlayer is flat, so it holds a single `{`. skinPlayer can legitimately
-  --nest `overlays` and `expressions`, so only Hair and Beard are looked at there.
-  MySQL.query([[
-    SELECT charidentifier, compPlayer, skinPlayer FROM characters
-    WHERE compPlayer LIKE '%{%{%' OR skinPlayer LIKE '%"Hair":{%' OR skinPlayer LIKE '%"Beard":{%'
-  ]], {}, function(rows)
-    if not rows then return end
-
-    local migrated = 0
-
-    for i = 1, #rows do
-      local row = rows[i]
-      local comps = UnJson(row.compPlayer)
-      local skin = UnJson(row.skinPlayer)
-      --the column was just created, so it is NULL everywhere
-      local extra = { clothes = {}, skin = {} }
-      local dirty = false
-
-      for category, value in pairs(comps) do
-        if type(value) == "table" then
-          dirty = true
-          local hash = tonumber(value.hash) or 0
-          extra.clothes[category] = jo.framework:extractExtraComponent(value, hash)
-          comps[category] = hash
-        end
-      end
-
-      for _, key in ipairs({ "Hair", "Beard" }) do
-        if type(skin[key]) == "table" then
-          dirty = true
-          extra.skin[key] = skin[key]
-          skin[key] = tonumber(skin[key].hash) or 0
-        end
-      end
-
-      if dirty then
-        MySQL.update(("UPDATE characters SET compPlayer = ?, skinPlayer = ?, `%s` = ? WHERE charidentifier = ?"):format(column),
-          { json.encode(comps), json.encode(skin), json.encode(extra), row.charidentifier })
-        migrated = migrated + 1
-      end
-    end
-
-    if migrated > 0 then
-      gprint(("%d character(s) migrated from the legacy format"):format(migrated))
-    end
-  end)
+  jo.database.addColumn("characters", jo.framework.extraComponentsColumn, "LONGTEXT NULL DEFAULT NULL")
 end)
+
+--Move the table-shaped entries of `compPlayer` and `skinPlayer` into the extended column:
+--they make 0xD3A7B003ED343FD9 fail since mr-947, and they hold the extended data.
+--a healthy compPlayer is flat, so it holds a single `{`. skinPlayer legitimately nests
+--`overlays`, so only the component keys are looked at there.
+--the legacy format can only predate the column, so a single pass is enough: it rewrites
+--`characters`, so it is left to the server owner instead of running on its own
+RegisterCommand("jo_migrate_components", function(source)
+  if source > 0 then return print("This command can only be run from the server console.") end
+  if #GetPlayers() > 0 then return print("This command can only be run when no players are connected.") end
+
+  local skinFilters = {}
+  for i = 1, #jo.framework.skinComponents do
+    skinFilters[i] = ([[skinPlayer LIKE '%%"%s":{%%']]):format(jo.framework.skinComponents[i])
+  end
+
+  local rows = MySQL.query.await(([[
+      SELECT charidentifier, compPlayer, skinPlayer, `%s` AS extra FROM characters
+      WHERE compPlayer LIKE '%%{%%{%%' OR %s
+    ]]):format(jo.framework.extraComponentsColumn, table.concat(skinFilters, " OR ")), {}) or {}
+
+  local migrated = 0
+
+  for i = 1, #rows do
+    local row = rows[i]
+    local comps = UnJson(row.compPlayer)
+    local skin = UnJson(row.skinPlayer)
+    --the command can run on a character already holding extended data: keep it
+    local extra = UnJson(row.extra)
+    extra.clothes = extra.clothes or {}
+    extra.skin = extra.skin or {}
+    local dirty = false
+
+    for category, value in pairs(comps) do
+      if type(value) == "table" then
+        dirty = true
+        extra.clothes[category] = jo.framework:extractExtraComponent(value)
+        comps[category] = tonumber(value.hash)
+      end
+    end
+
+    for j = 1, #jo.framework.skinComponents do
+      local key = jo.framework.skinComponents[j]
+      local data = skin[key]
+      if type(data) == "table" then
+        dirty = true
+        extra.skin[key] = data
+        skin[key] = tonumber(data.hash)
+      end
+    end
+
+    if dirty then
+      MySQL.update.await(("UPDATE characters SET compPlayer = ?, skinPlayer = ?, `%s` = ? WHERE charidentifier = ?"):format(jo.framework.extraComponentsColumn),
+        { json.encode(comps), json.encode(skin), json.encode(extra), row.charidentifier })
+      migrated = migrated + 1
+    end
+  end
+
+  gprint(("%d character(s) migrated from the legacy format"):format(migrated))
+end, true)
 
 ---Apply a character appearance read straight from the database, for the multicharacter
 ---selection screen where no character is used yet.
