@@ -570,6 +570,10 @@ function jo.component.getComponentCategory(ped, hash)
     isMp = false
     categoryHash = GetShopItemComponentCategory(hash, GetMetaPedType(ped), false)
   end
+  --patch neckerchiefs, the module works with `neckwear` everywhere else
+  if categoryHash == `neckerchiefs` then
+    categoryHash = `neckwear`
+  end
   return categoryHash, isMp
 end
 
