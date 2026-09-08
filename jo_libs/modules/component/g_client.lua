@@ -771,6 +771,10 @@ end
 function jo.component.preloadComponents(ped, components)
   if not components then return true end
   if not DoesEntityExist(ped) then return false end
+  --flush the pending refresh: it releases the requests, and the wait below gives it the time to fire
+  if delays["refresh" .. ped] then
+    delays["refresh" .. ped]:execute()
+  end
   local metapedType = GetMetaPedType(ped)
   for _, component in pairs(components) do
     local data = jo.component.formatComponentData(component)
@@ -789,9 +793,10 @@ function jo.component.applyComponents(ped, components)
   if not DoesEntityExist(ped) then return end
   if not components then return end
 
-  jo.component.preloadComponents(ped, components)
-
   jo.component.removeAllClothes(ped)
+
+  --after the undressing: its refresh releases every request held at that point
+  jo.component.preloadComponents(ped, components)
 
   for i = 1, #jo.component.data.pedClothes do
     local category = jo.component.data.pedClothes[i]
