@@ -12,6 +12,15 @@ jo.framework.UserClass = {}
 local SourceFromIdentifiers = {}
 local IdentifiersFromSource = {}
 
+-------------
+-- CACHE
+-------------
+--holds what the core files share with their g_* counterpart, out of the public API
+jo.cache.framework = {}
+-------------
+-- END CACHE
+-------------
+
 ------------
 -- CORE
 ------------

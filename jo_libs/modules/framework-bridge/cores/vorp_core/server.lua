@@ -1279,33 +1279,15 @@ local function buildClothes(comps, compTints, extra)
   return clothes
 end
 
----Extract the fields that neither `compPlayer` nor `compTints` can restore
+---Extract the fields that `compPlayer` and `skinPlayer` cannot restore, both holding a single
+---integer per category. `compTints` covers the clothes tints, nothing covers the skin ones.
+---kept in `jo.cache` to reach g_server.lua without exposing it
 ---@param value table (the component data)
 ---@return table? (the extended fields, nil if there is nothing to store)
-function jo.framework:extractExtraComponent(value)
+function jo.cache.framework.extractExtraComponent(value)
   local data = table.copy(value)
 
   return next(data) and data or nil
-end
-
----Read a character skin & clothes straight from the database, bypassing the user object.
----Used during multicharacter selection, when no character is used yet.
----@param charid integer (the character identifier)
----@param identifier string (the owner identifier, checked against the row)
----@return table? skin (nil if the character does not belong to `identifier`)
----@return table? clothes
-function jo.framework:getCharacterAppearanceFromDatabase(charid, identifier)
-  local row = MySQL.single.await(([[
-    SELECT skinPlayer, compPlayer, compTints, `%s` AS extra
-    FROM characters WHERE charidentifier = ? AND identifier = ?
-  ]]):format(jo.framework.extraComponentsColumn), { charid, identifier })
-  if not row then return nil, nil end
-
-  local extra = UnJson(row.extra)
-  local skin = UnJson(row.skinPlayer)
-  table.merge(skin, extra.skin or {})
-
-  return skin, buildClothes(row.compPlayer, row.compTints, extra.clothes or {})
 end
 
 function jo.framework:getUserClothesInternal(source)
@@ -1343,7 +1325,7 @@ function jo.framework:updateUserClothesInternal(source, clothes, overwrite)
       extra.clothes[category] = nil
     else
       local hash = tonumber(GetValue(value?.hash, 0)) or 0
-      extra.clothes[category] = self:extractExtraComponent(value, hash)
+      extra.clothes[category] = jo.cache.framework.extractExtraComponent(value)
 
       if hash ~= 0 then
         local tint = {}
@@ -1394,7 +1376,7 @@ function jo.framework:updateUserSkinInternal(source, skin, overwrite)
     for i = 1, #jo.framework.skinComponents do
       local key = jo.framework.skinComponents[i]
       if type(skin[key]) == "table" then
-        extra.skin[key] = skin[key]
+        extra.skin[key] = jo.cache.framework.extractExtraComponent(skin[key])
         skin[key] = tonumber(skin[key].hash) or 0
       end
     end

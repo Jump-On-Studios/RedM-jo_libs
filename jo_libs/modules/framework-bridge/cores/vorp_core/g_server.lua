@@ -54,7 +54,7 @@ RegisterCommand("jo_migrate_components", function(source)
     for category, value in pairs(comps) do
       if type(value) == "table" then
         dirty = true
-        extra.clothes[category] = jo.framework:extractExtraComponent(value)
+        extra.clothes[category] = jo.cache.framework.extractExtraComponent(value)
         comps[category] = tonumber(value.hash)
       end
     end
@@ -64,8 +64,8 @@ RegisterCommand("jo_migrate_components", function(source)
       local data = skin[key]
       if type(data) == "table" then
         dirty = true
-        extra.skin[key] = data
-        skin[key] = tonumber(data.hash)
+        extra.skin[key] = jo.cache.framework.extractExtraComponent(data)
+        skin[key] = tonumber(data.hash) or 0
       end
     end
 
