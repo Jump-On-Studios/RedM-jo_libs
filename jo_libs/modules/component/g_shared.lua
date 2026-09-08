@@ -12,11 +12,6 @@ function jo.component.getCategoryHash(category)
     return -287556490
   end
 
-  --MPC_TAG_COLLARS, the exact tag name could not be recovered
-  if category == "collars" then
-    return 1524025505
-  end
-
   return joaat(category)
 end
 
@@ -45,7 +40,7 @@ jo.component.data.pedCategories = {
   "neckties",
   "neckwear",
   "scarves",        -- MPC_TAG_SCARVES
-  "collars",        -- MPC_TAG_COLLARS
+  "shirt_modular_collars", -- MPC_TAG_COLLARS
   "hair",
   "hair_bonnet",
   "hats",
@@ -205,7 +200,7 @@ end
 
 registerCategoryGroup({ "eyes", "eyecaps" })
 registerCategoryGroup({ "hats", "masks", "masks_large", "hair_accessories", "hat_accessories", "hatband", "headwear" }, { "hats", "masks", "masks_large", "hair_accessories" })
-registerCategoryGroup({ "neckwear", "neckerchiefs", "neckties", "scarves", "collars" }, { "neckwear", "neckerchiefs", "neckties" })
+registerCategoryGroup({ "neckwear", "neckerchiefs", "neckties", "scarves", "shirt_modular_collars" }, { "neckwear", "neckerchiefs", "neckties" })
 registerCategoryGroup({ "shirts_full", "shirts_full_overpants", "unionsuits_full" }, true)
 --`cloaks` sits in a slot of its own in MP, only the SP layout puts it with the coats
 registerCategoryGroup({ "coats", "coats_closed", "ponchos" }, true)
