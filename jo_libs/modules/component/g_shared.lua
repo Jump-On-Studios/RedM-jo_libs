@@ -175,9 +175,10 @@ end
 -- CATEGORY GROUPS
 -------------
 --the game works with "slots", not categories: releasing a slot removes all its tags
---the slot -> tags table is in the game metadata: rebuilt by hand below, complete it in game if a tag is missing
+--the slot -> tags table below is read from the game metadata, MP layout: the SP one only fills the categories the MP table doesn't carry
 jo.component.data.categoryGroups = {}
---the exclusive subset of a slot: applied by hand, a `coats_closed` doesn't evict the `coats` like the game would
+--the exclusive subset of a slot: the categories the metadata puts in the same slot, the game only wears one of them at a time
+--the extra meta tags stay out of it, a hat and its band can coexist
 jo.component.data.exclusiveCategories = {}
 
 local function hashCategories(categories)
@@ -202,16 +203,19 @@ local function registerCategoryGroup(categories, exclusive)
   end
 end
 
-registerCategoryGroup({ "hats", "hat_accessories", "hatband", "headwear" })
-registerCategoryGroup({ "neckwear", "neckerchiefs", "scarves", "collars" }, { "neckwear", "neckerchiefs" })
-registerCategoryGroup({ "masks", "masks_large" })
-registerCategoryGroup({ "eyewear", "eyecaps" })
-registerCategoryGroup({ "coats", "coats_closed" }, true)
-registerCategoryGroup({ "ponchos", "cloaks" }, true)
-registerCategoryGroup({ "shirts_full", "shirts_full_overpants" }, true)
+registerCategoryGroup({ "eyes", "eyecaps" })
+registerCategoryGroup({ "hats", "masks", "masks_large", "hair_accessories", "hat_accessories", "hatband", "headwear" }, { "hats", "masks", "masks_large", "hair_accessories" })
+registerCategoryGroup({ "neckwear", "neckerchiefs", "neckties", "scarves", "collars" }, { "neckwear", "neckerchiefs", "neckties" })
+registerCategoryGroup({ "shirts_full", "shirts_full_overpants", "unionsuits_full" }, true)
+--`cloaks` sits in a slot of its own in MP, only the SP layout puts it with the coats
+registerCategoryGroup({ "coats", "coats_closed", "ponchos" }, true)
+registerCategoryGroup({ "gauntlets", "vest_accessories", "badges" }, true)
+registerCategoryGroup({ "satchels", "satchel_straps" })
 registerCategoryGroup({ "gunbelts", "gunbelts_high" })
---the module only cleared `pants` from `skirts`, the relation becomes symmetric
-registerCategoryGroup({ "pants", "skirts" }, true)
+registerCategoryGroup({ "belts", "aprons" }, true)
+--the module only cleared `pants` from `skirts`, the whole slot becomes symmetric
+registerCategoryGroup({ "pants", "skirts", "dresses", "overalls_full", "unionsuit_legs" }, true)
+registerCategoryGroup({ "chaps", "spats" }, true)
 
 --- Return every category hash of the slot, to clear on removal only: a hat and its band can coexist
 ---@param category string|integer (The category name or hash)
