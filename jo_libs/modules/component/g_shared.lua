@@ -175,10 +175,10 @@ end
 -------------
 -- CATEGORY GROUPS
 -------------
---the game works with "slots", not categories: releasing a slot removes all its tags (short_update.c:28230 `func_892`)
+--the game works with "slots", not categories: releasing a slot removes all its tags
 --the slot -> tags table is in the game metadata: rebuilt by hand below, complete it in game if a tag is missing
 jo.component.data.categoryGroups = {}
---the exclusive subset of a slot: applied by hand, a `coats_closed` doesn't evict the `coats` like the game would (short_update.c:28254 `func_893`)
+--the exclusive subset of a slot: applied by hand, a `coats_closed` doesn't evict the `coats` like the game would
 jo.component.data.exclusiveCategories = {}
 
 local function hashCategories(categories)

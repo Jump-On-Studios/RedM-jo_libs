@@ -11,16 +11,16 @@ jo.require("component", true)
 -- VARIABLES
 -------------
 local delays = {}
---- Meta tags applied by hand, per ped and per category. `UpdatePedVariation` drops them, the game replays its own too (short_update.c:49774 `func_1597`)
+--- Meta tags applied by hand, per ped and per category. `UpdatePedVariation` drops them, the game replays its own too
 local metaTags = {}
 --- Pending streaming requests, released after the refresh like `_RELEASE_METAPED_ASSET_REQUEST`
 local assetRequests = {}
 --- Face categories touched since the last refresh.
 local faceRefresh = {}
---- `isMp` of the last applied components: the game hands the flag of the batch to the refresh (abigail2_1.c:34993)
+--- `isMp` of the last applied components: the game hands the flag of the batch to the refresh
 local batchIsMp = {}
 
---- Categories refreshed with `0x704C908E9C405136` (fm_deathmatch_controller.c:32942 `func_1144`)
+--- Categories the game refreshes with `0x704C908E9C405136`
 local faceCategories = {
   [`heads`] = true,
   [`eyes`] = true,
@@ -59,7 +59,7 @@ local function SetTextureOutfitTints(ped, category, palette, tint0, tint1, tint2
   return InvokeNative(0x4EFC1F8FF1AD94DE, ped, jo.component.getCategoryHash(category), GetHashFromString(palette), tint0, tint1,
     tint2)
 end
---- 2nd argument: the `isMp` of the applied components, not a constant (abigail2_1.c:34980-34993)
+--- 2nd argument: the `isMp` of the applied components, not a constant
 local function SetActiveMetaPedComponentsUpdated(ped, isMp) return InvokeNative(0xAAB86462966168CE, ped, isMp == nil and true or isMp) end
 local function N_0x704C908E9C405136(ped) return InvokeNative(0x704C908E9C405136, ped) end
 local function GetShopItemBaseLayers(hash, metapedType, isMp)
@@ -82,7 +82,7 @@ local function GetMetaPedAssetTint(ped, index)
 end
 local function GetNumComponentsInPed(ped) return InvokeNative(0x90403E8107B60E81, ped) or 0 end
 local function GetShopItemComponentCategory(...) return InvokeNative(0x5FF9A878C3D115B8, ...) end
---- 5th argument: the same `isMp` as `ApplyShopItemToPed` (abigail2_1.c:34983)
+--- 5th argument: the same `isMp` as `ApplyShopItemToPed`
 local function UpdateShopItemWearableState(ped, hash, state, isMp)
   return InvokeNative(0x66B957AAC2EAAEAB, ped, GetHashFromString(hash), GetHashFromString(state), 0, isMp == nil and true or isMp, 1)
 end
@@ -91,15 +91,15 @@ local function SetMetaPedTag(ped, drawable, albedo, normal, material, palette, t
     0xBC6DF00D7A4A6819, ped, GetHashFromString(drawable), GetHashFromString(albedo), GetHashFromString(normal),
     GetHashFromString(material), GetHashFromString(palette), tint0, tint1, tint2)
 end
---- Removes the item itself, not only its tag (short_update.c:28230 `func_892`)
+--- Removes the item itself, not only its tag
 local function RemoveShopItemFromPedByCategory(ped, category)
   return InvokeNative(0xDF631E4BCE1B1FC4, ped, jo.component.getCategoryHash(category), 0, true)
 end
---- The game streams the asset in before applying a component (short_update.c `func_1619`/`func_1621`)
+--- The game streams the asset in before applying a component
 local function RequestMetaPedComponent(metapedType, hash, isMp)
   return InvokeNative(0xF6D9E1F3560CBF8E, metapedType, GetHashFromString(hash), 0, isMp and true or false, 1, Citizen.ResultAsInteger())
 end
---- Same request, for a component described by its drawable/albedo/normal/material (short_update.c:13457)
+--- Same request, for a component described by its drawable/albedo/normal/material
 local function N_0x3FCBB5FCFD968698(drawable, albedo, normal, material)
   return InvokeNative(0x3FCBB5FCFD968698, GetHashFromString(drawable), GetHashFromString(albedo), GetHashFromString(normal), GetHashFromString(material), 0, Citizen.ResultAsInteger())
 end
@@ -197,7 +197,7 @@ local function forgetMetaTag(ped, categoryHash)
   if next(metaTags[ped]) == nil then metaTags[ped] = nil end
 end
 
---- Pushes the meta tags back after a refresh, like `func_1597`
+--- Pushes the meta tags back after a refresh, like the game does
 local function reapplyMetaTags(ped)
   if not metaTags[ped] then return end
   for _, data in pairs(metaTags[ped]) do
@@ -531,7 +531,7 @@ local function reapplyCached(ped)
   delays["refresh" .. ped] = jo.timeout.delay("jo_libs:component:reapplyCachedColor" .. ped,
     function() jo.component.waitPedLoaded(ped) end, function()
       clearDeadPedsCache()
-      --the game only replays it when a face category changed (fm_deathmatch_controller.c:32942)
+      --the game only replays it when a face category changed
       local withFace = faceRefresh[ped] == true
       local isMp = batchIsMp[ped]
       refreshPed(ped, withFace, isMp)
@@ -541,7 +541,7 @@ local function reapplyCached(ped)
       faceRefresh[ped] = nil
       batchIsMp[ped] = nil
       refreshPed(ped, withFace, isMp)
-      --`UpdatePedVariation` drops the meta tags, push them back (short_update.c:49774 `func_1597`)
+      --`UpdatePedVariation` drops the meta tags, push them back
       reapplyMetaTags(ped)
       releaseAssetRequests(ped)
     end)
@@ -663,7 +663,7 @@ function jo.component.apply(ped, category, _data)
     if resolvedName ~= "unknown" then
       categoryName = resolvedName
     end
-    --the refresh needs the `isMp` of the batch (abigail2_1.c:34993)
+    --the refresh needs the `isMp` of the batch
     batchIsMp[ped] = isMp
   end
 
@@ -693,7 +693,7 @@ function jo.component.apply(ped, category, _data)
       end
 
       local useMetaTag = (data.drawable or data.albedo) and true or false
-      --a shop item replaces a shop item in place, but never a tag applied by hand (short_update.c:28254 `func_893`)
+      --a shop item replaces a shop item in place, but never a tag applied by hand
       local hadMetaTag = (metaTags[ped] and metaTags[ped][categoryHash]) and true or false
 
       if categoryName ~= "horse_bridles" then
