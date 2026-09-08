@@ -347,7 +347,7 @@ end
 
 ---@return number jobGrade
 function jo.framework.UserClass:getJobGrade()
-  return self.data.job.grade.level
+  return self.data.PlayerData.job.grade.level
 end
 
 ---@return boolean result of job and grade assignment
