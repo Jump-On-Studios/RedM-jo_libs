@@ -1246,14 +1246,15 @@ local function setExtraComponents(charid, extra)
 end
 
 ---Build the framework clothes table from the raw database values
----@param comps any (the raw `compPlayer` value)
+---@param clothes any (the raw `compPlayer` value)
 ---@param compTints any (the raw `compTints` value)
 ---@param extra table (the extended components)
 ---@return table (the clothes, with framework category names)
-local function buildClothes(comps, compTints, extra)
-  local clothes = UnJson(comps)
+local function buildClothes(clothes, compTints, extra)
+  clothes = UnJson(clothes) or {}
+  compTints = UnJson(compTints) or {}
 
-  for category, data in pairs(UnJson(compTints)) do
+  for category, data in pairs(compTints) do
     for hash, data2 in pairs(data) do
       if tonumber(clothes[category]) == tonumber(hash) then
         clothes[category] = {
@@ -1277,6 +1278,19 @@ local function buildClothes(comps, compTints, extra)
   end
 
   return clothes
+end
+
+---Build the framework skin table from the raw database values
+---@param skin any (the raw `skinPlayer` value)
+---@param extra table (the extended components)
+---@return table (the skin, with framework key names)
+local function buildSkin(skin, extra)
+  skin = UnJson(skin)
+
+  --hash-less components and wearable states: the dedicated column is their only home
+  table.merge(skin, extra)
+
+  return skin
 end
 
 ---Extract the fields that `compPlayer` and `skinPlayer` cannot restore, both holding a single
@@ -1354,10 +1368,7 @@ function jo.framework:getUserSkinInternal(source)
   local user = self.UserClass:get(source)
   if not user then return {} end
 
-  local skin = UnJson(user.data.skin)
-  table.merge(skin, getExtraComponents(user.data.charIdentifier).skin)
-
-  return skin
+  return buildSkin(user.data.skin, getExtraComponents(user.data.charIdentifier).skin)
 end
 
 function jo.framework:updateUserSkinInternal(source, skin, overwrite)
