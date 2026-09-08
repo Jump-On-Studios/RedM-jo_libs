@@ -172,6 +172,7 @@ end
 -------------
 --the game works with "slots", not categories: releasing a slot removes all its tags
 --the slot -> tags table below is read from the game metadata, MP layout: the SP one only fills the categories the MP table doesn't carry
+--both layouts reuse the same slot keys for different tags, so a SP slot only counts when it shares a tag with its MP counterpart
 jo.component.data.categoryGroups = {}
 --the exclusive subset of a slot: the categories the metadata puts in the same slot, the game only wears one of them at a time
 --the extra meta tags stay out of it, a hat and its band can coexist
@@ -205,10 +206,11 @@ registerCategoryGroup({ "neckwear", "neckerchiefs", "neckties", "scarves", "shir
 registerCategoryGroup({ "shirts_full", "shirts_full_overpants", "unionsuits_full" }, true)
 --`cloaks` sits in a slot of its own in MP, only the SP layout puts it with the coats
 registerCategoryGroup({ "coats", "coats_closed", "ponchos" }, true)
-registerCategoryGroup({ "gauntlets", "vest_accessories", "badges" }, true)
+--`gauntlets` is alone in its MP slot, the SP layout reuses the slot key for another pair
+registerCategoryGroup({ "vest_accessories", "badges" }, true)
+registerCategoryGroup({ "holsters_right", "holsters_crossdraw" }, true)
 registerCategoryGroup({ "satchels", "satchel_straps" })
 registerCategoryGroup({ "gunbelts", "gunbelts_high" })
-registerCategoryGroup({ "belts", "aprons" }, true)
 --the module only cleared `pants` from `skirts`, the whole slot becomes symmetric
 registerCategoryGroup({ "pants", "skirts", "dresses", "overalls_full", "unionsuit_legs" }, true)
 registerCategoryGroup({ "chaps", "spats" }, true)
