@@ -639,8 +639,11 @@ function jo.component.apply(ped, category, _data)
     if not categoryHash then
       return dprint("Wrong component hash:", categoryName, data.hash)
     end
-    --the real category of the item wins over the one passed by the caller
-    categoryName = jo.component.getCategoryNameFromHash(categoryHash)
+    --the real category of the item wins over the one passed by the caller, unless the module doesn't know its name
+    local resolvedName = jo.component.getCategoryNameFromHash(categoryHash)
+    if resolvedName ~= "unknown" then
+      categoryName = resolvedName
+    end
     --the game carries one `isMp` for the whole batch and hands it to the refresh, so keep the flag of what we just applied
     batchIsMp[ped] = isMp
   end
