@@ -175,10 +175,10 @@ end
 -------------
 -- CATEGORY GROUPS
 -------------
---the game does not think in categories but in "slots" (`MP_COMPONENT_TYPE_*`, net_main_offline.c:155374 `func_6004`). Each slot holds up to 5 metaped tags read from the metadata (net_main_offline.c:172871 `func_6599`, `TAG` field), and when it releases a slot it removes ALL of its tags, not only the one of the item (short_update.c:28230 `func_892`).
---the slot -> tags table lives in the game metadata, which is not in the decompiled scripts: the groups below are rebuilt from the `MPC_TAG_*` list (short_update.c:50274) and from the conflicts the module already handled. Complete it in game if a sibling tag is missing.
+--the game works with "slots", not categories: releasing a slot removes all its tags (short_update.c:28230 `func_892`)
+--the slot -> tags table is in the game metadata: rebuilt by hand below, complete it in game if a tag is missing
 jo.component.data.categoryGroups = {}
---the exclusive subset of a slot. The game does not need it: there `ApplyShopItemToPed` replaces the item within its slot (short_update.c:28254 `func_893`), so applying a `coats_closed` evicts the `coats`. On the RedM side categories are applied by hand, so the other variant has to be cleared on apply.
+--the exclusive subset of a slot: applied by hand, a `coats_closed` doesn't evict the `coats` like the game would (short_update.c:28254 `func_893`)
 jo.component.data.exclusiveCategories = {}
 
 local function hashCategories(categories)
@@ -214,8 +214,7 @@ registerCategoryGroup({ "gunbelts", "gunbelts_high" })
 --the module only cleared `pants` from `skirts`, the relation becomes symmetric
 registerCategoryGroup({ "pants", "skirts" }, true)
 
---- Return every category hash the game clears together with this one when it releases the slot.
---- Used on removal only: a slot holds several tags that can coexist (a hat and its band), clearing them all only makes sense when undressing the category.
+--- Return every category hash of the slot, to clear on removal only: a hat and its band can coexist
 ---@param category string|integer (The category name or hash)
 ---@return table (An array of category hashes, at least the category itself)
 function jo.component.getCategoryGroup(category)
