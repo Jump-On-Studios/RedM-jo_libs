@@ -674,11 +674,12 @@ function jo.component.apply(ped, category, _data)
       end
 
       local useMetaTag = (data.drawable or data.albedo) and true or false
+      --a shop item replaces a shop item in place (short_update.c:28254 `func_893`) but never a tag applied by hand: the category has to be released first
+      local hadMetaTag = (metaTags[ped] and metaTags[ped][categoryHash]) and true or false
 
       if categoryName ~= "horse_bridles" then
-        --the game does not clear the category before applying a shop item, `ApplyShopItemToPed` replaces in place (short_update.c:28254 `func_893`), so we only evict the incompatible variants
-        --on the meta tag path nothing replaces the tag already applied, the category itself has to be released (`func_1597`, short_update.c:49774)
-        clearExclusiveCategories(ped, categoryHash, useMetaTag)
+        --the game does not clear the category before applying a shop item, so we only evict the incompatible variants
+        clearExclusiveCategories(ped, categoryHash, useMetaTag or hadMetaTag)
       end
 
       if data.hash and data.hash ~= 0 then
