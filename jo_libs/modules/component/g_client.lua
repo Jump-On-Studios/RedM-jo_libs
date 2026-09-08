@@ -520,6 +520,7 @@ local function reapplyComponentStats(ped)
 end
 
 local function reapplyComponentsColor(ped)
+  if not jo.cache.component.color[ped] then return end
   for i = 1, #jo.component.data.order do
     local category = jo.component.getCategoryHash(jo.component.data.order[i])
     if jo.cache.component.color[ped][category] then
@@ -530,7 +531,8 @@ local function reapplyComponentsColor(ped)
 end
 
 local function reapplyCached(ped)
-  if not jo.cache.component.color[ped] then return end
+  --the refresh is also what releases the asset requests
+  if not jo.cache.component.color[ped] and not assetRequests[ped] then return end
   delays["refresh" .. ped] = jo.timeout.delay("jo_libs:component:reapplyCachedColor" .. ped,
     function() jo.component.waitPedLoaded(ped) end, function()
       clearDeadPedsCache()
@@ -782,7 +784,10 @@ function jo.component.preloadComponents(ped, components)
       holdAssetRequest(ped, RequestMetaPedComponent(metapedType, data.hash, jo.component.isMpComponent(ped, data.hash)))
     end
   end
-  return waitAssetRequests(ped)
+  local loaded = waitAssetRequests(ped)
+  --without an apply behind, nothing else would release the requests
+  reapplyCached(ped)
+  return loaded
 end
 
 --- A function to apply multiple components to a ped
