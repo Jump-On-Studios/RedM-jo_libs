@@ -598,6 +598,25 @@ function jo.framework:getUserSkin(source)
   return skinStandardized
 end
 
+---@autodoc:config ignore:true
+--- Standardize a skin & clothes couple and send them to the client to be applied
+---@param source integer (The source ID of the player)
+---@param ped? integer (The entity to dress. Defaults to the player ped, client-side)
+---@param skin table (The skin data, in framework format)
+---@param clothes table (The clothes data, in framework format)
+function jo.framework:sendSkinAndClothes(source, ped, skin, clothes)
+  skin = self:standardizeSkin(UnJson(skin))
+  clothes = self:standardizeClothes(UnJson(clothes))
+
+  --the teeth are stored with the clothes by some frameworks, but applied with the skin
+  if clothes.teeth then
+    skin.teeth = clothes.teeth.hash
+    clothes.teeth = nil
+  end
+
+  TriggerClientEvent("jo_libs:client:applySkinAndClothes", source, ped, skin, clothes)
+end
+
 --- Save new skin values.
 --- The function has two ways to work:
 --- - With 3 arguments to save multiple skin data

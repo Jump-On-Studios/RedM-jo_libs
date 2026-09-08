@@ -1225,22 +1225,169 @@ local skinComponents = {
   "hair_bonnet",
 }
 
+---An extended entry describes one precise component. `vorp_character` writes `compPlayer` and
+---`skinPlayer` from its own menus (store, barber, creator) without going through jo_libs, so
+---an entry that no longer matches what they hold describes a component the player took off:
+---merging it back would put the old drawable or wearable state on top of the new component.
+---@param data table (the extended entry)
+---@param current any (the value held by `compPlayer`/`skinPlayer`)
+---@return boolean (`true` if the entry still describes the component in place)
+local function isExtraUpToDate(data, current)
+  if type(data) ~= "table" then return false end
+  if type(current) == "table" then current = current.hash end
+
+  return GetHashFromString(data.hash) == GetHashFromString(current)
+end
+
+--a hash-less component is defined by these, and `compTints` has nowhere to keep them
+local extraClothesKeys = { "drawable", "albedo", "normal", "material", "palette", "tint0", "tint1", "tint2" }
+
+---Capture what `compPlayer` and `compTints` cannot represent for one clothing component:
+---the wearable state, always, and the whole definition of a hash-less component.
+---With a hash, `compTints` stays authoritative for the tint - `vorp_character` rewrites it
+---from its own menus, and a full copy kept here would put the old tint back on every read.
+---@param value table (the component, in vorp format)
+---@param hash integer (the component hash, 0 when it has none)
+---@return table? (nil when `compPlayer` and `compTints` already hold everything)
+local function extractClothesComponent(value, hash)
+  local extra = {
+    --legacy: the wearable state used to be written under the `state` key
+    wearableState = GetValue(value.wearableState, value.state)
+  }
+
+  if hash == 0 then
+    for i = 1, #extraClothesKeys do
+      extra[extraClothesKeys[i]] = value[extraClothesKeys[i]]
+    end
+  end
+
+  if table.count(extra) == 0 then return nil end
+  extra.hash = hash
+
+  return extra
+end
+
+---Move the component tables held by a skin into the extended data: `skinPlayer` only holds
+---integers, a table makes 0xD3A7B003ED343FD9 fail since mr-947.
+---@param skin table (the skin to flatten, edited in place)
+---@param extraSkin table (the extended skin data, edited in place)
+---@param dropStale? boolean (clear the entries whose key now holds a plain hash. Only for a
+---skin coming from the outside: the migration reads keys jo_libs itself has just flattened)
+---@return boolean (`true` if the extended data has changed)
+local function extractSkinComponents(skin, extraSkin, dropStale)
+  local changed = false
+
+  for i = 1, #skinComponents do
+    local key = skinComponents[i]
+    local value = skin[key]
+    if value ~= nil then
+      if type(value) == "table" then
+        changed = true
+        skin[key] = GetHashFromString(value.hash)
+        extraSkin[key] = table.copy(value)
+        extraSkin[key].hash = skin[key]
+      elseif dropStale and extraSkin[key] ~= nil then
+        --the key now holds a plain hash: the entry captured for the previous component
+        --would be merged back on top of it
+        changed = true
+        extraSkin[key] = nil
+      end
+    end
+  end
+
+  return changed
+end
+
+--jo_libs is loaded inside every resource requiring it, so a cache local to this file would
+--let two resources write the column from diverging snapshots. The cache lives in `jo_libs`
+--and every resource goes through its exports: the column is read once per character instead
+--of once per call, and a read never misses a write that has not reached the database yet.
+local extraComponentsCache = {}
+local extraComponentsOwners = {}
+
+if jo.resourceName == "jo_libs" then
+  local pendingWrites = {}
+  local writing = {}
+
+  --oxmysql does not guarantee two updates fired back to back are applied in order, so the
+  --writes are queued per character and only the latest state is sent
+  local function flushExtraComponents(charid)
+    if writing[charid] then return end
+    writing[charid] = true
+    CreateThread(function()
+      while pendingWrites[charid] do
+        local extra = pendingWrites[charid]
+        pendingWrites[charid] = nil
+        MySQL.update.await(("UPDATE characters SET `%s` = ? WHERE charidentifier = ?"):format(extraComponentsColumn),
+          { json.encode(extra), charid })
+      end
+      writing[charid] = nil
+    end)
+  end
+
+  --an export cannot yield across the resource boundary, so the cache misses are read by the
+  --calling resource and handed back here
+  exports("jo_vorp_getExtraComponents", function(charid, source)
+    if source then extraComponentsOwners[charid] = source end
+    local extra = extraComponentsCache[charid]
+    if not extra then return nil end
+
+    --the caller edits what it reads before writing it back: never hand out the cached table
+    return table.copy(extra)
+  end)
+
+  exports("jo_vorp_primeExtraComponents", function(charid, extra, source)
+    if source then extraComponentsOwners[charid] = source end
+    --another resource may have filled the cache, or written to it, while the read was running
+    if not extraComponentsCache[charid] then extraComponentsCache[charid] = extra end
+
+    return table.copy(extraComponentsCache[charid])
+  end)
+
+  exports("jo_vorp_setExtraComponents", function(charid, extra)
+    extraComponentsCache[charid] = extra
+    pendingWrites[charid] = extra
+    flushExtraComponents(charid)
+  end)
+
+  AddEventHandler("playerDropped", function()
+    local source = source
+    --let the pending writes drain before the character leaves the cache
+    SetTimeout(5000, function()
+      for charid, owner in pairs(extraComponentsOwners) do
+        if owner == source then
+          extraComponentsOwners[charid] = nil
+          extraComponentsCache[charid] = nil
+        end
+      end
+    end)
+  end)
+end
+
 ---@param charid integer (the character identifier)
+---@param source? integer (the player the character belongs to, to free the cache on drop)
 ---@return table (the extended data, split into `clothes` and `skin`)
-local function getExtraComponents(charid)
-  local raw = MySQL.scalar.await(("SELECT `%s` FROM characters WHERE charidentifier = ?"):format(extraComponentsColumn), { charid })
-  local extra = UnJson(raw)
+local function getExtraComponents(charid, source)
+  charid = tonumber(charid)
+  if not charid then return { clothes = {}, skin = {} } end
+
+  local extra = exports.jo_libs:jo_vorp_getExtraComponents(charid, source)
+  if extra then return extra end
+
+  extra = UnJson(MySQL.scalar.await(("SELECT `%s` FROM characters WHERE charidentifier = ?"):format(extraComponentsColumn), { charid }))
   extra.clothes = extra.clothes or {}
   extra.skin = extra.skin or {}
 
-  return extra
+  return exports.jo_libs:jo_vorp_primeExtraComponents(charid, extra, source)
 end
 
 ---@param charid integer (the character identifier)
 ---@param extra table (the extended data to persist)
 local function setExtraComponents(charid, extra)
-  MySQL.update(("UPDATE characters SET `%s` = ? WHERE charidentifier = ?"):format(extraComponentsColumn),
-    { json.encode(extra), charid })
+  charid = tonumber(charid)
+  if not charid then return end
+
+  exports.jo_libs:jo_vorp_setExtraComponents(charid, extra)
 end
 
 ---Build the framework clothes table from the raw database values
@@ -1269,10 +1416,12 @@ local function buildClothes(clothes, compTints, extra)
 
   --hash-less components and wearable states: the dedicated column wins
   for category, data in pairs(extra) do
-    if type(clothes[category]) ~= "table" then
-      clothes[category] = { hash = tonumber(clothes[category]) or 0 }
+    if isExtraUpToDate(data, clothes[category]) then
+      if type(clothes[category]) ~= "table" then
+        clothes[category] = { hash = GetHashFromString(clothes[category]) }
+      end
+      table.merge(clothes[category], data)
     end
-    table.merge(clothes[category], data)
   end
 
   return clothes
@@ -1286,16 +1435,27 @@ local function buildSkin(skin, extra)
   skin = UnJson(skin)
 
   --hash-less components and wearable states: the dedicated column is their only home
-  table.merge(skin, extra)
+  for key, data in pairs(extra) do
+    if isExtraUpToDate(data, skin[key]) then
+      if type(skin[key]) ~= "table" then
+        skin[key] = { hash = GetHashFromString(skin[key]) }
+      end
+      table.merge(skin[key], data)
+    end
+  end
 
   return skin
 end
 
 function jo.framework:getUserClothesInternal(source)
   local user = self.UserClass:get(source)
-  if not user then return {} end
+  --`UserClass:get` returns a user as soon as the player is connected, but `data` is the used
+  --character: it stays nil on the multicharacter screen
+  if not user or not user.data then return {} end
 
-  return buildClothes(user.data.comps, user.data.compTints, getExtraComponents(user.data.charIdentifier).clothes)
+  local extra = getExtraComponents(user.data.charIdentifier, source)
+
+  return buildClothes(user.data.comps, user.data.compTints, extra.clothes)
 end
 
 function jo.framework:updateUserClothesInternal(source, clothes, overwrite)
@@ -1313,20 +1473,22 @@ function jo.framework:updateUserClothesInternal(source, clothes, overwrite)
     newClothes[category] = table.copy(value)
     if type(value) == "table" then
       --`comp` has to stay an integer: 0xD3A7B003ED343FD9 rejects tables since mr-947
-      newClothes[category].comp = tonumber(GetValue(value?.hash, 0)) or 0
+      newClothes[category].comp = GetHashFromString(value?.hash)
     end
   end
   local user = self.UserClass:get(source)
-  if not user then return end
+  if not user or not user.data then return end
   local tints = overwrite and {} or UnJson(user.data.compTints)
-  local extra = getExtraComponents(user.data.charIdentifier)
+  local extra = getExtraComponents(user.data.charIdentifier, source)
   if overwrite then extra.clothes = {} end
   for category, value in pairs(clothes) do
     if type(value) ~= "table" then
+      --a plain hash carries nothing to extend, and the entry captured for the previous
+      --component would be merged back on top of it
       extra.clothes[category] = nil
     else
-      local hash = tonumber(GetValue(value?.hash, 0)) or 0
-      extra.clothes[category] = table.copy(value)
+      local hash = GetHashFromString(value?.hash)
+      extra.clothes[category] = extractClothesComponent(value, hash)
 
       if hash ~= 0 then
         local tint = {}
@@ -1353,9 +1515,11 @@ end
 
 function jo.framework:getUserSkinInternal(source)
   local user = self.UserClass:get(source)
-  if not user then return {} end
+  if not user or not user.data then return {} end
 
-  return buildSkin(user.data.skin, getExtraComponents(user.data.charIdentifier).skin)
+  local extra = getExtraComponents(user.data.charIdentifier, source)
+
+  return buildSkin(user.data.skin, extra.skin)
 end
 
 function jo.framework:updateUserSkinInternal(source, skin, overwrite)
@@ -1367,18 +1531,13 @@ function jo.framework:updateUserSkinInternal(source, skin, overwrite)
   end
 
   local user = self.UserClass:get(source)
-  if user then
-    local extra = getExtraComponents(user.data.charIdentifier)
+  if user and user.data then
+    local extra = getExtraComponents(user.data.charIdentifier, source)
     if overwrite then extra.skin = {} end
-    --`skinPlayer` only holds integers
-    for i = 1, #skinComponents do
-      local key = skinComponents[i]
-      if type(skin[key]) == "table" then
-        extra.skin[key] = table.copy(skin[key])
-        skin[key] = tonumber(skin[key].hash) or 0
-      end
+    --most skin updates carry no component at all: do not write the column for nothing
+    if extractSkinComponents(skin, extra.skin, true) or overwrite then
+      setExtraComponents(user.data.charIdentifier, extra)
     end
-    setExtraComponents(user.data.charIdentifier, extra)
   end
 
   if overwrite then
@@ -1392,8 +1551,6 @@ end
 -- JO_LIBS ONLY
 -------------
 if jo.resourceName == "jo_libs" then
-  jo.require("database")
-
   MySQL.ready(function()
     jo.database.addColumn("characters", extraComponentsColumn, "LONGTEXT NULL DEFAULT NULL")
   end)
@@ -1402,8 +1559,8 @@ if jo.resourceName == "jo_libs" then
   --they make 0xD3A7B003ED343FD9 fail since mr-947, and they hold the extended data.
   --a healthy compPlayer is flat, so it holds a single `{`. skinPlayer legitimately nests
   --`overlays`, so only the component keys are looked at there.
-  --the legacy format can only predate the column, so a single pass is enough: it rewrites
-  --`characters`, so it is left to the server owner instead of running on its own
+  --the command rewrites `characters`, so it is left to the server owner instead of running
+  --on its own. It is idempotent: a row already converted holds no table left to move.
   RegisterCommand("jo_migrate_components", function(source)
     if source > 0 then return print("This command can only be run from the server console.") end
     if #GetPlayers() > 0 then return print("This command can only be run when no players are connected.") end
@@ -1418,10 +1575,9 @@ if jo.resourceName == "jo_libs" then
       WHERE compPlayer LIKE '%%{%%{%%' OR %s
     ]]):format(extraComponentsColumn, table.concat(skinFilters, " OR ")), {}) or {}
 
-    local migrated = 0
-
-    for i = 1, #rows do
-      local row = rows[i]
+    ---@param row table (a `characters` row)
+    ---@return table? (the values to write back, nil when the row is already converted)
+    local function convertRow(row)
       local comps = UnJson(row.compPlayer)
       local skin = UnJson(row.skinPlayer)
       --the command can run on a character already holding extended data: keep it
@@ -1433,29 +1589,40 @@ if jo.resourceName == "jo_libs" then
       for category, value in pairs(comps) do
         if type(value) == "table" then
           dirty = true
-          extra.clothes[category] = table.copy(value)
-          comps[category] = tonumber(value.hash)
+          comps[category] = GetHashFromString(value.hash)
+          extra.clothes[category] = extractClothesComponent(value, comps[category])
         end
       end
 
-      for j = 1, #skinComponents do
-        local key = skinComponents[j]
-        local data = skin[key]
-        if type(data) == "table" then
-          dirty = true
-          extra.skin[key] = table.copy(data)
-          skin[key] = tonumber(data.hash) or 0
-        end
-      end
+      dirty = extractSkinComponents(skin, extra.skin) or dirty
+      if not dirty then return nil end
 
-      if dirty then
-        MySQL.update.await(("UPDATE characters SET compPlayer = ?, skinPlayer = ?, `%s` = ? WHERE charidentifier = ?"):format(extraComponentsColumn),
-          { json.encode(comps), json.encode(skin), json.encode(extra), row.charidentifier })
+      return { json.encode(comps), json.encode(skin), json.encode(extra), row.charidentifier }
+    end
+
+    local migrated = 0
+    local failed = 0
+
+    for i = 1, #rows do
+      local row = rows[i]
+      --one malformed row must not stop the others, and must not leave them in the legacy
+      --format: the command can then be run again once that row is fixed
+      local success, values = pcall(convertRow, row)
+
+      if not success then
+        failed = failed + 1
+        eprint(("jo_migrate_components -> character %s skipped: %s"):format(row.charidentifier, values))
+      elseif values then
+        MySQL.update.await(("UPDATE characters SET compPlayer = ?, skinPlayer = ?, `%s` = ? WHERE charidentifier = ?"):format(extraComponentsColumn), values)
         migrated = migrated + 1
       end
     end
 
-    gprint(("%d character(s) migrated from the legacy format"):format(migrated))
+    --the rows have been rewritten behind the cache
+    extraComponentsCache = {}
+    extraComponentsOwners = {}
+
+    gprint(("%d character(s) migrated from the legacy format, %d skipped"):format(migrated, failed))
   end, true)
 
   ---Read a character skin & clothes straight from the database, bypassing the user object.
@@ -1494,14 +1661,6 @@ if jo.resourceName == "jo_libs" then
       return eprint(("jo_libs:server:vorp:applySkinAndClothes -> character %s does not belong to source %s"):format(charid, source))
     end
 
-    skin = jo.framework:standardizeSkin(skin)
-    clothes = jo.framework:standardizeClothes(clothes)
-
-    if clothes.teeth then
-      skin.teeth = clothes.teeth.hash
-      clothes.teeth = nil
-    end
-
-    TriggerClientEvent("jo_libs:client:applySkinAndClothes", source, ped, skin, clothes)
+    jo.framework:sendSkinAndClothes(source, ped, skin, clothes)
   end)
 end
