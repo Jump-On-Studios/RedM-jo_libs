@@ -154,19 +154,16 @@ end)
 local function waitAssetRequests(ped, timeout)
   local requests = assetRequests[ped]
   if not requests or #requests == 0 then return true end
-  local deadline = GetGameTimer() + (timeout or 3000)
-  repeat
-    local loaded = 0
+  local isLoaded = jo.waiter.exec(function()
     for i = 1, #requests do
-      if not IsMetaPedAssetValid(requests[i]) or HasMetaPedAssetLoaded(requests[i]) then
-        loaded = loaded + 1
+      if IsMetaPedAssetValid(requests[i]) and not HasMetaPedAssetLoaded(requests[i]) then
+        return false
       end
     end
-    if loaded >= #requests then return true end
-    Wait(0)
-  until GetGameTimer() > deadline
-  if jo.debug then eprint("Some metaped assets are still not loaded on ped:", ped) end
-  return false
+    return true
+  end, nil, 0, timeout or 3000)
+  if not isLoaded and jo.debug then eprint("Some metaped assets are still not loaded on ped:", ped) end
+  return isLoaded
 end
 
 -------------
