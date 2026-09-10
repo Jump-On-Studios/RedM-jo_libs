@@ -26,7 +26,7 @@ jo.component.data = jo.component.data or {}
 jo.component.data.pedCategories = {
   "heads",
   "eyes",
-  "eyecaps",        -- MPC_TAG_EYE_CAPS
+  "eyecaps",
   "teeth",
   "beards_complete",
   "beards",
@@ -36,25 +36,25 @@ jo.component.data.pedCategories = {
   "bodies_upper",
   "bodies_lower",
   "eyewear",
-  "face_props",     -- MPC_TAG_FACE_PROPS
+  "face_props",
   "neckerchiefs",
   "neckties",
   "neckwear",
-  "scarves",        -- MPC_TAG_SCARVES
-  "shirt_modular_collars", -- MPC_TAG_COLLARS
+  "scarves",
+  "shirt_modular_collars",
   "hair",
   "hair_bonnet",
   "hats",
   "masks",
   "masks_large",
   "hat_accessories",
-  "hatband",        -- MPC_TAG_HAT_BANDS
+  "hatband",
   "headwear",
   "hair_accessories",
   "chemises",
-  "blouses",        -- MPC_TAG_BLOUSES
+  "blouses",
   "knickers",
-  "stockings",      -- MPC_TAG_STOCKINGS
+  "stockings",
   "corsets",
   "unionsuits_full",
   "shirts_full",
@@ -84,7 +84,7 @@ jo.component.data.pedCategories = {
   "loadouts",
   "outfits",
   "gunbelts",
-  "gunbelts_high",  -- MPC_TAG_GUNBELTS_HIGH
+  "gunbelts_high",
   "belt_buckles",
   "holsters_left",
   "holsters_right",
@@ -149,6 +149,7 @@ local categoryNotClothes = {
   bodies_lower = true,
   bodies_upper = true,
   eyes = true,
+  eyecaps = true
   -- neckerchiefs = true
 }
 jo.component.data.pedClothes = table.filter(jo.component.data.pedCategories, function(cat) return not categoryNotClothes[cat] end)
