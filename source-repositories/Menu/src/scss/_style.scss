@@ -558,10 +558,18 @@ main {
 
     .weapon-bar {
       width: 22.7vh;
+      flex: 0 0 22.7vh;
+      aspect-ratio: 256 / 16;
+      align-self: center;
       position: relative;
 
       .background {
         opacity: 0.25;
+      }
+
+      .background img {
+        display: block;
+        height: 100%;
       }
 
       .box {
@@ -575,6 +583,14 @@ main {
       .amount {
         width: 100%;
         overflow: hidden;
+        -webkit-mask-image: url("/assets/images/menu/weapon_stats_bar.png");
+        mask-image: url("/assets/images/menu/weapon_stats_bar.png");
+        -webkit-mask-position: center;
+        mask-position: center;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-size: 100% 100%;
+        mask-size: 100% 100%;
         /*transition: width 0.5s ease;*/
       }
     }

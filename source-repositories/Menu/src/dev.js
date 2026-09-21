@@ -15,7 +15,29 @@ let menu = {
       icon: "boots",
       title: "This is the title",
       statistics: [
-        { label: "test", type: "weapon-bar", value: [30, 100] },
+        { label: "Legacy weapon bar", type: "weapon-bar", value: [30, 100] },
+        {
+          label: "Multi-segment weapon bar",
+          type: "weapon-bar",
+          value: {
+            max: 100,
+            bars: [
+              { value: 50 },
+              { value: 63, color: "#00FF00", opacity: 1.0 },
+            ],
+          },
+        },
+        {
+          label: "Multi-segment weapon bar",
+          type: "weapon-bar",
+          value: {
+            max: 100,
+            bars: [
+              { value: 30 },
+              { value: 56, color: "#FF0000", opacity: 1.0 },
+            ],
+          },
+        },
         {
           label: "blabla fsdfdsf",
           value: "test fdsf sdf sdfdsf dsfsd sdfdsfds dsfdsfsdf sdfsdf sdf",

@@ -44,16 +44,11 @@
         <img :src="getMenuImage('weapon_stats_bar')" />
       </div>
       <div
+        v-for="(bar, index) in weaponBars"
+        :key="index"
         class="box amount"
-        :style="{
-          clipPath:
-            'inset(0 ' +
-            (100 - (props.stat.value[0] / props.stat.value[1]) * 100) +
-            '% 0 0)',
-        }"
-      >
-        <img :src="getMenuImage('weapon_stats_bar')" />
-      </div>
+        :style="bar"
+      ></div>
     </div>
     <div class="stat-icons" v-if="props.stat.type == 'icon'">
       <div v-for="(icon, index) in props.stat.value" :key="index" class="icon">
@@ -64,11 +59,58 @@
 </template>
 
 <script setup>
+import { computed } from "vue";
 import { useLangStore } from "../../stores/lang";
 import PriceDisplay from "./PriceDisplay.vue";
 const lang = useLangStore().lang;
 
 const props = defineProps(["stat"]);
+
+const weaponBars = computed(() => {
+  const value = props.stat.value;
+  let max;
+  let bars;
+
+  if (Array.isArray(value)) {
+    max = Number(value[1]);
+    bars = [{ value: value[0] }];
+  } else if (value && typeof value == "object") {
+    max = Number(value.max);
+    bars = Array.isArray(value.bars) ? value.bars : [];
+  } else {
+    return [];
+  }
+
+  if (!Number.isFinite(max) || max <= 0) return [];
+
+  let previousValue = 0;
+  return bars.map((bar) => {
+    const currentBar = bar && typeof bar == "object" ? bar : {};
+    const rawValue = Number(currentBar.value);
+    const currentValue = Number.isFinite(rawValue)
+      ? Math.min(Math.max(rawValue, previousValue), max)
+      : previousValue;
+    const start = (previousValue / max) * 100;
+    const end = (currentValue / max) * 100;
+    const rawOpacity = Number(currentBar.opacity);
+    const opacity =
+      currentBar.opacity === undefined || !Number.isFinite(rawOpacity)
+        ? 1
+        : Math.min(Math.max(rawOpacity, 0), 1);
+    const color =
+      typeof currentBar.color == "string" && currentBar.color.trim().length > 0
+        ? currentBar.color
+        : "white";
+
+    previousValue = currentValue;
+
+    return {
+      backgroundColor: color,
+      opacity,
+      clipPath: `inset(0 ${100 - end}% 0 ${start}%)`,
+    };
+  });
+});
 
 function getLabel() {
   if (props.stat.translateLabel == false) {
