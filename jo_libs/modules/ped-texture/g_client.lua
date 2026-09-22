@@ -8,11 +8,10 @@ jo.require("waiter")
 local pedsTextures = {}
 local delays = {}
 local maxForceUpdate = 5
-local currentUpdate = 0
+local updateAttempts = {}
 
 local function AddTextureLayer(...) return InvokeNative(0x86BB5FF45F193A02, ...) end
 local function ApplyTextureOnPed(...) return InvokeNative(0x0B46E25761519058, ...) end
-local function ClearPedTexture(...) return InvokeNative(0xB63B9178D0F58D82, ...) end
 local function GetCategoryOfComponentAtIndex(ped, componentIndex)
   return InvokeNative(0x9b90842304c938a7, ped,
     componentIndex, 0, Citizen.ResultAsInteger())
@@ -26,7 +25,9 @@ local function IsTextureValid(...) return InvokeNative(0x31DC8D3F216D8509, ...) 
 local function ReleaseTexture(...) return InvokeNative(0x6BEFAA907B076859, ...) end
 local function RequestTexture(...) return InvokeNative(0xC5E7204F322E49EB, ...) end
 local function SetTextureLayerAlpha(...) return InvokeNative(0x6C76BC24F8BB709A, ...) end
+local function SetTextureLayerMod(...) return InvokeNative(0xF2EA041F1146D75B, ...) end
 local function SetTextureLayerPallete(...) return InvokeNative(0x1ED8588524AC9BE1, ...) end
+local function SetTextureLayerRoughness(...) return InvokeNative(0x057C4F092E2298BE, ...) end
 local function SetTextureLayerSheetGridIndex(...) return InvokeNative(0x3329AAE2882FC8E4, ...) end
 local function SetTextureLayerTint(...) return InvokeNative(0x2DF59FFE6FFD6044, ...) end
 local function UpdatePedTexture(...) return InvokeNative(0x92DAABA2C1C10B0E, ...) end
@@ -72,6 +73,7 @@ jo.pedTexture.variations = {
     { label = "ageing_var13", value = { id = 13 } },
     { label = "ageing_var14", value = { id = 14 } },
     { label = "ageing_var15", value = { id = 15 } },
+    { label = "ageing_var16", value = { id = 16 } },
     { label = "ageing_var17", value = { id = 17 } },
     { label = "ageing_var18", value = { id = 18 } },
     { label = "ageing_var19", value = { id = 19 } },
@@ -412,6 +414,13 @@ local function applyLayer(textureId, name, layer)
     SetTextureLayerPallete(textureId, layerIndex, GetHashFromString(layer.palette))
     SetTextureLayerTint(textureId, layerIndex, layer.tint0 or 0, layer.tint1 or 0, layer.tint2 or 0)
   end
+  local modTexture = layer.mod and layer.mod.texture and GetHashFromString(layer.mod.texture) or 0
+  if modTexture ~= 0 then
+    SetTextureLayerMod(textureId, layerIndex, modTexture, (layer.mod.alpha or 0.0) * 1.0, layer.mod.channel or 0)
+  end
+  if (layer.roughness or 0) > 0 then
+    SetTextureLayerRoughness(textureId, layerIndex, layer.roughness * 1.0)
+  end
   SetTextureLayerSheetGridIndex(textureId, layerIndex, layer.sheetGrid or 0)
   SetTextureLayerAlpha(textureId, layerIndex, (layer.opacity or 1.0) * 1.0)
 end
@@ -433,17 +442,13 @@ local function updateAllPedTexture(ped, category)
     Wait(2000)
   end
   delays["updatePedTexture" .. ped] = jo.timeout.delay("updatePedTexture" .. ped, 200, function()
-    dprint("updateAllPedTexture(), try number:", currentUpdate, json.encode(pedsTextures[ped]))
+    dprint("updateAllPedTexture(), try number:", updateAttempts[ped], json.encode(pedsTextures[ped]))
     GetNumberOfMicrosecondsSinceLastCall()
     dprint("Wait ped ready")
     jo.waiter.exec(function()
       return IsPedReadyToRender(ped)
     end)
     dprint(("Ped ready in %.4fms"):format(GetNumberOfMicrosecondsSinceLastCall() / 1000))
-    if pedsTextures[ped][category].textureId ~= nil then
-      ClearPedTexture(pedsTextures[ped][category].textureId)
-      dprint("Old texture cleared")
-    end
     local index = GetComponentIndexByCategory(ped, category)
     local _, albedo, normal, material = GetMetaPedAssetGuids(ped, index)
     if albedo == 0 then
@@ -454,9 +459,9 @@ local function updateAllPedTexture(ped, category)
 
     if not checkIfTextureValid(textureId) then
       dprint("Ped texture ID is not valid", textureId)
-      currentUpdate += 1
-      if currentUpdate > maxForceUpdate then
-        dprint("Impossible to apply the ped Texture. Max try attempts", currentUpdate)
+      updateAttempts[ped] += 1
+      if updateAttempts[ped] > maxForceUpdate then
+        dprint("Impossible to apply the ped Texture. Max try attempts", updateAttempts[ped])
         return
       end
       Wait(200)
@@ -467,7 +472,6 @@ local function updateAllPedTexture(ped, category)
     dprint("Add layers to texture:", textureId)
     dprint(json.encode(pedsTextures[ped][category]))
 
-    pedsTextures[ped][category].textureId = textureId
     for c = 1, #jo.pedTexture.ordersToApply[category] do
       local name = jo.pedTexture.ordersToApply[category][c]
       local layer = pedsTextures[ped][category].layers[name]
@@ -484,9 +488,9 @@ local function updateAllPedTexture(ped, category)
 
     if not checkIfTextureValid(textureId) then
       dprint("Ped texture ID is not valid anymore after apply layers", textureId)
-      currentUpdate += 1
-      if currentUpdate > maxForceUpdate then
-        dprint("Impossible to apply the ped Texture. Max try attempts", currentUpdate)
+      updateAttempts[ped] += 1
+      if updateAttempts[ped] > maxForceUpdate then
+        dprint("Impossible to apply the ped Texture. Max try attempts", updateAttempts[ped])
         return
       end
       Wait(200)
@@ -495,8 +499,8 @@ local function updateAllPedTexture(ped, category)
     end
 
     dprint("Apply the ped texture", textureId)
-    ApplyTextureOnPed(ped, GetHashFromString(category), textureId)
     UpdatePedTexture(textureId)
+    ApplyTextureOnPed(ped, GetHashFromString(category), textureId)
     _updatePedVariation(ped)
     Entity(ped).state:set("jo_pedTexture", pedsTextures[ped])
     CreateThread(function()
@@ -508,6 +512,13 @@ local function updateAllPedTexture(ped, category)
   end)
 end
 
+local function scheduleRebuild(ped, category)
+  updateAttempts[ped] = 1
+  CreateThreadNow(function()
+    updateAllPedTexture(ped, category)
+  end)
+end
+
 --- A function to apply texture on a specific ped
 ---@param ped integer (The entity ID)
 ---@param layerName string (The layername of the texture)
@@ -516,11 +527,16 @@ end
 --- _data.albedo string (The albedo of the texture)
 --- _data.sheetGrid? integer (The sheet grid of the texture <br> default: 0)
 --- _data.opacity? number (The opacity of the texture <br> default: 1.0)
+--- _data.roughness? number (The roughness of the texture, from 0.0 to 1.0, applied only if > 0 <br> default: not applied)
+--- _data.mod? table (The mod texture of the layer, applied only if texture is set)
+--- _data.mod.texture string|integer (The mod texture name or hash)
+--- _data.mod.alpha? number (The opacity of the mask, from 0.0 to 1.0, no visible effect at 0.0 <br> default: 0.0)
+--- _data.mod.channel? integer (The channel of the mod texture used as mask, from 0 to 3 (R, G, B, A) <br> default: 0)
 --- _data.blendType? integer (The blend type of the texture <br> default: 1)
 --- _data.palette? string|integer (The palette of the colors <br> default: "metaped_tint_makeup")
---- _data.tint0? string|integer (The first color)
---- _data.tint1? string|integer (The second color)
---- _data.tint2? string|integer (The third color)
+--- _data.tint0? integer (The first color)
+--- _data.tint1? integer (The second color)
+--- _data.tint2? integer (The third color)
 function jo.pedTexture.apply(ped, layerName, _data)
   if not NetworkGetEntityIsNetworked(ped) then
     return dprint("ERROR: RedM doesn't allow editing of texture on a local entity")
@@ -554,10 +570,7 @@ function jo.pedTexture.apply(ped, layerName, _data)
     end
   end
 
-  currentUpdate = 1
-  CreateThreadNow(function()
-    updateAllPedTexture(ped, category)
-  end)
+  scheduleRebuild(ped, category)
 end
 
 --- A function to remove a texture
@@ -604,11 +617,10 @@ function jo.pedTexture.overwriteBodyPart(ped, category, overlays, forceRemove)
     if pedsTextures[ped][category] then
       pedsTextures[ped][category].layers = {}
     end
-    for layername, cat in pairs(jo.pedTexture.categories) do
-      if cat == category then
-        jo.pedTexture.remove(ped, layername)
-        break
-      end
+    -- Rebuild the emptied category directly, with the same guards as apply
+    if jo.pedTexture.ordersToApply[category] and NetworkGetEntityIsNetworked(ped) then
+      pedsTextures[ped][category] = pedsTextures[ped][category] or { layers = {} }
+      scheduleRebuild(ped, category)
     end
   end
 

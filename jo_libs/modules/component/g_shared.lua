@@ -8,8 +8,9 @@ jo.createModule("component")
 function jo.component.getCategoryHash(category)
   if type(category) == "number" then return category end
 
+  --the category is named after the bundle in the game, `horse_feathers` stays the public name
   if category == "horse_feathers" then
-    return -287556490
+    return joaat("horse_accessories_bundle")
   end
 
   return joaat(category)
@@ -20,88 +21,95 @@ end
 -------------
 jo.component.data = jo.component.data or {}
 
+--the game applies the components slot by slot, in the priority order of its metadata: this list follows it
+--categories with no slot of their own are grouped next to the closest one that has it
 jo.component.data.pedCategories = {
   "heads",
   "eyes",
+  "eyecaps",
   "teeth",
-  "bodies_upper",
-  "bodies_lower",
-  "hair",
-  "hair_bonnet",
+  "beards_complete",
   "beards",
   "beards_chin",
   "beards_chops",
   "beards_mustache",
-  "beards_complete",
-  "ponchos",
-  "cloaks",
-  "hair_accessories",
-  "dresses",
-  "shawls",
-  "chemises",
-  "knickers",
-  "gloves",
-  "coats",
-  "coats_closed",
-  "coat_accessories",
-  "coats_heavy",
-  "vests",
-  "vest_accessories",
-  "corsets",
-  "suspenders",
+  "bodies_upper",
+  "bodies_lower",
+  "eyewear",
+  "face_props",
+  "neckerchiefs",
   "neckties",
+  "neckwear",
+  "scarves",
+  "shirt_modular_collars",
+  "hair",
+  "hair_bonnet",
+  "hats",
+  "masks",
+  "masks_large",
+  "hat_accessories",
+  "hatband",
+  "headwear",
+  "hair_accessories",
+  "chemises",
+  "blouses",
+  "knickers",
+  "stockings",
+  "corsets",
+  "unionsuits_full",
   "shirts_full",
   "shirts_full_overpants",
-  "unionsuit_legs",
-  "unionsuits_full",
-  "spats",
-  "gunbelts",
+  "suspenders",
+  "vests",
+  "coats",
+  "coats_closed",
+  "coats_heavy",
+  "coat_accessories",
+  "ponchos",
+  "shawls",
+  "cloaks",
+  "jewelry_rings_left",
+  "jewelry_rings_right",
+  "jewelry_rings",
   "gauntlets",
+  "vest_accessories",
+  "badges",
+  "gloves",
+  "jewelry_bracelets",
   "wrist_bindings",
-  "holsters_left",
-  "holsters_right",
-  "holsters_center",
-  "holsters_crossdraw",
-  "holsters_knife",
-  "holsters_quivers",
+  "jewelry_earrings",
+  "jewelry_necklaces",
+  "satchels",
+  "satchel_straps",
   "loadouts",
   "outfits",
+  "gunbelts",
+  "gunbelts_high",
   "belt_buckles",
+  "holsters_left",
+  "holsters_right",
+  "holsters_crossdraw",
+  "holsters_center",
+  "holsters_quivers",
+  "holsters_knife",
+  "gunbelt_accs",
   "belts",
-  "skirts",
-  "boots",
+  "aprons",
   "pants",
-  "pants_accessories",
   "overalls_full",
   "overalls_modular_uppers",
   "overalls_modular_lowers",
+  "skirts",
+  "dresses",
+  "unionsuit_legs",
+  "pants_accessories",
+  "boots",
+  "chaps",
+  "spats",
   "boot_accessories",
   "ankle_bindings",
-  "accessories",
-  "satchels",
-  "satchel_straps",
-  "jewelry_rings_right",
-  "jewelry_rings_left",
-  "jewelry_rings",
-  "jewelry_bracelets",
-  "jewelry_earrings",
-  "jewelry_necklaces",
-  "aprons",
-  "chaps",
-  "badges",
-  "gunbelt_accs",
-  "eyewear",
-  "masks",
-  "masks_large",
-  "hats",
-  "hat_accessories",
-  "headwear",
-  "hair",
-  "beards_complete",
-  "teeth",
-  "neckwear",
-  "neckerchiefs",
   "armor",
+  "accessories",
 }
 jo.component.data.horseCategories = {
   "horse_heads",
@@ -141,6 +149,7 @@ local categoryNotClothes = {
   bodies_lower = true,
   bodies_upper = true,
   eyes = true,
+  eyecaps = true
   -- neckerchiefs = true
 }
 jo.component.data.pedClothes = table.filter(jo.component.data.pedCategories, function(cat) return not categoryNotClothes[cat] end)
@@ -158,6 +167,74 @@ for i = 1, #jo.component.data.order do
   local hash = jo.component.getCategoryHash(category)
   jo.component.data.categoryName[hash] = category
 end
+
+-------------
+-- CATEGORY GROUPS
+-------------
+--the game works with "slots", not categories: releasing a slot removes all its tags
+--the slot -> tags table below is read from the game metadata, MP layout: the SP one only fills the categories the MP table doesn't carry
+--both layouts reuse the same slot keys for different tags, so a SP slot only counts when it shares a tag with its MP counterpart
+jo.component.data.categoryGroups = {}
+--the exclusive subset of a slot: the categories the metadata puts in the same slot, the game only wears one of them at a time
+--the extra meta tags stay out of it, a hat and its band can coexist
+jo.component.data.exclusiveCategories = {}
+
+local function hashCategories(categories)
+  local hashes = {}
+  for i = 1, #categories do
+    hashes[i] = jo.component.getCategoryHash(categories[i])
+  end
+  return hashes
+end
+
+---@param categories table (The categories sharing the slot)
+---@param exclusive? boolean|table (`true` if none of them can be worn together, or the subset that can't)
+local function registerCategoryGroup(categories, exclusive)
+  local group = hashCategories(categories)
+  for i = 1, #group do
+    jo.component.data.categoryGroups[group[i]] = group
+  end
+  if not exclusive then return end
+  local exclusiveGroup = exclusive == true and group or hashCategories(exclusive)
+  for i = 1, #exclusiveGroup do
+    jo.component.data.exclusiveCategories[exclusiveGroup[i]] = exclusiveGroup
+  end
+end
+
+registerCategoryGroup({ "eyes", "eyecaps" })
+registerCategoryGroup({ "hats", "masks", "masks_large", "hair_accessories", "hat_accessories", "hatband", "headwear" }, { "hats", "masks", "masks_large", "hair_accessories" })
+registerCategoryGroup({ "neckwear", "neckerchiefs", "neckties", "scarves", "shirt_modular_collars" }, { "neckwear", "neckerchiefs", "neckties" })
+registerCategoryGroup({ "shirts_full", "shirts_full_overpants", "unionsuits_full" }, true)
+--`cloaks` sits in a slot of its own in MP, only the SP layout puts it with the coats
+registerCategoryGroup({ "coats", "coats_closed", "ponchos" }, true)
+--`gauntlets` is alone in its MP slot, the SP layout reuses the slot key for another pair
+registerCategoryGroup({ "vest_accessories", "badges" }, true)
+registerCategoryGroup({ "holsters_right", "holsters_crossdraw" }, true)
+registerCategoryGroup({ "satchels", "satchel_straps" })
+registerCategoryGroup({ "gunbelts", "gunbelts_high" })
+--the module only cleared `pants` from `skirts`, the whole slot becomes symmetric
+registerCategoryGroup({ "pants", "skirts", "dresses", "overalls_full", "unionsuit_legs" }, true)
+registerCategoryGroup({ "chaps", "spats" }, true)
+
+--- Return every category hash of the slot, to clear on removal only: a hat and its band can coexist
+---@param category string|integer (The category name or hash)
+---@return table (An array of category hashes, at least the category itself)
+function jo.component.getCategoryGroup(category)
+  local hash = jo.component.getCategoryHash(category)
+  return jo.component.data.categoryGroups[hash] or { hash }
+end
+
+--- Return the categories that cannot be worn at the same time as this one
+---@param category string|integer (The category name or hash)
+---@return table (An array of category hashes, at least the category itself)
+function jo.component.getExclusiveCategories(category)
+  local hash = jo.component.getCategoryHash(category)
+  return jo.component.data.exclusiveCategories[hash] or { hash }
+end
+
+-------------
+-- END CATEGORY GROUPS
+-------------
 
 jo.component.data.wearableStates = {
   shirts_full = {
