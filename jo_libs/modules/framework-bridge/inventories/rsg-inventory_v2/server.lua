@@ -170,6 +170,19 @@ function jo.framework:setItemMetadata(source, itemId, metadata, invId)
   return false
 end
 
+function jo.framework:getUserInventoryItems(source)
+  local Player = RSGCore.Functions.GetPlayer(source)
+  if not Player or not Player.PlayerData then return {} end
+
+  local items = {}
+  for slot, data in pairs(Player.PlayerData.items or {}) do
+    local item = normalizeItem(data, slot)
+    item.type = data.type == "weapon" and "weapon" or "item"
+    items[#items + 1] = item
+  end
+  return items
+end
+
 function jo.framework:getItemCount(source, item, meta)
   local items = Inventory:GetItemsByName(source, item)
   if not items or #items == 0 then

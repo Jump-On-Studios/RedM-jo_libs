@@ -66,6 +66,34 @@ function jo.framework:setItemMetadata(source, itemId, metadata, invId)
   return Inventory:setItemMetadata(source, itemId, metadata) == true
 end
 
+function jo.framework:getUserInventoryItems(source)
+  local items = {}
+  local inventoryItems = Inventory:getUserInventoryItems(source) or {}
+  local inventoryWeapons = Inventory:getUserInventoryWeapons(source) or {}
+
+  for _, data in pairs(inventoryItems) do
+    local item = normalizeItem(data)
+    item.type = "item"
+    items[#items + 1] = item
+  end
+
+  for _, weapon in pairs(inventoryWeapons) do
+    items[#items + 1] = {
+      id = weapon.id,
+      amount = 1,
+      item = weapon.name,
+      metadata = {
+        label = weapon.custom_label or weapon.label,
+        custom_desc = weapon.custom_desc,
+        serial_number = weapon.serial_number,
+      },
+      type = "weapon"
+    }
+  end
+
+  return items
+end
+
 function jo.framework:registerUseItem(item, closeAfterUsed, callback)
   if type(closeAfterUsed) == "function" then
     callback = closeAfterUsed

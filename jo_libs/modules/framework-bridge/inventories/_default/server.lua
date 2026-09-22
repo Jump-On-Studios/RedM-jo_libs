@@ -42,6 +42,13 @@ function jo.framework:setItemMetadata(source, itemId, metadata, invId)
   return false
 end
 
+--- Retrieves all items and weapons from a player's inventory
+---@param source integer (The source ID of the player)
+---@return table (Return the list of items and weapons with structure: <br>`item.id`: *integer* - The item or weapon ID<br>`item.item`: *string* - The item or weapon name<br>`item.amount`: *integer* - The quantity<br>`item.metadata`: *table* - The metadata<br>`item.type`: *string* - `item` or `weapon`)
+function jo.framework:getUserInventoryItems(source)
+  return {}
+end
+
 --- Registers an item as usable and attaches a callback function that executes when the item is used
 ---@param item string (The name of the item)
 ---@param closeAfterUsed? boolean (If the inventory needs to be closed after using the item <br> default:`true`)
