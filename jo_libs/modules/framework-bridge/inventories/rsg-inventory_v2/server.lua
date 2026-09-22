@@ -61,8 +61,9 @@ end
 function jo.framework:getItemsFromInventory(invId)
   local inventory = Inventory:GetInventory(invId) or { items = {} }
   local items = {}
-  for _, item in pairs(inventory.items) do
+  for slot, item in pairs(inventory.items) do
     table.insert(items, {
+      id = item.slot or slot,
       metadata = item.info,
       amount = item.amount,
       item = item.name
@@ -103,6 +104,69 @@ function jo.framework:canUseItem(source, item, amount, meta, remove)
     end
   end
 
+  return false
+end
+
+local function normalizeItem(data, slot)
+  return {
+    id = data.slot or slot,
+    amount = data.amount or 0,
+    item = data.name,
+    metadata = type(data.info) == "table" and data.info or {}
+  }
+end
+
+local function itemMatchesSelector(item, selector)
+  if not selector then return true end
+  if selector.id ~= nil and tostring(item.id) ~= tostring(selector.id) then return false end
+  if selector.metadata and not table.isEgal(selector.metadata, item.metadata, false) then return false end
+  return true
+end
+
+function jo.framework:getItem(source, item, selector, invId)
+  local invItems
+  if invId then
+    local inventory = Inventory:GetInventory(invId)
+    invItems = inventory and inventory.items
+  else
+    invItems = Inventory:GetItemsByName(source, item)
+  end
+
+  for slot, data in pairs(invItems or {}) do
+    local normalizedItem = normalizeItem(data, slot)
+    if normalizedItem.item == item and itemMatchesSelector(normalizedItem, selector) then
+      return normalizedItem
+    end
+  end
+end
+
+function jo.framework:setItemMetadata(source, itemId, metadata, invId)
+  if itemId == nil or type(metadata) ~= "table" then return false end
+
+  if invId then
+    local inventory = Inventory:GetInventory(invId)
+    if not inventory or not inventory.items then return false end
+
+    for slot, item in pairs(inventory.items) do
+      if tostring(item.slot or slot) == tostring(itemId) then
+        item.info = metadata
+        Inventory:SaveStash(invId)
+        return true
+      end
+    end
+    return false
+  end
+
+  local Player = RSGCore.Functions.GetPlayer(source)
+  if not Player then return false end
+
+  for slot, item in pairs(Player.PlayerData.items or {}) do
+    if tostring(item.slot or slot) == tostring(itemId) then
+      item.info = metadata
+      Player.Functions.SetPlayerData("items", Player.PlayerData.items)
+      return true
+    end
+  end
   return false
 end
 

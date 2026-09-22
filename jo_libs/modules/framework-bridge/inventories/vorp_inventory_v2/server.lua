@@ -26,6 +26,46 @@ function jo.framework:getItemCount(source, item, meta)
   return Inventory:getItemCount(source, nil, item, meta) or 0
 end
 
+local function normalizeItem(data)
+  return {
+    id = data.id or data.mainid,
+    amount = data.amount or data.count or 0,
+    item = data.name or data.item,
+    metadata = type(data.metadata) == "table" and data.metadata or {}
+  }
+end
+
+local function itemMatchesSelector(item, selector)
+  if not selector then return true end
+  if selector.id ~= nil and tostring(item.id) ~= tostring(selector.id) then return false end
+  if selector.metadata and not table.isEgal(selector.metadata, item.metadata, false) then return false end
+  return true
+end
+
+function jo.framework:getItem(source, item, selector, invId)
+  local invItems
+  if invId then
+    invItems = Inventory:getCustomInventoryItems(invId)
+  else
+    invItems = Inventory:getUserInventoryItems(source)
+  end
+
+  for _, data in pairs(invItems or {}) do
+    local normalizedItem = normalizeItem(data)
+    if normalizedItem.item == item and itemMatchesSelector(normalizedItem, selector) then
+      return normalizedItem
+    end
+  end
+end
+
+function jo.framework:setItemMetadata(source, itemId, metadata, invId)
+  if itemId == nil or type(metadata) ~= "table" then return false end
+  if invId then
+    return Inventory:updateCustomInventoryItem(invId, itemId, metadata) == true
+  end
+  return Inventory:setItemMetadata(source, itemId, metadata) == true
+end
+
 function jo.framework:registerUseItem(item, closeAfterUsed, callback)
   if type(closeAfterUsed) == "function" then
     callback = closeAfterUsed

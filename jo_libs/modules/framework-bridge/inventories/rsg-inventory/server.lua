@@ -33,6 +33,69 @@ function jo.framework:getItemCount(source, item, meta)
   return 0
 end
 
+local function normalizeItem(data, slot)
+  return {
+    id = data.slot or slot,
+    amount = data.amount or 0,
+    item = data.name,
+    metadata = type(data.info) == "table" and data.info or {}
+  }
+end
+
+local function itemMatchesSelector(item, selector)
+  if not selector then return true end
+  if selector.id ~= nil and tostring(item.id) ~= tostring(selector.id) then return false end
+  if selector.metadata and not table.isEgal(selector.metadata, item.metadata, false) then return false end
+  return true
+end
+
+function jo.framework:getItem(source, item, selector, invId)
+  local invItems
+  if invId then
+    local rawItems = MySQL.scalar.await("SELECT items FROM stashitems WHERE stash = ?", { invId })
+    invItems = UnJson(rawItems) or {}
+  else
+    local Player = RSGCore.Functions.GetPlayer(source)
+    invItems = Player and Player.PlayerData.items or {}
+  end
+
+  for slot, data in pairs(invItems) do
+    local normalizedItem = normalizeItem(data, slot)
+    if normalizedItem.item == item and itemMatchesSelector(normalizedItem, selector) then
+      return normalizedItem
+    end
+  end
+end
+
+function jo.framework:setItemMetadata(source, itemId, metadata, invId)
+  if itemId == nil or type(metadata) ~= "table" then return false end
+
+  if invId then
+    local rawItems = MySQL.scalar.await("SELECT items FROM stashitems WHERE stash = ?", { invId })
+    local invItems = UnJson(rawItems) or {}
+    for slot, item in pairs(invItems) do
+      if tostring(item.slot or slot) == tostring(itemId) then
+        item.info = metadata
+        MySQL.update.await("UPDATE stashitems SET items = ? WHERE stash = ?", { json.encode(invItems), invId })
+        return true
+      end
+    end
+    return false
+  end
+
+  local Player = RSGCore.Functions.GetPlayer(source)
+  if not Player then return false end
+
+  for slot, item in pairs(Player.PlayerData.items or {}) do
+    if tostring(item.slot or slot) == tostring(itemId) then
+      item.info = metadata
+      Player.Functions.SetPlayerData("items", Player.PlayerData.items)
+      return true
+    end
+  end
+  return false
+end
+
 function jo.framework:registerUseItem(item, closeAfterUsed, callback)
   if type(closeAfterUsed) == "function" then
     callback = closeAfterUsed
@@ -116,9 +179,10 @@ function jo.framework:getItemsFromInventory(invId)
   local items = {}
 
   local invItems = MySQL.scalar.await("SELECT items FROM stashitems WHERE stash = ?", { invId })
-  invItems = UnJson(invItems)
+  invItems = UnJson(invItems) or {}
   for i = 1, #invItems do
     items[i] = {
+      id = invItems[i].slot or i,
       metadata = invItems[i].info,
       amount = invItems[i].amount,
       item = invItems[i].name

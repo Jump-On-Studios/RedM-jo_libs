@@ -22,6 +22,26 @@ function jo.framework:getItemCount(source, item, meta)
   return 0
 end
 
+--- Retrieves one specific item instance from a player's inventory or a custom inventory
+---@param source integer (The source ID of the player)
+---@param item string (The name of the item)
+---@param selector? table (Optional selector containing `id` and/or `metadata`)
+---@param invId? string (The custom inventory ID. If omitted, the player's inventory is used)
+---@return table|nil (The normalized item instance or `nil` if not found)
+function jo.framework:getItem(source, item, selector, invId)
+  return nil
+end
+
+--- Replaces the metadata of one specific item instance in a player's inventory or a custom inventory
+---@param source integer (The source ID of the player)
+---@param itemId integer (The normalized item ID returned by `jo.framework:getItem()`)
+---@param metadata table (The new metadata)
+---@param invId? string (The custom inventory ID. If omitted, the player's inventory is used)
+---@return boolean (Return `true` if the metadata was successfully updated)
+function jo.framework:setItemMetadata(source, itemId, metadata, invId)
+  return false
+end
+
 --- Registers an item as usable and attaches a callback function that executes when the item is used
 ---@param item string (The name of the item)
 ---@param closeAfterUsed? boolean (If the inventory needs to be closed after using the item <br> default:`true`)
@@ -86,6 +106,7 @@ end
 function jo.framework:getItemsFromInventory(invId)
   --[[ item structure
   {
+    id = 0,
     metadata = {},
     amount = 0,
     item = "itemName"
