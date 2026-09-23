@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 
 export const useGroupStore = defineStore('group', {
   state: () => ({
+    id: undefined,
     title: undefined,
     position: 'bottom-right',
     prompts: [],
@@ -13,6 +14,9 @@ export const useGroupStore = defineStore('group', {
   actions: {
     // since we rely on `this`, we cannot use an arrow function
     setGroup(data) {
+      // a new group must not inherit the keys pressed on the previous one
+      if (data.id !== this.id) this.pressedKeys = {}
+      this.id = data.id
       this.title = data.title
       this.position = data.position
       this.prompts = data.prompts
@@ -40,7 +44,9 @@ export const useGroupStore = defineStore('group', {
     updatePrompt(data) {
       const page = data.page - 1 // Lua is 1 indexed
       const position = data.position - 1 // Lua is 1 indexed
-      this.prompts[page][position][data.property] = data.value
+      const prompt = this.prompts[page]?.[position]
+      if (!prompt) return
+      prompt[data.property] = data.value
     },
 
     updateGroup(data) {

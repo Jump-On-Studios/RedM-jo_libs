@@ -26,7 +26,8 @@ end)
 -- * VARIABLES
 -- * =============================================================================
 
-local keysCompleted = {}
+local completedKeys = {}        -- [key] = { consumedAt = number|nil }
+local pressedKeys = {}          -- [key] = vk (raw keymap) or true (key received by the NUI while it has the focus)
 local createdGroupsAmount = 0
 local currentGroupVisible = nil -- GroupClass|nil
 local forcedHide = false
@@ -34,6 +35,18 @@ local forcedHide = false
 -- * =============================================================================
 -- * KEYS
 -- * =============================================================================
+
+local function getKeyVariants(key)
+    local alias = jo.rawKeys.getAliasFromStandardKey(key)
+    if alias ~= key then
+        return { key, alias }
+    end
+    return { key }
+end
+
+local function resetCompletions()
+    completedKeys = {}
+end
 
 local function doesKeyIsInVisiblePrompt(prompt, keys)
     if not prompt.visible then return false end
@@ -46,20 +59,33 @@ local function doesKeyIsInVisiblePrompt(prompt, keys)
     return false
 end
 
-local function keyDown(key)
-    if not currentGroupVisible then return end
-    local group = currentGroupVisible
-    local page = group.currentPage
-    local prompts = group.prompts[page]
+local function keyDown(key, vk)
     if not key then return end
-    local alias = jo.rawKeys.getAliasFromStandardKey(key)
-    local keys = { key }
-    if alias ~= key then
-        keys[#keys + 1] = alias
+    -- ignore the OS auto-repeat: the key is already down
+    if pressedKeys[key] then return end
+    local keys = getKeyVariants(key)
+    for k = 1, #keys do
+        pressedKeys[keys[k]] = vk or true
+        -- a new press invalidates the previous completion of this key
+        completedKeys[keys[k]] = nil
     end
+
+    if not currentGroupVisible or forcedHide then return end
+    local group = currentGroupVisible
+
+    if #group.prompts > 1 and table.find(keys, group.nextPageKey) then
+        SendNUIMessage({
+            type = "nextPage",
+        })
+        group.currentPage = group.currentPage + 1
+        if (group.currentPage > #group.prompts) then group.currentPage = 1 end
+        resetCompletions()
+        return true
+    end
+
+    local prompts = group.prompts[group.currentPage] or {}
     for p = 1, #prompts do
-        local prompt = prompts[p]
-        local isValid, validKey = doesKeyIsInVisiblePrompt(prompt, keys)
+        local isValid, validKey = doesKeyIsInVisiblePrompt(prompts[p], keys)
         if isValid then
             SendNUIMessage({
                 type = "keyDown",
@@ -67,13 +93,6 @@ local function keyDown(key)
                     key = validKey
                 }
             })
-            if validKey == group.nextPageKey then
-                SendNUIMessage({
-                    type = "nextPage",
-                })
-                group.currentPage = group.currentPage + 1
-                if (group.currentPage > #group.prompts) then group.currentPage = 1 end
-            end
             return true
         end
     end
@@ -81,39 +100,42 @@ end
 
 local function keyUp(key)
     if not key then return end
-    SendNUIMessage({
-        type = "keyUp",
-        data = {
-            key = key
-        }
-    })
-    local alias = jo.rawKeys.getAliasFromStandardKey(key)
-    if alias == key then return end
-    SendNUIMessage({
-        type = "keyUp",
-        data = {
-            key = alias
-        }
-    })
+    local keys = getKeyVariants(key)
+    for k = 1, #keys do
+        pressedKeys[keys[k]] = nil
+        SendNUIMessage({
+            type = "keyUp",
+            data = {
+                key = keys[k]
+            }
+        })
+    end
 end
 
-local vks = jo.rawKeys.getAllVK()
-local vk_listener = {}
+--- Releases the keys whose keyUp was never received (e.g. NUI focus taken or given back, or alt-tab while the key was held)
+local function releaseStuckKeys()
+    for key, vk in pairs(pressedKeys) do
+        if vk == true then
+            -- key received by the NUI: its keyUp can't come anymore once the NUI lost the focus
+            if IsNuiFocused and not IsNuiFocused() then
+                keyUp(key)
+            end
+        elseif IsRawKeyDown and not IsRawKeyDown(vk) then
+            keyUp(key)
+        end
+    end
+end
+
+local keyListener
 CreateThread(function()
     while not nuiLoaded do Wait(100) end
-    for k = 1, #vks do
-        local vk = vks[k]
-        local listener = jo.rawKeys.listen(vk, function(isPressed, key)
-            if isPressed then keyDown(key) else keyUp(key) end
-        end)
-        table.insert(vk_listener, listener)
-    end
+    keyListener = jo.rawKeys.listenAll(function(isPressed, key, vk)
+        if isPressed then keyDown(key, vk) else keyUp(key) end
+    end)
 end)
 
 jo.stopped(function()
-    for l = 1, #vk_listener do
-        jo.rawKeys.removeListener(vk_listener[l])
-    end
+    jo.rawKeys.removeListener(keyListener)
 end)
 
 -- * =============================================================================
@@ -152,6 +174,8 @@ end
 --- Refreshes the NUI interface for a prompt, updating a specific property. This update is only performed if the prompt belongs to the currently visible group.
 --- @param property string (The property name to update (e.g., "label", "disabled").)
 function PromptClass:refreshNUI(property)
+    -- the prompt is not attached to a page yet
+    if self.page == -1 then return end
     if currentGroupVisible?.id ~= self.groupId then
         return
     end
@@ -186,11 +210,10 @@ function PromptClass:setEnabled(enabled)
     self:refreshNUI("disabled")
 end
 
---- Sets the visibility of the prompt and updates its enabled state accordingly.
+--- Sets the visibility of the prompt. A hidden prompt can't be triggered.
 --- @param visible boolean (`true` to show the prompt, `false` to hide it.)
 function PromptClass:setVisible(visible)
     self.visible = visible
-    self:setEnabled(visible)
     self:refreshNUI("visible")
 end
 
@@ -200,14 +223,18 @@ function PromptClass:isVisible()
     return self.visible
 end
 
---- Configures the keyboard keys for the prompt. Ensures that the keys are stored in a table, converting a single key to uppercase if needed.
+--- Configures the keyboard keys for the prompt. Ensures that the keys are stored in a table, converting them to lowercase.
 --- @param keyboardKeys table|string (A table of key strings or a single key string.)
 function PromptClass:setKeyboardKeys(keyboardKeys)
-    if type(keyboardKeys) == "table" then
-        self.keyboardKeys = keyboardKeys
-    else
-        self.keyboardKeys = { keyboardKeys }
+    if type(keyboardKeys) ~= "table" then
+        keyboardKeys = { keyboardKeys }
     end
+    local keys = {}
+    for k = 1, #keyboardKeys do
+        keys[k] = tostring(keyboardKeys[k]):lower()
+    end
+    self.keyboardKeys = keys
+    self:refreshNUI("keyboardKeys")
 end
 
 --- Sets the key hold duration for the prompt.
@@ -250,7 +277,7 @@ function GroupClass:new()
         position = "bottom-right",
         prompts = {},
         visible = false,
-        nextPageKey = "A",
+        nextPageKey = "a",
         nextPageListener = nil,
         currentPage = 1,
         suppressNativePrompts = true,
@@ -260,7 +287,7 @@ end
 --- Refreshes the NUI interface for the group by updating a specified property. This update is only sent if the group is currently visible.
 --- @param property string (The group property to update (e.g., "title", "position",..).)
 function GroupClass:refreshNUI(property)
-    if not self.visible then return end
+    if currentGroupVisible ~= self then return end
     SendNUIMessage({
         type = "updateGroup",
         data = {
@@ -288,7 +315,8 @@ end
 --- Sets the key used for navigating to the next page of prompts.
 --- @param key string (The key string to be used for pagination.)
 function GroupClass:setNextPageKey(key)
-    self.nextPageKey = string.upper(key)
+    self.nextPageKey = string.lower(key)
+    self:refreshNUI("nextPageKey")
 end
 
 --- Configures which native RedM prompt types are suppressed while this group is displayed.
@@ -342,6 +370,15 @@ function GroupClass:isVisible()
     return self.visible
 end
 
+--- Sends the whole group again to the NUI when it's displayed (e.g. after adding a prompt)
+local function resendGroupIfVisible(group)
+    if currentGroupVisible ~= group then return end
+    SendNUIMessage({
+        type = "setGroup",
+        data = table.clearForNui(group)
+    })
+end
+
 local function ensurePromptPage(group, page)
     if not group.prompts[page] then
         for i = 1, page do
@@ -373,6 +410,7 @@ function GroupClass:addPrompt(key, label, holdTime, page, price)
     table.insert(self.prompts[page], prompt)
     prompt.page = page
     prompt.position = #self.prompts[page]
+    resendGroupIfVisible(self)
 
     return prompt
 end
@@ -390,6 +428,7 @@ function GroupClass:addSeparator(page)
         position = #self.prompts[page] + 1
     }
     table.insert(self.prompts[page], separator)
+    resendGroupIfVisible(self)
 end
 
 local function isForcedHide()
@@ -419,6 +458,8 @@ local function startLoop()
                 end
             end
 
+            releaseStuckKeys()
+
             if currentGroupVisible and isForcedHide() then
                 currentGroupVisible:forceHide()
                 while isForcedHide() do
@@ -439,9 +480,16 @@ end
 --- Displays the prompt group on the NUI interface and sets up key listeners for the active page. If the group has multiple pages, it also configures pagination using the nextPageKey.
 --- @param page? number (The page number to display<br> defaults to the group's current page.)
 function GroupClass:display(page)
+    if currentGroupVisible ~= self then
+        if currentGroupVisible then
+            currentGroupVisible.visible = false
+        end
+        resetCompletions()
+    end
     currentGroupVisible = self
 
-    if forcedHide then
+    -- don't show the group over the pause menu or a fade: the loop will display it back
+    if forcedHide and not isForcedHide() then
         forcedHide = false
         SendNUIMessage({
             type = "forceHide",
@@ -473,7 +521,7 @@ function GroupClass:hide()
     -- Only clear the global state if this group is still the active one
     if currentGroupVisible == self then
         currentGroupVisible = nil
-        keysCompleted = {}
+        resetCompletions()
         SendNUIMessage({
             type = "setGroup",
             data = {
@@ -540,20 +588,31 @@ function jo.promptNui.isCompleted(group, key, fireMultipleTimes)
         end
     end
 
-    if not keysCompleted[key] then
+    local keys = getKeyVariants(key)
+    local completion
+    for k = 1, #keys do
+        completion = completion or completedKeys[keys[k]]
+    end
+    if not completion then
         return false
     end
 
     if fireMultipleTimes then
-        return true
-    end
-
-    local currentTime = GetGameTimer()
-    if keysCompleted[key] ~= currentTime then
+        -- true as long as the key is held after the completion
+        for k = 1, #keys do
+            if pressedKeys[keys[k]] then return true end
+        end
         return false
     end
 
-    return true
+    -- the completion is consumed by the first read, but stays valid for every read done during the same game time
+    local currentTime = GetGameTimer()
+    if not completion.consumedAt then
+        completion.consumedAt = currentTime
+        return true
+    end
+
+    return completion.consumedAt == currentTime
 end
 
 function jo.promptNui.isDisplayed()
@@ -564,19 +623,23 @@ end
 -- * RegisterNUICallback for NUI Driven
 -- * ===============================================================================
 RegisterNUICallback("keyCompleted", function(data, cb)
-    local key = data.kkey:lower()
-    keysCompleted[key] = GetGameTimer()
     cb({ ok = "ok" })
+    if type(data?.kkey) ~= "string" then return end
+    if forcedHide then return end
+    -- ignore the completions sent by a group that is not displayed anymore
+    if not currentGroupVisible or currentGroupVisible.id ~= data.groupId then return end
+    completedKeys[data.kkey:lower()] = {}
+end)
+
+-- Keys received by the NUI while it has the focus (e.g. a menu is open): the raw keymaps don't fire in that case
+RegisterNUICallback("keyDown", function(data, cb)
+    cb({ ok = "ok" })
+    if type(data?.key) ~= "string" then return end
+    keyDown(data.key:lower())
 end)
 
 RegisterNUICallback("keyUp", function(data, cb)
-    local key = data.kkey:lower()
-    keysCompleted[key] = nil
     cb({ ok = "ok" })
-end)
-
-RegisterNUICallback("keyDown", function(data, cb)
-    local key = data.kkey:lower()
-    keysCompleted[key] = nil
-    cb({ ok = "ok" })
+    if type(data?.key) ~= "string" then return end
+    keyUp(data.key:lower())
 end)

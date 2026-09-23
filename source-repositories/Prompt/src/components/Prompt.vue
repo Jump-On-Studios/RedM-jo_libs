@@ -23,8 +23,8 @@ const props = defineProps({
     <PriceDisplay :price="prompt.price" right />
     <div id="keyboardKeys">
       <KeyboardKey
-        v-for="(keyboardKey, index) in props.prompt.keyboardKeys"
-        :key="index"
+        v-for="keyboardKey in props.prompt.keyboardKeys"
+        :key="keyboardKey"
         :holdTime="props.prompt.holdTime"
         :kkey="keyboardKey"
         :disabled="prompt.disabled"

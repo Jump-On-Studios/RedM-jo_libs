@@ -26,7 +26,6 @@
 
 <script setup>
 import { onMounted, onUnmounted, ref, computed } from 'vue'
-import { SendNUIKey, SendNUINextPage } from '@/dev'
 import { keymaps } from '@/data/keymaps'
 import { useGroupStore } from '@/stores/group'
 
@@ -65,18 +64,27 @@ let keyCompletedSent = false
 const animationDuration = computed(() => (props.holdTime ? `${props.holdTime}ms` : '1000ms'))
 const durationMs = computed(() => props.holdTime || 1000)
 
-// Subscribe to the group store changes and trigger key animations accordingly
+// Subscribe to the group store changes and trigger key animations accordingly.
+// Only the transitions of the key are handled: a key already held when the component is mounted,
+// or when the prompt gets enabled, must not trigger the prompt.
 const groupStore = useGroupStore()
-groupStore.$subscribe((mutation, state) => {
-  if (state.pressedKeys.hasOwnProperty(props.kkey)) {
-    showKeyDown()
-  } else {
-    showKeyUp()
-  }
-})
+const isKeyPressed = (state) => Object.prototype.hasOwnProperty.call(state.pressedKeys, props.kkey)
+let wasPressed = isKeyPressed(groupStore)
+groupStore.$subscribe(
+  (mutation, state) => {
+    const isPressed = isKeyPressed(state)
+    if (isPressed === wasPressed) return
+    wasPressed = isPressed
+    if (isPressed) {
+      showKeyDown()
+    } else {
+      showKeyUp()
+    }
+  },
+  { flush: 'sync' },
+)
 
-const sendKeyCompletedFromNUI = async (checkHoldTime) => {
-  if (checkHoldTime && props.holdTime) return
+const sendKeyCompletedFromNUI = async () => {
   if (props.disabled) return
   if (isDev) {
     console.log('Would send keyCompleted')
@@ -88,43 +96,8 @@ const sendKeyCompletedFromNUI = async (checkHoldTime) => {
     headers: {
       'Content-Type': 'application/json; charset=UTF-8',
     },
-    body: JSON.stringify(props),
+    body: JSON.stringify({ kkey: props.kkey, groupId: groupStore.id }),
   })
-}
-
-const sendKeyUpFromNUI = async () => {
-  if (props.disabled) return
-  if (isDev) {
-    console.log('Would send keyUp')
-    return
-  }
-  // eslint-disable-next-line no-undef
-  await fetch(`https://${GetParentResourceName()}/keyUp`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
-    body: JSON.stringify(props),
-  })
-}
-
-// Handle keydown event (only in DEV mode)
-const handleKeyDown = (event) => {
-  if (event.repeat) return
-  if (props.disabled) return
-  if (event.key.toUpperCase() === props.kkey.toUpperCase()) {
-    if (props.isNextPage) SendNUINextPage()
-    SendNUIKey(props.kkey, 'keyDown')
-    sendKeyCompletedFromNUI(true)
-  }
-}
-
-// Handle keyup event (only in DEV mode)
-const handleKeyUp = (event) => {
-  if (event.key.toUpperCase() === props.kkey.toUpperCase()) {
-    sendKeyUpFromNUI()
-    SendNUIKey(props.kkey, 'keyUp')
-  }
 }
 
 // Reset animation values to initial state
@@ -216,7 +189,7 @@ const showKeyDown = () => {
         calculateProgress(durationMs.value, durationMs.value)
         clearInterval(animationTimer)
         animationTimer = null
-        sendKeyCompletedFromNUI(false)
+        sendKeyCompletedFromNUI()
       } else {
         // Animation in progress
         calculateProgress(elapsed, durationMs.value)
@@ -225,7 +198,7 @@ const showKeyDown = () => {
   } else {
     if (!keyCompletedSent) {
       keyCompletedSent = true
-      sendKeyCompletedFromNUI(false)
+      sendKeyCompletedFromNUI()
     }
   }
 }
@@ -327,16 +300,11 @@ const showKeyUp = () => {
   }
 }
 
-// Attach and detach event listeners
 onMounted(() => {
-  window.addEventListener('keydown', handleKeyDown)
-  window.addEventListener('keyup', handleKeyUp)
   resetAnimation()
 })
 
 onUnmounted(() => {
-  window.removeEventListener('keydown', handleKeyDown)
-  window.removeEventListener('keyup', handleKeyUp)
 
   if (animationTimer) {
     clearInterval(animationTimer)
