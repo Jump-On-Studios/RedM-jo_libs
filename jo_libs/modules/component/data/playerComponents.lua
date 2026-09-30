@@ -3104,12 +3104,12 @@ return {
           { hash = 341101829 },
         }
       },
-      {
-        variations = {
-          { hash = -1158398342 },
-          { hash = -823467388 },
-        }
-      },
+      -- {
+      --   variations = {
+      --     { hash = -1158398342 }, -- invisible
+      --     { hash = -823467388 }, -- invisible
+      --   }
+      -- },
     },
     armor = {
       {
@@ -3301,11 +3301,11 @@ return {
           { hash = -1760419852 },
         }
       },
-      {
-        variations = {
-          { hash = -1000283070 },
-        }
-      },
+      -- {
+      --   variations = {
+      --     { hash = -1000283070 }, -- invisible
+      --   }
+      -- },
     },
     gunbelts = {
       {
@@ -5729,18 +5729,18 @@ return {
           { hash = -54830229, hashname = "CLOTHING_ITEM_F_HAT_313_TINT_001" },
         }
       },
-      {
-        variations = {
-          { hash = -443816584, hashname = "CLOTHING_ITEM_F_HAT_314_TINT_001" },
-          { hash = -820725622, hashname = "CLOTHING_ITEM_F_HAT_314_TINT_002" },
-          { hash = 1842902543, hashname = "CLOTHING_ITEM_F_HAT_314_TINT_003" },
-          { hash = 967118249, hashname = "CLOTHING_ITEM_F_HAT_314_TINT_004" },
-          { hash = 1131159863, hashname = "CLOTHING_ITEM_F_HAT_314_TINT_005" },
-          { hash = -1795013534, hashname = "CLOTHING_ITEM_F_HAT_314_TINT_006" },
-          { hash = 818772986, hashname = "CLOTHING_ITEM_F_HAT_314_TINT_007" },
-          { hash = 39821087, hashname = "CLOTHING_ITEM_F_HAT_314_TINT_008" },
-        }
-      },
+      -- {
+      --   variations = {
+      --     { hash = -443816584, hashname = "CLOTHING_ITEM_F_HAT_314_TINT_001" }, -- invisible
+      --     { hash = -820725622, hashname = "CLOTHING_ITEM_F_HAT_314_TINT_002" }, -- invisible
+      --     { hash = 1842902543, hashname = "CLOTHING_ITEM_F_HAT_314_TINT_003" }, -- invisible
+      --     { hash = 967118249, hashname = "CLOTHING_ITEM_F_HAT_314_TINT_004" }, -- invisible
+      --     { hash = 1131159863, hashname = "CLOTHING_ITEM_F_HAT_314_TINT_005" }, -- invisible
+      --     { hash = -1795013534, hashname = "CLOTHING_ITEM_F_HAT_314_TINT_006" }, -- invisible
+      --     { hash = 818772986, hashname = "CLOTHING_ITEM_F_HAT_314_TINT_007" }, -- invisible
+      --     { hash = 39821087, hashname = "CLOTHING_ITEM_F_HAT_314_TINT_008" }, -- invisible
+      --   }
+      -- },
       {
         variations = {
           { hash = -1437821347, hashname = "CLOTHING_ITEM_F_HAT_315_TINT_001" },
@@ -7042,35 +7042,35 @@ return {
           { hash = 807987662 },
         }
       },
-      {
-        variations = {
-          { hash = 65239590 },
-          { hash = 79150990 },
-          { hash = 147826241 },
-          { hash = 158729547 },
-          { hash = 225868801 },
-          { hash = 289702821 },
-          { hash = 301357579 },
-          { hash = 587605800 },
-          { hash = 1134950609 },
-          { hash = 1204340131 },
-          { hash = 1435394350 },
-          { hash = 1651792265 },
-          { hash = -1455191897 },
-          { hash = -1298147428 },
-          { hash = -1106112309 },
-          { hash = -959746388 },
-          { hash = -700866861 },
-          { hash = -593657130 },
-          { hash = -529747143 },
-          { hash = -493561392 },
-          { hash = -367741634 },
-          { hash = -206251575 },
-          { hash = -195265185 },
-          { hash = -149617972 },
-          { hash = -63186548 },
-        }
-      },
+      -- {
+      --   variations = {
+      --     { hash = 65239590 }, -- invisible
+      --     { hash = 79150990 }, -- invisible
+      --     { hash = 147826241 }, -- invisible
+      --     { hash = 158729547 }, -- invisible
+      --     { hash = 225868801 }, -- invisible
+      --     { hash = 289702821 }, -- invisible
+      --     { hash = 301357579 }, -- invisible
+      --     { hash = 587605800 }, -- invisible
+      --     { hash = 1134950609 }, -- invisible
+      --     { hash = 1204340131 }, -- invisible
+      --     { hash = 1435394350 }, -- invisible
+      --     { hash = 1651792265 }, -- invisible
+      --     { hash = -1455191897 }, -- invisible
+      --     { hash = -1298147428 }, -- invisible
+      --     { hash = -1106112309 }, -- invisible
+      --     { hash = -959746388 }, -- invisible
+      --     { hash = -700866861 }, -- invisible
+      --     { hash = -593657130 }, -- invisible
+      --     { hash = -529747143 }, -- invisible
+      --     { hash = -493561392 }, -- invisible
+      --     { hash = -367741634 }, -- invisible
+      --     { hash = -206251575 }, -- invisible
+      --     { hash = -195265185 }, -- invisible
+      --     { hash = -149617972 }, -- invisible
+      --     { hash = -63186548 }, -- invisible
+      --   }
+      -- },
       {
         variations = {
           { hash = 156767462 },
@@ -7311,11 +7311,11 @@ return {
           { hash = 1572797535 },
         }
       },
-      {
-        variations = {
-          { hash = 125186871 },
-        }
-      },
+      -- {
+      --   variations = {
+      --     { hash = 125186871 }, -- invisible
+      --   }
+      -- },
       {
         variations = {
           { hash = 268570922 },
@@ -7364,11 +7364,11 @@ return {
           { hash = -1496958155 },
         }
       },
-      {
-        variations = {
-          { hash = 1103112138 },
-        }
-      },
+      -- {
+      --   variations = {
+      --     { hash = 1103112138 }, -- invisible
+      --   }
+      -- },
       {
         variations = {
           { hash = 1249910627 },
@@ -7390,16 +7390,16 @@ return {
           { hash = -104275540 },
         }
       },
-      {
-        variations = {
-          { hash = 1563745971 },
-        }
-      },
-      {
-        variations = {
-          { hash = 1928104482 },
-        }
-      },
+      -- {
+      --   variations = {
+      --     { hash = 1563745971 }, -- invisible
+      --   }
+      -- },
+      -- {
+      --   variations = {
+      --     { hash = 1928104482 }, -- invisible
+      --   }
+      -- },
       {
         variations = {
           { hash = 2066103311 },
@@ -7410,16 +7410,16 @@ return {
           { hash = -854827046 },
         }
       },
-      {
-        variations = {
-          { hash = -2101663297 },
-        }
-      },
-      {
-        variations = {
-          { hash = -1881259003 },
-        }
-      },
+      -- {
+      --   variations = {
+      --     { hash = -2101663297 }, -- invisible
+      --   }
+      -- },
+      -- {
+      --   variations = {
+      --     { hash = -1881259003 }, -- invisible
+      --   }
+      -- },
     },
     gauntlets = {
       {
@@ -7962,11 +7962,11 @@ return {
           { hash = -1179077041 },
         }
       },
-      {
-        variations = {
-          { hash = -1143519094 },
-        }
-      },
+      -- {
+      --   variations = {
+      --     { hash = -1143519094 }, -- invisible
+      --   }
+      -- },
     },
     neckties = {
       {
@@ -8824,12 +8824,12 @@ return {
           { hash = -922345613 },
         }
       },
-      {
-        variations = {
-          { hash = -724789668 },
-          { hash = -318576661 },
-        }
-      },
+      -- {
+      --   variations = {
+      --     { hash = -724789668 }, -- invisible
+      --     { hash = -318576661 }, -- invisible
+      --   }
+      -- },
       {
         variations = {
           { hash = 8183638 },
@@ -11929,11 +11929,11 @@ return {
           { hash = -4453150 },
         }
       },
-      {
-        variations = {
-          { hash = 2144894072 },
-        }
-      },
+      -- {
+      --   variations = {
+      --     { hash = 2144894072 }, -- invisible
+      --   }
+      -- },
       {
         variations = {
           { hash = -1565099882 },
@@ -12514,11 +12514,11 @@ return {
           { hash = -862768023 },
         }
       },
-      {
-        variations = {
-          { hash = -1345345741 },
-        }
-      },
+      -- {
+      --   variations = {
+      --     { hash = -1345345741 }, -- invisible
+      --   }
+      -- },
     },
     gunbelts = {
       {
@@ -13412,11 +13412,11 @@ return {
           { hash = 395099389 },
         }
       },
-      {
-        variations = {
-          { hash = 325682628 },
-        }
-      },
+      -- {
+      --   variations = {
+      --     { hash = 325682628 }, -- invisible
+      --   }
+      -- },
       {
         variations = {
           { hash = 383316735 },
@@ -16734,16 +16734,16 @@ return {
           { hash = -936916261 },
         }
       },
-      {
-        variations = {
-          { hash = 1154349470 },
-          { hash = 2081384484 },
-          { hash = 842060900 },
-          { hash = 543109313 },
-          { hash = -1893233068 },
-          { hash = -1583697094 },
-        }
-      },
+      -- {
+      --   variations = {
+      --     { hash = 1154349470 }, -- invisible
+      --     { hash = 2081384484 }, -- invisible
+      --     { hash = 842060900 }, -- invisible
+      --     { hash = 543109313 }, -- invisible
+      --     { hash = -1893233068 }, -- invisible
+      --     { hash = -1583697094 }, -- invisible
+      --   }
+      -- },
       {
         variations = {
           { hash = 1205001629 },
@@ -16849,26 +16849,26 @@ return {
           { hash = -398743595 },
         }
       },
-      {
-        variations = {
-          { hash = -890971660 },
-          { hash = -593003143 },
-          { hash = -441938053 },
-          { hash = -191419048 },
-          { hash = 1179832526 },
-          { hash = 333605870 },
-        }
-      },
-      {
-        variations = {
-          { hash = 854558623 },
-          { hash = 1801549954 },
-          { hash = 2102598757 },
-          { hash = -1993657323 },
-          { hash = -1809888771 },
-          { hash = -1331821830 },
-        }
-      },
+      -- {
+      --   variations = {
+      --     { hash = -890971660 }, -- invisible
+      --     { hash = -593003143 }, -- invisible
+      --     { hash = -441938053 }, -- invisible
+      --     { hash = -191419048 }, -- invisible
+      --     { hash = 1179832526 }, -- invisible
+      --     { hash = 333605870 }, -- invisible
+      --   }
+      -- },
+      -- {
+      --   variations = {
+      --     { hash = 854558623 }, -- invisible
+      --     { hash = 1801549954 }, -- invisible
+      --     { hash = 2102598757 }, -- invisible
+      --     { hash = -1993657323 }, -- invisible
+      --     { hash = -1809888771 }, -- invisible
+      --     { hash = -1331821830 }, -- invisible
+      --   }
+      -- },
     },
     chaps = {
       {
@@ -17984,11 +17984,11 @@ return {
           { hash = -279466189 },
         }
       },
-      {
-        variations = {
-          { hash = 666956175 },
-        }
-      },
+      -- {
+      --   variations = {
+      --     { hash = 666956175 }, -- invisible
+      --   }
+      -- },
       {
         variations = {
           { hash = 1141412736 },
