@@ -1,7 +1,7 @@
 <template>
-  <li v-if="item" :id="`item-${id}`" :class="['item grid clicker with-icon', { 'disabled': item.disabled, 'active': active }]" @click="click()">
+  <li v-if="item" :id="`item-${id}`" :class="['item grid clicker with-icon', { 'disabled': item.disabled, 'active': active }]" :style="tileStyle(item.tilePadding)" @click="click()">
     <template v-if="render">
-      <div :class="[{ 'bw opacity50': item.disabled }, 'image', item.iconClass]">
+      <div :class="[{ 'bw opacity50': item.disabled, 'masked': item.tilePadding != null }, 'image', item.iconClass]">
         <img :src="API.getImage(item.icon)" />
       </div>
       <div class="current" v-if="isCurrent">
@@ -53,6 +53,14 @@ const props = defineProps({
   render: Boolean
 })
 
+// item.tilePadding: the space between the image and the edge of the tile's background (a number in vh, or a CSS
+// length); 0 brings the image to the edge. The image then takes the shape of the background (masked)
+function tileStyle(padding) {
+  if (padding == null) return
+  const length = typeof padding == "number" ? `${padding}vh` : padding
+  return { padding: `calc(var(--padding-background-item) + ${length})` }
+}
+
 function click() {
   if (menuStore.cMenu.currentIndex == props.item.id) {
     menuStore.menuEnter()
@@ -70,7 +78,7 @@ function click() {
   width: 100%;
   align-items: center;
   aspect-ratio: 1 / 1;
-  padding: 1.5vh;
+  padding: calc(var(--padding-background-item) + 1.2vh);
   scroll-margin-top: var(--list-padding-top);
   scroll-margin-bottom: var(--list-padding-top);
 
@@ -113,6 +121,21 @@ function click() {
 
   .image img {
     object-fit: contain;
+  }
+
+  // an image brought to the edge (tilePadding) cut to the shape of the tile's background
+  .image.masked {
+    -webkit-mask-image: url('/assets/images/menu/scoreboard_bg_1a.png');
+    mask-image: url('/assets/images/menu/scoreboard_bg_1a.png');
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+
+    // a block: an inline image leaves a gap below it, which the mask would cover too
+    img {
+      display: block;
+    }
   }
 
   .current {

@@ -18,6 +18,7 @@ class MenuItem {
   iconRight = false;
   iconClass = "";
   iconSize = "normal";
+  tilePadding = null;
   child = false;
   sliders = [];
   price = false;
@@ -132,6 +133,9 @@ class MenuItem {
   }
   setIconClass(value) {
     this.iconClass = value;
+  }
+  setTilePadding(value) {
+    this.tilePadding = value;
   }
   setDisabled(value) {
     this.disabled = value;
@@ -267,6 +271,7 @@ class Menu {
         if (item.starsClass != undefined)
           newItem.setStarsClass(item.starsClass);
         if (item.iconSize) newItem.setIconSize(item.iconSize);
+        if (item.tilePadding != undefined) newItem.setTilePadding(item.tilePadding);
         this.items.push(newItem);
       });
     }
