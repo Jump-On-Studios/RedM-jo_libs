@@ -12,11 +12,11 @@ end)
 ---@param locationOrEntity vector3|integer The world coordinates or entity handle to attach the blip to
 ---@param name string The label displayed on the map for this blip
 ---@param sprite string|integer The sprite name or its hash ([Non exhaustive list](https://github.com/femga/rdr3_discoveries/tree/master/useful_info_from_rpfs/textures/blips))
----@param blipHash? integer The blip type hash - default: `1664425300`
+---@param blipHash? integer The blip type hash - default: `BLIP_STYLE_PICKUP_WEAPON`
 ---@param color? string The color modifier name applied to the blip (resolved via `GetHashFromString`)
 ---@return integer|false blip The blip ID on success, or `false` if the entity does not exist
 function jo.blip.create(locationOrEntity, name, sprite, blipHash, color)
-  if not blipHash then blipHash = 1664425300 end
+  if not blipHash then blipHash = `BLIP_STYLE_PICKUP_WEAPON` end
   if type(sprite) == "string" then sprite = joaat(sprite) end
 
   local blip
