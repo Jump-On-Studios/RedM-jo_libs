@@ -10,6 +10,26 @@ end)
 -- INVENTORY
 -------------
 
+-- rsg-inventory sends the use of these item types to rsg-weapons, never to CreateUseableItem:
+-- their callbacks are also called from the use event below. rsg-weapons equips them as well
+-- when it is started.
+local weaponItemTypes = { weapon = true, weapon_thrown = true, equipment = true }
+local weaponUseCallbacks = {}
+
+RegisterNetEvent("rsg-inventory:server:useItem", function(clientItem)
+  local source = source
+  local slot = type(clientItem) == "table" and clientItem.slot
+  if not slot then return end
+  -- Only the slot comes from the client: the item is read again on the server.
+  local itemData = Inventory:GetItemBySlot(source, slot)
+  local use = itemData and weaponUseCallbacks[itemData.name]
+  if not use or not weaponItemTypes[itemData.type] then return end
+  use.callback(source, { metadata = itemData.info })
+  if use.closeAfterUsed then
+    TriggerClientEvent("rsg-inventory:client:closeInv", source)
+  end
+end)
+
 function jo.framework:registerUseItem(item, closeAfterUsed, callback)
   if type(closeAfterUsed) == "function" then
     callback = closeAfterUsed
@@ -25,6 +45,9 @@ function jo.framework:registerUseItem(item, closeAfterUsed, callback)
       TriggerClientEvent("rsg-inventory:client:closeInv", source)
     end
   end)
+  if weaponItemTypes[RSGCore.Shared.Items[item].type] then
+    weaponUseCallbacks[item] = { callback = callback, closeAfterUsed = closeAfterUsed }
+  end
 end
 
 function jo.framework:createInventory(id, name, invConfig)
@@ -86,7 +109,8 @@ function jo.framework:canUseItem(source, item, amount, meta, remove)
   for i = 1, #items do
     local data = items[i]
     if meta then
-      if table.isEgal(data.info, meta, false, false, true) then
+      -- Same metadata only, as vorp_inventory: an item without metadata must not stand for another one.
+      if table.isEgal(meta, data.info) then
         if data.amount >= amount then
           if remove then
             Inventory:RemoveItem(source, item, amount, data.slot)
@@ -192,7 +216,7 @@ function jo.framework:getItemCount(source, item, meta)
   for i = 1, #items do
     local data = items[i]
     if meta then
-      if table.isEgal(data.info, meta, false, false, true) then
+      if table.isEgal(meta, data.info) then
         count = count + data.amount
       end
     else
