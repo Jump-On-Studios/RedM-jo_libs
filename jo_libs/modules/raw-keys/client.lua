@@ -45,6 +45,8 @@ keyboard_layout = string.lower(keyboard_layout)
 
 local reverseMap = {}
 local reverseMapQwerty = {}
+local keyToVK = {} -- [key] = vk with the current layout
+local registeredKeymaps = {} -- [vk] = true once its raw keymap is registered
 
 --- When several names share the same vk, prefer readable names over `oem_*` ones, then the alphabetical order.
 --- Keeps the result independent from the `pairs()` iteration order.
@@ -69,11 +71,15 @@ addNames(reverseMapQwerty, vk_qwerty)
 
 local function generateReverseMap()
     reverseMap = {}
+    keyToVK = {}
     local list = table.clone(vk_qwerty)
     if keyboard_layout == "azerty" then
         table.merge(list, vk_azerty)
     end
     addNames(reverseMap, list)
+    for key, vk in pairs(list) do
+        keyToVK[key:lower()] = vk
+    end
 
     if keyboard_layout == "azerty" then
         -- the layout names always win for the vk they redefine
@@ -86,10 +92,16 @@ local function generateReverseMap()
 end
 generateReverseMap()
 
+local registerKeymap
+
 AddConvarChangeListener("jo_libs:keyboard_layout", function()
     keyboard_layout = GetConvar("jo_libs:keyboard_layout", "qwerty")
     keyboard_layout = string.lower(keyboard_layout)
     generateReverseMap()
+    -- the listened keys may be on other vks with the new layout
+    for key in pairs(events) do
+        registerKeymap(keyToVK[key])
+    end
 end)
 
 local function dispatch(vk, isPressed)
@@ -112,8 +124,15 @@ local function keyUp(vk)
     dispatch(vk, false)
 end
 
--- one keymap per vk: some names share the same vk (e.g. KANA/HANGUL) and would fire twice
-for vk, key in pairs(reverseMapQwerty) do
+--- Registers the raw keymap of a vk the first time a listener needs it
+--- Every registered keymap runs this resource on each press and release of its key, and can't be unregistered:
+--- a resource only registers the keys it listens to.
+--- One keymap per vk: some names share the same vk (e.g. KANA/HANGUL) and would fire twice.
+registerKeymap = function(vk)
+    if not vk or registeredKeymaps[vk] then return end
+    local key = reverseMapQwerty[vk]
+    if not key then return end
+    registeredKeymaps[vk] = true
     RegisterRawKeymap(jo.resourceName .. ":rawKeys:" .. key, function() keyDown(vk) end, function() keyUp(vk) end, vk, true)
 end
 
@@ -134,6 +153,7 @@ function jo.rawKeys.listen(key, callback)
     end
     events[key] = events[key] or {}
     table.insert(events[key], { id = id, callback = callback })
+    registerKeymap(keyToVK[key])
     return id
 end
 
@@ -144,6 +164,9 @@ function jo.rawKeys.listenAll(callback)
     nextListenerId += 1
     local id = nextListenerId
     table.insert(anyKeyListeners, { id = id, callback = callback })
+    for vk in pairs(reverseMapQwerty) do
+        registerKeymap(vk)
+    end
     return id
 end
 
@@ -185,6 +208,14 @@ end
 function jo.rawKeys.getKeyFromVK(vk)
     local key = reverseMap[vk]
     return key
+end
+
+--- Returns the vk of a key with the current keyboard layout
+--- @param key string (The identifier of the key, as for `jo.rawKeys.listen`)
+--- @return integer|nil (The vk of the key, `nil` when the key is unknown)
+function jo.rawKeys.getVKFromKey(key)
+    key = tostring(key):lower()
+    return keyToVK[alias[key] or key] or keyToVK[key]
 end
 
 function jo.rawKeys.getAliasFromStandardKey(key)

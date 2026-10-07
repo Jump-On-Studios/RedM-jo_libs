@@ -27,7 +27,9 @@ end)
 -- * =============================================================================
 
 local completedKeys = {}        -- [key] = { consumedAt = number|nil }
-local pressedKeys = {}          -- [key] = vk (raw keymap) or true (key received by the NUI while it has the focus)
+local pressedKeys = {}          -- [key] = vk (raw key) or true (key received by the NUI while it has the focus)
+local nuiPressedKeys = {}       -- [key] = true once its keyDown was sent to the NUI
+local rawKeysDown = {}          -- [vk] = state of the raw keys polled while a group is displayed
 local createdGroupsAmount = 0
 local currentGroupVisible = nil -- GroupClass|nil
 local forcedHide = false
@@ -87,6 +89,7 @@ local function keyDown(key, vk)
     for p = 1, #prompts do
         local isValid, validKey = doesKeyIsInVisiblePrompt(prompts[p], keys)
         if isValid then
+            nuiPressedKeys[validKey] = true
             SendNUIMessage({
                 type = "keyDown",
                 data = {
@@ -102,13 +105,18 @@ local function keyUp(key)
     if not key then return end
     local keys = getKeyVariants(key)
     for k = 1, #keys do
+        -- only the NUI keys need their keyUp: those it was sent, and those it received itself
+        local inNui = nuiPressedKeys[keys[k]] or pressedKeys[keys[k]] == true
         pressedKeys[keys[k]] = nil
-        SendNUIMessage({
-            type = "keyUp",
-            data = {
-                key = keys[k]
-            }
-        })
+        nuiPressedKeys[keys[k]] = nil
+        if inNui then
+            SendNUIMessage({
+                type = "keyUp",
+                data = {
+                    key = keys[k]
+                }
+            })
+        end
     end
 end
 
@@ -126,17 +134,44 @@ local function releaseStuckKeys()
     end
 end
 
-local keyListener
-CreateThread(function()
-    while not nuiLoaded do Wait(100) end
-    keyListener = jo.rawKeys.listenAll(function(isPressed, key, vk)
-        if isPressed then keyDown(key, vk) else keyUp(key) end
-    end)
-end)
+--- Polls a raw key of the displayed group: its press and release go to keyDown and keyUp
+--- A key already held when the polling starts is not a new press.
+local function pollRawKey(key, polled)
+    local vk = jo.rawKeys.getVKFromKey(key)
+    if not vk or polled[vk] then return end
+    polled[vk] = true
+    local isDown = IsRawKeyDown(vk)
+    local wasDown = rawKeysDown[vk]
+    rawKeysDown[vk] = isDown
+    if wasDown == nil or wasDown == isDown then return end
+    if isDown then
+        keyDown(jo.rawKeys.getKeyFromVK(vk), vk)
+    else
+        keyUp(jo.rawKeys.getKeyFromVK(vk))
+    end
+end
 
-jo.stopped(function()
-    jo.rawKeys.removeListener(keyListener)
-end)
+--- Polls the keys of the displayed group, called every frame while it is displayed
+--- Polled rather than listened to: a raw keymap would run this resource on every key press, prompt displayed or not.
+local function pollRawKeys()
+    local group = currentGroupVisible
+    if not group or forcedHide then return end
+    local polled = {}
+    if #group.prompts > 1 then pollRawKey(group.nextPageKey, polled) end
+    local prompts = group.prompts[group.currentPage] or {}
+    for p = 1, #prompts do
+        local prompt = prompts[p]
+        if prompt.visible and prompt.type ~= "separator" and prompt.keyboardKeys then
+            for k = 1, #prompt.keyboardKeys do
+                pollRawKey(prompt.keyboardKeys[k], polled)
+            end
+        end
+    end
+    -- a key not polled anymore starts over the next time it is
+    for vk in pairs(rawKeysDown) do
+        if not polled[vk] then rawKeysDown[vk] = nil end
+    end
+end
 
 -- * =============================================================================
 -- * PROMPT
@@ -458,6 +493,7 @@ local function startLoop()
                 end
             end
 
+            pollRawKeys()
             releaseStuckKeys()
 
             if currentGroupVisible and isForcedHide() then
@@ -466,6 +502,8 @@ local function startLoop()
                     Wait(100)
                 end
                 Wait(650)
+                -- a key pressed during the hide is not a new press
+                rawKeysDown = {}
                 if currentGroupVisible then
                     currentGroupVisible:forceDisplay()
                 end
@@ -473,6 +511,7 @@ local function startLoop()
 
             Wait(0)
         end
+        rawKeysDown = {}
         loopStarted = false
     end)
 end
@@ -631,7 +670,7 @@ RegisterNUICallback("keyCompleted", function(data, cb)
     completedKeys[data.kkey:lower()] = {}
 end)
 
--- Keys received by the NUI while it has the focus (e.g. a menu is open): the raw keymaps don't fire in that case
+-- Keys received by the NUI while it has the focus (e.g. a menu is open): the raw keys don't reach the game in that case
 RegisterNUICallback("keyDown", function(data, cb)
     cb({ ok = "ok" })
     if type(data?.key) ~= "string" then return end
