@@ -929,7 +929,7 @@ let menu = {
   ],
 };
 
-if (import.meta.env.DEV) {
+function runDefaultMenu() {
   window.postMessage({
     event: "updateLang",
   });
@@ -963,4 +963,11 @@ if (import.meta.env.DEV) {
       cancelAnimation: true,
     });
   }, 200);
+}
+
+if (import.meta.env.DEV) {
+  // ?scenario=<name> displays a predefined menu (see ./dev/index.js), otherwise the menu above
+  import("./dev/index").then(({ scenarioName, runScenario }) => {
+    if (!scenarioName || !runScenario(scenarioName)) runDefaultMenu();
+  });
 }
