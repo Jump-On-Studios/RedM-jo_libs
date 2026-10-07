@@ -150,16 +150,20 @@ local function clearDataForNui(data)
 end
 
 ---@class MenuClass : table Menu class
----@field id string Menu Unique ID
----@field title string Menu Title
----@field subtitle string Menu Subtitle
----@field type? string Menu type
----@field items? table list of items
----@field numberOnScreen? integer number of items displayed before the scroll
----@field onEnter? function Function fired when the item is pressed
----@field onBack? function Function fired when the backspace is pressed
----@field onExit? function Function fired when the menu is exit
----@field onChange? function Function fired when something is changed in the menu (scroll, switch,...)
+---@field id string Unique ID of the menu
+---@field title string The big title of the menu
+---@field subtitle string The subtitle of the menu
+---@field type? string The menu type: `list` or `tile`
+---@field items? MenuItemClass[] The list of items
+---@field currentIndex? integer The index of the active item
+---@field numberOnScreen? integer `list` menu: number of items displayed before the scroll
+---@field distanceToClose? number|false Distance from where the menu closes itself
+---@field onBeforeEnter? function Fired before the menu is displayed
+---@field onEnter? function Fired when the menu becomes the current menu
+---@field onBack? function Fired when Backspace or Escape is pressed
+---@field onExit? function Fired when the menu is no longer the current menu
+---@field onChange? function Fired when the active item or a slider changes in the menu
+---@field onTick? function Fired every frame while the menu is the current menu
 local MenuClass = {
   id = "",
   title = "Jump On",
@@ -178,24 +182,28 @@ local MenuClass = {
 }
 
 ---@class MenuItemClass : table Menu item class
----@field title string Item title
----@field subtitle string Item subtitle
----@field footer string Item footer
----@field child string|boolean Item child
----@field sliders table Item sliders
----@field price table|boolean Item price
----@field data table Item data
----@field visible boolean Item visibility
----@field description string Item description
----@field prefix string|boolean Item prefix
----@field statistics table Item statistics
----@field disabled boolean Item disabled
----@field textRight string|boolean Item text right
----@field bufferOnChange boolean Item buffer on change
----@field onActive function Item on active
----@field onClick function Item on click
----@field onChange function Item on change
----@field onExit function Item on exit
+---@field index integer The position of the item in the menu
+---@field title string The item label
+---@field subtitle string The line displayed under the title
+---@field footer string The text displayed at the bottom of the menu
+---@field description string The text displayed in the description area
+---@field child string|boolean The ID of the menu opened on click
+---@field sliders table The list of sliders
+---@field statistics table The list of statistics
+---@field price table|boolean The price of the item
+---@field data table Your own data
+---@field visible boolean If the item is displayed
+---@field disabled boolean If the item is greyed out
+---@field prefix string|boolean The small icon before the title
+---@field icon? string The icon on the left of the item
+---@field iconRight? string The icon on the right of the item
+---@field textRight string|boolean The text on the right of the item
+---@field bufferOnChange boolean Group the fast `onChange` events
+---@field onActive function Fired when the item becomes active
+---@field onClick function Fired when the item is clicked
+---@field onChange function Fired when a slider changes
+---@field onExit function Fired when the item is no longer active
+---@field onTick? function Fired every frame while the item is active
 local MenuItem = {
   title = "",
   subtitle = "",
@@ -239,9 +247,10 @@ local function formatItemPrice(item)
   end
 end
 
---- Update a specific property of a menu item. Requires MenuClass:push() to be called to apply the changes
----@param keys string|table (The property name to update)
----@param value any (The new value for the property)
+--- Update a property of the item. Call `MenuClass:push()` to send the changes to the NUI
+--- Only works on an item returned by `MenuClass:addItem()`
+---@param keys string|table (The property name, or the path to a nested property like `{"sliders", 1, "current"}`)
+---@param value any (The new value)
 function MenuItem:updateValue(keys, value)
   local menu = self:getParentMenu()
   if type(keys) ~= "table" then keys = { keys } end
@@ -253,8 +262,9 @@ function MenuItem:updateValue(keys, value)
   end
 end
 
---- Delete a specific property of a menu item. Requires MenuClass:push() to be called to apply the changes
----@param keys string|table (The list of property name to access to the value)
+--- Delete a property of the item. Call `MenuClass:push()` to send the changes to the NUI
+--- Only works on an item returned by `MenuClass:addItem()`
+---@param keys string|table (The property name, or the path to a nested property like `{"sliders", 2}`)
 function MenuItem:deleteValue(keys)
   if type(keys) ~= "table" then keys = { keys } end
   local menu = self:getParentMenu()
@@ -263,41 +273,55 @@ function MenuItem:deleteValue(keys)
   menu:deleteValue(keys)
 end
 
---- Get the parent menu of the item
+--- Get the menu the item belongs to
+--- Only works on an item returned by `MenuClass:addItem()`
 ---@return MenuClass (The parent menu)
 function MenuItem:getParentMenu()
   return {}
 end
 
---- Add an item to a menu
----@param index integer|table (Position index or item table if used as single parameter)
----@param item? table (The item to add - if not provided, p is used as the item)
---- item.title string (The item label)
---- item.child? string (The menu to open when Enter is pressed <br> default: false)
---- item.visible? boolean (If the item is visible in the menu <br> default: true)
---- item.data? table (Variable to store custom data in the item)
---- item.description? string (Description text for the item)
---- item.prefix? string (The little icon before the title from `nui\menu\assets\images\icons` folder  ![prefix Icon](/images/previews/menu/prefixIcon.jpg))
---- item.icon? string (The left icon filename from `nui\menu\assets\images\icons` folder, or full image URL  ![Icon](/images/previews/menu/leftIcon.jpg))
---- item.iconRight? string (The right icon filename from `nui\menu\assets\images\icons` folder  ![icon right](/images/previews/menu/iconRight.jpg))
---- item.iconClass? string (CSS class for the icon)
---- item.tilePadding? number|string (In a `tile` menu, the space between the image and the edge of the tile: a number in vh, or a CSS length. `0` brings the image to the edge <br> default: 1.2)
---- item.price? table (The price of the item. Use 0 to display "free" <br> default: false  ![preview price](/images/previews/menu/price.jpg))
---- item.price.money? number (The price in $)
---- item.price.gold? number (The price in gold)
---- item.priceTitle? string (Replace the "Price" label)
---- item.priceRight? boolean (Display the price at the right of the item title  ![price to the right](/images/previews/menu/priceRight.jpg))
---- item.statistics? table (List of [statistics](#statistics) to display for the item)
---- item.statistics[].value? table (`weapon-bar`: legacy `{current, max}` or `{max = number, bars = { { value = cumulativeValue, color? = cssColor, opacity? = number } } }`)
---- item.disabled? boolean (If the item is disabled (grey) in the menu  ![disable item](/images/previews/menu/disableItem.jpg))
---- item.textRight? string (The label displayed at the right of the item  ![Right text](/images/previews/menu/rightText.jpg))
---- item.previewPalette? boolean (Display a color square at the right of the item <br> default: true  ![preview palette](/images/previews/menu/previewPalette.jpg))
---- item.sliders? table (List of [sliders](#sliders) for the item)
---- item.onActive? function (Fired when the item is selected)
---- item.onClick? function (Fired when Enter is pressed on the item)
---- item.onChange? function (Fired when a slider value changes)
---- item.onExit? function (Fired when the item is exited)
---- item.onTick? function (Fired every tick)
+--- Add an item to the menu. Call `MenuClass:send()` to send the menu to the NUI
+---@param index integer|table (The position of the item in the menu, or the item itself to add it at the end)
+---@param item? table (The item to add, when `index` is a position)
+--- item.title string (The item label. HTML is allowed)
+--- item.subtitle? string (A second line displayed under the title)
+--- item.description? string (The text displayed in the description area, under the list. HTML is allowed)
+--- item.footer? string (The text displayed at the bottom of the menu. HTML is allowed)
+--- item.child? string (The ID of the menu opened when the item is clicked <br> default: `false`)
+--- item.visible? boolean (If `false`, the item is not displayed <br> default: `true`)
+--- item.disabled? boolean (Grey out the item: it can't be clicked and its sliders are hidden <br> default: `false`)
+--- item.data? table (Free storage for your own data, available in the callbacks with `currentData.item.data`)
+--- item.icon? string (The icon on the left of the item: a filename of `nui/menu/assets/images/icons` (without `.png`) or a full image URL)
+--- item.iconClass? string (CSS classes applied to the icon, like `fgold` or `bw`. See [CSS classes](./menus#css-classes))
+--- item.iconSize? string (`"small"` to reduce the size of the icon <br> default: `"normal"`)
+--- item.iconRight? string (An icon displayed on the right of the item. In a `tile` menu, it's displayed in the bottom right corner of the tile)
+--- item.prefix? string (A small icon displayed before the title)
+--- item.textRight? string (A text displayed on the right of the item)
+--- item.textRightClass? string (CSS classes applied to `textRight`, like `tiny`)
+--- item.image? string|table (An image displayed in the description area: a URL or `{url, width, height, radius, style}`)
+--- item.color? string|table (The CSS color of the title, or a table `{title, background, accent, icon}`. See [Colors](./items#colors))
+--- item.price? number|table (The price displayed under the description. See [Prices](./items#prices) <br> default: `false`)
+--- item.priceTitle? string (Replace the "Price" label above the price)
+--- item.priceRight? boolean|number|table (Display a price on the right of the item: `true` to display `item.price`, or a price value)
+--- item.statistics? table (The list of statistics displayed in the description area. See [Statistics](./statistics))
+--- item.sliders? table (The list of sliders of the item. See [Sliders](./sliders))
+--- item.previewPalette? boolean (Display a square with the current color of the sliders on the right of the item <br> default: `false`)
+--- item.quantity? number (In a `tile` menu, a number displayed in a circle in the top right corner of the tile)
+--- item.quantityCircleClass? string (CSS classes applied to the quantity circle, like `fgold`)
+--- item.quality? integer (In a `tile` menu, a quality from `1` to `3` displayed with stars)
+--- item.qualityClass? string (CSS classes applied to the quality stars)
+--- item.stars? table (In a `tile` menu, a row of stars: `{current, total}`)
+--- item.starsClass? string (CSS classes applied to the row of stars)
+--- item.tilePadding? number|string (In a `tile` menu, the space between the image and the edge of the tile: a number in vh, or a CSS length. `0` brings the image to the edge <br> default: `1.2`)
+--- item.translate? boolean (Use `title` as a key of the translation strings. See [jo.menu.updateLang()](#jo-menu-updatelang) <br> default: `false`)
+--- item.translateDescription? boolean (Use `description` as a key of the translation strings <br> default: `false`)
+--- item.translateTextRight? boolean (Use `textRight` as a key of the translation strings <br> default: `false`)
+--- item.bufferOnChange? boolean (Wait a few milliseconds between two `onChange` events of fast slider moves. `false` fires them on the next frame <br> default: `true`)
+--- item.onActive? function (Fired when the item becomes the active item)
+--- item.onClick? function (Fired when the item is clicked or Enter is pressed)
+--- item.onChange? function (Fired when a slider of the item changes)
+--- item.onExit? function (Fired when the item is no longer the active item)
+--- item.onTick? function (Fired every frame while the item is active)
 ---@return MenuItemClass (The added item)
 function MenuClass:addItem(index, item)
   if item == nil then
@@ -322,7 +346,7 @@ function MenuClass:addItem(index, item)
 
   local menu = self
 
-  ---@ignore
+  ---@autodoc:config ignore:true
   function item:getParentMenu()
     return menu
   end
@@ -330,48 +354,25 @@ function MenuClass:addItem(index, item)
   return item
 end
 
---- Add an item to a menu by its ID
+--- Add an item to a menu from its ID. Same as `MenuClass:addItem()`
 ---@param id string (The menu ID)
----@param p integer|table (Position index or item table if used as single parameter)
----@param item? table (The item to add - if not provided, p is used as the item)
---- item.title string (The item label)
---- item.child? string (The menu to open when Enter is pressed <br> default: false)
---- item.visible? boolean (If the item is visible in the menu <br> default: true)
---- item.data? table (Variable to store custom data in the item)
---- item.description? string (Description text for the item)
---- item.prefix? string (The little icon before the title from `nui\menu\assets\images\icons` folder  ![prefix Icon](/images/previews/menu/prefixIcon.jpg))
---- item.icon? string (The left icon filename from `nui\menu\assets\images\icons` folder  ![Icon](/images/previews/menu/leftIcon.jpg))
---- item.iconRight? string (The right icon filename from `nui\menu\assets\images\icons` folder  ![icon right](/images/previews/menu/iconRight.jpg))
---- item.iconClass? string (CSS class for the icon)
---- item.tilePadding? number|string (In a `tile` menu, the space between the image and the edge of the tile: a number in vh, or a CSS length. `0` brings the image to the edge <br> default: 1.2)
---- item.price? table (The price of the item. Use 0 to display "free" <br> default: false  ![preview price](/images/previews/menu/price.jpg))
---- item.price.money? number (The price in $)
---- item.price.gold? number (The price in gold)
---- item.priceTitle? string (Replace the "Price" label)
---- item.priceRight? boolean (Display the price at the right of the item title  ![price to the right](/images/previews/menu/priceRight.jpg))
---- item.statistics? table (List of [statistics](#statistics) to display for the item)
---- item.statistics[].value? table (`weapon-bar`: legacy `{current, max}` or `{max = number, bars = { { value = cumulativeValue, color? = cssColor, opacity? = number } } }`)
---- item.disabled? boolean (If the item is disabled (grey) in the menu  ![disable item](/images/previews/menu/disableItem.jpg))
---- item.textRight? string (The label displayed at the right of the item  ![Right text](/images/previews/menu/rightText.jpg))
---- item.previewPalette? boolean (Display a color square at the right of the item <br> default: true  ![preview palette](/images/previews/menu/previewPalette.jpg))
---- item.sliders? table (List of [sliders](#sliders) for the item)
---- item.onActive? function (Fired when the item is selected)
---- item.onClick? function (Fired when Enter is pressed on the item)
---- item.onChange? function (Fired when a slider value changes)
---- item.onExit? function (Fired when the item is exited)
+---@param p integer|table (The position of the item in the menu, or the item itself to add it at the end)
+---@param item? table (The item to add, when `p` is a position. See [MenuClass:addItem()](#menuclass-additem) for the keys)
 function jo.menu.addItem(id, p, item) menus[id]:addItem(p, item) end
 
---- Update a specific property of a menu item by menu ID
+--- Overwrite a property of an item from the menu ID. The NUI is not updated
+---@deprecated since v2.3.0. Use MenuClass:updateValue() or MenuItem:updateValue() then MenuClass:push() instead
 ---@param id string (The menu ID)
 ---@param index integer (The index of the item to update)
 ---@param key string (The property name to update)
 ---@param value any (The new value for the property)
 function jo.menu.updateItem(id, index, key, value) menus[id]:updateItem(index, key, value) end
 
---- Update a specific property of a menu. Requires MenuClass:push() to be called to apply the changes
----@param keys string|table (The list of property name to access to the value)
+--- Update a property of the menu or of one of its items. Call `MenuClass:push()` to send the changes to the NUI
+--- `price` and `priceRight` values are formatted automatically
+---@param keys string|table (The property name, or the path to a nested property like `{"items", 2, "title"}`)
 ---@param value any (The new value)
----@return boolean (true if the update was successful, false otherwise)
+---@return boolean (Always `true`)
 function MenuClass:updateValue(keys, value)
   if type(keys) ~= "table" then keys = { keys } end
   if keys[#keys] == "price" or (keys[#keys] == "priceRight" and type(value) ~= "boolean") then
@@ -387,8 +388,9 @@ function MenuClass:updateValue(keys, value)
   return true
 end
 
---- Delete a specific property of a menu. Requires MenuClass:push() to be called to apply the changes
----@param keys string|table (The list of property name to access to the value)
+--- Delete a property of the menu or of one of its items. Call `MenuClass:push()` to send the changes to the NUI
+--- `{"items", index}` deletes the item, like `MenuClass:deleteItem()`
+---@param keys string|table (The property name, or the path to a nested property like `{"items", 2, "price"}`)
 function MenuClass:deleteValue(keys)
   if type(keys) ~= "table" then keys = { keys } end
   if (#keys == 2 and keys[1] == "items") then
@@ -402,6 +404,8 @@ function MenuClass:deleteValue(keys)
   table.deleteDeepValue(self, keys)
 end
 
+--- Delete an item of the menu and update the index of the next items. Call `MenuClass:push()` to send the changes to the NUI
+---@param index integer (The index of the item to delete)
 function MenuClass:deleteItem(index)
   table.remove(self.items, index)
   table.insert(self.updatedValues, {
@@ -425,8 +429,9 @@ function MenuClass:deleteItem(index)
   end
 end
 
---- Refresh all the menu without changing the current state
---- Used when you want rebuild the menu
+--- Send the whole menu to the NUI again, without changing the active item
+--- Use it after big changes, like items added or sorted after `MenuClass:send()`
+--- If the menu is the current menu, `onExit` and `onActive` of the active item are fired again
 function MenuClass:refresh()
   local datas = clearDataForNui(self)
   datas.currentIndex = nil
@@ -444,7 +449,7 @@ function MenuClass:refresh()
   end
 end
 
---- Push the updated values to the NUI layer
+--- Send to the NUI the changes made with `updateValue()`, `deleteValue()` and `deleteItem()`
 function MenuClass:push()
   if not self.updatedValues then return end
   if table.isEmpty(self.updatedValues) then return end
@@ -471,12 +476,11 @@ function MenuClass:push()
   self.updatedValues = {}
 end
 
---- Refresh a menu by its ID
----@param id string (The menu ID to refresh)
+--- Refresh a menu from its ID. Same as `MenuClass:refresh()`
+---@param id string (The menu ID)
 function jo.menu.refresh(id) menus[id]:refresh() end
 
---- Reset the menu to its initial state
---- Moves the cursor back to the first item
+--- Move the cursor of the menu back to the first item
 function MenuClass:reset()
   SendNUIMessage({
     event = "resetMenu",
@@ -484,13 +488,14 @@ function MenuClass:reset()
   })
 end
 
---- Reset a menu by its ID
----@param id string (The menu ID to reset)
+--- Reset a menu from its ID. Same as `MenuClass:reset()`
+---@param id string (The menu ID)
 function jo.menu.reset(id) menus[id]:reset() end
 
---- Sort menu items alphabetically by title
----@param first? integer (Position of the first element to sort <br> default: `1`)
----@param last? integer (Position of the last element to sort <br> default: `#self.items`)
+--- Sort the items alphabetically by title
+--- Call `MenuClass:refresh()` (or `MenuClass:send()` if the menu has never been sent) to display the new order
+---@param first? integer (The position of the first item to sort <br> default: `1`)
+---@param last? integer (The position of the last item to sort <br> default: the last item)
 function MenuClass:sort(first, last)
   local sCompare = string.compare
   local function sortFunc(i1, i2)
@@ -526,13 +531,14 @@ function MenuClass:sort(first, last)
   end
 end
 
---- Sort menu items alphabetically by title using menu ID
+--- Sort the items of a menu from its ID. Same as `MenuClass:sort()`
 ---@param id string (The menu ID)
----@param first? integer (Position of the first element to sort <br> default: `1`)
----@param last? integer (Position of the last element to sort <br> default: `#self.items`)
+---@param first? integer (The position of the first item to sort <br> default: `1`)
+---@param last? integer (The position of the last item to sort <br> default: the last item)
 function jo.menu.sort(id, first, last) menus[id]:sort(first, last) end
 
---- Send the menu data to the NUI layer
+--- Send the menu to the NUI. Call it once the items are added
+--- If the menu has already been sent, it's refreshed (see `MenuClass:refresh()`)
 function MenuClass:send()
   if self.sentToNUI then
     self:refresh()
@@ -549,19 +555,19 @@ function MenuClass:send()
   end
 end
 
---- Send a menu to the NUI layer by its ID
+--- Send a menu to the NUI from its ID. Same as `MenuClass:send()`
 ---@param id string (The menu ID)
 function jo.menu.send(id) menus[id]:send() end
 
---- Set this menu as the current active menu
----@param keepHistoric? boolean (Whether to keep navigation history <br> default: `true`)
----@param resetMenu? boolean (Whether to reset the menu state <br> default: `true`)
+--- Set the menu as the current menu. Same as `jo.menu.setCurrentMenu()`
+---@param keepHistoric? boolean (Keep the previous menu in the history, to go back to it with Backspace <br> default: `true`)
+---@param resetMenu? boolean (Move the cursor back to the first item <br> default: `true`)
 function MenuClass:use(keepHistoric, resetMenu)
   jo.menu.setCurrentMenu(self.id, keepHistoric, resetMenu)
 end
 
---- Change the current active item index
---- @param index integer (The item index to switch to)
+--- Move the cursor to an item
+---@param index integer (The index of the item)
 function MenuClass:setCurrentIndex(index)
   self.currentIndex = index
   SendNUIMessage({
@@ -571,22 +577,31 @@ function MenuClass:setCurrentIndex(index)
   })
 end
 
---- Create a new menu
+--- Create a new menu. If a menu with the same ID exists, it's replaced
+--- Add the items with `MenuClass:addItem()`, then send the menu to the NUI with `MenuClass:send()`
 ---@param id string (Unique ID of the menu)
----@param data? table (Menu configuration data)
---- data.type string (The type of menu `tile` or `list` <br> default `tile`)
---- data.title? string (The big title of the menu  ![The menu title](https://docs.jumpon-studios.com/images/previews/menu/bigTitle.jpg))
---- data.subtitle string (The subtitle of the menu  ![The subtitle](https://docs.jumpon-studios.com/images/previews/menu/subtitle.jpg))
---- data.numberOnScreen? integer (Only for list menu, Maximum number of items visibles at the same time <br> default : `8`)
---- data.numberOnLine? integer (Only for tile menu, Maximum number of items visibles at the same time <br> default : `4`)
---- data.numberLineOnScreen? integer (Only for tile menu, Maximum number of lines visibles at the same time <br> default : `6`)
---- data.distanceToClose float (Distance at which the menu will self close if the player is moving away <br> default: `false` )
---- data.displayBackButton boolean (Whether to display the back button <br> default: `false` )
---- data.onEnter? function (Fired when the menu is opened)
---- data.onBack? function (Fired when the backspace/Escape is pressed)
---- data.onExit? function (Fired when the menu is exited)
---- data.onTick? function (Fired every tick)
----@return MenuClass (The newly created menu object)
+---@param data table (The menu configuration)
+--- data.title? string (The big title of the menu. HTML is allowed <br> default: `"Jump On"`)
+--- data.subtitle? string (The subtitle of the menu, displayed above the items. HTML is allowed <br> default: `""`)
+--- data.type? string (The type of menu: `list` or `tile` <br> default: `"list"`)
+--- data.numberOnScreen? integer (`list` menu: number of items displayed before the scroll. Maximum `13` <br> default: `8`)
+--- data.numberOnLine? integer (`tile` menu: number of tiles per line <br> default: `4`)
+--- data.numberLineOnScreen? integer (`tile` menu: number of lines displayed before the scroll <br> default: `6`)
+--- data.image? string|table (An image displayed above the items: a URL or `{url, width, height, radius, style}`)
+--- data.displayBackButton? boolean (Display the back arrow next to the subtitle, even without history <br> default: `false`)
+--- data.hideBackground? boolean (Hide the dark background behind the menu <br> default: `false`)
+--- data.price? number|table (The price displayed when the active item has no price. See [Prices](./items#prices))
+--- data.priceTitle? string (Replace the "Price" label of `data.price`)
+--- data.distanceToClose? number (The menu closes itself when the player moves further than this distance <br> default: `false`)
+--- data.translateTitle? boolean (Use `title` as a key of the translation strings <br> default: `false`)
+--- data.translateSubtitle? boolean (Use `subtitle` as a key of the translation strings <br> default: `false`)
+--- data.onBeforeEnter? function (Fired before the menu is displayed. The NUI waits for the end of the function)
+--- data.onEnter? function (Fired when the menu becomes the current menu)
+--- data.onBack? function (Fired when Backspace or Escape is pressed)
+--- data.onExit? function (Fired when the menu is no longer the current menu)
+--- data.onChange? function (Fired when the active item or a slider changes in the menu)
+--- data.onTick? function (Fired every frame while the menu is the current menu)
+---@return MenuClass (The new menu)
 function jo.menu.create(id, data)
   if not id then
     return "The `id` of the menu is missing"
@@ -609,11 +624,11 @@ function jo.menu.create(id, data)
   return menus[id]
 end
 
---- Create a new menu if it doesn't exist
+--- Create a new menu, only if no menu exists with this ID
+--- Returns two values: the menu (the new one or the existing one) and `true` if the menu was created
 ---@param id string (Unique ID of the menu)
----@param data? table (Menu configuration data)
----@return MenuClass (The newly created menu object)
----@return boolean (Returns `true` if the menu was created)
+---@param data table (The menu configuration. See [jo.menu.create()](#jo-menu-create))
+---@return MenuClass (The menu)
 function jo.menu.createIfNotExist(id, data)
   if jo.menu.isExist(id) then
     return jo.menu.get(id), false
@@ -621,8 +636,8 @@ function jo.menu.createIfNotExist(id, data)
   return jo.menu.create(id, data), true
 end
 
---- Delete a menu from memory
----@param id string (The menu ID to delete)
+--- Delete a menu, in Lua and in the NUI
+---@param id string (The menu ID)
 function jo.menu.delete(id)
   if menus[id] then
     menus[id] = nil
@@ -633,23 +648,24 @@ function jo.menu.delete(id)
   })
 end
 
---- Check if a menu exist
----@param id string (the menu ID)
+--- Check if a menu exists
+---@param id string (The menu ID)
 ---@return boolean (Returns `true` if the menu exists)
 function jo.menu.isExist(id)
   return menus[id] and true or false
 end
 
---- Check if any menu is currently open
----@return boolean (Returns `true` if a menu is open)
+--- Check if the menu is displayed
+---@return boolean (Returns `true` if the menu is displayed)
 function jo.menu.isOpen()
   return nuiShow
 end
 
---- Set a menu as the current active menu
----@param id string (ID of the menu to activate)
----@param keepHistoric? boolean (Keep the menu navigation history <br> default: `true`)
----@param resetMenu? boolean (Clear and redraw the menu before displaying <br> default: `true`)
+--- Set the current menu: the one displayed by `jo.menu.show()`
+--- If the menu doesn't exist, the handler registered with `jo.menu.missingMenuHandler()` is called
+---@param id string (The menu ID)
+---@param keepHistoric? boolean (Keep the previous menu in the history, to go back to it with Backspace <br> default: `true`)
+---@param resetMenu? boolean (Move the cursor back to the first item <br> default: `true`)
 function jo.menu.setCurrentMenu(id, keepHistoric, resetMenu)
   if not menus[id] then
     return missingMenu(id)
@@ -696,12 +712,13 @@ local function loopMenu()
   end)
 end
 
---- Show or hide a menu
----@param show boolean (Whether to show or hide the menu)
----@param keepInput? boolean (Whether to keep game input controls active <br> default: `true`)
----@param hideRadar? boolean (Whether to hide the radar when menu is shown <br> default: `true`)
----@param playMenuAnimation? boolean (Whether to use animation when showing/hiding the menu <br> default: `true`)
----@param hideCursor? boolean (Whether to hide the cursor <br> default: `false`)
+--- Show or hide the current menu
+--- While the menu is displayed, the radar is hidden and the weapon wheel and pause menu controls are disabled
+---@param show boolean (`true` to show the menu, `false` to hide it)
+---@param keepInput? boolean (Keep the game controls active, to move the player while the menu is open <br> default: `true`)
+---@param hideRadar? boolean (Unused: the radar is always hidden while the menu is displayed <br> default: `true`)
+---@param playMenuAnimation? boolean (Play the open/close animation <br> default: `true`)
+---@param hideCursor? boolean (Hide the mouse cursor <br> default: `false`)
 function jo.menu.show(show, keepInput, hideRadar, playMenuAnimation, hideCursor)
   if show == nuiShow then return end
   CreateThread(function()
@@ -742,14 +759,14 @@ jo.stopped(function()
   end
 end)
 
---- Update menu language text
----@param lang table (List of translated strings)
---- lang.of? string (The bottom right text displaying current item number <br> default : `"%1 of %2"`)
---- lang.selection? string (The "Selection" text <br> default : `"Selection"`)
---- lang.devise? string (The devise text <br> default : `"$"`)
---- lang.number? string (The number text <br> default : `"Number %1"`)
---- lang.free? string (The "Free" text <br> default : `"Free"`)
---- lang.variation? string (The variatio, text <br> default : `"Variation"`)
+--- Translate the texts of the menu
+--- You can also add your own keys, used by the `translate*` options of the menus, items and sliders
+---@param lang table (The translated strings, by key)
+--- lang.of? string (The counter of the items and sliders. `%1` is the current position, `%2` the total <br> default: `"%1 of %2"`)
+--- lang.price? string (The label above the price <br> default: `"Price"`)
+--- lang.devise? string (The currency symbol <br> default: `"$"`)
+--- lang.free? string (The text displayed when the price is `0` <br> default: `"Free"`)
+--- lang.number? string (The title of an item without title. `%1` is the item position <br> default: `"Number %1"`)
 function jo.menu.updateLang(lang)
   SendNUIMessage({
     event = "updateLang",
@@ -757,8 +774,8 @@ function jo.menu.updateLang(lang)
   })
 end
 
---- Set the volume level for menu sound effects
----@param volume number (Volume of sound effects 0.0 to 1.0)
+--- Set the volume of the menu sounds
+---@param volume number (The volume, from `0.0` to `1.0` <br> default: `0.5`)
 function jo.menu.updateVolume(volume)
   SendNUIMessage({
     event = "updateVolume",
@@ -766,57 +783,58 @@ function jo.menu.updateVolume(volume)
   })
 end
 
---- Get a menu instance by its ID
+--- Get a menu from its ID
 ---@param id string (The menu ID)
 ---@return MenuClass (The menu object)
 function jo.menu.get(id)
   return menus[id]
 end
 
---- Set or replace a menu instance
+--- Replace the menu stored with this ID
 ---@param id string (The menu ID)
----@param menu MenuClass (The menu object to set)
+---@param menu MenuClass (The menu)
 function jo.menu.set(id, menu)
   menus[id] = menu
 end
 
---- Get data about the current menu state
----@return table (Current menu data including menu ID and selected item)
+--- Get the current state of the menu: the data passed to all the callbacks
+---@return table (`{menu = menuID, index = activeItemIndex, item = activeItem}`)
 function jo.menu.getCurrentData()
   return currentData
 end
 
---- Get data about the previous menu state
----@return table (Previous menu data including menu ID and selected item)
+--- Get the state of the menu before the last change
+---@return table (`{menu = menuID, index = activeItemIndex, item = activeItem}`)
 function jo.menu.getPreviousData()
   return previousData
 end
 
---- Get the currently selected menu item
----@return table (The currently selected item)
+--- Get the active item of the current menu
+---@return MenuItemClass (The active item)
 function jo.menu.getCurrentItem()
   return currentData.item
 end
 
---- Get the currently active menu
----@return MenuClass (The currently active menu)
+--- Get the current menu
+---@return MenuClass (The current menu)
 function jo.menu.getCurrentMenu()
   return menus[currentData.menu]
 end
 
---- Check if the active button has changed since last update
----@return boolean (Returns `true` if the active button has changed)
+--- Check if the active item (or the menu) changed during the last update
+--- Useful in `onChange` callbacks, to know if a slider moved or if the cursor moved
+---@return boolean (Returns `true` if the active item changed)
 function jo.menu.doesActiveButtonChange()
   return currentData.menu ~= previousData.menu or currentData.index ~= previousData.index
 end
 
---- Force the menu to go back to the previous menu
+--- Go back to the previous menu of the history, like Backspace
 function jo.menu.forceBack()
   SendNUIMessage({ event = "menuBack" })
 end
 
---- A function to play a NUI sound
----@param sound string sound name from nui/menu/sounds folder
+--- Play a sound of the menu
+---@param sound string (The sound name: `button`, `coins`, `menu_open`, `menu_close` or `selected`)
 function jo.menu.playAudio(sound)
   SendNUIMessage({
     event = "startAudio",
@@ -824,9 +842,11 @@ function jo.menu.playAudio(sound)
   })
 end
 
---- A function to hide temporary the menu and do action
----@param cb function (Action executed before show again the menu)
----@param playMenuAnimation? boolean (Whether to use animation when showing/hiding the menu <br> default: `true`)
+--- Hide the menu during the execution of a function, then display it again
+--- The function is executed synchronously: `jo.menu.softHide()` returns once the menu is displayed again
+---@param cb function (The function executed while the menu is hidden)
+---@param playMenuAnimation? boolean (Play the open/close animation <br> default: `true`)
+---@param keepBackground? boolean (Keep the dark background of the menu while it's hidden <br> default: `false`)
 function jo.menu.softHide(cb, playMenuAnimation, keepBackground)
   playMenuAnimation = GetValue(playMenuAnimation, true)
   keepBackground = GetValue(keepBackground, false)
@@ -848,49 +868,51 @@ function jo.menu.softHide(cb, playMenuAnimation, keepBackground)
   softHidden = false
 end
 
+--- Check if the menu is hidden by `jo.menu.softHide()`
+---@return boolean (Returns `true` during the execution of the `jo.menu.softHide()` function)
 function jo.menu.isSoftHidden()
   return softHidden
 end
 
---- A function to know if the menu is the current one
----@param id string (The menu id)
----@return boolean
+--- Check if a menu is the current menu and is displayed
+---@param id string (The menu ID)
+---@return boolean (Returns `true` if the menu is displayed and is the current one)
 function jo.menu.isCurrentMenu(id)
   if not jo.menu.isOpen() then return false end
   return jo.menu.getCurrentMenuId() == id
 end
 
---- A function to get the current index
----@return integer (The index of the current item)
+--- Get the index of the active item of the current menu
+---@return integer (The index of the active item)
 function jo.menu.getCurrentIndex()
   local menu = jo.menu.getCurrentMenu()
   return menu.currentIndex
 end
 
---- A function to fire menu and items events
----@param menuEvent? boolean (Whether to run menu events)
----@param itemEvent? boolean (Whether to run item events)
+--- Fire the events of the current menu again, as if it was just opened
+---@param menuEvent? boolean (Fire `onExit` and `onEnter` of the menu, and `onExit` and `onActive` of the item <br> default: `false`)
+---@param itemEvent? boolean (Fire `onExit` and `onActive` of the active item <br> default: `false`)
 function jo.menu.runRefreshEvents(menuEvent, itemEvent)
   menuEvent = GetValue(menuEvent, false)
   itemEvent = GetValue(itemEvent, false)
   menuNUIChange({ menu = jo.menu.getCurrentMenuId(), index = jo.menu.getCurrentIndex(), forceMenuEvent = menuEvent, forceItemEvent = itemEvent })
 end
 
---- A function to get the current menu id
----@return string (The id of the current menu)
+--- Get the ID of the current menu
+---@return string (The ID of the current menu)
 function jo.menu.getCurrentMenuId()
   local menu = jo.menu.getCurrentMenu()
   return menu.id
 end
 
---- A function to display the loader
----@param value? boolean (Whether to display the loader <br> default: `true`)
+--- Display a loading animation in the menu
+---@param value? boolean (`false` to hide the loader <br> default: `true`)
 function jo.menu.displayLoader(value)
   value = GetValue(value, true)
   SendNUIMessage({ event = "displayLoader", show = value })
 end
 
---- A function to hide the loader
+--- Hide the loading animation
 function jo.menu.hideLoader()
   jo.menu.displayLoader(false)
 end
@@ -940,15 +962,17 @@ RegisterNUICallback("updatePreview", function(data, cb)
 end)
 
 
---- Register a handler for missing menu error
+--- Register a function to create a menu the first time it's needed
+--- Called when `jo.menu.setCurrentMenu()` or an item `child` targets this menu ID and the menu doesn't exist
 ---@param id string (The menu ID)
----@param callback function (The handler function)
+---@param callback function (The function that creates the menu)
 function jo.menu.missingMenuHandler(id, callback)
   menuCreators[id] = callback
 end
 
---- Register a callback function for menu change events
----@param cb function (The callback function to register)
+--- Listen to all the changes of all the menus: active item, sliders, menu
+--- The callback receives `{menu, index, item}`. It's unregistered when the resource stops
+---@param cb function (The function fired on each change)
 function jo.menu.onChange(cb)
   table.insert(jo.menu.listeners, {
     resource = GetInvokingResource() or GetCurrentResourceName(),
@@ -967,10 +991,12 @@ AddEventHandler("onResourceStop", function(resourceName)
   end
 end)
 
---- Fire an event for a specific menu item
----@param item table (The item to trigger the event on)
----@param eventName string (The name of the event to fire)
----@param ...? any (Additional arguments to pass to the event handler)
+--- Fire an event of a menu or an item
+--- The listeners receive the current data (see `jo.menu.getCurrentData()`) followed by the additional arguments
+--- The client and server events defined with `<eventName>ClientEvent` and `<eventName>ServerEvent` keys are triggered too
+---@param item table (The menu or the item)
+---@param eventName string (The name of the event, like `onClick`)
+---@param ...? any (Additional arguments for the listeners)
 function jo.menu.fireEvent(item, eventName, ...)
   if not item then return end
   if item[eventName .. "ClientEvent"] then TriggerEvent(item[eventName .. "ClientEvent"], jo.menu.getCurrentData(), ...) end
@@ -978,9 +1004,9 @@ function jo.menu.fireEvent(item, eventName, ...)
   if item[eventName] then item[eventName](jo.menu.getCurrentData(), ...) end
 end
 
---- Fire an event across all menu levels (current menu and current item)
----@param eventName string (The name of the event to fire)
----@param ...? any (Additional arguments to pass to the event handlers)
+--- Fire an event on the current menu, then on its active item
+---@param eventName string (The name of the event, like `onTick`)
+---@param ...? any (Additional arguments for the listeners)
 function jo.menu.fireAllLevelsEvent(eventName, ...)
   jo.menu.fireEvent(jo.menu.getCurrentMenu(), eventName, ...)
   jo.menu.fireEvent(jo.menu.getCurrentItem(), eventName, ...)
@@ -990,8 +1016,8 @@ end
 -- DEPRECATED FUNCTIONS
 -------------
 
---- Update a specific property of a menu item
----@deprecated since v2.3.0. Use MenuClass:updateValue or MenuClass:deleteValue instead
+---@deprecated since v2.3.0. Use MenuClass:updateValue() or MenuItem:updateValue() then MenuClass:push() instead
+--- Overwrite a property of an item. The NUI is not updated
 ---@param index integer (The index of the item to update)
 ---@param key string (The property name to update)
 ---@param value any (The new value for the property)
@@ -1013,8 +1039,8 @@ end
 ---@deprecated since v2.4.0. Use MenuClass:addItem in a loop instead
 function jo.menu.addItems(id, items) menus[id]:addItems(items) end
 
---- Remove an item from a menu by its index. Requires MenuClass:push() to be called to apply the changes
----@deprecated since v2.4.0. Use MenuClass:deleteItem instead
+---@deprecated since v2.4.0. Use MenuClass:deleteItem() instead
+--- Remove an item from the menu, in Lua only
 ---@param index integer (The index of the item to remove)
 function MenuClass:removeItem(index)
   if not index then return eprint("MenuClass:removeItem > index can't be nil") end
