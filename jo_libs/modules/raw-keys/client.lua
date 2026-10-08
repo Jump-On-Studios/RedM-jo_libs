@@ -45,7 +45,7 @@ keyboard_layout = string.lower(keyboard_layout)
 
 local reverseMap = {}
 local reverseMapQwerty = {}
-local keyToVK = {} -- [key] = vk with the current layout
+local keyToVK = {}           -- [key] = vk with the current layout
 local registeredKeymaps = {} -- [vk] = true once its raw keymap is registered
 
 --- When several names share the same vk, prefer readable names over `oem_*` ones, then the alphabetical order.
@@ -107,12 +107,15 @@ end)
 local function dispatch(vk, isPressed)
     local key = reverseMap[vk]
     if not key then return end
-    local listeners = events[alias[key] or key]
-    for e = 1, #(listeners or {}) do
+    -- Iterate over copies: a callback may add or remove listeners (rebinding a key, dropping a stale one),
+    -- which would shift or empty the live lists and index a nil entry mid-loop.
+    local listeners = table.clone(events[alias[key] or key] or {})
+    for e = 1, #listeners do
         listeners[e].callback(isPressed, key, vk)
     end
-    for l = 1, #anyKeyListeners do
-        anyKeyListeners[l].callback(isPressed, key, vk)
+    local anyListeners = table.clone(anyKeyListeners)
+    for l = 1, #anyListeners do
+        anyListeners[l].callback(isPressed, key, vk)
     end
 end
 
