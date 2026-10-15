@@ -427,7 +427,7 @@ main {
       z-index: 9999;
     }
 
-    img {
+    img:not(.spinner) {
       width: 100%;
       aspect-ratio: 1 / 1;
     }

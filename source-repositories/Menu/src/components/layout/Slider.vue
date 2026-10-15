@@ -10,7 +10,8 @@
           <Grid :index="index" :slider="slider" :last="index == menuStore.cItem.sliders.length - 1" />
         </template>
         <template v-else-if="slider.type == 'sprite' || slider.type == 'color'">
-          <Sprite :index="index" :slider="slider" :last="index == menuStore.cItem.sliders.length - 1" />
+          <!-- keyed by item: its images never keep those of the former item while loading -->
+          <Sprite :key="`${menuStore.currentMenuId}:${menuStore.cItem.id}`" :index="index" :slider="slider" :last="index == menuStore.cItem.sliders.length - 1" />
         </template>
         <template v-else>
           <Default :index="index" :slider="slider" :last="index == menuStore.cItem.sliders.length - 1" />
