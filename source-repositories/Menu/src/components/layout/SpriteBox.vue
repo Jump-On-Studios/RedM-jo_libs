@@ -6,10 +6,7 @@
     }">
       {{ sprite.tagText }}
     </div>
-    <img v-if="sprite.sprite" :class="sprite.class" :src="API.isNUIImage(sprite.sprite)
-      ? sprite.sprite
-      : `./assets/images/${sprite.sprite}.png`
-      " />
+    <LoadingImage v-if="sprite.sprite" :class="sprite.class" :src="imageSrc()" />
     <ColorPaletteBox v-else-if="sprite.rgb" :color="sprite" />
     <ColorPaletteBox v-else-if="sprite.palette" :color="sprite.palette" />
     <ColorPaletteBox v-else :color="sprite" />
@@ -23,7 +20,12 @@
 import { inject } from "vue";
 const props = defineProps(["sprite"]);
 const API = inject("API");
+
+function imageSrc() {
+  return API.isNUIImage(props.sprite.sprite) ? props.sprite.sprite : `./assets/images/${props.sprite.sprite}.png`;
+}
 import ColorPaletteBox from "./ColorPaletteBox.vue";
+import LoadingImage from "./LoadingImage.vue";
 </script>
 
 <style scoped lang="scss">

@@ -2,7 +2,7 @@
   <li v-if="item" :id="`item-${id}`" :class="['item grid clicker with-icon', { 'disabled': item.disabled, 'active': active }]" :style="tileStyle(item.tilePadding)" @click="click()">
     <template v-if="render">
       <div :class="[{ 'bw opacity50': item.disabled, 'masked': item.tilePadding != null }, 'image', item.iconClass]">
-        <img :src="API.getImage(item.icon)" />
+        <LoadingImage :src="API.getImage(item.icon)" />
       </div>
       <div class="current" v-if="isCurrent">
         <div class="tick">
@@ -34,6 +34,7 @@
 <script setup>
 import { useMenuStore } from '../../stores/menus'
 import { inject } from 'vue'
+import LoadingImage from './LoadingImage.vue'
 const menuStore = useMenuStore()
 const API = inject('API')
 
@@ -119,7 +120,7 @@ function click() {
     background-size: 100% 100%;
   }
 
-  .image img {
+  .image :deep(img) {
     object-fit: contain;
   }
 
@@ -133,7 +134,7 @@ function click() {
     mask-repeat: no-repeat;
 
     // a block: an inline image leaves a gap below it, which the mask would cover too
-    img {
+    :deep(img) {
       display: block;
     }
   }
