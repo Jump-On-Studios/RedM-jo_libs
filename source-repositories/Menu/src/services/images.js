@@ -1,5 +1,5 @@
-// The images of a URL loaded since the page opened by a LoadingImage: shown at once
-// by the others
+// The images of a URL loaded since the page opened, by a LoadingImage or an item's preload: a LoadingImage shows them
+// at once
 export const loadedImages = new Set()
 
 // The ms an image of the web stays wanted before it is requested: scrolling fast through a menu never requests the
