@@ -38,6 +38,7 @@ files {
 	"nui/**/**.ttf",
 	"nui/**/**.png",
 	"nui/**/**.webp",
+	"nui/**/**.svg",
 	"nui/**/**.mp3",
 	"nui/**/**.gif",
 	--Locales

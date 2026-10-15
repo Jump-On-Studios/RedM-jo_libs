@@ -1,6 +1,6 @@
 <template>
   <div class="preview-slider">
-    <SpriteBox v-if="getValue" :sprite="getValue" />
+    <SpriteBox v-if="getSlider" :sprite="getSlider.values[getSlider.current - 1]" :zoom="getSlider.imageZoom" :zoomOrigin="getSlider.imageZoomOrigin" />
   </div>
 </template>
 
@@ -10,10 +10,10 @@ import SpriteBox from './SpriteBox.vue';
 
 const props = defineProps(['sliders'])
 
-const getValue = computed(() => {
+const getSlider = computed(() => {
   for (const slider of props.sliders) {
     if ((slider.type == "color" || slider.type == "sprite") && slider.values.length > 0) {
-      return slider.values[slider.current - 1]
+      return slider
     }
   }
   return null
