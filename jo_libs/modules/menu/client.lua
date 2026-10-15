@@ -313,6 +313,8 @@ end
 --- item.stars? table (In a `tile` menu, a row of stars: `{current, total}`)
 --- item.starsClass? string (CSS classes applied to the row of stars)
 --- item.tilePadding? number|string (In a `tile` menu, the space between the image and the edge of the tile: a number in vh, or a CSS length. `0` brings the image to the edge <br> default: `1.2`)
+--- item.tileZoom? number (In a `tile` menu, the image enlarged in its tile, cut by it: `1.5` for 150 %)
+--- item.tileZoomOrigin? string (The point `tileZoom` enlarges the image from, as a CSS transform-origin: `top`, `center`, `right`, `top center`... <br> default: `center`)
 --- item.preload? table (Image URLs loaded when the item becomes active, so they show at once afterwards: the images of its sliders, or of the menu it opens. Those of the web are requested once the item stays active 150 ms)
 --- item.translate? boolean (Use `title` as a key of the translation strings. See [jo.menu.updateLang()](#jo-menu-updatelang) <br> default: `false`)
 --- item.translateDescription? boolean (Use `description` as a key of the translation strings <br> default: `false`)
