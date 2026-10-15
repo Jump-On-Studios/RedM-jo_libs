@@ -397,7 +397,7 @@ main {
   margin-top: 0.5vh;
   position: relative;
   overflow-x: hidden;
-  height: 5.1vh;
+  height: calc(var(--sprite-size, 5vh) + 0.1vh);
 
   &.center {
     justify-content: center;
@@ -407,10 +407,12 @@ main {
     --sprite-padding: 0.75vh;
     position: relative;
     padding: var(--sprite-padding);
-    width: 5vh;
-    height: 5vh;
-    min-width: 5vh;
-    max-width: 5vh;
+    // slider.gap: the padding of two values makes 1.5vh between their frames, the margins the rest
+    margin: 0 calc((var(--sprites-gap, 1.5vh) - 2 * var(--sprite-padding)) / 2);
+    width: var(--sprite-size, 5vh);
+    height: var(--sprite-size, 5vh);
+    min-width: var(--sprite-size, 5vh);
+    max-width: var(--sprite-size, 5vh);
 
     &:not(.hidden):before {
       content: "";
@@ -420,7 +422,8 @@ main {
       left: var(--sprite-padding);
       bottom: var(--sprite-padding);
       right: var(--sprite-padding);
-      background-image: url("/assets/images/tints/swatch_box.png");
+      // the swatch's frame as a vector: sharp at any size (slider.size)
+      background-image: url("/assets/images/tints/swatch_box.svg");
       background-size: 100%;
       background-repeat: no-repeat;
       background-position: center;
@@ -432,10 +435,20 @@ main {
       aspect-ratio: 1 / 1;
     }
 
+    // slider.imagePadding
+    .sprite-box>.image {
+      padding: var(--sprite-image-padding, 0);
+    }
+
     .empty {
       width: 100%;
       aspect-ratio: 1 / 1;
     }
+  }
+
+  // slider.columns: each value takes 1 / columns of the slider's width, its margins around its size
+  &.columns .sprite {
+    margin: 0 calc((100% / var(--sprites-columns) - var(--sprite-size, 5vh)) / 2);
   }
 
   .tick {

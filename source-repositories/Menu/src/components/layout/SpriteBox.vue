@@ -6,7 +6,12 @@
     }">
       {{ sprite.tagText }}
     </div>
-    <LoadingImage v-if="sprite.sprite" :class="sprite.class" :src="imageSrc()" />
+    <!-- zoom: the image enlarged inside its padding, cut by it (the slider's imageZoom) -->
+    <div v-if="sprite.sprite" :class="['image', { zoomed: zoom != null }]" :style="zoomStyle()">
+      <div class="clip">
+        <LoadingImage :class="sprite.class" :src="imageSrc()" />
+      </div>
+    </div>
     <ColorPaletteBox v-else-if="sprite.rgb" :color="sprite" />
     <ColorPaletteBox v-else-if="sprite.palette" :color="sprite.palette" />
     <ColorPaletteBox v-else :color="sprite" />
@@ -18,11 +23,16 @@
 
 <script setup>
 import { inject } from "vue";
-const props = defineProps(["sprite"]);
+// zoom: the image enlarged (1.5 = 150 %); zoomOrigin: the point it is enlarged from, "center" by default
+const props = defineProps(["sprite", "zoom", "zoomOrigin"]);
 const API = inject("API");
 
 function imageSrc() {
   return API.isNUIImage(props.sprite.sprite) ? props.sprite.sprite : `./assets/images/${props.sprite.sprite}.png`;
+}
+function zoomStyle() {
+  if (props.zoom == null) return;
+  return { "--sprite-zoom": props.zoom, "--sprite-zoom-origin": props.zoomOrigin || "center" };
 }
 import ColorPaletteBox from "./ColorPaletteBox.vue";
 import LoadingImage from "./LoadingImage.vue";
@@ -33,6 +43,24 @@ import LoadingImage from "./LoadingImage.vue";
   position: relative;
   height: 100%;
   width: 100%;
+}
+
+.image {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  box-sizing: border-box;
+
+  .clip {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  &.zoomed :deep(img:not(.spinner)) {
+    display: block;
+    transform: scale(var(--sprite-zoom));
+    transform-origin: var(--sprite-zoom-origin);
+  }
 }
 
 .tag {

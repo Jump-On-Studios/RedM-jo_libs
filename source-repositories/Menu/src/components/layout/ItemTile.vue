@@ -58,8 +58,7 @@ const props = defineProps({
 // length); 0 brings the image to the edge. The image then takes the shape of the background (masked)
 function tileStyle(padding) {
   if (padding == null) return
-  const length = typeof padding == "number" ? `${padding}vh` : padding
-  return { padding: `calc(var(--padding-background-item) + ${length})` }
+  return { padding: `calc(var(--padding-background-item) + ${API.cssLength(padding)})` }
 }
 
 // item.tileZoom: the image of the tile enlarged (1.5 = 150 %), cut by the tile; item.tileZoomOrigin: the point it is
