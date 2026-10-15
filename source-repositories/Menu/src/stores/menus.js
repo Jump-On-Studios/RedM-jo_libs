@@ -19,6 +19,8 @@ class MenuItem {
   iconClass = "";
   iconSize = "normal";
   tilePadding = null;
+  tileZoom = null;
+  tileZoomOrigin = null;
   preload = null;
   child = false;
   sliders = [];
@@ -137,6 +139,12 @@ class MenuItem {
   }
   setTilePadding(value) {
     this.tilePadding = value;
+  }
+  setTileZoom(value) {
+    this.tileZoom = value;
+  }
+  setTileZoomOrigin(value) {
+    this.tileZoomOrigin = value;
   }
   setPreload(value) {
     this.preload = value;
@@ -276,6 +284,8 @@ class Menu {
           newItem.setStarsClass(item.starsClass);
         if (item.iconSize) newItem.setIconSize(item.iconSize);
         if (item.tilePadding != undefined) newItem.setTilePadding(item.tilePadding);
+        if (item.tileZoom != undefined) newItem.setTileZoom(item.tileZoom);
+        if (item.tileZoomOrigin != undefined) newItem.setTileZoomOrigin(item.tileZoomOrigin);
         if (item.preload != undefined) newItem.setPreload(item.preload);
         this.items.push(newItem);
       });
