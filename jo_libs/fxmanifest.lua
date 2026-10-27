@@ -1,7 +1,7 @@
 author "JUMP ON studios : https://jumpon-studios.com"
 documentation "https://docs.jumpon-studios.com"
-version "2.16.1"
-package_id "1"
+version "2.17.1"
+package_id "7666420"
 
 fx_version "cerulean"
 
@@ -38,6 +38,7 @@ files {
 	"nui/**/**.ttf",
 	"nui/**/**.png",
 	"nui/**/**.webp",
+	"nui/**/**.svg",
 	"nui/**/**.mp3",
 	"nui/**/**.gif",
 	--Locales

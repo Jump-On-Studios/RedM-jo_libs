@@ -7,10 +7,10 @@
         <div class="text hapna">{{ numItem() }}</div>
         <div class="arrow right clicker" @click="menuStore.sliderRight(index)"><img src="/assets/images/menu/selection_arrow_right.png"></div>
       </div>
-      <div :class="['sprites', { 'center': slider.values.length <= 8 }]" id="scroller">
-        <div v-for="(value, vIndex) in slider.values" :key="vIndex + 1" :class="['sprite clicker', { 'current': (vIndex + 1) == slider.current, 'hidden': !isRendered(vIndex) }]" :id="'sprite-' + (vIndex + 1)" @click="click(vIndex + 1)">
+      <div :class="['sprites', { 'center': slider.values.length <= 8, 'columns': slider.columns != null }]" :style="spritesStyle(slider)" id="scroller">
+        <div v-for="(value, vIndex) in slider.values" :key="vIndex + 1" :class="['sprite clicker', { 'current': (vIndex + 1) == slider.current, 'hidden': !isRendered(vIndex) }]" :style="imagePadding(slider.imagePadding)" :id="'sprite-' + (vIndex + 1)" @click="click(vIndex + 1)">
           <template v-if="isRendered(vIndex)">
-            <SpriteBox :sprite="value" />
+            <SpriteBox :sprite="value" :zoom="slider.imageZoom" :zoomOrigin="slider.imageZoomOrigin" />
             <div class="tick" v-if="slider.displayTick && slider.tickIndex == vIndex">
               <img src="/assets/images/menu/tick.png">
             </div>
@@ -47,6 +47,23 @@ function numItem() {
 function click(vIndex) {
   if (vIndex == props.slider.current) return
   menuStore.setSliderCurrent({ index: props.index, value: parseInt(vIndex) })
+}
+// slider.imagePadding: the space between the image of a value and the swatch's frame (a number in vh, or a CSS length)
+function imagePadding(padding) {
+  if (padding == null) return
+  return { '--sprite-image-padding': API.cssLength(padding) }
+}
+// slider.gap: the space between the frames of two values, 1.5vh by default; slider.size: the size of a value, frame
+// and its padding included, 5vh by default (each a number in vh, or a CSS length); slider.columns: the number of values
+// shown across the slider, the gap then computed from its width; slider.imageZoom: the image of a value enlarged inside
+// its frame, cut by it (1.5 = 150 %), as an item's tileZoom; slider.imageZoomOrigin: the point it is enlarged from, as
+// CSS transform-origin ("top", "center", "top center"...), "center" by default
+function spritesStyle(slider) {
+  const style = {}
+  if (slider.gap != null) style['--sprites-gap'] = API.cssLength(slider.gap)
+  if (slider.size != null) style['--sprite-size'] = API.cssLength(slider.size)
+  if (slider.columns != null) style['--sprites-columns'] = slider.columns
+  return style
 }
 function isRendered(vIndex) {
   const gap = 10

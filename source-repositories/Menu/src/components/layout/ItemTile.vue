@@ -1,8 +1,8 @@
 <template>
   <li v-if="item" :id="`item-${id}`" :class="['item grid clicker with-icon', { 'disabled': item.disabled, 'active': active }]" :style="tileStyle(item.tilePadding)" @click="click()">
     <template v-if="render">
-      <div :class="[{ 'bw opacity50': item.disabled, 'masked': item.tilePadding != null }, 'image', item.iconClass]">
-        <img :src="API.getImage(item.icon)" />
+      <div :class="[{ 'bw opacity50': item.disabled, 'masked': item.tilePadding != null, 'zoomed': item.tileZoom != null }, 'image', item.iconClass]" :style="zoomStyle(item)">
+        <LoadingImage :src="API.getImage(item.icon)" />
       </div>
       <div class="current" v-if="isCurrent">
         <div class="tick">
@@ -34,6 +34,7 @@
 <script setup>
 import { useMenuStore } from '../../stores/menus'
 import { inject } from 'vue'
+import LoadingImage from './LoadingImage.vue'
 const menuStore = useMenuStore()
 const API = inject('API')
 
@@ -57,8 +58,14 @@ const props = defineProps({
 // length); 0 brings the image to the edge. The image then takes the shape of the background (masked)
 function tileStyle(padding) {
   if (padding == null) return
-  const length = typeof padding == "number" ? `${padding}vh` : padding
-  return { padding: `calc(var(--padding-background-item) + ${length})` }
+  return { padding: `calc(var(--padding-background-item) + ${API.cssLength(padding)})` }
+}
+
+// item.tileZoom: the image of the tile enlarged (1.5 = 150 %), cut by the tile; item.tileZoomOrigin: the point it is
+// enlarged from, as CSS transform-origin ("top", "center", "right", "top center"...), "center" by default
+function zoomStyle(item) {
+  if (item.tileZoom == null) return
+  return { '--tile-zoom': item.tileZoom, '--tile-zoom-origin': item.tileZoomOrigin || 'center' }
 }
 
 function click() {
@@ -119,8 +126,17 @@ function click() {
     background-size: 100% 100%;
   }
 
-  .image img {
+  .image :deep(img) {
     object-fit: contain;
+  }
+
+  .image.zoomed {
+    overflow: hidden;
+
+    :deep(img:not(.spinner)) {
+      transform: scale(var(--tile-zoom));
+      transform-origin: var(--tile-zoom-origin);
+    }
   }
 
   // an image brought to the edge (tilePadding) cut to the shape of the tile's background
@@ -133,7 +149,7 @@ function click() {
     mask-repeat: no-repeat;
 
     // a block: an inline image leaves a gap below it, which the mask would cover too
-    img {
+    :deep(img) {
       display: block;
     }
   }

@@ -178,6 +178,11 @@ class API {
     return url.includes('://')
   }
 
+  // a length of the menu: a number in vh, or a CSS length
+  cssLength = function (value) {
+    return typeof value == "number" ? `${value}vh` : value
+  }
+
   getImage = function (url) {
     if (!url || url == undefined) return ""
     if (this.isNUIImage(url))

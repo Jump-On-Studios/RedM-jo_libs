@@ -1,5 +1,5 @@
 <template>
-  <div v-if="devMode" style="position: absolute; left: 0; top: 0; z-index:999; color: white; display: flex; flex-direction: column;align-items: start;">
+  <div v-if="devMode && !cleanMode" style="position: absolute; left: 0; top: 0; z-index:999; color: white; display: flex; flex-direction: column;align-items: start;">
     <span>{{ datas.showMenu }}, {{ datas.keepBackground }}</span>
     <button @click="HideButton()">Toggle show {{ datas.showMenu }}</button>
     <button @click="SoftButton()">Toggle keepBackground {{ datas.showMenu }}</button>
@@ -22,6 +22,8 @@ let datas = {}
 let menuStore = {}
 
 const devMode = import.meta.env.DEV;
+// ?clean hides the dev buttons, for the documentation screenshots
+const cleanMode = devMode && new URLSearchParams(window.location.search).has("clean");
 if (devMode) {
   datas = useDataStore();
   menuStore = useMenuStore();

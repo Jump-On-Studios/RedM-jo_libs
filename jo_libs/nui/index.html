@@ -125,56 +125,66 @@
 
     document.body.appendChild(frame);
 
-    frame.contentWindow.GetParentResourceName = function () {
-      return resourceName;
+    const exposeResourceName = () => {
+      frame.contentWindow.GetParentResourceName = function () {
+        return resourceName;
+      }
     }
+    // Old CEF reused the initial about:blank window, so this survived the navigation.
+    exposeResourceName()
 
-    frame.contentWindow.addEventListener('dispatchEvent', (event) => {
-      const redirectedEvent = isKeyboardEventType(event.realtype)
-        ? createKeyboardEvent(event.realtype, event)
-        : new event.constructor(event.realtype, event);
-      redirectedEvent.fake = true
-      if (isKeyboardEventType(event.realtype)) {
-        frame.contentWindow.document.dispatchEvent(redirectedEvent)
-        return
-      }
-      const el = frame.contentWindow.document.elementFromPoint(event.screenX, event.screenY)
-      if (el == null) {
-        frame.contentWindow.document.dispatchEvent(redirectedEvent)
-        return
-      }
-      el.dispatchEvent(redirectedEvent)
-    })
+    // CEF 144 gives the loaded page a new window: anything set on contentWindow
+    // before load is lost, so the frame's window is set up once its page has loaded.
+    frame.addEventListener('load', () => {
+      exposeResourceName()
 
-    eventsToRedirect.forEach(eventType => {
-      frame.contentWindow.addEventListener(eventType, (event) => {
-        if (eventType == "pointermove") updateMousePos(event.screenX, event.screenY)
-        if (event.fake) return
-        if (uiNameFocused !== "") return
-        const redirectedEvent = isKeyboardEventType(eventType)
-          ? createKeyboardEvent('dispatchEvent', event)
-          : new event.constructor('dispatchEvent', event);
-        redirectedEvent.realtype = eventType
-        iFrames.forEach((frame) => {
-          if (frame.uiName != uiName)
-            frame.element.contentWindow.document.dispatchEvent(redirectedEvent)
-        })
+      frame.contentWindow.addEventListener('dispatchEvent', (event) => {
+        const redirectedEvent = isKeyboardEventType(event.realtype)
+          ? createKeyboardEvent(event.realtype, event)
+          : new event.constructor(event.realtype, event);
+        redirectedEvent.fake = true
+        if (isKeyboardEventType(event.realtype)) {
+          frame.contentWindow.document.dispatchEvent(redirectedEvent)
+          return
+        }
+        const el = frame.contentWindow.document.elementFromPoint(event.screenX, event.screenY)
+        if (el == null) {
+          frame.contentWindow.document.dispatchEvent(redirectedEvent)
+          return
+        }
+        el.dispatchEvent(redirectedEvent)
       })
-    });
+
+      eventsToRedirect.forEach(eventType => {
+        frame.contentWindow.addEventListener(eventType, (event) => {
+          if (eventType == "pointermove") updateMousePos(event.screenX, event.screenY)
+          if (event.fake) return
+          if (uiNameFocused !== "") return
+          const redirectedEvent = isKeyboardEventType(eventType)
+            ? createKeyboardEvent('dispatchEvent', event)
+            : new event.constructor('dispatchEvent', event);
+          redirectedEvent.realtype = eventType
+          iFrames.forEach((frame) => {
+            if (frame.uiName != uiName)
+              frame.element.contentWindow.document.dispatchEvent(redirectedEvent)
+          })
+        })
+      });
 
 
-    frame.contentWindow.addEventListener('mousemove', (event) => {
-      updateMousePos(event.screenX, event.screenY)
-      if (event.fake) return
-      if (uiName == uiNameFocused) return
-      const target = event.target
-      if (target.nodeName != "BODY" && target.nodeName != "HTML") return
-      const X = event.screenX
-      const Y = event.screenY
-      if (!isEnoughFar(X, Y)) return
-      const uiNameUnder = getUiFromPoint(X, Y)
-      if (uiNameUnder == null) return
-      moveiFrameOnTop(uiNameUnder)
+      frame.contentWindow.addEventListener('mousemove', (event) => {
+        updateMousePos(event.screenX, event.screenY)
+        if (event.fake) return
+        if (uiName == uiNameFocused) return
+        const target = event.target
+        if (target.nodeName != "BODY" && target.nodeName != "HTML") return
+        const X = event.screenX
+        const Y = event.screenY
+        if (!isEnoughFar(X, Y)) return
+        const uiNameUnder = getUiFromPoint(X, Y)
+        if (uiNameUnder == null) return
+        moveiFrameOnTop(uiNameUnder)
+      })
     })
 
     return frame
