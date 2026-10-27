@@ -205,7 +205,9 @@ function jo.framework:addItemInInventory(source, id, item, quantity, metadata)
     }
   }
 
-  return Inventory:addItemsToCustomInventory(id, items, charIdentifier)
+  -- A non-shared custom inventory is cached per player identifier: without it, VORP saves the item
+  -- in the database but leaves the open inventory unchanged until the cache is reloaded.
+  return Inventory:addItemsToCustomInventory(id, items, charIdentifier, nil, user.data.identifier)
 end
 
 function jo.framework:getItemsFromInventory(invId)
