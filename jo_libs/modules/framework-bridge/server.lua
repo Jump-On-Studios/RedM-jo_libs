@@ -164,6 +164,21 @@ function jo.framework:canUserBuy(source, amount, moneyType, removeIfCan)
   return user:canBuy(amount, moneyType, removeIfCan)
 end
 
+--- Give back one normalized price entry
+---@param source integer (The source ID of the player)
+---@param price table (One entry of jo.pricing.get)
+local function refundPrice(source, price)
+  if price.item and not price.keep then
+    jo.framework:giveItem(source, price.item, price.quantity or 1, price.meta)
+  elseif price.money then
+    jo.framework:addMoney(source, price.money, 0)
+  elseif price.gold then
+    jo.framework:addMoney(source, price.gold, 1)
+  elseif price.rol then
+    jo.framework:addMoney(source, price.rol, 2)
+  end
+end
+
 --- A function that checks if a player can pay multiple prices
 ---@param source integer (The source ID of the player)
 ---@param prices table (The prices to check)
@@ -212,16 +227,21 @@ function jo.framework:canUserPayWith(source, prices, removeIfCan)
 
   for i = 1, #prices do
     local price = prices[i]
+    local removed
     if price.item and not price.keep then
-      jo.framework:removeItem(source, price.item, price.quantity or 1, price.meta)
+      removed = jo.framework:removeItem(source, price.item, price.quantity or 1, price.meta)
     elseif price.money then
-      jo.framework:removeMoney(source, price.money, 0)
+      removed = jo.framework:removeMoney(source, price.money, 0)
     elseif price.gold then
-      if jo.framework:removeMoney(source, price.gold, 1) == false then
-        return false, i
-      end
+      removed = jo.framework:removeMoney(source, price.gold, 1)
     elseif price.rol then
-      jo.framework:removeMoney(source, price.rol, 2)
+      removed = jo.framework:removeMoney(source, price.rol, 2)
+    end
+    -- Only an explicit false is a failure: some adapters return nil after a successful removal.
+    -- Give back what was already taken so a refused payment never leaves a partial debit.
+    if removed == false then
+      for j = 1, i - 1 do refundPrice(source, prices[j]) end
+      return false, i
     end
   end
 
@@ -245,18 +265,7 @@ function jo.framework:refundUserWith(source, prices)
   if type(prices) ~= "table" then return false end
   if table.type(prices) ~= "array" then prices = { prices } end
 
-  for i = 1, #prices do
-    local price = prices[i]
-    if price.item and not price.keep then
-      jo.framework:giveItem(source, price.item, price.quantity or 1, price.meta)
-    elseif price.money then
-      jo.framework:addMoney(source, price.money, 0)
-    elseif price.gold then
-      jo.framework:addMoney(source, price.gold, 1)
-    elseif price.rol then
-      jo.framework:addMoney(source, price.rol, 2)
-    end
-  end
+  for i = 1, #prices do refundPrice(source, prices[i]) end
 end
 
 --- A function to give money to a player
