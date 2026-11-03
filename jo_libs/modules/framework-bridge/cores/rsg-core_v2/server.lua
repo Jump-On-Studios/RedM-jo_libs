@@ -598,6 +598,13 @@ function jo.framework:revertClothesInternal(standard)
   clothes.dresses = table.extract(standard, "dresses")
   clothes.armor = table.extract(standard, "armor")
 
+  -- RSG applies saved palettes directly to a native expecting a hash.
+  for _, component in pairs(clothes) do
+    if type(component) == "table" and type(component.palette) == "string" then
+      component.palette = GetHashFromString(component.palette)
+    end
+  end
+
   return clothes
 end
 
