@@ -13,7 +13,14 @@ CreateThread(function()
     return
   end
   jo.nui.load("jo_menu", "nui://jo_libs/nui/menu/index.html")
-  Wait(500)
+  -- CEF 144 drops the messages sent to the iframe before its page is loaded
+  local timeout = GetGameTimer() + 10000
+  while not jo.nui.isReady("jo_menu") and GetGameTimer() < timeout do
+    Wait(50)
+  end
+  if not jo.nui.isReady("jo_menu") then
+    eprint("The menu NUI didn't report it was loaded after 10 seconds, the menu may not work")
+  end
   nuiLoaded = true
 end)
 
