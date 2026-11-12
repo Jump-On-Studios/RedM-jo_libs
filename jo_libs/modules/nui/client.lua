@@ -1,5 +1,6 @@
 jo.createModule("nui")
 local nuiLoaded = {}
+local nuiReady = {}
 
 --- Loads a NUI interface
 ---@param uiName string (The name of the NUI to load)
@@ -43,6 +44,18 @@ end
 function jo.nui.isLoaded(uiName)
   return nuiLoaded[uiName] and true or false
 end
+
+--- A function to know if the page of a nui has finished loading and can receive messages
+---@param uiName string (The name of the NUI)
+---@return boolean (`true` if the page of the nui is loaded)
+function jo.nui.isReady(uiName)
+  return nuiReady[uiName] and true or false
+end
+
+RegisterNUICallback("jo_nui_loaded", function(data, cb)
+  nuiReady[data.uiName] = true
+  cb("ok")
+end)
 
 --- A function to know if the mouse is hovering over a NUI
 --- The NUI has to be start with the nui module to be detected
