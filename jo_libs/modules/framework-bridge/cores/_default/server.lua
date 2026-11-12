@@ -72,6 +72,12 @@ function jo.framework.UserClass:getRPName()
   return ""
 end
 
+--- Returns the character identity in a standard shape; the fields the framework does not store stay `nil`
+---@return table (Returns `{ firstname?, lastname?, birthdate?: "YYYY-MM-DD", age?: integer, gender?: "male"|"female", nationality? }`)
+function jo.framework.UserClass:getIdentity()
+  return {}
+end
+
 -- -----------
 -- SKIN & CLOTHES
 -- -----------

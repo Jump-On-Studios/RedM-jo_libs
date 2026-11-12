@@ -63,6 +63,11 @@ function jo.framework.UserClass:getRPName()
   return ("%s %s"):format(self.data.getFirstName(), self.data.getLastName())
 end
 
+---@return table identity
+function jo.framework.UserClass:getIdentity()
+  return { firstname = self.data.getFirstName(), lastname = self.data.getLastName() }
+end
+
 -- Accounts
 function jo.framework.UserClass:getMoney(account)
   return self.data.getAccount(account)

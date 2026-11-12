@@ -97,6 +97,11 @@ function jo.framework.UserClass:getRPName()
   return ("%s %s"):format(GetValue(self.data.firstname, ""), GetValue(self.data.lastname, ""))
 end
 
+---@return table identity
+function jo.framework.UserClass:getIdentity()
+  return { firstname = self.data.firstname, lastname = self.data.lastname }
+end
+
 -------------
 -- SKIN & CLOTHES
 -------------

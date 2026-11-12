@@ -388,6 +388,19 @@ function jo.framework.UserClass:getRPName()
   return ("%s %s"):format(self.data.PlayerData.charinfo.firstname, self.data.PlayerData.charinfo.lastname)
 end
 
+---@return table identity
+function jo.framework.UserClass:getIdentity()
+  local charinfo = self.data.PlayerData.charinfo or {}
+  local gender = tonumber(charinfo.gender) -- 0: male, 1: female
+  return {
+    firstname = charinfo.firstname,
+    lastname = charinfo.lastname,
+    birthdate = charinfo.birthdate,
+    gender = gender == 0 and "male" or gender == 1 and "female" or nil,
+    nationality = charinfo.nationality,
+  }
+end
+
 
 -------------
 -- INVENTORY
