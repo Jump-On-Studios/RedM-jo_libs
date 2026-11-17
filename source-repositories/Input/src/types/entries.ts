@@ -13,15 +13,16 @@ export type EntryType =
   | 'price'
   | 'button'
   | 'action'
+  | 'textarea'
 
 /** Entry types that contribute a value to the result sent back to Lua. */
-export const RESULT_TYPES = ['text', 'number', 'date', 'select', 'price'] as const
+export const RESULT_TYPES = ['text', 'textarea', 'number', 'date', 'select', 'price'] as const
 
 /** Entry types rendered as a clickable button. `action` is the legacy name. */
 export const BUTTON_TYPES = ['button', 'action'] as const
 
 /** Result types that can receive the initial keyboard focus. */
-export const FOCUSABLE_TYPES = ['text', 'number', 'select'] as const
+export const FOCUSABLE_TYPES = ['text', 'textarea', 'number', 'select'] as const
 
 /** Zones of the panel a row can be sent to. `content` is the only one scrolling. */
 export const ROW_POSITIONS = ['header', 'content', 'footer'] as const
@@ -63,6 +64,16 @@ export interface TextEntry extends CommonEntry {
   value?: string
   placeholder?: string
   required?: boolean
+}
+
+export interface TextAreaEntry extends CommonEntry {
+  type: 'textarea'
+  value?: string
+  placeholder?: string
+  required?: boolean
+  /** Visible lines. Defaults to 4; the player can drag the box taller. */
+  rows?: number
+  maxLength?: number
 }
 
 export interface NumberEntry extends CommonEntry {
@@ -128,9 +139,10 @@ export type Entry =
   | SelectEntry
   | PriceEntry
   | ButtonEntry
+  | TextAreaEntry
 
 /** Entries carrying a value, and therefore a `required` flag. */
-export type ResultEntry = TextEntry | NumberEntry | DateEntry | SelectEntry | PriceEntry
+export type ResultEntry = TextEntry | NumberEntry | DateEntry | SelectEntry | PriceEntry | TextAreaEntry
 
 /** Raw entry as received from Lua, before the store assigns a fallback id. */
 export interface IncomingEntry extends Record<string, unknown> {
