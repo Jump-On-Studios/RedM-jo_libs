@@ -125,6 +125,17 @@ function jo.framework:getRPName(source)
   return user:getRPName()
 end
 
+--- Returns the character identity in a standard shape, whatever the framework
+--- Fields the framework does not store are `nil`: VORP has an `age` but no `birthdate` or `nationality`.
+---@param source integer (The source ID of the player)
+---@return table|nil (Return `{ firstname, lastname, birthdate?: "YYYY-MM-DD", age?: integer, gender?: "male"|"female", nationality? }`, or `nil` without a character or when a custom core does not implement it)
+function jo.framework:getUserIdentity(source)
+  local user = jo.framework.UserClass:get(source)
+  -- Every supported core implements getIdentity; a `_custom` core may not
+  if not user or not user.getIdentity then return nil end
+  return user:getIdentity()
+end
+
 --- Checks if a player has sufficient funds of a specified currency type
 ---@param source integer (The source ID of the player)
 ---@param amount number (The amount of money the player needs to have <br> {money = 10.5, gold = 3, rol = 1.5})

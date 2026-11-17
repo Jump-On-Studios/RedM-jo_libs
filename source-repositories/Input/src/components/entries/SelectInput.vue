@@ -16,12 +16,7 @@
       <span class="entry-select__caret">{{ isOpen ? '▲' : '▼' }}</span>
     </button>
 
-    <!--
-      Overlays the rows below instead of pushing them down, and is never
-      teleported: it stays inside the panel so the ui-scaler directive scales it
-      along with everything else.
-    -->
-    <ul v-if="isOpen" class="entry-select__list">
+    <ul v-if="isOpen" class="entry-select__list" :style="listStyle">
       <li v-for="(option, index) in options" :key="index">
         <button
           type="button"
@@ -48,10 +43,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, useTemplateRef, watch } from 'vue'
+import { computed, ref, useTemplateRef, watch } from 'vue'
 import { useAutofocus } from '@/composables/useAutofocus'
 import { useEntryStyle } from '@/composables/useEntryStyle'
 import { useEntryValue } from '@/composables/useEntryValue'
+import { usePopoverPosition } from '@/composables/usePopoverPosition'
 import type { SelectEntry, SelectOption } from '@/types/entries'
 
 const props = defineProps<{ entry: SelectEntry }>()
@@ -63,6 +59,7 @@ const { value, hasError } = useEntryValue<SelectOption | null>(() => props.entry
 
 const isOpen = ref(false)
 const activeIndex = ref(-1)
+const listStyle = usePopoverPosition(field, isOpen)
 
 const options = computed<SelectOption[]>(() => props.entry.options ?? [])
 
@@ -147,13 +144,13 @@ function onDocumentPointerDown(event: PointerEvent) {
   close()
 }
 
-watch(isOpen, (opened) => {
-  if (opened) document.addEventListener('pointerdown', onDocumentPointerDown)
-  else document.removeEventListener('pointerdown', onDocumentPointerDown)
-})
+watch(isOpen, (opened, _, onCleanup) => {
+  if (!opened) return
 
-onBeforeUnmount(() => {
-  document.removeEventListener('pointerdown', onDocumentPointerDown)
+  document.addEventListener('pointerdown', onDocumentPointerDown)
+  onCleanup(() => {
+    document.removeEventListener('pointerdown', onDocumentPointerDown)
+  })
 })
 </script>
 
@@ -176,7 +173,7 @@ onBeforeUnmount(() => {
   &__list {
     @include popover;
 
-    right: 0;
+    width: var(--popover-trigger-width);
     max-height: 280px;
     overflow-y: auto;
     padding: 6px;

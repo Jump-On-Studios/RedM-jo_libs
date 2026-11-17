@@ -323,6 +323,17 @@ function jo.framework.UserClass:getRPName()
   return ("%s %s"):format(self.data.firstname, self.data.lastname)
 end
 
+---@return table identity
+function jo.framework.UserClass:getIdentity()
+  local gender = type(self.data.gender) == "string" and self.data.gender:lower() or nil
+  return {
+    firstname = self.data.firstname,
+    lastname = self.data.lastname,
+    age = tonumber(self.data.age), -- VORP stores an age, no birth date
+    gender = (gender == "male" or gender == "female") and gender or nil,
+  }
+end
+
 function jo.framework:createUser(source, data, spawnCoordinate, isDead)
   if isDead == nil then isDead = false end
   spawnCoordinate = GetValue(spawnCoordinate, vec4(2537.684, -1278.066, 49.218, 42.520))

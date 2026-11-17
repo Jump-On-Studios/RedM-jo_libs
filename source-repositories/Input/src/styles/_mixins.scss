@@ -113,16 +113,9 @@
   }
 }
 
-/// Panel opened under its trigger.
-///
-/// It must stay inside .input-container: anything teleported out escapes the
-/// ui-scaler transform. It is absolute rather than in the flow so it overlays
-/// the rows instead of pushing them down, which is why .input-container must
-/// never scroll — a scrolling ancestor would clip it.
+/// Fixed to the scaled stage by usePopoverPosition, outside the scroll area.
 @mixin popover {
-  position: absolute;
-  top: calc(100% + 2px);
-  left: 0;
+  position: fixed;
 }
 
 /// Field that opens a popover: current value on the left, caret on the right.

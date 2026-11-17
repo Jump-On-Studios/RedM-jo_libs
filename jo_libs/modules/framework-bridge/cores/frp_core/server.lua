@@ -117,6 +117,16 @@ function jo.framework.UserClass:getRPName()
   return character:GetFullName()
 end
 
+---@return table identity
+function jo.framework.UserClass:getIdentity()
+  local character = self.data:GetCharacter()
+  -- ponytail: FRP only exposes the full name here; split at the first space until a first/last name getter is known
+  local firstname, lastname = (character:GetFullName() or ""):match("^(%S+)%s+(.+)$")
+  local gender
+  if character.isMale ~= nil then gender = (character.isMale == 0 or not character.isMale) and "female" or "male" end
+  return { firstname = firstname, lastname = lastname, gender = gender }
+end
+
 -------------
 -- SKIN & CLOTHES
 -------------

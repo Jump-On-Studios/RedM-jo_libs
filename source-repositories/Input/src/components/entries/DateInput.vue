@@ -21,13 +21,7 @@
       <span class="entry-date__caret">{{ isOpen ? '▲' : '▼' }}</span>
     </button>
 
-    <!--
-      The calendar uses the `inline` mode rather than the library popup, so it is
-      never teleported out of the panel, and our own absolute wrapper overlays it
-      on the rows below instead of pushing them down. Everything stays inside the
-      element the ui-scaler directive will scale.
-    -->
-    <div v-if="isOpen" class="entry-date__popover">
+    <div v-if="isOpen" class="entry-date__popover" :style="popoverStyle">
       <VueDatePicker
         v-model="value"
         inline
@@ -51,6 +45,7 @@ import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue'
 import VueDatePicker from '@vuepic/vue-datepicker'
 import { useEntryStyle } from '@/composables/useEntryStyle'
 import { useEntryValue } from '@/composables/useEntryValue'
+import { usePopoverPosition } from '@/composables/usePopoverPosition'
 import type { DateEntry } from '@/types/entries'
 
 const props = defineProps<{ entry: DateEntry }>()
@@ -63,6 +58,7 @@ const style = useEntryStyle(() => props.entry)
 const { value, hasError } = useEntryValue<string | Date | null>(() => props.entry)
 
 const isOpen = ref(false)
+const popoverStyle = usePopoverPosition(field, isOpen)
 
 const yearRange = computed<[number, number]>(() => props.entry.yearRange ?? [1900, 2100])
 
