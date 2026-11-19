@@ -13,18 +13,23 @@ function jo.input.native(label, placeholder, maxStringLength)
   AddTextEntry("FMMC_KEY_TIP1", label)
   DisplayOnscreenKeyboard(0, "FMMC_KEY_TIP1", "", placeholder, "", "", "", maxStringLength or 60)
 
-  while UpdateOnscreenKeyboard() ~= 1 and UpdateOnscreenKeyboard() ~= 2 do
+  -- make sure input has loaded
+  local timeout = GetGameTimer() + 1000
+  while UpdateOnscreenKeyboard() ~= 0 do
+    if GetGameTimer() > timeout then return "" end
     Wait(0)
   end
 
-  if UpdateOnscreenKeyboard() ~= 2 then
-    local result = GetOnscreenKeyboardResult() --Gets the result of the typing
-    Wait(100)
-    return result or ""
-  else
-    Wait(100)
-    return ""
+  while UpdateOnscreenKeyboard() == 0 do
+    Wait(0)
   end
+
+  local confirmed = UpdateOnscreenKeyboard() == 1
+  local result = confirmed and GetOnscreenKeyboardResult() or ""
+
+  -- wait until enter key released
+  jo.prompt.waitRelease("INPUT_FRONTEND_ACCEPT")
+  return result or ""
 end
 
 --- A function to load the NUI.
