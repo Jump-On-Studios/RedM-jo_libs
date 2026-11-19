@@ -44,8 +44,15 @@ class API {
         },
         body: ndata
       };
+      let fetchResponse
       try {
-        const fetchResponse = await fetch('https://' + GetParentResourceName() + '/' + method, settings);
+        fetchResponse = await fetch('https://' + GetParentResourceName() + '/' + method, settings);
+      } catch (e) {
+        // The callback never reached Lua: logged, else the click or the back is silently lost
+        console.error(`[jo_menu] NUI callback "${method}" failed:`, e)
+        return e;
+      }
+      try {
         const data = await fetchResponse.json();
         if (data.length == 0 || data === "ok") {
           return true

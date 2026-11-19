@@ -138,6 +138,15 @@
     frame.addEventListener('load', () => {
       exposeResourceName()
 
+      // Tell Lua the page is ready: the messages sent before are lost
+      fetch(`https://${resourceName}/jo_nui_loaded`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: JSON.stringify({ uiName }),
+      }).catch((e) => console.error('[jo_nui] jo_nui_loaded failed:', uiName, e))
+
       frame.contentWindow.addEventListener('dispatchEvent', (event) => {
         const redirectedEvent = isKeyboardEventType(event.realtype)
           ? createKeyboardEvent(event.realtype, event)
