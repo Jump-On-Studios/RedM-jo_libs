@@ -394,6 +394,8 @@ end
 
 local function isForcedHide()
     if IsPauseMenuActive() then return true end
+    -- The map opened directly (M key) is a uiapp, not the pause menu
+    if IsUiappActiveByHash(`MAP`) == 1 then return true end
     if IsScreenFadedOut() then return true end
     if IsScreenFadingOut() then return true end
     if IsScreenFadingIn() then return true end
