@@ -9,7 +9,6 @@
       @click="toggle"
       @keydown="onKeyDown"
     >
-      <span class="entry-field__caps" aria-hidden="true" />
       <span :class="{ 'entry-select__placeholder': !value }">
         {{ value?.label ?? entry.placeholder ?? '' }}
       </span>

@@ -5,7 +5,6 @@
     submits on Enter when nothing is focused.
   -->
   <label class="entry-field entry-field--textarea" :class="[entry.class, { error: hasError }]" :style="style">
-    <span class="entry-field__caps" aria-hidden="true" />
     <textarea
         :id="entry.id"
         ref="field"

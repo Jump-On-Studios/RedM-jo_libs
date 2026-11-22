@@ -312,10 +312,7 @@ watch(priceValue, (next) => (value.value = next), { immediate: true });
       inset: 2px 0;
       z-index: -1;
       background-color: $price-tab-surface;
-      -webkit-mask: url("/assets/ui/selection_box_bg_1d.png") center / 100% 100%
-        no-repeat;
-      mask: url("/assets/ui/selection_box_bg_1d.png") center / 100% 100%
-        no-repeat;
+      @include field-mask;
       opacity: 0.72;
     }
 
