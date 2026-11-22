@@ -1,5 +1,7 @@
 jo.createModule("input")
 jo.require("pricing")
+jo.require("prompt")
+jo.require("waiter")
 
 local nuiResult = nil
 local nuiOpened = false
@@ -13,18 +15,20 @@ function jo.input.native(label, placeholder, maxStringLength)
   AddTextEntry("FMMC_KEY_TIP1", label)
   DisplayOnscreenKeyboard(0, "FMMC_KEY_TIP1", "", placeholder, "", "", "", maxStringLength or 60)
 
-  while UpdateOnscreenKeyboard() ~= 1 and UpdateOnscreenKeyboard() ~= 2 do
+  -- make sure input has loaded
+  local isOpen = jo.waiter.exec(function() return UpdateOnscreenKeyboard() == 0 end, nil, 0, 1000)
+  if not isOpen then return "" end
+
+  while UpdateOnscreenKeyboard() == 0 do
     Wait(0)
   end
 
-  if UpdateOnscreenKeyboard() ~= 2 then
-    local result = GetOnscreenKeyboardResult() --Gets the result of the typing
-    Wait(100)
-    return result or ""
-  else
-    Wait(100)
-    return ""
-  end
+  local confirmed = UpdateOnscreenKeyboard() == 1
+  local result = confirmed and GetOnscreenKeyboardResult() or ""
+
+  -- wait until the confirm/cancel key is released
+  jo.prompt.waitRelease(confirmed and "INPUT_FRONTEND_ACCEPT" or "INPUT_FRONTEND_CANCEL")
+  return result
 end
 
 --- A function to load the NUI.
