@@ -41,7 +41,7 @@ end
 local function sendKeyboardLayout()
   SendNUIMessage({
     event = "updateKeyboardLayout",
-    layout = GetConvar("jo_libs:keyboard_layout", "qwerty"):lower()
+    layout = GetConvar("jo_libs:keyboard_layout", "qwerty"):lower() -- Initial key shown in the palette sliders: "qwerty" or "azerty"
   })
 end
 CreateThread(sendKeyboardLayout)
