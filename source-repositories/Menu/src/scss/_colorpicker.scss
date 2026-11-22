@@ -27,7 +27,8 @@
   .colorSlider {
     position: relative;
     display: flex;
-    gap: 0.25em;
+    // Half the cursor width: the cursor on the first/last color never covers the key helpers
+    gap: 1.4vh;
     align-items: center;
     margin-top: 1vh;
     padding: 0.5vh 1.4vh 0.25em;

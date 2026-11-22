@@ -107,6 +107,11 @@ class API {
     this.audioVolume = data.volume
   }
 
+  updateKeyboardLayout(data) {
+    const datas = useDataStore()
+    datas.defineQwerty(data.layout != "azerty")
+  }
+
   lastAudio = ""
   PlayAudio = function (name) {
     if (this.lastAudio == name) return

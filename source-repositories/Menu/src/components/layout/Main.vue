@@ -123,21 +123,8 @@ onBeforeMount(() => {
   document.addEventListener('focusin', focusIn);
   document.addEventListener('focusout', focusOut);
 })
-// Detect the keyboard layout up front when the browser exposes it.
-function detectKeyboardLayout() {
-  try {
-    navigator.keyboard?.getLayoutMap?.()
-      .then(map => {
-        const key = map.get('KeyQ')?.toLowerCase()
-        if (key == "q" || key == "a")
-          datas.defineQwerty(key == "q")
-      })
-      .catch(() => { })
-  } catch { }
-}
 onMounted(() => {
   mountedDate = Date.now();
-  detectKeyboardLayout()
   if (!datas.openingAnimation) return
   API.PlayAudio('menu_open');
 })

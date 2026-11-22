@@ -35,6 +35,20 @@ local function SendNUIMessage(data)
   data.messageTargetUiName = "jo_menu"
   NativeSendNUIMessage(data)
 end
+
+-- Initial keyboard layout of the slider key helpers, from the convar shared with the raw-keys module.
+-- The NUI then corrects it per player on the first press of the physical Q key.
+local function sendKeyboardLayout()
+  SendNUIMessage({
+    event = "updateKeyboardLayout",
+    layout = GetConvar("jo_libs:keyboard_layout", "qwerty"):lower()
+  })
+end
+CreateThread(sendKeyboardLayout)
+AddConvarChangeListener("jo_libs:keyboard_layout", function()
+  CreateThread(sendKeyboardLayout)
+end)
+
 local disabledKeys = {
   `INPUT_SELECT_NEXT_WEAPON`,
   `INPUT_NEXT_WEAPON`,
