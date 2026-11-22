@@ -8,7 +8,7 @@
     </div>
     <div class="colorSlider">
       <div :class="['keyHelpers', 'index-' + fakeIndex]" v-if="fakeIndex > 0">
-        <div :class="['left', { 'qwerty': menuStore.isQwerty && index == 1 }]" ref="keyLeft">
+        <div :class="['left', { 'qwerty': datas.isQwerty && index == 1 }]" ref="keyLeft">
           {{ leftKey() }}
         </div>
       </div>
@@ -37,7 +37,9 @@ import { useLangStore } from '../../../stores/lang';
 import { getPaletteColors } from '../../../services/paletteLoader'
 const lang = useLangStore().lang
 import { useMenuStore } from '../../../stores/menus';
+import { useDataStore } from '../../../stores/datas';
 const menuStore = useMenuStore()
+const datas = useDataStore()
 const API = inject('API')
 
 const props = defineProps(['index', 'slider', 'last'])
@@ -185,7 +187,7 @@ function onDragEnd() {
 function leftKey() {
   if (fakeIndex.value == 0) return '←'
   if (fakeIndex.value == 1) {
-    if (menuStore.isQwerty)
+    if (datas.isQwerty)
       return "q"
     else
       return "a"
