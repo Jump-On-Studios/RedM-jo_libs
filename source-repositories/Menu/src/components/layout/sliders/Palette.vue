@@ -7,8 +7,8 @@
       <div class="arrow right clicker" @click="menuStore.sliderRight(props.index)"><img src="/assets/images/menu/selection_arrow_right.png"></div>
     </div>
     <div class="colorSlider">
-      <div :class="['keyHelpers', 'index-' + fakeIndex]" v-if="fakeIndex > 0">
-        <div :class="['left', { 'qwerty': datas.isQwerty && index == 1 }]" ref="keyLeft">
+      <div :class="['keyHelpers', 'index-' + fakeIndex]" v-if="hasKeyHelpers">
+        <div :class="['left', { 'qwerty': datas.isQwerty && fakeIndex == 1 }]" ref="keyLeft">
           {{ leftKey() }}
         </div>
       </div>
@@ -21,7 +21,7 @@
         />
         <div class="palette-cursor" :style="cursorStyle" />
       </div>
-      <div :class="['keyHelpers', 'index-' + fakeIndex]" v-if="fakeIndex > 0">
+      <div :class="['keyHelpers', 'index-' + fakeIndex]" v-if="hasKeyHelpers">
         <div class=" right" ref="keyRight">
           {{ rightKey() }}
         </div>
@@ -43,9 +43,11 @@ const datas = useDataStore()
 const API = inject('API')
 
 const props = defineProps(['index', 'slider', 'last'])
-let fakeIndex = ref(props.index)
-if (menuStore.cMenu.type == 'tile')
-  fakeIndex.value += 1
+// Row used for key helpers: tile menus shift slider keys by one (Q/E drive index 0).
+// Computed so it follows the current menu when this component is reused.
+const fakeIndex = computed(() => props.index + (menuStore.cMenu.type == 'tile' ? 1 : 0))
+// Only rows 1 (Q/E) and 2 (4/6) have a keyboard binding in Slider.vue.
+const hasKeyHelpers = computed(() => fakeIndex.value > 0 && fakeIndex.value <= 2)
 let mounted = false
 
 const paletteName = computed(() => API.getPalette(props.slider.palette || props.slider.tint))

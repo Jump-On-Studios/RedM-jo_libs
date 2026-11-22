@@ -6,7 +6,7 @@ export const useDataStore = defineStore('datas', {
     showMenu: false,
     keepBackground: false,
     menuPositionRight: false,
-    isQwerty: false,
+    isQwerty: true,
     openingAnimation: true,
     showLoader: false
   }),
