@@ -32,8 +32,11 @@ function toPlain<T>(value: T): T {
   return JSON.parse(JSON.stringify(raw))
 }
 
+/** A string holding only spaces or new lines counts as empty too. */
 function isEmpty(value: unknown): boolean {
-  return value === '' || value === null || value === undefined
+  if (typeof value === 'string') return value.trim() === ''
+
+  return value === null || value === undefined
 }
 
 interface InputState {
@@ -120,6 +123,14 @@ export const useInputStore = defineStore('input', {
             // Kept as undefined when absent: JSON.stringify then drops the key
             // and Lua reads nil, exactly like before the rework.
             values[normalized.id] = normalized.value
+
+            // maxlength only stops typing: a longer value sent by Lua would
+            // otherwise go back untouched on submit.
+            const { maxLength } = normalized as { maxLength?: unknown }
+            const seeded = values[normalized.id]
+            if (typeof seeded === 'string' && typeof maxLength === 'number') {
+              values[normalized.id] = seeded.slice(0, maxLength)
+            }
 
             // Only the very first result entry can take the focus: when it is a
             // date or a price, nothing is focused at all.
