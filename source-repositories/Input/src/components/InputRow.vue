@@ -56,5 +56,17 @@ const emit = defineEmits<{ submit: [] }>();
       letter-spacing: 0.04em;
     }
   }
+
+  // A textarea grows downwards: pin the label to its first line rather than
+  // letting it drift to the middle of the box. The padding centres the label's
+  // first line in a single-line field height, where that first line sits.
+  &:has(.entry-field--textarea) {
+    align-items: flex-start;
+
+    :deep(.entry-label) {
+      line-height: 1.3;
+      padding-top: calc((var(--entry-field-height) - var(--font-size-small) * 1.3) / 2);
+    }
+  }
 }
 </style>

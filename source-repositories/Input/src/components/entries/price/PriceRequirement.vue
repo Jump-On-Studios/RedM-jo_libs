@@ -14,7 +14,6 @@
 
     <template v-if="requirement.type === 'item'">
       <label class="price-field">
-        <span class="entry-field__caps" aria-hidden="true" />
         <span class="price-field__label" v-i18n="'inputNuiItem'">Item</span>
         <input
           v-model="requirement.itemName"
@@ -24,7 +23,6 @@
         />
       </label>
       <label class="price-field price-field--narrow">
-        <span class="entry-field__caps" aria-hidden="true" />
         <span class="price-field__label" v-i18n="'inputNuiQuantity'">Qty</span>
         <input
           v-model.number="requirement.quantity"
@@ -43,7 +41,6 @@
 
     <template v-else>
       <label class="price-field">
-        <span class="entry-field__caps" aria-hidden="true" />
         <span class="price-field__label" v-i18n="'inputNuiAmount'">
           Amount
         </span>
@@ -185,13 +182,9 @@ function getString(key: string, fallback: string) {
     content: "";
     position: absolute;
     inset: 0;
-    left: calc(var(--entry-field-cap) - var(--entry-field-cap-overlap));
-    right: calc(var(--entry-field-cap) - var(--entry-field-cap-overlap));
     z-index: 0;
     background-color: var(--color-field);
-    // Keep only the source middle between the native left/right caps.
-    -webkit-mask: url('/assets/ui/selection_box_bg_1d.png') center / 135% 100% no-repeat;
-    mask: url('/assets/ui/selection_box_bg_1d.png') center / 135% 100% no-repeat;
+    @include field-mask;
   }
 
   &::after {

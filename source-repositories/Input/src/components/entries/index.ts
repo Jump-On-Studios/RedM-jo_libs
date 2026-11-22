@@ -10,6 +10,7 @@ import PriceInput from './PriceInput.vue'
 import SelectInput from './SelectInput.vue'
 import TextInput from './TextInput.vue'
 import TitleEntry from './TitleEntry.vue'
+import TextArea from './TextArea.vue'
 
 /** One component per entry type. `action` is the legacy name of `button`. */
 export const ENTRY_COMPONENTS: Record<EntryType, Component> = {
@@ -23,4 +24,5 @@ export const ENTRY_COMPONENTS: Record<EntryType, Component> = {
   price: PriceInput,
   button: ButtonEntry,
   action: ButtonEntry,
+  textarea: TextArea,
 }

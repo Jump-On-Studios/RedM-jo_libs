@@ -19,6 +19,18 @@
   font-variant-caps: small-caps;
 }
 
+/// Ragged box of selection_box_bg_1d, sliced nine ways like border-image: the
+/// corners keep their own size, the 8px top and bottom and the 56px ends stretch
+/// along their length, and the middle is plain. A plain middle is what lets any
+/// height work: the 52px bitmap shows repeated or smeared once stretched tall.
+///
+/// selection_box_9slice.png is that bitmap with an opaque centre, faded in from
+/// the texture over its first 20px so the join does not show. It is a mask, so
+/// the colour still comes from the host's background-color.
+@mixin field-mask {
+  -webkit-mask-box-image: url("/assets/ui/selection_box_9slice.png") 8 56 / 8px var(--entry-field-cap) stretch;
+}
+
 /// Button surface shared by input buttons and price requirement buttons.
 ///
 /// The texture is painted on a pseudo-element so the host can keep accepting
@@ -49,9 +61,7 @@
     inset: 0;
     z-index: -1;
     background-color: var(--button-surface, #{$button-surface});
-    -webkit-mask: url("/assets/ui/selection_box_bg_1d.png") center / 100% 100%
-      no-repeat;
-    mask: url("/assets/ui/selection_box_bg_1d.png") center / 100% 100% no-repeat;
+    @include field-mask;
     pointer-events: none;
   }
 
@@ -144,7 +154,8 @@
 ///
 /// Both are white bitmaps whose shape only exists in their alpha, so the box is
 /// masked over a flat fill rather than painted: its colour keeps coming from a
-/// token, and --color-field still drives it. The frame is a 9-patch, kept at
+/// token, and --color-field still drives it. The box is sliced by field-mask so
+/// any height works; the frame is a 9-patch too, kept at
 /// opacity 0 until the field takes focus so that revealing it never moves
 /// anything.
 ///
@@ -160,29 +171,13 @@
   background: transparent;
   color: var(--color-text);
 
-  // Middle of the box. Stretching this part is what a 9-patch does anyway: the
-  // bitmap's centre is a flat wash and takes it without showing. Only its two
-  // ragged ends must not be stretched, and .entry-field__caps redraws them at
-  // their own size on top. The band runs under the caps by --entry-field-cap-
-  // overlap so its own squeezed ends stay hidden and no join is left showing.
   &::before {
     content: "";
     position: absolute;
-    top: 0;
-    bottom: 0;
-    left: calc(var(--entry-field-cap) - var(--entry-field-cap-overlap));
-    right: calc(var(--entry-field-cap) - var(--entry-field-cap-overlap));
+    inset: 0;
     z-index: 0;
     background-color: var(--color-field);
-    -webkit-mask-image: url("/assets/ui/selection_box_bg_1d.png");
-    // The source is 432px wide and each native cap is 56px wide. The middle
-    // source region is therefore 320px wide. Rendering the mask at 135% crops
-    // 56px from both sides while stretching only that middle region across the
-    // band; using 100% here would paint the whole source a second time and
-    // create the visible seams at the caps.
-    -webkit-mask-size: 135% 100%;
-    -webkit-mask-position: center;
-    -webkit-mask-repeat: no-repeat;
+    @include field-mask;
   }
 
   &::after {
@@ -204,7 +199,7 @@
 
   // Keep the painted layers inside the field's stacking context while the
   // actual control and its text remain above the texture.
-  & > :not(.entry-field__caps) {
+  & > * {
     position: relative;
     z-index: 1;
   }

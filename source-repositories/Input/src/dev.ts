@@ -449,4 +449,24 @@ export const scenarios: DevScenario[] = [
         },
       }),
   },
+  {
+    id: "textarea",
+    label: "Textarea",
+    run: () =>
+      newInput([
+        [{ type: "title", value: "Textarea" }],
+        [
+          { type: "label", value: "Note:", target: "note", width: 15 },
+          {
+            type: "textarea",
+            id: "note",
+            placeholder: "Several lines",
+            required: true,
+            maxLength: 200,
+          },
+        ],
+        [{ type: "text", id: "after", placeholder: "Next field (Tab)" }],
+        confirmRow,
+      ] as DevRow[]),
+  },
 ];
