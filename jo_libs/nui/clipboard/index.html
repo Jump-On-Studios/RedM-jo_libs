@@ -13,13 +13,18 @@
 
 <script>
   const copyToClipboard = str => {
+    if (str === null || str === undefined || str === '') return;
+    const text = String(str);
     const onCopy = e => {
-      e.clipboardData.setData('text/plain', str);
+      e.clipboardData.setData('text/plain', text);
       e.preventDefault();
     };
     document.addEventListener('copy', onCopy);
-    document.execCommand('copy');
-    document.removeEventListener('copy', onCopy);
+    try {
+      document.execCommand('copy');
+    } finally {
+      document.removeEventListener('copy', onCopy);
+    }
   };
 
   window.addEventListener('message', (event) => {
