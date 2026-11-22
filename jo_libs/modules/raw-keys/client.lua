@@ -39,7 +39,7 @@ for alias, key in pairs(alias) do reverseAlias[key] = alias end
 
 local events = {}
 
-local keyboard_layout = GetConvar("jo_libs:keyboard_layout", "qwerty")
+local keyboard_layout = GetConvar("jo_libs:keyboard_layout", "qwerty") -- "qwerty" or "azerty"
 keyboard_layout = string.lower(keyboard_layout)
 
 local reverseMap = {}
@@ -63,7 +63,7 @@ end
 generateReverseMap()
 
 AddConvarChangeListener("jo_libs:keyboard_layout", function()
-    keyboard_layout = GetConvar("jo_libs:keyboard_layout", "qwerty")
+    keyboard_layout = GetConvar("jo_libs:keyboard_layout", "qwerty") -- "qwerty" or "azerty"
     keyboard_layout = string.lower(keyboard_layout)
     generateReverseMap()
 end)
